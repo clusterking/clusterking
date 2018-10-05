@@ -1,4 +1,4 @@
-# B to D tau nu q2 distribution
+# Clustering of B to D tau nu kinematical shapes
 
 
 ## Output: 

@@ -263,11 +263,11 @@ def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
 def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
 
-    def tmp(El):
-
-        return dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
-
-    return integrate.quad(lambda El: tmp(El),Elmin,Elmax(q2))[0]
+    return integrate.quad(
+        lambda El: dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El),
+        Elmin,
+        Elmax(q2)
+    )[0]
 
 
 
@@ -298,11 +298,12 @@ def q2inflim(El):
 
 def dGEl(epsL, epsR, epsSR, epsSL, epsT, El):
 
-    def tmp(q2):
 
-        return dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
-
-    return integrate.quad(lambda q2: tmp(q2), q2inflim(El),q2max)[0]
+    return integrate.quad(
+        lambda q2: dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El),
+        q2inflim(El),
+        q2max
+    )[0]
 
 
 ## normalized distribution 1D El
@@ -317,21 +318,23 @@ def dGElnorm(epsL, epsR, epsSR, epsSL, epsT, El):
 
 def  dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2,cthetal):
 
-     def tmp(El):
-         return dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal)
-
-     return integrate.quad(lambda El: tmp(El),Elmin,Elmax(q2))[0]
+     return integrate.quad(
+         lambda El: dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal),
+         Elmin,
+         Elmax(q2)
+     )[0]
 
  ## 1D  cthetal distrubution, integrate q2
 
 
 def  dGcthetal(epsL, epsR, epsSR, epsSL, epsT,cthetal):
 
-     def tmp(q2):
 
-        return dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2,cthetal)
-
-     return integrate.quad(lambda q2: tmp(q2),q2min,q2max)[0]
+     return integrate.quad(
+         lambda q2: dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2,cthetal),
+         q2min,
+         q2max
+     )[0]
 
 
 ## normalized distribution 1D cthetal
@@ -347,11 +350,11 @@ def dGcthetalnorm(epsL, epsR, epsSR, epsSL, epsT, cthetal):
 
 def dGtot(epsL, epsR, epsSR, epsSL, epsT):
 
-    def tmp(q2):
-
-        return dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)
-
-    return integrate.quad(lambda q2: tmp(q2),q2min,q2max)[0]
+    return integrate.quad(
+        lambda q2: dGq2(epsL, epsR, epsSR, epsSL, epsT, q2),
+        q2min,
+        q2max
+    )[0]
 
 
 ## q2 distribution normalized by total,  integral of this would be 1 by definition

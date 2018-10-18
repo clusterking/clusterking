@@ -46,20 +46,16 @@ def get_bpoints(np_grid_subdivisions = 20):
     return bps
 
 
-def calculate_bpoint(bpoint, lock, output_path, grid_subdivision=15):
-    """ Calculates one benchmark point and writes the result to the output
-    file. This method is designed to be thread save.
+def calculate_bpoint(bpoint, grid_subdivision):
+    """ Calculates one benchmark point and returns the string to be written
+    to the output file.
 
     Args:
-        lock: multithreading.lock instance to avoid writing to the same file
-            at the same time
         bpoint: epsL, epsR, epsSR, epsSL, epsT
-        output_path: Output path we append to
         grid_subdivision: q2 grid spacing
 
     Returns:
-        None
-
+        Result string to be written in the output file
     """
 
     result_list = []
@@ -67,17 +63,18 @@ def calculate_bpoint(bpoint, lock, output_path, grid_subdivision=15):
         dist_tmp = distribution.dGq2normtot(*bpoint, q2)
         result_list.append((q2, dist_tmp))
 
-    lock.acquire()
-    with open(output_path, "a") as outfile:
-        for q2, dist_tmp in result_list:
+    result_string = ""
+    for q2, dist_tmp in result_list:
             for param in bpoint:
-                outfile.write("{:.5f}    ".format(param))
-            outfile.write('{:.5f}     {:.10f}\n'.format(q2 , dist_tmp))
-    lock.release()
+                result_string += "{:.5f}    ".format(param)
+            result_string += '{:.5f}     {:.10f}'.format(q2 , dist_tmp)
+
+    return result_string
+
 
 
 def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
-                 grid_subdivision = 15):
+                 grid_subdivision=15):
     """
     Run integrations in parallel (main function).
 
@@ -97,58 +94,42 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     # pool of worker nodes
     pool = multiprocessing.Pool(processes=no_workers)
 
-    # we need a lock instance in order to limit file I/O to only one process
-    # at a time
-    manager = multiprocessing.Manager()
-    lock = manager.Lock()
-
-    # this is the worker function: calculate_bpoints with lock and output_path
+    # this is the worker function: calculate_bpoints with additional
     # arguments frozen
     worker = functools.partial(calculate_bpoint,
-                               lock=lock,
-                               output_path=output_path,
                                grid_subdivision=grid_subdivision)
 
-    # submit the jobs, i.e. apply the worker function to every benchmark point
-    results = pool.imap_unordered(worker, bpoints)
+    # submit jobs (use imap_unordered if we do not care for the order)
+    results = pool.imap(worker, bpoints)
 
     # close the queue for new jobs
     pool.close()
 
-    # ** Everything below here is just a progress monitor **
+    print("Started queue with {} jobs.".format(len(bpoints)))
 
-    completed = 0
     starttime = time.time()
-
-    while True:
-        # results._index holds the number of the completed results
-        if completed == results._index:
-            # Wait till we have a new result
-            time.sleep(0.5)
-            continue
-
-        completed = results._index
-
-        if completed == len(bpoints):
-            print("Completed.")
-            break
+    for index, result in enumerate(results):
+        with open(output_path, "a") as outfile:
+            outfile.write(result + "\n")
 
         timedelta = time.time() - starttime
 
-        if completed > 0:
-            remaining_time = (len(bpoints) - completed) * timedelta/completed
-            print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-                  "Time/bpoint: {:.1f}s => "
-                  "time remaining: {}".format(
-                     completed,
-                     len(bpoints),
-                     100*completed/len(bpoints),
-                     timedelta/completed,
-                     datetime.timedelta(seconds=remaining_time)
-                 ))
+        completed = index + 1
+        remaining_time = (len(bpoints) - completed) * timedelta/completed
+        print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+              "Time/bpoint: {:.1f}s => "
+              "time remaining: {}".format(
+                 completed,
+                 len(bpoints),
+                 100*completed/len(bpoints),
+                 timedelta/completed,
+                 datetime.timedelta(seconds=remaining_time)
+             ))
 
     # Wait for completion of all jobs here
     pool.join()
+    print("Finished")
+
 
 
 def cli():

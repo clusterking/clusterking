@@ -162,14 +162,17 @@ def cli():
                         default="global_results.out")
     parser.add_argument("-p", "--parallel",
                         help="Number of processes to run in parallel",
+                        type=int,
                         default=4)
     parser.add_argument("-n", "--np-grid-subdivision",
                         help="Number of points sampled per NP parameter",
+                        type=int,
                         default=20,
                         dest="np_grid_subdivision")
     parser.add_argument("-g", "--grid-subdivision",
                         help="Number of sample points between minimal and "
                              "maximal q2",
+                        type=int,
                         default=15,
                         dest="grid_subdivision")
     args = parser.parse_args()

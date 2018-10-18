@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 # standard modules
-import numpy as np
-import time
+import argparse
 import datetime
-import multiprocessing
 import functools
+import multiprocessing
+import numpy as np
 import os
+import time
 
 # internal modules
 import distribution
@@ -75,13 +76,16 @@ def calculate_bpoint(bpoint, lock, output_path, grid_subdivision=15):
     lock.release()
 
 
-def run_parallel(bpoints, no_workers=4, output_path="global_results.out"):
+def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
+                 grid_subdivision = 15):
     """
-    Run integrations in parallel.
+    Run integrations in parallel (main function).
 
     Args:
         bpoints: Benchmark points
         no_workers: Number of worker nodes/cores
+        output_path: Output path
+        grid_subdivision: q2 grid spacing
 
     Returns:
         None
@@ -100,7 +104,10 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out"):
 
     # this is the worker function: calculate_bpoints with lock and output_path
     # arguments frozen
-    worker = functools.partial(calculate_bpoint, lock=lock, output_path=output_path)
+    worker = functools.partial(calculate_bpoint,
+                               lock=lock,
+                               output_path=output_path,
+                               grid_subdivision=grid_subdivision)
 
     # submit the jobs, i.e. apply the worker function to every benchmark point
     results = pool.imap_unordered(worker, bpoints)
@@ -143,6 +150,42 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out"):
     # Wait for completion of all jobs here
     pool.join()
 
+
+def cli():
+    """ Command line interface to run the integration jobs from the command
+    line with additional options.
+    Simply run this script with '--help' to see all options.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--output",
+                        help="Output file.",
+                        default="global_results.out")
+    parser.add_argument("-p", "--parallel",
+                        help="Number of processes to run in parallel",
+                        default=4)
+    parser.add_argument("-n", "--np-grid-subdivision",
+                        help="Number of points sampled per NP parameter",
+                        default=20,
+                        dest="np_grid_subdivision")
+    parser.add_argument("-g", "--grid-subdivision",
+                        help="Number of sample points between minimal and "
+                             "maximal q2",
+                        default=15,
+                        dest="grid_subdivision")
+    args = parser.parse_args()
+
+    print("NP parameters sampled with {} sampling points.".format(
+        args.np_grid_subdivision))
+    print("q2 sampled with {} sampling points.".format(args.grid_subdivision))
+    print("Output file: '{}'.".format(args.output))
+
+    bpoints = get_bpoints(args.np_grid_subdivision)
+    run_parallel(bpoints,
+                 no_workers=args.parallel,
+                 output_path=args.output,
+                 grid_subdivision=args.grid_subdivision)
+
+
 if __name__ == "__main__":
-    bpoints = get_bpoints(20)
-    run_parallel(bpoints, 2)
+    # Check command line arguments and run computation
+    cli()

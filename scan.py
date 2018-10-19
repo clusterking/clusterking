@@ -7,6 +7,7 @@ import functools
 import multiprocessing
 import numpy as np
 import os
+import os.path
 import time
 import sys
 
@@ -129,6 +130,9 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     pool.close()
 
     print("Started queue with {} jobs.".format(len(bpoints)))
+
+    if not os.path.exists(os.path.dirname(output_path)):
+        os.makedirs(os.path.dirname(output_path))
 
     starttime = time.time()
     # Note: this will overwrite the output path! Ask user in interface whether

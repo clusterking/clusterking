@@ -8,6 +8,7 @@ import multiprocessing
 import numpy as np
 import os
 import time
+import sys
 
 # internal modules
 import distribution
@@ -72,6 +73,31 @@ def calculate_bpoint(bpoint, grid_subdivision):
     return result_string
 
 
+# todo: move to util
+def yn_prompt(question):
+    """
+    Ask yes no question.
+
+    Args:
+        question:
+
+    Returns: True if yes, False if no.
+
+    """
+    yes = {'yes','y', 'ye'}
+    no = {'no', 'n'}
+    if not question.endswith(" "):
+        question += " "
+    print(question, end="")
+    while True:
+        choice = input().lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            print("Please respond with 'yes' or 'no': ", end="")
+
 
 def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
                  grid_subdivision=15):
@@ -89,6 +115,11 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     """
 
     if os.path.exists(output_path):
+        agree = yn_prompt("Output path '{}' already exists and will be "
+                          "overwritten. Proceed?".format(output_path))
+        if not agree:
+            print("Abort.")
+            sys.exit(1)
         os.remove(output_path)
 
     # pool of worker nodes
@@ -131,7 +162,6 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     print("Finished")
 
 
-
 def cli():
     """ Command line interface to run the integration jobs from the command
     line with additional options.
@@ -158,12 +188,14 @@ def cli():
                         dest="grid_subdivision")
     args = parser.parse_args()
 
-    print("NP parameters sampled with {} sampling points.".format(
+    print("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
-    print("q2 sampled with {} sampling points.".format(args.grid_subdivision))
+    print("q2 will be sampled with {} sampling points.".format(args.grid_subdivision))
     print("Output file: '{}'.".format(args.output))
 
     bpoints = get_bpoints(args.np_grid_subdivision)
+    print("Total integrations to be performed: {}.".format(
+        len(bpoints) * args.grid_subdivision))
     run_parallel(bpoints,
                  no_workers=args.parallel,
                  output_path=args.output,

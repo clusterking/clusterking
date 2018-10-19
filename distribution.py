@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 
-import numpy as np
-
 import scipy.integrate as integrate
-
-from scipy.integrate import quad
-
-from scipy.integrate import quad, dblquad
-
-
-
 from amplitude import *
 
 
@@ -201,11 +192,11 @@ def I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
     if El >= mtau**2/(2 *np.sqrt(q2))  and El <= np.sqrt(q2)/2.:
 
-        return  I0w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+        return I0w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
     elif  El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
 
-        return  I0w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+        return I0w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
 def I1(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
@@ -215,53 +206,46 @@ def I1(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
     elif  El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
 
-       return  I1w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+       return I1w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
 
 def I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
-    if El >= mtau**2/(2 *np.sqrt(q2))  and El <= np.sqrt(q2)/2.:
+    if El >= mtau**2/(2 *np.sqrt(q2)) and El <= np.sqrt(q2)/2.:
 
         return I2w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    elif  El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
+    elif El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
 
-        return  I2w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
-
-
-
-##  3D diff. distribution over q2, El  and cos(thetal)
+        return I2w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
 
-def dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal):
 
-    I0val =  I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
+    """3D diff. distribution over q2, El  and cos(thetal) """
 
+    I0val = I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    I1val =  I1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+    I1val = I1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    I2val =  I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+    I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    return  Btaul * GF**2  * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(  I0val     +  I1val * cthetal   + I2val * cthetal**2       )
-
-
-## integrating cthetal (result from Alonso et al paper)
-
-def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
-
-    I0val =  I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+    return Btaul * GF**2  * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(  I0val     +  I1val * cthetal   + I2val * cthetal**2       )
 
 
-    I2val =  I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2, El):
+    """Integrating cthetal (result from Alonso et al paper) """
+
+    I0val = I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+
+
+    I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
     return  Btaul * GF**2  * np.absolute(Vcb)**2 * new**2/(16 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(  I0val        + 1./3. * I2val       )
 
 
-
-
-## 1D q2 distrubution, integrating El
-
 def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
+    """ 1D q2 distrubution, integrating El """
 
     return integrate.quad(
         lambda El: dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El),
@@ -270,34 +254,26 @@ def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
     )[0]
 
 
-
-
-
-
-## normalized distribution 1D q2
-
 def dGq2norm(epsL, epsR, epsSR, epsSL, epsT, q2):
+    """Normalized distribution 1D q2 """
 
-     return tauBp/Btaul *  dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)
+    return tauBp/Btaul * dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)
 
-
-##  Define lower limit of integration for q2, see Fig 4 in Alonso et al paper
 
 def q2inflim(El):
+    """Define lower limit of integration for q2, see Fig 4 in Alonso et al
+    paper
+    """
 
     if El > mtau/2:
+        return 4*El**2
 
-        return   4*El**2
-
-    elif El <= mtau/2:
-
+    else:
         return q2min
 
 
-## 1D El distrubution, integrating over q2
-
 def dGEl(epsL, epsR, epsSR, epsSL, epsT, El):
-
+    """1D El distrubution, integrating over q2"""
 
     return integrate.quad(
         lambda q2: dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El),
@@ -306,49 +282,38 @@ def dGEl(epsL, epsR, epsSR, epsSL, epsT, El):
     )[0]
 
 
-## normalized distribution 1D El
-
 def dGElnorm(epsL, epsR, epsSR, epsSL, epsT, El):
-
+    """Normalized distribution 1D El """
     return tauBp/Btaul * dGEl(epsL, epsR, epsSR, epsSL, epsT, El)
 
 
-##   ## 2D  q2- cthetal distrubution, integrate El
-
-
-def  dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2,cthetal):
-
-     return integrate.quad(
-         lambda El: dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal),
+def dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2, cthetal):
+    """2D  q2- cthetal distrubution, integrate El"""
+    return integrate.quad(
+         lambda El: dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El, cthetal),
          Elmin,
          Elmax(q2)
-     )[0]
-
- ## 1D  cthetal distrubution, integrate q2
+    )[0]
 
 
-def  dGcthetal(epsL, epsR, epsSR, epsSL, epsT,cthetal):
+def dGcthetal(epsL, epsR, epsSR, epsSL, epsT, cthetal):
+    """1D  cthetal distrubution, integrate q2"""
 
+    return integrate.quad(
+        lambda q2: dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2, cthetal),
+        q2min,
+        q2max
+    )[0]
 
-     return integrate.quad(
-         lambda q2: dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2,cthetal),
-         q2min,
-         q2max
-     )[0]
-
-
-## normalized distribution 1D cthetal
 
 def dGcthetalnorm(epsL, epsR, epsSR, epsSL, epsT, cthetal):
+    """Normalized distribution 1D cthetal"""
 
     return tauBp/Btaul * dGcthetal(epsL, epsR, epsSR, epsSL, epsT,cthetal)
 
 
-
-##  total decay rate
-
-
 def dGtot(epsL, epsR, epsSR, epsSL, epsT):
+    """Total decay rate"""
 
     return integrate.quad(
         lambda q2: dGq2(epsL, epsR, epsSR, epsSL, epsT, q2),
@@ -357,30 +322,38 @@ def dGtot(epsL, epsR, epsSR, epsSL, epsT):
     )[0]
 
 
-## q2 distribution normalized by total,  integral of this would be 1 by definition
+def dGq2normtot(epsL, epsR, epsSR, epsSL, epsT, q2):
+    """q2 distribution normalized by total,  integral of this would be 1
+    by definition
+    """
 
-def dGq2normtot(epsL, epsR, epsSR, epsSL, epsT,q2):
-
-    return dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)/dGtot(epsL, epsR, epsSR, epsSL, epsT)
-
-
-## El distribution normalized by total,  integral of this would be 1 by definition
-
-def dGElnormtot(epsL, epsR, epsSR, epsSL, epsT,El):
-
-    return dGEl(epsL, epsR, epsSR, epsSL, epsT, El)/dGtot(epsL, epsR, epsSR, epsSL, epsT)
+    return dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)/\
+           dGtot(epsL, epsR, epsSR, epsSL, epsT)
 
 
+def dGElnormtot(epsL, epsR, epsSR, epsSL, epsT, El):
+    """El distribution normalized by total,  integral of this would be 1 by
+    definition
+    """
 
-## cthetal distribution normalized by total,  integral of this would be 1 by definition
-
-def dGcthetalnormtot(epsL, epsR, epsSR, epsSL, epsT,cthetal):
-
-    return dGcthetal(epsL, epsR, epsSR, epsSL, epsT, cthetal)/dGtot(epsL, epsR, epsSR, epsSL, epsT)
+    return dGEl(epsL, epsR, epsSR, epsSL, epsT, El)/\
+           dGtot(epsL, epsR, epsSR, epsSL, epsT)
 
 
-## full 3D distribution normalized by total,  3D integral of this would be 1 by definition
 
-def dGnormtot(epsL, epsR, epsSR, epsSL, epsT,q2,  El , cthetal):
+def dGcthetalnormtot(epsL, epsR, epsSR, epsSL, epsT, cthetal):
+    """cthetal distribution normalized by total,  integral of this would be 1
+    by definition
+    """
 
-    return dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal)/dGtot(epsL, epsR, epsSR, epsSL, epsT)
+    return dGcthetal(epsL, epsR, epsSR, epsSL, epsT, cthetal)/\
+           dGtot(epsL, epsR, epsSR, epsSL, epsT)
+
+
+def dGnormtot(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
+    """Full 3D distribution normalized by total,  3D integral of this would be
+    1 by definition
+    """
+
+    return dG(epsL, epsR, epsSR, epsSL, epsT, q2,  El , cthetal)/\
+           dGtot(epsL, epsR, epsSR, epsSL, epsT)

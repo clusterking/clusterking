@@ -55,7 +55,7 @@ def I0w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
     x = xval(q2)
 
-    y =yval(El)
+    y = yval(El)
 
     Gammap0val = Gammap0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
@@ -139,7 +139,7 @@ def I0w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
     #  Ical0val = Ical0(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
 
-    Ical1val = Ical1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
+    Ical1val = Ical1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
     return - 2*(2*x**2+1)*(4*x*y-3)/(3*x)*Gammam0val   +2*(x**2+2)*(3*x-4*y)/(3*x**2)*Gammap0val + 2/15*(     -12*x**2*y  +10*x  +5/x -8*y  )*Gammam2val   + (10*x*(x**2+2) - 8*(2*x**2+3)*y      )/(  15*x**2 )*Gammap2val    -4*(x**2-1)*y/(15*x)*Ical1val
 
@@ -190,35 +190,39 @@ def I2w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
 def I0(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
-    if El >= mtau**2/(2 *np.sqrt(q2))  and El <= np.sqrt(q2)/2.:
+    if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
 
         return I0w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    elif  El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
+    # todo: shouldn't that just be an else statement?
+    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
 
         return I0w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
+
+
 def I1(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
-    if El >= mtau**2/(2 *np.sqrt(q2))  and El <= np.sqrt(q2)/2.:
+    if mtau**2/(2 *np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
 
        return I1w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    elif  El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
+    # todo: shouldn't that just be an else statement?
+    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
 
        return I1w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
 
 def I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El):
 
-    if El >= mtau**2/(2 *np.sqrt(q2)) and El <= np.sqrt(q2)/2.:
+    if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
 
         return I2w1(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    elif El < mtau**2/(2 *np.sqrt(q2)) and El >= 0:
+    # todo: shouldn't that just be an else statement?
+    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
 
         return I2w2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
-
 
 
 def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
@@ -230,8 +234,7 @@ def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
 
     I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    return Btaul * GF**2  * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(  I0val     +  I1val * cthetal   + I2val * cthetal**2       )
-
+    return Btaul * GF**2  * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(  I0val     +  I1val * cthetal   + I2val * cthetal**2)
 
 def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     """Integrating cthetal (result from Alonso et al paper) """

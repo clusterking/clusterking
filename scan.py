@@ -107,20 +107,12 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     Args:
         bpoints: Benchmark points
         no_workers: Number of worker nodes/cores
-        output_path: Output path
+        output_path: Output path. Will be overwritten if existing!
         grid_subdivision: q2 grid spacing
 
     Returns:
         None
     """
-
-    if os.path.exists(output_path):
-        agree = yn_prompt("Output path '{}' already exists and will be "
-                          "overwritten. Proceed?".format(output_path))
-        if not agree:
-            print("Abort.")
-            sys.exit(1)
-        os.remove(output_path)
 
     # pool of worker nodes
     pool = multiprocessing.Pool(processes=no_workers)
@@ -139,23 +131,26 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     print("Started queue with {} jobs.".format(len(bpoints)))
 
     starttime = time.time()
-    for index, result in enumerate(results):
-        with open(output_path, "a") as outfile:
+    # Note: this will overwrite the output path! Ask user in interface whether
+    # he's ok with that.
+    with open(output_path, "w") as outfile:
+        for index, result in enumerate(results):
+
             outfile.write(result + "\n")
 
-        timedelta = time.time() - starttime
+            timedelta = time.time() - starttime
 
-        completed = index + 1
-        remaining_time = (len(bpoints) - completed) * timedelta/completed
-        print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-              "Time/bpoint: {:.1f}s => "
-              "time remaining: {}".format(
-                 completed,
-                 len(bpoints),
-                 100*completed/len(bpoints),
-                 timedelta/completed,
-                 datetime.timedelta(seconds=remaining_time)
-             ))
+            completed = index + 1
+            remaining_time = (len(bpoints) - completed) * timedelta/completed
+            print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+                  "Time/bpoint: {:.1f}s => "
+                  "time remaining: {}".format(
+                     completed,
+                     len(bpoints),
+                     100*completed/len(bpoints),
+                     timedelta/completed,
+                     datetime.timedelta(seconds=remaining_time)
+                 ))
 
     # Wait for completion of all jobs here
     pool.join()
@@ -170,7 +165,8 @@ def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output",
                         help="Output file.",
-                        default="global_results.out")
+                        default="global_results.out",
+                        dest="output_path")
     parser.add_argument("-p", "--parallel",
                         help="Number of processes to run in parallel",
                         type=int,
@@ -191,14 +187,22 @@ def cli():
     print("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
     print("q2 will be sampled with {} sampling points.".format(args.grid_subdivision))
-    print("Output file: '{}'.".format(args.output))
+
+    if os.path.exists(args.output_path):
+        agree = yn_prompt("Output path '{}' already exists and will be "
+                          "overwritten. Proceed?".format(args.output_path))
+        if not agree:
+            print("User abort.")
+            sys.exit(1)
+
+    print("Output file: '{}'.".format(args.output_path))
 
     bpoints = get_bpoints(args.np_grid_subdivision)
     print("Total integrations to be performed: {}.".format(
         len(bpoints) * args.grid_subdivision))
     run_parallel(bpoints,
                  no_workers=args.parallel,
-                 output_path=args.output,
+                 output_path=args.output_path,
                  grid_subdivision=args.grid_subdivision)
 
 

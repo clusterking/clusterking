@@ -257,6 +257,7 @@ def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
     )[0]
 
 
+
 def dGq2norm(epsL, epsR, epsSR, epsSL, epsT, q2):
     """Normalized distribution 1D q2 """
 

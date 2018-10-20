@@ -267,7 +267,7 @@ def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
 
         return dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2,  El)
 
-    return integrate.quad(lambda El: tmp(El),Elmin,Elmax(q2))[0]
+    return integrate.quad(lambda El: tmp(El), Elmin, Elmax(q2))[0]
 
 
 

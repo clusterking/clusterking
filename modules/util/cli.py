@@ -1,16 +1,18 @@
-"""Miscellaneous utils"""
+#!/usr/bin/env python3
+
+"""Utils for the command line interface (CLI)."""
 
 
-def yn_prompt(question, yes=None, no=None):
-    """Ask yes no question.
+def yn_prompt(question: str, yes=None, no=None) -> bool:
+    """Ask yes-no question.
 
     Args:
         question: Description of the prompt
         yes: List of strings interpreted as yes
         no: List of strings interpreted as no
 
-    Returns: True if yes, False if no.
-
+    Returns:
+        True if yes, False if no.
     """
     if not yes:
         yes = ['yes', 'ye', 'y']
@@ -33,3 +35,9 @@ def yn_prompt(question, yes=None, no=None):
         else:
             print("Please respond with '{}' or '{}': ".format(
                 '/'.join(yes), "/".join(no)), end="")
+
+
+if __name__ == "__main__":
+    # for testing
+    ans = yn_prompt("This is a test.")
+    print(ans)

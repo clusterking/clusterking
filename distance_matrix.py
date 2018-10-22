@@ -68,7 +68,10 @@ def cli():
 
     Simply run this script with '--help' to see all options.
     """
-    parser = argparse.ArgumentParser()
+    desc = "Read the results from scan.py (q2 distributions) and calculate " \
+           "a distance matrix."
+
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("-i", "--input",
                         help="Input file/q2 histograms.",
                         default="output/scan/global_results.out",
@@ -90,8 +93,10 @@ def cli():
 
     log.info("Output file: '{}'".format(args.output_path))
 
+    log.info("Starting to calculate matrix.")
     df = read_input(args.input_path)
     write_out_matrix(df, args.output_path)
+    log.info("Finished.")
 
 if __name__ == "__main__":
     # Run command line interface

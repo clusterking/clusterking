@@ -162,7 +162,10 @@ def cli():
 
     Simply run this script with '--help' to see all options.
     """
-    parser = argparse.ArgumentParser()
+
+    desc = "Build q2 histograms for the different NP benchmark points."
+
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("-o", "--output",
                         help="Output file.",
                         default="output/scan/global_results.out",

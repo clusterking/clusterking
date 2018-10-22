@@ -24,7 +24,7 @@ from modules.util.misc import yn_prompt
 
 
 def get_bpoints(np_grid_subdivisions = 20):
-    """ Get a list of all benchmark points.
+    """Get a list of all benchmark points.
 
     Args:
         np_grid_subdivisions: Number of subdivision/sample points for the NP
@@ -50,36 +50,47 @@ def get_bpoints(np_grid_subdivisions = 20):
 
 
 def calculate_bpoint(bpoint, grid_subdivision):
-    """ Calculates one benchmark point and returns the string to be written
-    to the output file.
+    """Calculates one benchmark point.
 
     Args:
         bpoint: epsL, epsR, epsSR, epsSL, epsT
         grid_subdivision: q2 grid spacing
 
     Returns:
-        Result string to be written in the output file
+        Resulting q2 histogram
     """
 
     result_list = []
-    for q2 in np.linspace(distribution.q2min, distribution.q2max, grid_subdivision):
+    for q2 in np.linspace(distribution.q2min, distribution.q2max,
+                          grid_subdivision):
         dist_tmp = distribution.dGq2normtot(*bpoint, q2)
-        print(dist_tmp)
         result_list.append((q2, dist_tmp))
 
-    result_string = ""
-    for q2, dist_tmp in result_list:
-            for param in bpoint:
-                result_string += "{:.5f}    ".format(param)
-            result_string += '{:.5f}     {:.10f}\n'.format(q2 , dist_tmp)
+    return result_list
 
-    return result_string
+
+def write_out_bpoint(bpoint, bpoint_result, output_path):
+    """Writes result for benchmark point to output path.
+
+    Args:
+        bpoint: epsL, epsR, epsSR, epsSL, epsT
+        bpoint_result: Result from calculate_bpoint
+        output_path: output_path we write to
+
+    Returns:
+        None
+    """
+
+    with open(output_path, "a") as outfile:
+        for q2, dist_tmp in bpoint_result:
+            for param in bpoint:
+                outfile.write("{:.5f}    ".format(param))
+            outfile.write('{:.5f}     {:.10f}\n'.format(q2, dist_tmp))
 
 
 def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
                  grid_subdivision=15):
-    """
-    Run integrations in parallel (main function).
+    """Calculate all benchmark points in parallel.
 
     Args:
         bpoints: Benchmark points
@@ -99,7 +110,6 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     worker = functools.partial(calculate_bpoint,
                                grid_subdivision=grid_subdivision)
 
-    # submit jobs (use imap_unordered if we do not care for the order)
     results = pool.imap(worker, bpoints)
 
     # close the queue for new jobs
@@ -111,28 +121,31 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    if os.path.exists(output_path):
+        os.remove(output_path)
+
     starttime = time.time()
     # Note: this will overwrite the output path! Ask user in interface whether
     # he's ok with that.
     # buffering = 1: Write out every line
-    with open(output_path, "w", buffering=1) as outfile:
-        for index, result in enumerate(results):
 
-            outfile.write(result)
+    for index, result in enumerate(results):
 
-            timedelta = time.time() - starttime
+        write_out_bpoint(bpoints[index], result, output_path)
 
-            completed = index + 1
-            remaining_time = (len(bpoints) - completed) * timedelta/completed
-            print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-                  "Time/bpoint: {:.1f}s => "
-                  "time remaining: {}".format(
-                     completed,
-                     len(bpoints),
-                     100*completed/len(bpoints),
-                     timedelta/completed,
-                     datetime.timedelta(seconds=remaining_time)
-                 ))
+        timedelta = time.time() - starttime
+
+        completed = index + 1
+        remaining_time = (len(bpoints) - completed) * timedelta/completed
+        print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+              "Time/bpoint: {:.1f}s => "
+              "time remaining: {}".format(
+                 completed,
+                 len(bpoints),
+                 100*completed/len(bpoints),
+                 timedelta/completed,
+                 datetime.timedelta(seconds=remaining_time)
+             ))
 
     # Wait for completion of all jobs here
     pool.join()
@@ -140,7 +153,7 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
 
 
 def cli():
-    """ Command line interface to run the integration jobs from the command
+    """Command line interface to run the integration jobs from the command
     line with additional options.
     Simply run this script with '--help' to see all options.
     """
@@ -168,7 +181,12 @@ def cli():
 
     print("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
-    print("q2 will be sampled with {} sampling points.".format(args.grid_subdivision))
+    print("q2 will be sampled with {} sampling points.".format(
+        args.grid_subdivision))
+
+    bpoints = get_bpoints(args.np_grid_subdivision)
+    print("Total integrations to be performed: {}.".format(
+        len(bpoints) * args.grid_subdivision))
 
     if os.path.exists(args.output_path):
         agree = yn_prompt("Output path '{}' already exists and will be "
@@ -179,9 +197,6 @@ def cli():
 
     print("Output file: '{}'.".format(args.output_path))
 
-    bpoints = get_bpoints(args.np_grid_subdivision)
-    print("Total integrations to be performed: {}.".format(
-        len(bpoints) * args.grid_subdivision))
     run_parallel(bpoints,
                  no_workers=args.parallel,
                  output_path=args.output_path,

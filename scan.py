@@ -64,13 +64,14 @@ def calculate_bpoint(bpoint, grid_subdivision):
     result_list = []
     for q2 in np.linspace(distribution.q2min, distribution.q2max, grid_subdivision):
         dist_tmp = distribution.dGq2normtot(*bpoint, q2)
+        print(dist_tmp)
         result_list.append((q2, dist_tmp))
 
     result_string = ""
     for q2, dist_tmp in result_list:
             for param in bpoint:
                 result_string += "{:.5f}    ".format(param)
-            result_string += '{:.5f}     {:.10f}'.format(q2 , dist_tmp)
+            result_string += '{:.5f}     {:.10f}\n'.format(q2 , dist_tmp)
 
     return result_string
 
@@ -117,7 +118,7 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     with open(output_path, "w", buffering=1) as outfile:
         for index, result in enumerate(results):
 
-            outfile.write(result + "\n")
+            outfile.write(result)
 
             timedelta = time.time() - starttime
 

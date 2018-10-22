@@ -23,7 +23,7 @@ from modules.util.log import get_logger
 ## q2 distribution normalized by total,  integral of this would be 1 by definition
 ## dGq2normtot(epsL, epsR, epsSR, epsSL, epsT,q2)
 
-logger = get_logger("Scan")
+log = get_logger("Scan")
 
 
 def get_bpoints(np_grid_subdivisions = 20):
@@ -118,7 +118,7 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     # close the queue for new jobs
     pool.close()
 
-    logger.info("Started queue with {} job(s) distributed over up to {} "
+    log.info("Started queue with {} job(s) distributed over up to {} "
                 "core(s)/worker(s).".format(len(bpoints), no_workers))
 
     output_dir = os.path.dirname(output_path)
@@ -141,7 +141,7 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
 
         completed = index + 1
         remaining_time = (len(bpoints) - completed) * timedelta/completed
-        logger.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+        log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
                      "Time/bpoint: {:.1f}s => "
                      "time remaining: {}".format(
                         completed,
@@ -153,7 +153,7 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
 
     # Wait for completion of all jobs here
     pool.join()
-    logger.info("Finished")
+    log.info("Finished")
 
 
 def cli():
@@ -184,23 +184,23 @@ def cli():
                         dest="grid_subdivision")
     args = parser.parse_args()
 
-    logger.info("NP parameters will be sampled with {} sampling points.".format(
+    log.info("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
-    logger.info("q2 will be sampled with {} sampling points.".format(
+    log.info("q2 will be sampled with {} sampling points.".format(
         args.grid_subdivision))
 
     bpoints = get_bpoints(args.np_grid_subdivision)
-    logger.info("Total integrations to be performed: {}.".format(
+    log.info("Total integrations to be performed: {}.".format(
         len(bpoints) * args.grid_subdivision))
 
     if os.path.exists(args.output_path):
         agree = yn_prompt("Output path '{}' already exists and will be "
                           "overwritten. Proceed?".format(args.output_path))
         if not agree:
-            logger.critical("User abort.")
+            log.critical("User abort.")
             sys.exit(1)
 
-    logger.info("Output file: '{}'.".format(args.output_path))
+    log.info("Output file: '{}'.".format(args.output_path))
 
     run_parallel(bpoints,
                  no_workers=args.parallel,

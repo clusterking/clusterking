@@ -138,7 +138,8 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     starttime = time.time()
     # Note: this will overwrite the output path! Ask user in interface whether
     # he's ok with that.
-    with open(output_path, "w") as outfile:
+    # buffering = 1: Write out every line
+    with open(output_path, "w", buffering=1) as outfile:
         for index, result in enumerate(results):
 
             outfile.write(result + "\n")

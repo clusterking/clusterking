@@ -15,6 +15,9 @@ from modules.util.misc import yn_prompt
 log = get_logger("Matrix")
 
 
+# todo: This should probably be implemented in a different way in the future,
+# ideally separating the calculation of the matrix from the way we format the
+# output
 def write_out_matrix(df, path):
     dirname = os.path.dirname(path)
     if dirname and not os.path.exists(dirname):
@@ -41,6 +44,15 @@ def write_out_matrix(df, path):
 
 
 def read_input(path):
+    """Read the q2 spectra (output of amplitude.py) and turn them into a
+    pandas dataframe.
+
+    Args:
+        path: Input file (csv)
+
+    Returns:
+        pandas dataframe.
+    """
     columns = ["epsL", "epsR", "epsSR", "epsSL", "epsT", "q2", "dist"]
     df = pd.read_csv(path,
                      sep='\s+',

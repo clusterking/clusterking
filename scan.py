@@ -131,8 +131,9 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
 
     print("Started queue with {} jobs.".format(len(bpoints)))
 
-    if not os.path.exists(os.path.dirname(output_path)):
-        os.makedirs(os.path.dirname(output_path))
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     starttime = time.time()
     # Note: this will overwrite the output path! Ask user in interface whether

@@ -9,9 +9,6 @@ try:
 except ImportError:
     colorlog = None
 
-__author__ = "Kilian Lieret"
-__email__ = "kilian.lieret@posteo.de"
-
 
 def get_logger(name="Logger"):
     """Sets up a logging.Logger.

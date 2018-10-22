@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import scipy.integrate as integrate
-from amplitude import *
+from .amplitude import *
 
 
 

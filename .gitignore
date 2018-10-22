@@ -1,5 +1,20 @@
+# python cache files
+# ==================
+
 __pycache__/
 *.pyc
+
+# IDE files
+# =========
+
 .idea/**
+
+# Output files
+# ============
+
+# todo: remove these eventually
 *.out
 data_w_label
+
+output/**
+plots/**

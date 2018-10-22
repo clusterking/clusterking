@@ -2,10 +2,10 @@
 
 import numpy as np
 
-from inputs import *
+from .inputs import *
 
 
-from form_factors import *
+from .form_factors import *
 
 # A1
 

@@ -8,11 +8,12 @@ import multiprocessing
 import numpy as np
 import os
 import os.path
-import time
 import sys
+import time
 
 # internal modules
-import distribution
+import modules.distribution as distribution
+from modules.util.misc import yn_prompt
 
 ###
 ### scans the NP parameter space in a grid and also q2, producing the normalized q2 distribution
@@ -72,32 +73,6 @@ def calculate_bpoint(bpoint, grid_subdivision):
             result_string += '{:.5f}     {:.10f}'.format(q2 , dist_tmp)
 
     return result_string
-
-
-# todo: move to util
-def yn_prompt(question):
-    """
-    Ask yes no question.
-
-    Args:
-        question:
-
-    Returns: True if yes, False if no.
-
-    """
-    yes = {'yes','y', 'ye'}
-    no = {'no', 'n'}
-    if not question.endswith(" "):
-        question += " "
-    print(question, end="")
-    while True:
-        choice = input().lower()
-        if choice in yes:
-            return True
-        elif choice in no:
-            return False
-        else:
-            print("Please respond with 'yes' or 'no': ", end="")
 
 
 def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
@@ -171,7 +146,7 @@ def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output",
                         help="Output file.",
-                        default="global_results.out",
+                        default="output/scan/global_results.out",
                         dest="output_path")
     parser.add_argument("-p", "--parallel",
                         help="Number of processes to run in parallel",

@@ -8,7 +8,7 @@ import os.path
 import sys
 
 from modules.util.log import get_logger
-from modules.util.misc import yn_prompt
+from modules.util.cli import yn_prompt
 
 
 log = get_logger("Cluster")

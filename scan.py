@@ -14,6 +14,7 @@ import time
 # internal modules
 import modules.distribution as distribution
 from modules.util.misc import yn_prompt
+from modules.util.log import get_logger
 
 ###
 ### scans the NP parameter space in a grid and also q2, producing the normalized q2 distribution
@@ -21,6 +22,8 @@ from modules.util.misc import yn_prompt
 
 ## q2 distribution normalized by total,  integral of this would be 1 by definition
 ## dGq2normtot(epsL, epsR, epsSR, epsSL, epsT,q2)
+
+logger = get_logger("Scan")
 
 
 def get_bpoints(np_grid_subdivisions = 20):
@@ -115,7 +118,8 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
     # close the queue for new jobs
     pool.close()
 
-    print("Started queue with {} jobs.".format(len(bpoints)))
+    logger.info("Started queue with {} job(s) distributed over up to {} "
+                "core(s)/worker(s).".format(len(bpoints), no_workers))
 
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
@@ -137,24 +141,25 @@ def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
 
         completed = index + 1
         remaining_time = (len(bpoints) - completed) * timedelta/completed
-        print("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-              "Time/bpoint: {:.1f}s => "
-              "time remaining: {}".format(
-                 completed,
-                 len(bpoints),
-                 100*completed/len(bpoints),
-                 timedelta/completed,
-                 datetime.timedelta(seconds=remaining_time)
-             ))
+        logger.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+                     "Time/bpoint: {:.1f}s => "
+                     "time remaining: {}".format(
+                        completed,
+                        len(bpoints),
+                        100*completed/len(bpoints),
+                        timedelta/completed,
+                        datetime.timedelta(seconds=remaining_time)
+                        ))
 
     # Wait for completion of all jobs here
     pool.join()
-    print("Finished")
+    logger.info("Finished")
 
 
 def cli():
     """Command line interface to run the integration jobs from the command
     line with additional options.
+
     Simply run this script with '--help' to see all options.
     """
     parser = argparse.ArgumentParser()
@@ -179,23 +184,23 @@ def cli():
                         dest="grid_subdivision")
     args = parser.parse_args()
 
-    print("NP parameters will be sampled with {} sampling points.".format(
+    logger.info("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
-    print("q2 will be sampled with {} sampling points.".format(
+    logger.info("q2 will be sampled with {} sampling points.".format(
         args.grid_subdivision))
 
     bpoints = get_bpoints(args.np_grid_subdivision)
-    print("Total integrations to be performed: {}.".format(
+    logger.info("Total integrations to be performed: {}.".format(
         len(bpoints) * args.grid_subdivision))
 
     if os.path.exists(args.output_path):
         agree = yn_prompt("Output path '{}' already exists and will be "
                           "overwritten. Proceed?".format(args.output_path))
         if not agree:
-            print("User abort.")
+            logger.critical("User abort.")
             sys.exit(1)
 
-    print("Output file: '{}'.".format(args.output_path))
+    logger.info("Output file: '{}'.".format(args.output_path))
 
     run_parallel(bpoints,
                  no_workers=args.parallel,

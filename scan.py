@@ -10,8 +10,10 @@ import os
 import os.path
 import sys
 import time
+from typing import List, Tuple
 
 # internal modules
+from modules.inputs import Wilson
 import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
@@ -26,7 +28,7 @@ from modules.util.log import get_logger
 log = get_logger("Scan")
 
 
-def get_bpoints(np_grid_subdivisions = 20):
+def get_bpoints(np_grid_subdivisions=20) -> List[Wilson]:
     """Get a list of all benchmark points.
 
     Args:
@@ -47,36 +49,37 @@ def get_bpoints(np_grid_subdivisions = 20):
     for epsL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
         for epsSL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
             for epsT in np.linspace(-0.40, 0.40, np_grid_subdivisions):
-                bps.append((epsL, epsR, epsSR, epsSL, epsT))
+                bps.append(Wilson(epsL, epsR, epsSR, epsSL, epsT))
 
     return bps
 
 
-def calculate_bpoint(bpoint, grid_subdivision):
+def calculate_bpoint(wilson: Wilson, grid_subdivision: int) -> List[Tuple[float, float]]:
     """Calculates one benchmark point.
 
     Args:
-        bpoint: epsL, epsR, epsSR, epsSL, epsT
+        wilson: Wilson coefficients
         grid_subdivision: q2 grid spacing
 
     Returns:
-        Resulting q2 histogram
+        Resulting q2 histogram as a list of tuples (q2, distribution at this q2)
     """
 
     result_list = []
     for q2 in np.linspace(distribution.q2min, distribution.q2max,
                           grid_subdivision):
-        dist_tmp = distribution.dGq2normtot(*bpoint, q2)
+        dist_tmp = distribution.dGq2normtot(wilson, q2)
         result_list.append((q2, dist_tmp))
 
     return result_list
 
 
-def write_out_bpoint(bpoint, bpoint_result, output_path):
+def write_out_bpoint(wilson: Wilson, bpoint_result: List[Tuple[float, float]],
+                     output_path: str) -> None:
     """Writes result for benchmark point to output path.
 
     Args:
-        bpoint: epsL, epsR, epsSR, epsSL, epsT
+        wilson: Wilson coefficient
         bpoint_result: Result from calculate_bpoint
         output_path: output_path we write to
 
@@ -86,12 +89,12 @@ def write_out_bpoint(bpoint, bpoint_result, output_path):
 
     with open(output_path, "a") as outfile:
         for q2, dist_tmp in bpoint_result:
-            for param in bpoint:
+            for param in wilson.dict().values():
                 outfile.write("{:.5f}    ".format(param))
             outfile.write('{:.5f}     {:.10f}\n'.format(q2, dist_tmp))
 
 
-def run_parallel(bpoints, no_workers=4, output_path="global_results.out",
+def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_results.out",
                  grid_subdivision=15):
     """Calculate all benchmark points in parallel.
 

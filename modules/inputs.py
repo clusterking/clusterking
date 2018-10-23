@@ -2,6 +2,9 @@
 
 """ Input parameters/physical constants. """
 
+from collections import OrderedDict
+
+
 # todo: Perhaps implement that similar to flavio or use values from flavio in the first place?
 
 inputs = {
@@ -19,3 +22,20 @@ inputs = {
 
 # B meson lifetime in natural units
 inputs['tauBp'] = 1.638*10**(-12)/inputs['hbar']
+
+
+class Wilson(object):
+    """Class to hold the wilson coefficients/NP parameters."""
+    def __init__(self, l, r, sr, sl, t):
+        self.l = l
+        self.r = r
+        self.sr = sr
+        self.sl = sl
+        self.t = t
+
+    def dict(self):
+        params = ["l", "r", "sr", "sl", "t"]
+        d = OrderedDict()
+        for p in params:
+            d[p] = getattr(self, p)
+        return d

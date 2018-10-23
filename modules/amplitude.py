@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from .inputs import inputs
+from .inputs import inputs, Wilson
 from .form_factors import fplus, fzero, fT
 import numpy as np
 
@@ -28,37 +28,37 @@ def kvec(q2):
 
 ##  23
 
-def H0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return (1 + epsL + epsR) * 2 * inputs['mB'] * kvec(q2) / np.sqrt(q2) * fplus(q2)
+def H0(w: Wilson, q2, El):
+    return (1 + w.l + w.r) * 2 * inputs['mB'] * kvec(q2) / np.sqrt(q2) * fplus(q2)
 
 
-def Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return (1 + epsL + epsR) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (np.sqrt(q2)) * fzero(q2)
+def Ht(w: Wilson, q2, El):
+    return (1 + w.l + w.r) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (np.sqrt(q2)) * fzero(q2)
 
 
-def HS(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return (epsSR + epsSL) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (inputs['mb'] - inputs['mc']) * fzero(q2)
+def HS(w: Wilson, q2, El):
+    return (w.sr + w.sl) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (inputs['mb'] - inputs['mc']) * fzero(q2)
 
 
 ##
 
-def Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return epsT * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
+def Hpm(w: Wilson, q2, El):
+    return w.t * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
 
 
 ##  
 
-def H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return epsT * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
+def H0t(w: Wilson, q2, El):
+    return w.t * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
 
 
 #    32
 
 
-def Icalzero(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Icalzero(w: Wilson, q2, El):
+    H0val = H0(w, q2, El)
+    Hpmval = Hpm(w, q2, El)
+    H0tval = H0t(w, q2, El)
 
     return inputs['mtau'] * np.sqrt(q2) * np.absolute(H0val) ** 2 + 4 * inputs['mtau'] * np.sqrt(
         q2) * np.absolute(
@@ -66,12 +66,12 @@ def Icalzero(epsL, epsR, epsSR, epsSL, epsT, q2, El):
         Hpmval + H0tval) - 2j * q2 * np.conjugate(H0val) * (Hpmval + H0tval)
 
 
-def IcalzeroI(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Htval = Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def IcalzeroI(w: Wilson, q2, El):
+    H0val = H0(w, q2, El)
+    Hpmval = Hpm(w, q2, El)
+    H0tval = H0t(w, q2, El)
+    HSval = HS(w, q2, El)
+    Htval = Ht(w, q2, El)
 
     return - np.sqrt(q2) * np.conjugate(H0val) * (inputs['mtau'] * Htval + np.sqrt(q2) * HSval) \
            - 2j * inputs['mtau'] * np.conjugate(Hpmval + H0tval) * (inputs['mtau'] * Htval + np.sqrt(q2) * HSval)
@@ -84,31 +84,31 @@ Icalm = 0
 ## 30
 
 
-def Gamma00p(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    # HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gamma00p(w: Wilson, q2, El):
+    H0val = H0(w, q2, El)
+    Hpmval = Hpm(w, q2, El)
+    H0tval = H0t(w, q2, El)
+    # HSval = HS(w, q2, El)
 
     return np.absolute(2j * np.sqrt(q2) * (Hpmval + H0tval) - inputs['mtau'] * H0val) ** 2
 
 
-def Gammat0p(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    # H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    # Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    # H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Htval = Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammat0p(w: Wilson, q2, El):
+    # H0val = H0(w, q2, El)
+    # Hpmval = Hpm(w, q2, El)
+    # H0tval = H0t(w, q2, El)
+    HSval = HS(w, q2, El)
+    Htval = Ht(w, q2, El)
 
     return np.absolute(inputs['mtau'] * Htval + np.sqrt(q2) * HSval) ** 2
 
 
-def GammaI0p(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Htval = Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def GammaI0p(w: Wilson, q2, El):
+    H0val = H0(w, q2, El)
+    Hpmval = Hpm(w, q2, El)
+    H0tval = H0t(w, q2, El)
+    HSval = HS(w, q2, El)
+    Htval = Ht(w, q2, El)
 
     return 2 * np.real((2j * np.sqrt(q2) * (Hpmval + H0tval) - inputs['mtau'] * H0val) *
                        np.conjugate(inputs['mtau'] * Htval + np.sqrt(q2) * HSval))
@@ -119,12 +119,12 @@ Gammapp = 0
 Gammamp = 0
 
 
-def Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    H0val = H0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    Hpmval = Hpm(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    H0tval = H0t(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    # HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-    # Htval = Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gamma0m(w: Wilson, q2, El):
+    H0val = H0(w, q2, El)
+    Hpmval = Hpm(w, q2, El)
+    H0tval = H0t(w, q2, El)
+    # HSval = HS(w, q2, El)
+    # Htval = Ht(w, q2, El)
 
     return np.absolute(np.sqrt(q2) * H0val - 2j * inputs['mtau'] * (Hpmval + H0tval)) ** 2
 
@@ -137,33 +137,33 @@ Gammamm = 0
 #    A2  and A3, A4
 
 
-def Ical0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * np.real(2 * IcalzeroI(epsL, epsR, epsSR, epsSL, epsT, q2, El))
+def Ical0(w: Wilson, q2, El):
+    return 2 * np.real(2 * IcalzeroI(w, q2, El))
 
 
-def Ical1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * np.real(2 * Icalzero(epsL, epsR, epsSR, epsSL, epsT, q2, El))
+def Ical1(w: Wilson, q2, El):
+    return 2 * np.real(2 * Icalzero(w, q2, El))
 
 
-def Gammap0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * Gammat0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammap0(w: Wilson, q2, El):
+    return 2 * Gammat0p(w, q2, El)
 
 
-def Gammam0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammam0(w: Wilson, q2, El):
+    return 2 * Gamma0m(w, q2, El)
 
 
-def Gammam2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return -2 * Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammam2(w: Wilson, q2, El):
+    return -2 * Gamma0m(w, q2, El)
 
 
-def Gammap2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * Gamma00p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammap2(w: Wilson, q2, El):
+    return 2 * Gamma00p(w, q2, El)
 
 
-def Gammam1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
+def Gammam1(w: Wilson, q2, El):
     return 0.
 
 
-def Gammap1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    return 2 * GammaI0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+def Gammap1(w: Wilson, q2, El):
+    return 2 * GammaI0p(w, q2, El)

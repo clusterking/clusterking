@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Defines a quick function to set up a logger. """
+"""Defines an easy function to set up a logger. """
 
 import logging
 
@@ -9,19 +9,14 @@ try:
 except ImportError:
     colorlog = None
 
-__author__ = "Kilian Lieret"
-__email__ = "kilian.lieret@posteo.de"
-
 
 def get_logger(name="Logger"):
     """Sets up a logging.Logger.
 
-    If the colorlog module
-    is available, the logger will use colors, otherwise it will be in b/w.
-    The colorlog module is available at
-    https://github.com/borntyping/python-colorlog
-    but can also easily be installed with e.g. 'sudo pip3 colorlog' or similar
-    commands.
+    If the colorlog module is available, the logger will use colors,
+    otherwise it will be in b/w. The colorlog module is available at
+    https://github.com/borntyping/python-colorlog but can also easily be
+    installed with e.g. 'sudo pip3 colorlog' or similar commands.
     
     Arguments:
         name: name of the logger

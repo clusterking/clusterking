@@ -13,7 +13,7 @@ import time
 
 # internal modules
 import modules.distribution as distribution
-from modules.util.misc import yn_prompt
+from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
 
 ###

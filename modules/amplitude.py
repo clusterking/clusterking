@@ -18,7 +18,7 @@ import numpy as np
 
 
 def Klambda(a, b, c):
-    return a ** 2 + b ** 2 + c ** 2 - 2 * (a * b + a * c + b * c)
+    return max(0 , a ** 2 + b ** 2 + c ** 2 - 2 * (a * b + a * c + b * c))
 
 
 def kvec(q2):

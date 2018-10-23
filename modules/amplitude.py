@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 
 from .inputs import *
-from .form_factors import *
-
+from .form_factors import fplus, fzero, fT
+import numpy as np
 
 # A1
-
-
-
-#  NP wilson coefficients
-#  epsL, epsR, epsSR, epsSL, epsT
 
 
 #  kinematic variables
@@ -25,6 +20,7 @@ from .form_factors import *
 
 def Klambda(a, b, c):
     return a ** 2 + b ** 2 + c ** 2 - 2 * (a * b + a * c + b * c)
+
 
 def kvec(q2):
     return 1 / (2 * mB) * np.sqrt(Klambda(mB ** 2, mD ** 2, q2))
@@ -77,13 +73,11 @@ def IcalzeroI(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     HSval = HS(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     Htval = Ht(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    return - np.sqrt(q2) * np.conjugate(H0val) * (
-    mtau * Htval + np.sqrt(q2) * HSval) - 2j * mtau * np.conjugate(
-        Hpmval + H0tval) * (mtau * Htval + np.sqrt(q2) * HSval)
+    return - np.sqrt(q2) * np.conjugate(H0val) * (mtau * Htval + np.sqrt(q2) * HSval) \
+           - 2j * mtau * np.conjugate(Hpmval + H0tval) * (mtau * Htval + np.sqrt(q2) * HSval)
 
 
 Icalp = 0
-
 Icalm = 0
 
 
@@ -144,39 +138,27 @@ Gammamm = 0
 
 
 def Ical0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    IcalzeroIval = IcalzeroI(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * np.real(2 * IcalzeroIval)
+    return 2 * np.real(2 * IcalzeroI(epsL, epsR, epsSR, epsSL, epsT, q2, El))
 
 
 def Ical1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    Icalzeroval = Icalzero(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * np.real(2 * Icalzeroval)
+    return 2 * np.real(2 * Icalzero(epsL, epsR, epsSR, epsSL, epsT, q2, El))
 
 
 def Gammap0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    Gammat0pval = Gammat0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * Gammat0pval
+    return 2 * Gammat0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def Gammam0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    Gamma0mval = Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * Gamma0mval
+    return 2 * Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def Gammam2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    Gamma0mval = Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return -2 * Gamma0mval
+    return -2 * Gamma0m(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def Gammap2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    Gamma00pval = Gamma00p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * Gamma00pval
+    return 2 * Gamma00p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def Gammam1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
@@ -184,6 +166,4 @@ def Gammam1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def Gammap1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    GammaI0pval = GammaI0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)
-
-    return 2 * GammaI0pval
+    return 2 * GammaI0p(epsL, epsR, epsSR, epsSL, epsT, q2, El)

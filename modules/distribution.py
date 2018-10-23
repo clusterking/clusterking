@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-import scipy.integrate as integrate
-from .amplitude import *
+import numpy as np
 
+import scipy.integrate as integrate
+
+from .amplitude import *
 
 
 ## some definitions
@@ -39,7 +41,6 @@ def yval(El):
 
 
 def I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -58,7 +59,6 @@ def I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I1w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -74,7 +74,6 @@ def I1w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I2w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -89,7 +88,6 @@ def I2w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I0w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -110,7 +108,6 @@ def I0w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I1w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -125,7 +122,6 @@ def I1w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I2w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     x = xval(q2)
     y = yval(El)
 
@@ -140,7 +136,6 @@ def I2w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
@@ -150,7 +145,6 @@ def I0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     if mtau**2/(2 *np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I1w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
@@ -160,7 +154,6 @@ def I1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I2w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
@@ -171,7 +164,6 @@ def I2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
     """3D diff. distribution over q2, El  and cos(thetal) """
-
     I0val = I0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     I1val = I1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
@@ -179,7 +171,6 @@ def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
     return Btaul * GF**2 * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(I0val + I1val * cthetal + I2val * cthetal**2)
 
 def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-
     I0val = I0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
@@ -212,6 +203,9 @@ def q2inflim(El):
 
     else:
         return q2min
+
+
+# todo: do not ignore second output of integrate.quad (errors/warnings)?
 
 
 def dGEl(epsL, epsR, epsSR, epsSL, epsT, El):

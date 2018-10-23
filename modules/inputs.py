@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# todo: wrap into class
+
 GF = 1.1663787*10**(-5)
 Vcb = 41.2*10**(-3)
 new = 1

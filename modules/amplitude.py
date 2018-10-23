@@ -4,18 +4,17 @@ from .inputs import inputs
 from .form_factors import fplus, fzero, fT
 import numpy as np
 
-# A1
-
 
 #  kinematic variables
 #  q2,  El ,   thetal
 
+## Limits:
 
 #  thetal [0,pi]
 
 #  q2 [   inputs['mtau']^2,  (inputs['mB'] -inputs['mD'])^2 ]
 
-#  El  [     inputs['mtau']^2/(  2 * sqrt(q2) ),     sqrt(q2)/2   ]   w1   and [  0,  inputs['mtau']^2/(2 sqrt(q2))  ]  w2
+#  El  [     inputs['mtau']^2/(  2 * sqrt(q2) ),     sqrt(q2)/2   ] for  w1   and [  0,  inputs['mtau']^2/(2 sqrt(q2))  ]  for w2
 
 
 def Klambda(a, b, c):

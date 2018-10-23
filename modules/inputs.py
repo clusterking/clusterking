@@ -3,7 +3,6 @@
 """ Input parameters/physical constants. """
 
 import flavio
-
 from flavio.parameters import default_parameters as par
 
 inputs = {

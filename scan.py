@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+""" Scans the NP parameter space in a grid and also q2, producing the
+normalized q2 distribution. """
+
 # standard modules
 import argparse
 import datetime
@@ -18,12 +21,6 @@ import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
 
-###
-### scans the NP parameter space in a grid and also q2, producing the normalized q2 distribution
-###   I guess this table can then be used for the clustering algorithm, any.  
-
-## q2 distribution normalized by total,  integral of this would be 1 by definition
-## dGq2normtot(epsL, epsR, epsSR, epsSL, epsT,q2)
 
 log = get_logger("Scan")
 
@@ -132,9 +129,6 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
         os.remove(output_path)
 
     starttime = time.time()
-    # Note: this will overwrite the output path! Ask user in interface whether
-    # he's ok with that.
-    # buffering = 1: Write out every line
 
     for index, result in enumerate(results):
 

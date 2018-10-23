@@ -2,20 +2,20 @@
 
 """ Input parameters/physical constants. """
 
-# todo: Perhaps implement that similar to flavio or use values from flavio in the first place?
+import flavio
+
+from flavio.parameters import default_parameters as par
 
 inputs = {
-    'GF': 1.1663787*10**(-5),
-    'Vcb': 41.2*10**(-3),
+    'GF': par.get_central('GF'),
+    'Vcb': par.get_central('Vcb'),
     'new': 1,
-    'mB': 5.27942,
-    'mD': 1.86723,
-    'Btaul': 0.178,  # Tau branching fraction taken from Alonso et al paper
-    'mtau': 1.7768,
-    'mb': 4.02,
-    'mc': 0.946,
-    'hbar': 6.58212*10**(-25),
+    'mB': par.get_central('m_B+'),
+    'mD': par.get_central('m_D0'),
+    'Btaul': flavio.sm_prediction('BR(tau->mununu)'),  
+    'mtau': par.get_central('m_tau'),
+    'mb': 4.09206,   #  Running quark mass (MSbar) at the scale 4.8 GeV
+    'mc': 0.962098,  #  Running quark mass (MSbar) at the scale 4.8 GeV
+    'tauBp': par.get_central('tau_B+'),
 }
 
-# B meson lifetime in natural units
-inputs['tauBp'] = 1.638*10**(-12)/inputs['hbar']

@@ -138,27 +138,33 @@ def I0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     if inputs['mtau']**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    # todo: shouldn't that just be an else statement?
-    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif 0 <= El <= inputs['mtau']**2/(2 * np.sqrt(q2)):
         return I0w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+
+    else:
+        raise ValueError("El is outside of allowed range!")
 
 
 def I1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     if inputs['mtau']**2/(2 *np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I1w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    # todo: shouldn't that just be an else statement?
-    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif 0 <= El <= inputs['mtau']**2/(2 * np.sqrt(q2)):
         return I1w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+
+    else:
+        raise ValueError("El is outside of allowed range!")
 
 
 def I2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     if inputs['mtau']**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I2w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    # todo: shouldn't that just be an else statement?
-    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif 0 <= El <= inputs['mtau']**2/(2 * np.sqrt(q2)):
         return I2w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
+
+    else:
+        raise ValueError("El is outside of allowed range!")
 
 
 def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):

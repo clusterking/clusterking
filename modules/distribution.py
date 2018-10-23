@@ -3,9 +3,8 @@
 import numpy as np
 
 import scipy.integrate as integrate
-
 from .amplitude import *
-
+from .inputs import inputs
 
 ## some definitions
 
@@ -20,8 +19,8 @@ cthetalmin = -1
 cthetalmax = 1
 
 
-q2min = mtau**2
-q2max = (mB - mD)**2
+q2min = inputs['mtau']**2
+q2max = (inputs['mB'] - inputs['mD'])**2
 
 
 def Elmax(q2):
@@ -33,11 +32,11 @@ Elmin = 0.
 #  A1
 
 def xval(q2):
-    return np.sqrt(q2/mtau**2)
+    return np.sqrt(q2/inputs['mtau']**2)
 
 
 def yval(El):
-    return El/mtau
+    return El/inputs['mtau']
 
 
 def I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
@@ -136,29 +135,29 @@ def I2w2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
 
 
 def I0(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
+    if inputs['mtau']**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I0w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
     # todo: shouldn't that just be an else statement?
-    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
         return I0w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def I1(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    if mtau**2/(2 *np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
+    if inputs['mtau']**2/(2 *np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I1w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
     # todo: shouldn't that just be an else statement?
-    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
         return I1w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
 def I2(epsL, epsR, epsSR, epsSL, epsT, q2, El):
-    if mtau**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
+    if inputs['mtau']**2/(2 * np.sqrt(q2)) <= El <= np.sqrt(q2)/2.:
         return I2w1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
     # todo: shouldn't that just be an else statement?
-    elif mtau**2/(2 * np.sqrt(q2)) > El >= 0:
+    elif inputs['mtau']**2/(2 * np.sqrt(q2)) > El >= 0:
         return I2w2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
 
@@ -168,13 +167,13 @@ def dG(epsL, epsR, epsSR, epsSL, epsT, q2, El, cthetal):
     I1val = I1(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    return Btaul * GF**2 * np.absolute(Vcb)**2 * new**2/(32 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(I0val + I1val * cthetal + I2val * cthetal**2)
+    return inputs['Btaul'] * inputs['GF']**2 * np.absolute(inputs['Vcb'])**2 * inputs['new']**2/(32 * np.pi**3) * kvec(q2)/inputs['mB']**2 * (1-inputs['mtau']**2/q2)**2 * El**2/inputs['mtau']**3 *(I0val + I1val * cthetal + I2val * cthetal**2)
 
 def dGq2El(epsL, epsR, epsSR, epsSL, epsT, q2, El):
     I0val = I0(epsL, epsR, epsSR, epsSL, epsT, q2, El)
     I2val = I2(epsL, epsR, epsSR, epsSL, epsT, q2, El)
 
-    return Btaul * GF**2 * np.absolute(Vcb)**2 * new**2/(16 * np.pi**3) * kvec(q2)/mB**2 * (1-mtau**2/q2)**2 * El**2/mtau**3 *(I0val + 1./3. * I2val)
+    return inputs['Btaul'] * inputs['GF']**2 * np.absolute(inputs['Vcb'])**2 * inputs['new']**2/(16 * np.pi**3) * kvec(q2)/inputs['mB']**2 * (1-inputs['mtau']**2/q2)**2 * El**2/inputs['mtau']**3 *(I0val + 1./3. * I2val)
 
 
 def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
@@ -190,7 +189,7 @@ def dGq2(epsL, epsR, epsSR, epsSL, epsT, q2):
 def dGq2norm(epsL, epsR, epsSR, epsSL, epsT, q2):
     """Normalized distribution 1D q2 """
 
-    return tauBp/Btaul * dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)
+    return inputs['tauBp']/inputs['Btaul'] * dGq2(epsL, epsR, epsSR, epsSL, epsT, q2)
 
 
 def q2inflim(El):
@@ -198,7 +197,7 @@ def q2inflim(El):
     paper
     """
 
-    if El > mtau/2:
+    if El > inputs['mtau']/2:
         return 4*El**2
 
     else:
@@ -219,7 +218,7 @@ def dGEl(epsL, epsR, epsSR, epsSL, epsT, El):
 
 def dGElnorm(epsL, epsR, epsSR, epsSL, epsT, El):
     """Normalized distribution 1D El """
-    return tauBp/Btaul * dGEl(epsL, epsR, epsSR, epsSL, epsT, El)
+    return inputs['tauBp']/inputs['Btaul'] * dGEl(epsL, epsR, epsSR, epsSL, epsT, El)
 
 
 def dGq2cthetal(epsL, epsR, epsSR, epsSL, epsT, q2, cthetal):
@@ -242,7 +241,7 @@ def dGcthetal(epsL, epsR, epsSR, epsSL, epsT, cthetal):
 def dGcthetalnorm(epsL, epsR, epsSR, epsSL, epsT, cthetal):
     """Normalized distribution 1D cthetal"""
 
-    return tauBp/Btaul * dGcthetal(epsL, epsR, epsSR, epsSL, epsT,cthetal)
+    return inputs['tauBp']/inputs['Btaul'] * dGcthetal(epsL, epsR, epsSR, epsSL, epsT,cthetal)
 
 
 def dGtot(epsL, epsR, epsSR, epsSL, epsT):

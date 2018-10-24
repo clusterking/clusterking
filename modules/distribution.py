@@ -6,6 +6,8 @@ import scipy.integrate as integrate
 from .amplitude import *
 from .inputs import inputs, Wilson
 
+from typing import Callable, List, Union, Tuple, Iterable
+
 ## some definitions
 
 #   thetalmax =  np.pi
@@ -289,3 +291,41 @@ def dGnormtot(w: Wilson, q2, El, cthetal):
     """
 
     return dG(w, q2, El , cthetal)/dGtot(w)
+
+
+def bin_function(fct, bin_edges: List[float],
+                 normalized=False, midpoints=False) \
+        -> Union[List[float], List[Tuple[float, float]]]:
+    """Bin function, i.e. calculate the integrals of a function for each bin.
+
+    Args:
+        fct: Function to be integrated per bin
+        bin_edges: List of bin edge points.
+        normalized: If true, we will normalize the distribution, i.e. divide
+            by the sum of all bins in the end.
+        midpoints: Return list of tuples (bin midpoint, bin content) rather
+            than just a list of bin contents
+
+    Returns:
+        List of bin contents or List of tuples (bin midpoint, bin content)
+    """
+    if len(bin_edges) <= 1:
+        raise ValueError("Need at least 2 bin edges!")
+
+    bin_edges = sorted(bin_edges)
+    # list of tuples (left bin edge, right bin edge)
+    bins = list(zip(bin_edges[:-1], bin_edges[1:]))
+
+    bin_contents = []
+    for bin in bins:
+        bin_contents.append(integrate.quad(fct, bin[0], bin[1])[0])
+
+    if normalized:
+        norm = sum(bin_contents)
+        bin_contents = [ bin_content/norm for  bin_content in bin_contents]
+
+    if midpoints:
+        mid_points = [(bin[0] + bin[1])/2 for bin in bins]
+        return list(zip(mid_points, bin_contents))
+    else:
+        return bin_contents

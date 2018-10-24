@@ -51,25 +51,22 @@ def get_bpoints(np_grid_subdivisions=20) -> List[Wilson]:
     return bps
 
 
-def calculate_bpoint(wilson: Wilson, grid_subdivision: int) -> List[Tuple[float, float]]:
+def calculate_bpoint(w: Wilson, grid_subdivision: int) -> List[Tuple[float, float]]:
     """Calculates one benchmark point.
 
     Args:
-        wilson: Wilson coefficients
-        grid_subdivision: q2 grid spacing
+        w: Wilson coefficients
+        grid_subdivision: number of grid points for q2 (number of bins +1)
 
     Returns:
         Resulting q2 histogram as a list of tuples (q2, distribution at this q2)
     """
 
-    result_list = []
-    for q2 in np.linspace(distribution.q2min, distribution.q2max,
-                          grid_subdivision):
-        dist_tmp = distribution.dGq2normtot(wilson, q2)
-        result_list.append((q2, dist_tmp))
-
-    return result_list
-
+    bin_edges = list(np.linspace(distribution.q2min, distribution.q2max, grid_subdivision))
+    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
+                                     bin_edges,
+                                     normalized=True,
+                                     midpoints=True)
 
 def write_out_bpoint(wilson: Wilson, bpoint_result: List[Tuple[float, float]],
                      output_path: str) -> None:
@@ -139,14 +136,14 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
         completed = index + 1
         remaining_time = (len(bpoints) - completed) * timedelta/completed
         log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-                     "Time/bpoint: {:.1f}s => "
-                     "time remaining: {}".format(
-                        completed,
-                        len(bpoints),
-                        100*completed/len(bpoints),
-                        timedelta/completed,
-                        datetime.timedelta(seconds=remaining_time)
-                        ))
+                  "Time/bpoint: {:.1f}s => "
+                  "time remaining: {}".format(
+                     completed,
+                     len(bpoints),
+                     100*completed/len(bpoints),
+                     timedelta/completed,
+                     datetime.timedelta(seconds=remaining_time)
+                     ))
 
     # Wait for completion of all jobs here
     pool.join()

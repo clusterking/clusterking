@@ -177,6 +177,7 @@ def dG(w: Wilson, q2, El, cthetal):
     return inputs['Btaul'] * inputs['GF']**2 * np.absolute(inputs['Vcb'])**2 * inputs['new']**2/(32 * np.pi**3) * kvec(q2)/inputs['mB']**2 * (1-inputs['mtau']**2/q2)**2 * El**2/inputs['mtau']**3 *(I0val + I1val * cthetal + I2val * cthetal**2)
 
 def dGq2El(w: Wilson, q2, El):
+    """2D distrubution over q2,El, analytical integration over thetal"""
     I0val = I0(w, q2, El)
     I2val = I2(w, q2, El)
 

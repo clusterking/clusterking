@@ -321,8 +321,9 @@ def bin_function(fct, bin_edges: List[float],
         bin_contents.append(integrate.quad(fct, bin[0], bin[1])[0])
 
     if normalized:
-        norm = sum(bin_contents)
-        bin_contents = [ bin_content/norm for  bin_content in bin_contents]
+        bin_widths = [ bin[1] - bin[0] for bin in bins ]
+        norm = sum( bin_widths[i] * bin_contents[i] for i in range(len(bin_contents)))
+        bin_contents = [ bin_content/norm for bin_content in bin_contents]
 
     if midpoints:
         mid_points = [(bin[0] + bin[1])/2 for bin in bins]

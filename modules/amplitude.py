@@ -18,6 +18,8 @@ import numpy as np
 
 
 def Klambda(a, b, c):
+    # even though the formula is positive definite, use max to enforce this
+    # even when rounding errors occurr (else problems with sqrt later)
     return max(0 , a ** 2 + b ** 2 + c ** 2 - 2 * (a * b + a * c + b * c))
 
 

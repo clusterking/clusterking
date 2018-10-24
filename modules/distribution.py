@@ -8,7 +8,7 @@ from .inputs import inputs, Wilson
 
 from typing import Callable, List, Union, Tuple, Iterable
 
-## some definitions
+## kinematical limits
 
 #   thetalmax =  np.pi
 
@@ -31,7 +31,6 @@ def Elmax(q2):
 
 Elmin = 0.
 
-#  A1
 
 def xval(q2):
     return np.sqrt(q2/inputs['mtau']**2)

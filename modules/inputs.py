@@ -7,7 +7,8 @@ from flavio.parameters import default_parameters as par
 from collections import OrderedDict
 
 
-# todo: Perhaps implement that similar to flavio or use values from flavio in the first place?
+## inputs now taken from flavio except for running quark masses
+##  (since we just need them at one scale it is more efficient to write them directly)
 
 inputs = {
     'GF': par.get_central('GF'),

@@ -62,11 +62,13 @@ def calculate_bpoint(w: Wilson, grid_subdivision: int) -> List[Tuple[float, floa
         Resulting q2 histogram as a list of tuples (q2, distribution at this q2)
     """
 
-    bin_edges = list(np.linspace(distribution.q2min, distribution.q2max, grid_subdivision))
-    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
+    bin_edges = np.linspace(distribution.q2min, distribution.q2max, grid_subdivision)
+    values = distribution.bin_function(lambda x: distribution.dGq2(w, x),
                                      bin_edges,
-                                     normalized=True,
-                                     midpoints=True)
+                                     normalized=True)
+    midpoints = (bin_edges[1:] + bin_edges[:-1])/2
+    return list(zip(midpoints, values))
+
 
 def write_out_bpoint(wilson: Wilson, bpoint_result: List[Tuple[float, float]],
                      output_path: str) -> None:

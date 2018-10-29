@@ -45,17 +45,27 @@ def plot_histogram(ax: plt.axes,
 
 if __name__ == "__main__":
     w = Wilson(0, 0, 0, 0, 0)
-    print("Calc")
+
+    log.info("Calculating integrals")
     bins = np.linspace(q2min, q2max, 4)
+    more_bins = np.linspace(q2min, q2max, 8)
+    even_more_bins = np.linspace(q2min, q2max, 20)
 
-    # todo: use np.array rather than list!
-    values_single = bin_function(lambda x: dGq2(w, x), list(bins))
-    print("Calc done")
+    values = bin_function(lambda x: dGq2(w, x), bins)
+    more_values = bin_function(lambda x: dGq2(w, x), more_bins)
+    even_more_values = bin_function(lambda x: dGq2(w, x), even_more_bins)
+    log.info("Calculation done")
 
-    fig, axs = plt.subplots(1, 2)
-    plot_histogram(axs[0], bins, np.array(values_single), color="red")
-    plot_histogram(axs[1], bins, np.array(values_single), normalized=True)
-    # plot_histogram(axs[1], np.array([1,2,3]), np.array([1, 3]), normalized=True)
+    fig, axs = plt.subplots(2, 3)
+
+    plot_histogram(axs[0][0], bins, np.array(values), color="red", normalized=True)
+    plot_histogram(axs[0][1], more_bins, np.array(more_values), color="black", normalized=True)
+    plot_histogram(axs[0][2], even_more_bins, np.array(even_more_values), color="green", normalized=True)
+    plot_histogram(axs[1][0], bins, np.array(values), color="red", normalized=False)
+    plot_histogram(axs[1][1], more_bins, np.array(more_values), color="black", normalized=False)
+    plot_histogram(axs[1][2], even_more_bins, np.array(even_more_values), color="green", normalized=False)
+
     fig.show()
-    input()
 
+    # wait till we press a button
+    input("Press any key to end program.")

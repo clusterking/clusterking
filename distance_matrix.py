@@ -11,55 +11,78 @@ import sys
 
 from modules.util.log import get_logger
 from modules.util.cli import yn_prompt
+from modules.inputs import Wilson
 
 log = get_logger("Matrix")
+
+
+def read_input(in_path):
+
+    log.debug("Reading input.")
+
+    with open(in_path, "r") as in_file:
+        data = pd.io.json.loads(in_file.read())
+
+
+    config = data["config"]
+    df = pd.DataFrame(data["data"])
+
+    # print(df)
+
+
+    # because the order of the file will be distorted from export/import
+    # fixme: not working yet
+    df.sort_index(inplace=True)
+
+    # print(df)
+
+    log.debug("Finished reading input.")
+
+    return config, df
 
 
 # todo: This should probably be implemented in a different way in the future,
 # ideally separating the calculation of the matrix from the way we format the
 # output
-def write_out_matrix(df, path):
-    dirname = os.path.dirname(path)
-    if dirname and not os.path.exists(dirname):
-        os.makedirs(dirname)
-
-    q2_values = df.q2.unique()
-
-    if not len(df) % len(q2_values) == 0:
-        log.critical("Input file seems to be corrupted.")
-
-    qpoints = len(q2_values)
-    bpoints = int(len(df) / qpoints)
-
-    sep = "  "
-
-    # todo: This is a very fragile way to read and write out data
-    with open(path, "w") as outfile:
-        for j in range(1, bpoints):
-            for i in range(j, bpoints):
-                df1 = df[(i-1)*qpoints : i*qpoints].reset_index()
-                df2 = df[(j-1)*qpoints : j*qpoints].reset_index()
-                chi2 = sum((df1.dist - df2.dist )**2)
-                outfile.write("{}{}{}{}{:.4f}\n".format(i, sep, j, sep, chi2))
+def calculate_matrix(config, in_df):
 
 
-def read_input(path):
-    """Read the q2 spectra (output of amplitude.py) and turn them into a
-    pandas dataframe.
 
-    Args:
-        path: Input file (csv)
+    # dirname = os.path.dirname(out_path)
+    # if dirname and not os.path.exists(dirname):
+    #     os.makedirs(dirname)
 
-    Returns:
-        pandas dataframe.
-    """
-    columns = ["epsL", "epsR", "epsSR", "epsSL", "epsT", "q2", "dist"]
-    df = pd.read_csv(path,
-                     sep='\s+',
-                     header=None,
-                     names=columns)
+    # q2_values = config["bin_edges"]
+    #
+    # bpoints = int(len(df))
+    # sep = "  "
 
-    return df
+    w = Wilson(0, 0, 0, 0, 0)
+
+    rows = []
+    for index_row_1, row_1 in in_df.iterrows():
+        for index_row_2, row_2 in in_df.iterrows():
+
+            print(row_1, row_2)
+            # rows.append(row_1.update(row_))
+            # pass
+            # print(index_row_1, index_row_2)
+            # print(in_row_1.values(), in_row_2.values())
+
+    return
+    cols = [ key+"_1" for key in w.dict().keys() ]
+    cols.extend([ key+"_2" for key in w.dict().keys() ])
+    cols.append("matrix_element")
+    out_df = pd.DataFrame(columns=cols)
+
+    # # todo: This is a very fragile way to read and write out data
+    # with open(out_path, "w") as outfile:
+    #     for j in range(1, bpoints):
+    #         for i in range(j, bpoints):
+    #             df1 = df[(i-1)*qpoints : i*qpoints].reset_index()
+    #             df2 = df[(j-1)*qpoints : j*qpoints].reset_index()
+    #             chi2 = sum((df1.dist - df2.dist )**2)
+    #             outfile.write("{}{}{}{}{:.4f}\n".format(i, sep, j, sep, chi2))
 
 
 def cli():
@@ -94,8 +117,12 @@ def cli():
     log.info("Output file: '{}'".format(args.output_path))
 
     log.info("Starting to calculate matrix.")
-    df = read_input(args.input_path)
-    write_out_matrix(df, args.output_path)
+
+    config, df = read_input(args.input_path)
+    print(config)
+    print(df)
+    matrix = calculate_matrix(config, df)
+
     log.info("Finished.")
 
 if __name__ == "__main__":

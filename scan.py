@@ -14,6 +14,8 @@ import os.path
 import sys
 import time
 from typing import List, Tuple
+import json
+import pandas as pd
 
 # internal modules
 from modules.inputs import Wilson
@@ -51,54 +53,32 @@ def get_bpoints(np_grid_subdivisions=20) -> List[Wilson]:
     return bps
 
 
-def calculate_bpoint(w: Wilson, grid_subdivision: int) -> List[Tuple[float, float]]:
+def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
     """Calculates one benchmark point.
 
     Args:
         w: Wilson coefficients
-        grid_subdivision: number of grid points for q2 (number of bins +1)
+        bin_edges:
 
     Returns:
         Resulting q2 histogram as a list of tuples (q2, distribution at this q2)
     """
 
-    bin_edges = np.linspace(distribution.q2min, distribution.q2max, grid_subdivision)
-    values = distribution.bin_function(lambda x: distribution.dGq2(w, x),
+    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
                                      bin_edges,
                                      normalized=True)
-    midpoints = (bin_edges[1:] + bin_edges[:-1])/2
-    return list(zip(midpoints, values))
 
 
-def write_out_bpoint(wilson: Wilson, bpoint_result: List[Tuple[float, float]],
-                     output_path: str) -> None:
-    """Writes result for benchmark point to output path.
-
-    Args:
-        wilson: Wilson coefficient
-        bpoint_result: Result from calculate_bpoint
-        output_path: output_path we write to
-
-    Returns:
-        None
-    """
-
-    with open(output_path, "a") as outfile:
-        for q2, dist_tmp in bpoint_result:
-            for param in wilson.dict().values():
-                outfile.write("{:.5f}    ".format(param))
-            outfile.write('{:.5f}     {:.10f}\n'.format(q2, dist_tmp))
-
-
-def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_results.out",
-                 grid_subdivision=15):
+# todo: writeout should be different method
+def run(bpoints: List[Wilson], no_workers=4, output_path="global_results.out",
+        no_bins=15):
     """Calculate all benchmark points in parallel.
 
     Args:
         bpoints: Benchmark points
         no_workers: Number of worker nodes/cores
         output_path: Output path. Will be overwritten if existing!
-        grid_subdivision: q2 grid spacing
+        no_bins: q2 grid spacing
 
     Returns:
         None
@@ -107,10 +87,12 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
     # pool of worker nodes
     pool = multiprocessing.Pool(processes=no_workers)
 
+    bin_edges = np.linspace(distribution.q2min, distribution.q2max, no_bins+1)
+
     # this is the worker function: calculate_bpoints with additional
     # arguments frozen
     worker = functools.partial(calculate_bpoint,
-                               grid_subdivision=grid_subdivision)
+                               bin_edges=bin_edges)
 
     results = pool.imap(worker, bpoints)
 
@@ -118,7 +100,7 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
     pool.close()
 
     log.info("Started queue with {} job(s) distributed over up to {} "
-                "core(s)/worker(s).".format(len(bpoints), no_workers))
+             "core(s)/worker(s).".format(len(bpoints), no_workers))
 
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
@@ -129,9 +111,11 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
 
     starttime = time.time()
 
+    rows = []
     for index, result in enumerate(results):
 
-        write_out_bpoint(bpoints[index], result, output_path)
+        bpoint_dict = bpoints[index].dict().values()
+        rows.append([*bpoint_dict, *result])
 
         timedelta = time.time() - starttime
 
@@ -149,6 +133,23 @@ def run_parallel(bpoints: List[Wilson], no_workers=4, output_path="global_result
 
     # Wait for completion of all jobs here
     pool.join()
+
+    log.debug("Converting data to pandas dataframe.")
+    cols = ["eps_l", "eps_r", "eps_sr", "eps_sl", "eps_t"]
+    cols.extend(["bin{}".format(no_bin) for no_bin in range(no_bins)])
+    df = pd.DataFrame(data=rows, columns=cols)
+
+    log.debug("Converting data to json.")
+
+    json_data = {}
+    json_data["data"] = df  #.to_json(orient="split")
+    json_data["config"] = {}
+    json_data["config"]["bin_edges"] = list(bin_edges)
+
+    log.debug("Writing out data.")
+    with open(output_path, "w") as outfile:
+        outfile.write(pd.io.json.dumps(json_data))
+
     log.info("Finished")
 
 
@@ -201,10 +202,10 @@ def cli():
 
     log.info("Output file: '{}'.".format(args.output_path))
 
-    run_parallel(bpoints,
-                 no_workers=args.parallel,
-                 output_path=args.output_path,
-                 grid_subdivision=args.grid_subdivision)
+    run(bpoints,
+        no_workers=args.parallel,
+        output_path=args.output_path,
+        no_bins=args.grid_subdivision)
 
 
 if __name__ == "__main__":

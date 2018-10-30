@@ -42,7 +42,27 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
 
 
 class Scanner(object):
-    """ This implements all the functionality. """
+    """ Scans the NP parameter space in a grid and also q2, producing the
+    normalized q2 distribution.
+
+    Usage example:
+        ```python
+        # Initialize Scanner object
+        s = Scanner()
+
+        # Sample 3 points for each of the 5 Wilson coefficients
+        s.set_bpoints_equidist(3)
+
+        # Use 5 bins in q2
+        s.set_q2points_equidist(5)
+
+        # Start running with maximally 3 cores
+        s.run(no_workers=3)
+
+        # Write out results
+        s.write("out/scan/global_output")
+        ```
+    """
 
     # **************************************************************************
     # A:  Setup

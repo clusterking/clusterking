@@ -133,19 +133,33 @@ class Scanner(object):
         else:
             raise ValueError("Can't handle that type.")
 
+        def lsp(dmin, dmax, dsam):
+            """ Like np.linspace, but throws out identical values"""
+            return sorted(list(set(np.linspace(dmin, dmax, dsam))))
+
+        lists = {
+            key: lsp(_min[key], _max[key], _sam[key])
+            for key in ['l', 'r', 'sr', 'sl', 't']
+        }
+
         bpoints = []
-        for l in np.linspace(_min['l'], _max['l'], _sam['l']):
-            for r in np.linspace(_min['r'], _max['r'], _sam['r']):
-                for sr in np.linspace(_min['sr'], _max['sr'], _sam['sr']):
-                    for sl in np.linspace(_min['sl'], _max['sl'], _sam['sl']):
-                        for t in np.linspace(_min['t'], _max['t'], _sam['t']):
+        for l in lists['l']:
+            for r in lists['r']:
+                for sr in lists['sr']:
+                    for sl in lists['sl']:
+                        for t in lists['t']:
                             bpoints.append(Wilson(l, r, sr, sl, t))
+
         self._bpoints = bpoints
         self.config["bpoints"]["sampling"] = "equidistant"
         self.config["bpoints"]["npoints"] = len(self._bpoints)
         self.config["bpoints"]["min"] = _min
         self.config["bpoints"]["max"] = _max
-        self.config["bpoints"]["sample"] = _sam
+        # do not just take the sampling value (because if start == end, they
+        # are incorrect and we only have exactly one point)
+        self.config["bpoints"]["sample"] = {
+            key: len(value) for key, value in lists.items()
+        }
 
     # **************************************************************************
     # B:  Run

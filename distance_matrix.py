@@ -21,24 +21,21 @@ def read_input(in_path):
     log.debug("Reading input.")
 
     with open(in_path, "r") as in_file:
-        data = pd.io.json.loads(in_file.read())
+        data = pd.io.json.loads(in_file.read(), orient="split")
 
 
-    config = data["config"]
-    df = pd.DataFrame(data["data"])
+    in_config = data["config"]
+    in_df = pd.DataFrame(data["data"])
 
-    # print(df)
+    in_df.sort_index(inplace=True)
 
-
-    # because the order of the file will be distorted from export/import
-    # fixme: not working yet
-    df.sort_index(inplace=True)
-
-    # print(df)
+    print(in_df)
 
     log.debug("Finished reading input.")
 
-    return config, df
+    sys.exit(0)
+
+    return in_config, in_df
 
 
 # todo: This should probably be implemented in a different way in the future,

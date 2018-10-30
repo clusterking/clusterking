@@ -43,8 +43,8 @@ def get_bpoints(np_grid_subdivisions=20) -> List[Wilson]:
 
     # I set epsR an epsSR to zero  as the observables are only sensitive to
     # linear combinations  L + R
-    epsR = 0
-    epsSR = 0
+    epsR = 0.
+    epsSR = 0.
     for epsL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
         for epsSL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
             for epsT in np.linspace(-0.40, 0.40, np_grid_subdivisions):
@@ -142,13 +142,16 @@ def run(bpoints: List[Wilson], no_workers=4, output_path="global_results.out",
     log.debug("Converting data to json.")
 
     json_data = {}
-    json_data["data"] = df  #.to_json(orient="split")
+    json_data["data"] = df
     json_data["config"] = {}
     json_data["config"]["bin_edges"] = list(bin_edges)
 
     log.debug("Writing out data.")
     with open(output_path, "w") as outfile:
-        outfile.write(pd.io.json.dumps(json_data))
+        # orient = split not only saves space, but also prevents our
+        # row indices from being converted into strings
+        # https://stackoverflow.com/questions/44126822/
+        outfile.write(pd.io.json.dumps(json_data, orient="split"))
 
     log.info("Finished")
 

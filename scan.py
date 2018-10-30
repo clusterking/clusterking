@@ -6,6 +6,7 @@ normalized q2 distribution. """
 # standard modules
 import argparse
 import datetime
+import functools
 import multiprocessing
 import numpy as np
 import os
@@ -21,6 +22,23 @@ import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
 from modules.util.misc import nested_dict
+
+
+# NEEDS TO BE GLOBAL FUNCTION for multithreading
+def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
+    """Calculates one benchmark point.
+
+    Args:
+        w: Wilson coefficients
+        bin_edges:
+
+    Returns:
+        np.array of the integration results
+    """
+
+    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
+                                     bin_edges,
+                                     normalized=True)
 
 
 class Scanner(object):
@@ -151,10 +169,10 @@ class Scanner(object):
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)
 
-        def worker(w):
-            distribution.bin_function(lambda x: distribution.dGq2(w, x),
-                                      binning=self._q2points,
-                                      normalized=True)
+        # this is the worker function: calculate_bpoints with additional
+        # arguments frozen
+        worker = functools.partial(calculate_bpoint,
+                                   bin_edges=self._q2points)
 
         results = pool.imap(worker, self._bpoints)
 

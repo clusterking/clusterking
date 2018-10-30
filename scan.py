@@ -5,16 +5,13 @@ normalized q2 distribution. """
 
 # standard modules
 import argparse
-import collections
 import datetime
-import functools
 import multiprocessing
 import numpy as np
 import os
 import os.path
 import sys
 import time
-from typing import List, Tuple
 import json
 import pandas as pd
 
@@ -23,34 +20,7 @@ from modules.inputs import Wilson
 import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
-
-
-def nested_dict():
-    """ This is very clever and stolen from
-    https://stackoverflow.com/questions/16724788/
-    Use it to initialize a dictionary-like object which automatically adds
-    levels.
-    E.g.
-        a = nested_dict()
-        a['test']['this']['is']['working'] = "yaaay"
-    """
-    return collections.defaultdict(nested_dict)
-
-
-def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
-    """Calculates one benchmark point.
-
-    Args:
-        w: Wilson coefficients
-        bin_edges:
-
-    Returns:
-        np.array of the integration results
-    """
-
-    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
-                                     bin_edges,
-                                     normalized=True)
+from modules.util.misc import nested_dict
 
 
 class Scanner(object):
@@ -180,10 +150,10 @@ class Scanner(object):
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)
 
-        # this is the worker function: calculate_bpoints with additional
-        # arguments frozen
-        worker = functools.partial(calculate_bpoint,
-                                   bin_edges=self._q2points)
+        def worker(w):
+            distribution.bin_function(lambda x: distribution.dGq2(w, x),
+                                      binning=self._q2points,
+                                      normalized=True)
 
         results = pool.imap(worker, self._bpoints)
 

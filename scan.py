@@ -101,7 +101,24 @@ class Scanner(object):
 
     def set_bpoints_equidist(self, sampling=20, minima=None,
                              maxima=None) -> None:
-        """ Set a list of 'equidistant' benchmark points. """
+        """ Set a list of 'equidistant' benchmark points.
+
+        Args:
+            sampling: If int, this will be taken as the number of points to
+                be sampled from all 5 Wilson coefficients.
+                If a dictionary with the keys 'l', 'r', 'sl' is supplied, these
+                will set the number of sampling pointsn separately for each
+                Wilson coefficient.
+            minima:
+                Minima of the Wilson coefficients. If None, default values are
+                chosen, else supply a dictionary similar to the one of the
+                sampling parameter.
+            maxima:
+                Similar to the minimal parameter
+
+        Returns:
+            None
+        """
 
         # I set epsR an epsSR to zero  as the observables are only sensitive to
         # linear combinations  L + R

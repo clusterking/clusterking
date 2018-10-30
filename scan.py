@@ -176,9 +176,11 @@ class Scanner(object):
         if self._bpoints == 0:
             self.log.error("No benchmark points specified. Returning without "
                            "doing anything.")
+            return
         if self._q2points.size == 0:
             self.log.error("No q2points specified. Returning without "
                            "doing anything.")
+            return
 
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)

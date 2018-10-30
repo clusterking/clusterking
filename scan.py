@@ -81,7 +81,8 @@ class Scanner(object):
         self.config["bpoints"]["sampling"] = "manual"
         self.config["bpoints"]["npoints"] = len(self._bpoints)
 
-    def set_bpoints_equidist(self, sampling=20, minima=None, maxima=None) -> None:
+    def set_bpoints_equidist(self, sampling=20, minima=None,
+                             maxima=None) -> None:
         """ Set a list of 'equidistant' benchmark points. """
 
         # I set epsR an epsSR to zero  as the observables are only sensitive to
@@ -161,7 +162,8 @@ class Scanner(object):
         pool.close()
 
         self.log.info("Started queue with {} job(s) distributed over up to {} "
-                      "core(s)/worker(s).".format(len(self._bpoints), no_workers))
+                      "core(s)/worker(s).".format(len(self._bpoints),
+                                                  no_workers))
 
         starttime = time.time()
 
@@ -174,23 +176,25 @@ class Scanner(object):
             timedelta = time.time() - starttime
 
             completed = index + 1
-            remaining_time = (len(self._bpoints) - completed) * timedelta/completed
-            self.log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-                      "Time/bpoint: {:.1f}s => "
-                      "time remaining: {}".format(
-                         completed,
-                         len(self._bpoints),
-                         100*completed/len(self._bpoints),
-                         timedelta/completed,
-                         datetime.timedelta(seconds=remaining_time)
-                         ))
+            rem_time = (len(self._bpoints) - completed) * timedelta/completed
+            self.log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark "
+                           "points. Time/bpoint: {:.1f}s => "
+                           "time remaining: {}".format(
+                                completed,
+                                len(self._bpoints),
+                                100*completed/len(self._bpoints),
+                                timedelta/completed,
+                                datetime.timedelta(seconds=rem_time)
+                                ))
 
         # Wait for completion of all jobs here
         pool.join()
 
         self.log.debug("Converting data to pandas dataframe.")
         cols = list(Wilson(0, 0, 0, 0, 0).dict().keys())
-        cols.extend(["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)])
+        cols.extend(
+            ["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)]
+        )
         self.df = pd.DataFrame(data=rows, columns=cols)
 
         self.log.info("Integration done.")
@@ -337,7 +341,7 @@ def cli():
     paths = [s.config_output_path(args.output_path),
              s.data_output_path(args.output_path),
              s.index2wilson_output_path(args.output_path)]
-    existing_paths = [ path for path in paths if os.path.exists(path) ]
+    existing_paths = [path for path in paths if os.path.exists(path)]
     if existing_paths:
         agree = yn_prompt("Output paths {} already exist(s) and will be "
                           "overwritten. "

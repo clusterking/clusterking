@@ -5,6 +5,7 @@ normalized q2 distribution. """
 
 # standard modules
 import argparse
+import collections
 import datetime
 import functools
 import multiprocessing
@@ -24,33 +25,16 @@ from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
 
 
-log = get_logger("Scan")
-
-
-def get_bpoints(np_grid_subdivisions=20) -> List[Wilson]:
-    """Get a list of all benchmark points.
-
-    Args:
-        np_grid_subdivisions: Number of subdivision/sample points for the NP
-            parameter grid that is sampled
-
-    Returns:
-        a list of all benchmark points as tuples in the form
-        (epsL, epsR, epsSR, epsSL, epsT)
+def nested_dict():
+    """ This is very clever and stolen from
+    https://stackoverflow.com/questions/16724788/
+    Use it to initialize a dictionary-like object which automatically adds
+    levels.
+    E.g.
+        a = nested_dict()
+        a['test']['this']['is']['working'] = "yaaay"
     """
-
-    bps = []  # list of of benchmark points
-
-    # I set epsR an epsSR to zero  as the observables are only sensitive to
-    # linear combinations  L + R
-    epsR = 0.
-    epsSR = 0.
-    for epsL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
-        for epsSL in np.linspace(-0.30, 0.30, np_grid_subdivisions):
-            for epsT in np.linspace(-0.40, 0.40, np_grid_subdivisions):
-                bps.append(Wilson(epsL, epsR, epsSR, epsSL, epsT))
-
-    return bps
+    return collections.defaultdict(nested_dict)
 
 
 def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
@@ -61,7 +45,7 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
         bin_edges:
 
     Returns:
-        Resulting q2 histogram as a list of tuples (q2, distribution at this q2)
+        np.array of the integration results
     """
 
     return distribution.bin_function(lambda x: distribution.dGq2(w, x),
@@ -69,91 +53,201 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
                                      normalized=True)
 
 
-# todo: writeout should be different method
-def run(bpoints: List[Wilson], no_workers=4, output_path="global_results.out",
-        no_bins=15):
-    """Calculate all benchmark points in parallel.
+class Scanner(object):
+    """ This implements all the functionality. """
+    def __init__(self):
+        self.log = get_logger("Scanner")
 
-    Args:
-        bpoints: Benchmark points
-        no_workers: Number of worker nodes/cores
-        output_path: Output path. Will be overwritten if existing!
-        no_bins: q2 grid spacing
+        # benchmark points (i.e. Wilson coefficients)
+        # Do NOT directly modify this, but use one of the methods below.
+        self._bpoints = []
 
-    Returns:
-        None
-    """
+        # EDGES of the q2 bins
+        # Do NOT directly modify this, but use one of the methods below.
+        self._q2points = np.array([])
 
-    # pool of worker nodes
-    pool = multiprocessing.Pool(processes=no_workers)
+        # This will hold all of the results
+        self.df = pd.DataFrame()
 
-    bin_edges = np.linspace(distribution.q2min, distribution.q2max, no_bins+1)
+        # This will hold all the configuration that we will write out
+        self.config = nested_dict()
 
-    # this is the worker function: calculate_bpoints with additional
-    # arguments frozen
-    worker = functools.partial(calculate_bpoint,
-                               bin_edges=bin_edges)
+    def set_q2points_manual(self, q2points: np.array) -> None:
+        """ Manually set the edges of the q2 binning. """
+        self._q2points = q2points
+        self.config["q2points"]["sampling"] = "manual"
 
-    results = pool.imap(worker, bpoints)
+    def set_q2points_equidist(
+        self,
+        no_bins,
+        dist_max=distribution.q2max,
+        dist_min=distribution.q2min
+    ) -> None:
+        """ Set the edges of the q2 binning automatically.
 
-    # close the queue for new jobs
-    pool.close()
+        Args:
+            no_bins: Number of bins
+            dist_max: The right edge of the last bin (=maximal q2 value)
+            dist_min: The left edge of the first bin (=minimal q2 value)
 
-    log.info("Started queue with {} job(s) distributed over up to {} "
-             "core(s)/worker(s).".format(len(bpoints), no_workers))
+        Returns:
+            None
+        """
+        self._q2points = np.linspace(dist_min, dist_max, no_bins+1)
+        self.config["q2points"]["sampling"] = "equidistant"
 
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    def set_bpoints_manual(self, bpoints) -> None:
+        """ Manually set a list of benchmark points """
+        self._bpoints = bpoints
+        self.config["bpoints"]["sampling"] = "manual"
 
-    if os.path.exists(output_path):
-        os.remove(output_path)
+    # todo: make method more flexible
+    def set_bpoints_equidist(self, sampling=20) -> None:
+        """ Set a list of 'equidistant' benchmark points. """
+        bpoints = []
+        # I set epsR an epsSR to zero  as the observables are only sensitive to
+        # linear combinations  L + R
+        eps_r = 0.
+        eps_sr = 0.
+        for eps_l in np.linspace(-0.30, 0.30, sampling):
+            for eps_sl in np.linspace(-0.30, 0.30, sampling):
+                for eps_t in np.linspace(-0.40, 0.40, sampling):
+                    bpoints.append(Wilson(eps_l, eps_r, eps_sr, eps_sl, eps_t))
+        self._bpoints = bpoints
+        self.config["bpoints"]["sampling"] = "equidistant"
 
-    starttime = time.time()
+    # todo: docstring
+    @staticmethod
+    def data_output_path(general_output_path):
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_data.csv"
+        )
 
-    rows = []
-    for index, result in enumerate(results):
+    # todo: docstring
+    @staticmethod
+    def config_output_path(general_output_path):
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_config.json"
+        )
 
-        bpoint_dict = bpoints[index].dict().values()
-        rows.append([*bpoint_dict, *result])
+    def write(self, general_output_path) -> None:
+        """ Write out all results.
+        IMPORTANT NOTE: All output files will always be overwritten!
 
-        timedelta = time.time() - starttime
+        Args:
+            general_output_path: Path to the output file without file extension.
+            We will add suffixes and file extensions to this!
+        """
+        if self.df.empty:
+            self.log.error("Data frame is empty yet attempting to write out. "
+                           "Ignore.")
+            return
 
-        completed = index + 1
-        remaining_time = (len(bpoints) - completed) * timedelta/completed
-        log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
-                  "Time/bpoint: {:.1f}s => "
-                  "time remaining: {}".format(
-                     completed,
-                     len(bpoints),
-                     100*completed/len(bpoints),
-                     timedelta/completed,
-                     datetime.timedelta(seconds=remaining_time)
-                     ))
+        # *** 1. Clean files and make sure the folders exist ***
 
-    # Wait for completion of all jobs here
-    pool.join()
+        config_path = self.config_output_path(general_output_path)
+        data_path = self.data_output_path(general_output_path)
 
-    log.debug("Converting data to pandas dataframe.")
-    cols = ["eps_l", "eps_r", "eps_sr", "eps_sl", "eps_t"]
-    cols.extend(["bin{}".format(no_bin) for no_bin in range(no_bins)])
-    df = pd.DataFrame(data=rows, columns=cols)
+        self.log.info("Will write config to '{}'.".format(config_path))
+        self.log.info("Will write data to '{}'.".format(data_path))
 
-    log.debug("Converting data to json.")
+        paths = [config_path, data_path]
+        for path in paths:
+            dirname = os.path.dirname(path)
+            if dirname and not os.path.exists(dirname):
+                self.log.debug("Creating directory '{}'.".format(dirname))
+                os.makedirs(dirname)
+            if os.path.exists(path):
+                self.log.debug("Removing file '{}'.".format(path))
+                os.remove(path)
 
-    json_data = {}
-    json_data["data"] = df
-    json_data["config"] = {}
-    json_data["config"]["bin_edges"] = list(bin_edges)
+        # *** 2. Write out config ***
 
-    log.debug("Writing out data.")
-    with open(output_path, "w") as outfile:
-        # orient = split not only saves space, but also prevents our
-        # row indices from being converted into strings
-        # https://stackoverflow.com/questions/44126822/
-        outfile.write(pd.io.json.dumps(json_data, orient="split"))
+        self.log.debug("Converting config data to json and writing to file "
+                       "'{}'.".format(config_path))
+        global_config = {"scan": self.config}
+        with open(config_path, "w") as config_file:
+            json.dump(global_config, config_file, sort_keys=True, indent=4)
+        self.log.debug("Done.")
 
-    log.info("Finished")
+        # *** 3. Write out data ***
+
+        self.log.debug("Converting data to csv and writing to "
+                       "file '{}'.".format(data_path))
+        if self.df.empty:
+            self.log.error("Dataframe seems to be empty. Still writing "
+                           "out anyway.")
+        with open(data_path, "w") as data_file:
+            self.df.to_csv(data_file)
+        self.log.debug("Done.")
+
+        self.log.info("Writing out finished.")
+
+
+    def run(self, no_workers=4) -> None:
+        """Calculate all benchmark points in parallel and saves the result in
+        self.df.
+
+        Args:
+            no_workers: Number of worker nodes/cores
+        """
+
+        if self._bpoints == 0:
+            self.log.error("No benchmark points specified. Returning without "
+                           "doing anything.")
+        if self._q2points.size == 0:
+            self.log.error("No q2points specified. Returning without "
+                           "doing anything.")
+
+        # pool of worker nodes
+        pool = multiprocessing.Pool(processes=no_workers)
+
+        # this is the worker function: calculate_bpoints with additional
+        # arguments frozen
+        worker = functools.partial(calculate_bpoint,
+                                   bin_edges=self._q2points)
+
+        results = pool.imap(worker, self._bpoints)
+
+        # close the queue for new jobs
+        pool.close()
+
+        self.log.info("Started queue with {} job(s) distributed over up to {} "
+                      "core(s)/worker(s).".format(len(self._bpoints), no_workers))
+
+        starttime = time.time()
+
+        rows = []
+        for index, result in enumerate(results):
+
+            bpoint_dict = self._bpoints[index].dict().values()
+            rows.append([*bpoint_dict, *result])
+
+            timedelta = time.time() - starttime
+
+            completed = index + 1
+            remaining_time = (len(self._bpoints) - completed) * timedelta/completed
+            self.log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark points. "
+                      "Time/bpoint: {:.1f}s => "
+                      "time remaining: {}".format(
+                         completed,
+                         len(self._bpoints),
+                         100*completed/len(self._bpoints),
+                         timedelta/completed,
+                         datetime.timedelta(seconds=remaining_time)
+                         ))
+
+        # Wait for completion of all jobs here
+        pool.join()
+
+        self.log.debug("Converting data to pandas dataframe.")
+        cols = ["eps_l", "eps_r", "eps_sr", "eps_sl", "eps_t"]
+        cols.extend(["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)])
+        self.df = pd.DataFrame(data=rows, columns=cols)
+
+        self.log.info("Integration done.")
 
 
 def cli():
@@ -168,7 +262,7 @@ def cli():
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("-o", "--output",
                         help="Output file.",
-                        default="output/scan/global_results.out",
+                        default="output/scan/global_results",
                         dest="output_path")
     parser.add_argument("-p", "--parallel",
                         help="Number of processes to run in parallel",
@@ -180,35 +274,38 @@ def cli():
                         default=20,
                         dest="np_grid_subdivision")
     parser.add_argument("-g", "--grid-subdivision",
-                        help="Number of sample points between minimal and "
-                             "maximal q2",
+                        help="Number of bins in q2",
                         type=int,
                         default=15,
-                        dest="grid_subdivision")
+                        dest="q2_bins")
     args = parser.parse_args()
 
-    log.info("NP parameters will be sampled with {} sampling points.".format(
+    s = Scanner()
+
+    s.set_bpoints_equidist(args.np_grid_subdivision)
+    s.log.info("NP parameters will be sampled with {} sampling points.".format(
         args.np_grid_subdivision))
-    log.info("q2 will be sampled with {} sampling points.".format(
-        args.grid_subdivision))
 
-    bpoints = get_bpoints(args.np_grid_subdivision)
-    log.info("Total integrations to be performed: {}.".format(
-        len(bpoints) * args.grid_subdivision))
+    s.set_q2points_equidist(args.q2_bins)
+    s.log.info("q2 will be sampled with {} sampling points.".format(
+        args.q2_bins))
 
-    if os.path.exists(args.output_path):
-        agree = yn_prompt("Output path '{}' already exists and will be "
-                          "overwritten. Proceed?".format(args.output_path))
+    paths = [s.config_output_path(args.output_path),
+             s.data_output_path(args.output_path)]
+    existing_paths = [ path for path in paths if os.path.exists(path) ]
+    if existing_paths:
+        agree = yn_prompt("Output paths {} already exist(s) and will be "
+                          "overwritten. "
+                          "Proceed?".format(', '.join(existing_paths)))
         if not agree:
-            log.critical("User abort.")
+            s.log.critical("User abort.")
             sys.exit(1)
 
-    log.info("Output file: '{}'.".format(args.output_path))
+    # s.log.info("Output file will be: '{}'.".format(args.output_path))
 
-    run(bpoints,
-        no_workers=args.parallel,
-        output_path=args.output_path,
-        no_bins=args.grid_subdivision)
+    s.run(no_workers=args.parallel)
+
+    s.write(args.output_path)
 
 
 if __name__ == "__main__":

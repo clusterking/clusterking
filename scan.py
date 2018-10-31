@@ -279,6 +279,7 @@ class Scanner(object):
             ["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)]
         )
         self.df = pd.DataFrame(data=rows, columns=cols)
+        self.df.index.name = "index"
 
         self.log.info("Integration done.")
 

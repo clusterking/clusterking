@@ -119,7 +119,7 @@ class Scanner(object):
         """
         self._q2points = np.linspace(dist_min, dist_max, no_bins+1)
         self.config["q2points"]["sampling"] = "equidistant"
-        self.config["q2points"]["nbins"] = len(self._q2points)
+        self.config["q2points"]["nbins"] = len(self._q2points) - 1
         self.config["q2points"]["min"] = dist_min
         self.config["q2points"]["max"] = dist_max
 

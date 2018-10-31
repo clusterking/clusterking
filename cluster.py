@@ -8,15 +8,17 @@ import argparse
 import json
 import os.path
 import sys
+import time
 from typing import Union
 
 # 3rd party
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # us
 from modules.util.log import get_logger
 from modules.util.cli import yn_prompt
+from modules.util.misc import nested_dict, git_info
 from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
@@ -28,11 +30,16 @@ class Cluster(object):
         self.log.info("Input file basename: '{}'.".format(input_path))
         self.input_path = input_path
 
-        self.scan_metadata = None
-        self.scan_df = None
-
-        self._get_scan_data()
+        # will load the one metadata from scan and then add our own
+        self.metadata = nested_dict()
         self._get_scan_metadata()
+        self.metadata["cluster"]["git"] = git_info(self.log)
+        self.metadata["cluster"]["time"] = time.strftime("%a %d %b %Y %H:%M",
+                                                         time.gmtime())
+
+        # dataframe from scanner
+        self.df = None
+        self._get_scan_data()
 
         self.hierarchy = None
 
@@ -40,21 +47,37 @@ class Cluster(object):
         path = Scanner.data_output_path(self.input_path)
         self.log.debug("Loading scanner data from '{}'.".format(path))
         with open(path, 'r') as data_file:
-            self.scan_df = pd.read_csv(data_file)
+            self.df = pd.read_csv(data_file)
         self.log.debug("Done.")
 
     def _get_scan_metadata(self):
         path = Scanner.config_output_path(self.input_path)
         self.log.debug("Loading scanner metadata from '{}'.".format(path))
         with open(path, 'r') as metadata_file:
-            self.scan_metadata = json.load(metadata_file)
+            scan_metadata = json.load(metadata_file)
+        self.metadata.update(scan_metadata)
         self.log.debug("Done.")
 
-    def build_hierarchy(self, metric="euclidean", method="complete"):
-        nbins = self.scan_metadata["scan"]["q2points"]["nbins"]
+    # todo: switch to more flexible keyword approach as below
+    def build_hierarchy(self, **kwargs):
+        self.log.debug("Building hierarchy.")
+        nbins = self.metadata["scan"]["q2points"]["nbins"]
         # only the q2 bins without any other information in the dataframe
-        data = self.scan_df[["bin{}".format(i) for i in range(nbins)]]
-        self.hierarchy = linkage(data, metric=metric, method=method)
+        data = self.df[["bin{}".format(i) for i in range(nbins)]]
+
+        # set defaults for linkage options here
+        # (this way we can overwrite them with additional arguments)
+        linkage_config = {
+            "metric": "euclidean",
+            "method": "complete"
+        }
+        linkage_config.update(kwargs)
+
+        self.hierarchy = linkage(data, **linkage_config)
+        config = self.metadata["cluster"]["hierarchy"]
+        config["metric"] = linkage_config["metric"]
+        config["method"] = linkage_config["method"]
+        self.log.debug("Done")
 
     def dendogram(
             self,
@@ -70,6 +93,8 @@ class Cluster(object):
             ax: An axes object if you want to add the dendogram to an existing
                 axes rather than creating a new one
             show: If true, the dendogram is shown in a viewer.
+            **kwargs: Additional keyword options to
+                scipy.cluster.hierarchy.dendogram
 
         Returns:
             The matplotlib.pyplot.Axes object
@@ -122,6 +147,96 @@ class Cluster(object):
 
         return ax
 
+    def cluster(self, max_d=0.02, **kwargs):
+        """Performs the actual clustering
+        Args:
+            max_d:
+            **kwargs:
+
+        Returns:
+            None
+        """
+        self.log.debug("Performing clustering.")
+        if self.hierarchy is None:
+            self.log.error("Hierarchy not yet set up. Returning without "
+                           "doing anything")
+            return
+
+        # set up defaults for clustering here
+        # (this way we can overwrite them with additional arguments)
+        fcluster_config = {
+            "criterion": "distance"
+        }
+        fcluster_config.update(kwargs)
+        clusters = fcluster(self.hierarchy, max_d, **fcluster_config)
+        self.df["cluster"] = pd.Series(clusters, index=self.df.index)
+
+        config = self.metadata["cluster"]["cluster"]
+        config["max_d"] = max_d
+        config["criterion"] = fcluster_config["criterion"]
+
+    @staticmethod
+    def data_output_path(general_output_path):
+        """ Taking the general output path, return the path to the data file.
+        """
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_data.csv"
+        )
+
+    @staticmethod
+    def metadata_output_path(general_output_path):
+        """ Taking the general output path, return the path to the config file.
+        """
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_metadata.json"
+        )
+
+    def write(self, general_output_path):
+        pass
+
+        # *** 1. Clean files and make sure the folders exist ***
+
+        config_path = self.metadata_output_path(general_output_path)
+        data_path = self.data_output_path(general_output_path)
+
+        self.log.info("Will write config to '{}'.".format(config_path))
+        self.log.info("Will write data to '{}'.".format(data_path))
+
+        paths = [config_path, data_path]
+        for path in paths:
+            dirname = os.path.dirname(path)
+            if dirname and not os.path.exists(dirname):
+                self.log.debug("Creating directory '{}'.".format(dirname))
+                os.makedirs(dirname)
+            if os.path.exists(path):
+                self.log.debug("Removing file '{}'.".format(path))
+                os.remove(path)
+
+        # *** 2. Write out config ***
+
+        self.log.debug("Converting config data to json and writing to file "
+                       "'{}'.".format(config_path))
+        with open(config_path, "w") as config_file:
+            json.dump(self.metadata, config_file, sort_keys=True, indent=4)
+        self.log.debug("Done.")
+
+        # *** 3. Write out data ***
+
+        self.log.debug("Converting data to csv and writing to "
+                       "file '{}'.".format(data_path))
+        if self.df.empty:
+            self.log.error("Dataframe seems to be empty. Still writing "
+                           "out anyway.")
+        with open(data_path, "w") as data_file:
+            self.df.to_csv(data_file)
+        self.log.debug("Done")
+
+        # *** 4. Done ***
+
+        self.log.info("Writing out finished.")
+
 
 def cli():
     """Command line interface to run the integration jobs from the command
@@ -154,6 +269,9 @@ def cli():
 
     c.build_hierarchy()
     c.dendogram(show=True, output="test.pdf")
+    c.cluster()
+    c.write(args.output_path)
+
     plt.show()
 
 if __name__ == "__main__":

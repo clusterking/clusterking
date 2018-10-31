@@ -29,11 +29,9 @@ class Cluster(object):
 
         self.scan_metadata = None
         self.scan_df = None
-        self.scan_index2wilson = None
 
         self._get_scan_data()
         self._get_scan_metadata()
-        self._get_scan_index2wilson()
 
         self.hierarchy = None
 
@@ -49,14 +47,6 @@ class Cluster(object):
         self.log.debug("Loading scanner metadata from '{}'.".format(path))
         with open(path, 'r') as metadata_file:
             self.scan_metadata = json.load(metadata_file)
-        self.log.debug("Done.")
-
-    # todo: probably we don't need that separately actually
-    def _get_scan_index2wilson(self):
-        path = Scanner.config_output_path(self.input_path)
-        self.log.debug("Loading index2wilson from '{}'.".format(path))
-        with open(path, 'r') as index2wilson_file:
-            self.scan_index2wilson = json.load(index2wilson_file)
         self.log.debug("Done.")
 
     def build_hierarchy(self, metric="euclidean", method="complete"):
@@ -78,9 +68,10 @@ class Cluster(object):
         plt.xlabel('ID', fontsize=labelsize)
         plt.ylabel('distance', fontsize=labelsize)
         den = dendrogram(
-            self.hierarchy , color_threshold = 0.02,
-            leaf_rotation=90., # rotates the x axis labels
-            leaf_font_size=8, # font size for the x axis labels
+            self.hierarchy,
+            color_threshold = 0.02,
+            leaf_rotation=90.,  # rotates the x axis labels
+            leaf_font_size=8,   # font size for the x axis labels
         )
         if not output_path:
             plt.show()

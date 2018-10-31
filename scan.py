@@ -302,14 +302,6 @@ class Scanner(object):
             os.path.basename(general_output_path) + "_config.json"
         )
 
-    @staticmethod
-    def index2wilson_output_path(general_output_path):
-        """ Taking the general output path, return the path to the config file.
-        """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_index2wilson.csv"
-        )
 
     def write(self, general_output_path) -> None:
         """ Write out all results.
@@ -328,14 +320,11 @@ class Scanner(object):
 
         config_path = self.config_output_path(general_output_path)
         data_path = self.data_output_path(general_output_path)
-        index2wilson_path = self.index2wilson_output_path(general_output_path)
 
         self.log.info("Will write config to '{}'.".format(config_path))
         self.log.info("Will write data to '{}'.".format(data_path))
-        self.log.info("Will write index -> wilson mapping to '{}'.".format(
-            index2wilson_path))
 
-        paths = [config_path, data_path, index2wilson_path]
+        paths = [config_path, data_path]
         for path in paths:
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
@@ -361,20 +350,11 @@ class Scanner(object):
         if self.df.empty:
             self.log.error("Dataframe seems to be empty. Still writing "
                            "out anyway.")
-        wilson_cols = list(Wilson(0, 0, 0, 0, 0).dict().keys())
         with open(data_path, "w") as data_file:
-            self.df.drop(columns=wilson_cols).to_csv(data_file)
+            self.df.to_csv(data_file)
         self.log.debug("Done")
 
-        # *** 4. Write out index -> Wilson mapping ***
-
-        self.log.debug("Converting index2wilson to csv and writing to "
-                       "file '{}'.".format(index2wilson_path))
-        with open(index2wilson_path, "w") as index2wilson_file:
-            self.df[wilson_cols].to_csv(index2wilson_file)
-        self.log.debug("Done")
-
-        # *** 5. Done ***
+        # *** 4. Done ***
 
         self.log.info("Writing out finished.")
 
@@ -420,8 +400,7 @@ def cli():
         args.q2_bins))
 
     paths = [s.config_output_path(args.output_path),
-             s.data_output_path(args.output_path),
-             s.index2wilson_output_path(args.output_path)]
+             s.data_output_path(args.output_path)]
     existing_paths = [path for path in paths if os.path.exists(path)]
     if existing_paths:
         agree = yn_prompt("Output paths {} already exist(s) and will be "

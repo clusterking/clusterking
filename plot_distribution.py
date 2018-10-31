@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 log = get_logger("Plot")
 
+# todo: move this script somewhere more sensible
 
 # todo: move to a more elaborate plotting concept like https://scipy-cookbook.readthedocs.io/items/Matplotlib_UnfilledHistograms.html for unfilled histograms
 def plot_histogram(ax: plt.axes,

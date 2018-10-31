@@ -167,6 +167,7 @@ class Cluster(object):
         Returns:
             The matplotlib.pyplot.Axes object
         """
+        self.log.debug("Plotting dendrogram.")
         if self.hierarchy is None:
             self.log.error("Hierarchy not yet set up. Returning without "
                            "doing anything.")
@@ -323,6 +324,10 @@ def cli():
                         help="Output file basename",
                         default="output/cluster/global_results",
                         dest="output_path")
+    parser.add_argument("-d", "--dist",
+                        help="max_d",
+                        default=0.2,
+                        dest="max_d")
     args = parser.parse_args()
 
     c = Cluster(args.input_path)
@@ -338,7 +343,7 @@ def cli():
     c.log.info("Output file: '{}'".format(args.output_path))
 
     c.build_hierarchy()
-    c.cluster(max_d=0.2)
+    c.cluster(max_d=args.max_d)
     c.write(args.output_path)
 
 if __name__ == "__main__":

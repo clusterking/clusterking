@@ -140,9 +140,9 @@ def plot_clusters(df,
     # *** 4. MISC preparations ***
 
     if not colors:
-        colors = ["red", "green", "blue", "pink"]
+        colors = ["red", "green", "blue", "black", "orange","pink", ]
     if not markers:
-        markers = ["o", "v", "^"]
+        markers = ["o", "v", "^", "v", "<", ">"]
     if not clusters:
         # plot all
         clusters = list(df['cluster'].unique())
@@ -161,8 +161,8 @@ def plot_clusters(df,
                 df_cluster = df_cluster[df_cluster[col] == level_rows[col]]
             axs[irow, icol].scatter(
                 *[df_cluster[col] for col in cols],
-                color=colors[icluster % len(colors)],
-                marker=markers[icluster % len(markers)],
+                color=colors[cluster-1 % len(colors)],
+                marker=markers[cluster-1 % len(markers)],
                 label=cluster,
                 **kwargs
             )

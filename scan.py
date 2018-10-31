@@ -21,7 +21,7 @@ from modules.inputs import Wilson
 import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
-from modules.util.misc import nested_dict, git_info
+from modules.util.metadata import nested_dict, git_info
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading

@@ -19,7 +19,7 @@ import pandas as pd
 # us
 from modules.util.log import get_logger
 from modules.util.cli import yn_prompt
-from modules.util.misc import nested_dict, git_info
+from modules.util.metadata import nested_dict, git_info
 from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 

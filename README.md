@@ -51,7 +51,7 @@ This again produces two output files:
 * ``output/scan/quick_metadata.json`` combined metadata of step 1 and
     this step.
     
-Furthermore, a dendogram is produced automatically and saved at
+Furthermore, a dendrogram is produced automatically and saved at
 ``output/cluster/quick_dend.pdf``. Our example: 
 
-![dendogram](https://raw.githubusercontent.com/celis/B_decays_clustering/master/readme_assets/quick_dend.png?raw=true)
+![dendrogram](https://raw.githubusercontent.com/celis/B_decays_clustering/master/readme_assets/quick_dend.png?raw=true)

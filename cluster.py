@@ -31,7 +31,7 @@ class Cluster(object):
     ```python
     c = Cluster("output/scan/general_output")
     c.build_hierarchy()
-    c.dendogram(show=True)
+    c.dendrogram(show=True)
     c.cluster(max_d=0.2)
     c.write("output/scan/general_output)
     ```
@@ -147,22 +147,22 @@ class Cluster(object):
     # C:  Built-in plotting methods
     # **************************************************************************
 
-    def dendogram(
+    def dendrogram(
             self,
             output: Union[None, str]=None,
             ax=None,
             show=False,
             **kwargs
     ) -> plt.Axes:
-        """Creates dendogram
+        """Creates dendrogram
 
         Args:
-            output: If supplied, we save the dendogram there
-            ax: An axes object if you want to add the dendogram to an existing
+            output: If supplied, we save the dendrogram there
+            ax: An axes object if you want to add the dendrogram to an existing
                 axes rather than creating a new one
-            show: If true, the dendogram is shown in a viewer.
+            show: If true, the dendrogram is shown in a viewer.
             **kwargs: Additional keyword options to
-                scipy.cluster.hierarchy.dendogram
+                scipy.cluster.hierarchy.dendrogram
 
         Returns:
             The matplotlib.pyplot.Axes object
@@ -183,7 +183,7 @@ class Cluster(object):
         ax.set_xlabel('ID', fontsize=labelsize)
         ax.set_ylabel('Distance', fontsize=labelsize)
 
-        # set defaults for dendogram plotting options here
+        # set defaults for dendrogram plotting options here
         # (this way we can overwrite them with additional arguments)
         den_config = {
             "color_threshold": "default",
@@ -211,7 +211,7 @@ class Cluster(object):
                 self.log.debug("Creating dir '{}'.".format(dirname))
                 os.makedirs(dirname)
             fig.savefig(output, bbox_inches="tight")
-            self.log.info("Wrote dendogram to '{}'.".format(output))
+            self.log.info("Wrote dendrogram to '{}'.".format(output))
 
         return ax
 
@@ -283,12 +283,12 @@ class Cluster(object):
             self.df.to_csv(data_file)
         self.log.debug("Done")
 
-        # *** 4. Save dendogram ***
+        # *** 4. Save dendrogram ***
 
         dend_path = os.path.join(os.path.dirname(general_output_path),
                                  os.path.basename(general_output_path) +
                                  "_dend.pdf")
-        self.dendogram(output=dend_path)
+        self.dendrogram(output=dend_path)
 
         # *** 5. Done ***
 

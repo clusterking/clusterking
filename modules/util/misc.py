@@ -1,7 +1,7 @@
+# todo: rename this file
 """ Miscellaneous utilities """
 
 import collections
-import logging
 try:
     import git
 except ImportError:
@@ -52,6 +52,7 @@ def git_info(log=None):
     commit_time = hcommit.committed_date
     git_config["time"] = time.strftime("%a %d %b %Y %H:%M",
                                        time.gmtime(commit_time))
+    # todo: also add a nice string representation of git diff?
     return git_config
 
 

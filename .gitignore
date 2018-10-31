@@ -17,4 +17,4 @@ __pycache__/
 data_w_label
 
 output/**
-plots/**
+.ipynb_checkpoints/

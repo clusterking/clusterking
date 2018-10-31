@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """strip outputs from an IPython Notebook
 Opens a notebook, strips its output, and writes the outputless version to the original file.
 Useful mainly as a git filter or pre-commit hook for users who don't want to track output in VCS.
@@ -51,9 +51,8 @@ def strip_output(nb):
 
 if __name__ == '__main__':
     filename = sys.argv[1]
-    print("Stripping output of '{}'".format(filename))
     with io.open(filename, 'r', encoding='utf8') as f:
         nb = read(f, as_version=NO_CONVERT)
     nb = strip_output(nb)
     with io.open(filename, 'w', encoding='utf8') as f:
-write(nb, f)
+        write(nb, f)

@@ -2,31 +2,56 @@
 
 ## Installation
 
-* Requires flavio https://flav-io.github.io
+**Essential packages**:
+
+* ``flavio`` https://flav-io.github.io 
+
+**Nice-to-have packages**
+
+* ``gitpython`` (to have information about the git version with which 
+    files were generated in the metadata file)
 
 ## Usage
 
-*   Step 1: Build q2 histograms for the different NP benchmark points.
-    Quick example:
+### Step 1: Build histograms
+
+Build q2 histograms for the different NP benchmark points.
+This can be done with the command line interface:
         
-        ./scan.py -n 3 -g 5 -o output/scan/quick.out
+    ./scan.py --np-grid-subdivision 3 --grid-subdivision 5 --output output/scan/quick
 
-    Calculate q2 histograms with 5 bins in q2, sampling the NP parameters
-    ``epsL``, ``epsSL`` and ``epsT`` with 3 points. 
-    
-    More information on the command line options for ``scan.py``:
-    ``scan.py --help``.
-    
-    The output file is currently in csv format.
-    
-*   Step 2: Build distance matrix from the q2 histograms.
-    Quick example using our output from step 1:
-    
-        ./distance_matrix.py -i output/scan/quick.out -o output/distance/quick.out
-      
-    More information on the command line options for ``distance_matrix.py``:
-    ``distance_matrix.py --help``. 
-    
-*   Step 3: Build clusters: Not implemented yet?
+More information on the command line options can be found by running
+``scan.py --help``.
 
-        ./cluster.py -i output/distance/quick.out -o output/cluster/quick.out
+This produces two output files:
+
+* ``output/scan/quick_data.csv`` holds the data as a CSV file with the 
+    columns ``index`` (number of the benchmark point), 
+    ``l``, ``r``, ``sr``, ``sl``, ``t`` (the five Wilson coefficient),
+    ``bin0``, ``bin1``, ..., ``bin4`` (the five bins of the q2 
+    distribution). 
+    
+* ``output/scan/quick_metadata.json`` holds metadata (e.g. how many
+    bins have we used, which software version etc.).
+    It's a prettified json file, so it's pretty human readable.
+
+
+### Step 2: Clustering
+    
+This can be done with the command line interface as well: 
+
+    ./cluster.py --input output/scan/quick.out --output output/cluster/quick
+
+This again produces two output files:
+
+* ``output/scan/quick_data.csv`` containing the same columns as 
+    ``output/scan/quick_data.csv`` plus an additional column ``cluster``
+    that contains the number of the cluster
+    
+* ``output/scan/quick_metadata.json`` combined metadata of step 1 and
+    this step.
+    
+Furthermore, a dendogram is produced automatically and saved at
+``output/cluster/quick_dend.pdf``. Our example: 
+
+![dendogram](https://raw.githubusercontent.com/celis/B_decays_clustering/master/readme_assets/quick_dend.png?raw=true)

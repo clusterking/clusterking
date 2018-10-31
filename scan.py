@@ -302,7 +302,6 @@ class Scanner(object):
             os.path.basename(general_output_path) + "_config.json"
         )
 
-
     def write(self, general_output_path) -> None:
         """ Write out all results.
         IMPORTANT NOTE: All output files will always be overwritten!

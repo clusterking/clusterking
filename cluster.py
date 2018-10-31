@@ -283,7 +283,14 @@ class Cluster(object):
             self.df.to_csv(data_file)
         self.log.debug("Done")
 
-        # *** 4. Done ***
+        # *** 4. Save dendogram ***
+
+        dend_path = os.path.join(os.path.dirname(general_output_path),
+                                 os.path.basename(general_output_path) +
+                                 "_dend.pdf")
+        self.dendogram(output=dend_path)
+
+        # *** 5. Done ***
 
         self.log.info("Writing out finished.")
 
@@ -331,7 +338,6 @@ def cli():
     c.log.info("Output file: '{}'".format(args.output_path))
 
     c.build_hierarchy()
-    c.dendogram(show=True)
     c.cluster(max_d=0.2)
     c.write(args.output_path)
 

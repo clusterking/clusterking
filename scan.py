@@ -91,15 +91,15 @@ class Scanner(object):
         self.df = pd.DataFrame()
 
         # This will hold all the configuration that we will write out
-        self.config = nested_dict()
-        self.config["git"] = git_info(self.log)
-        self.config["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
+        self.metadata = nested_dict()
+        self.metadata["git"] = git_info(self.log)
+        self.metadata["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
 
     def set_q2points_manual(self, q2points: np.array) -> None:
         """ Manually set the edges of the q2 binning. """
         self._q2points = q2points
-        self.config["q2points"]["sampling"] = "manual"
-        self.config["q2points"]["nbins"] = len(self._q2points)
+        self.metadata["q2points"]["sampling"] = "manual"
+        self.metadata["q2points"]["nbins"] = len(self._q2points)
 
     def set_q2points_equidist(
         self,
@@ -118,16 +118,16 @@ class Scanner(object):
             None
         """
         self._q2points = np.linspace(dist_min, dist_max, no_bins+1)
-        self.config["q2points"]["sampling"] = "equidistant"
-        self.config["q2points"]["nbins"] = len(self._q2points) - 1
-        self.config["q2points"]["min"] = dist_min
-        self.config["q2points"]["max"] = dist_max
+        self.metadata["q2points"]["sampling"] = "equidistant"
+        self.metadata["q2points"]["nbins"] = len(self._q2points) - 1
+        self.metadata["q2points"]["min"] = dist_min
+        self.metadata["q2points"]["max"] = dist_max
 
     def set_bpoints_manual(self, bpoints) -> None:
         """ Manually set a list of benchmark points """
         self._bpoints = bpoints
-        self.config["bpoints"]["sampling"] = "manual"
-        self.config["bpoints"]["npoints"] = len(self._bpoints)
+        self.metadata["bpoints"]["sampling"] = "manual"
+        self.metadata["bpoints"]["npoints"] = len(self._bpoints)
 
     def set_bpoints_equidist(self, sampling=20, minima=None,
                              maxima=None) -> None:
@@ -198,13 +198,13 @@ class Scanner(object):
                             bpoints.append(Wilson(l, r, sr, sl, t))
 
         self._bpoints = bpoints
-        self.config["bpoints"]["sampling"] = "equidistant"
-        self.config["bpoints"]["npoints"] = len(self._bpoints)
-        self.config["bpoints"]["min"] = _min
-        self.config["bpoints"]["max"] = _max
+        self.metadata["bpoints"]["sampling"] = "equidistant"
+        self.metadata["bpoints"]["npoints"] = len(self._bpoints)
+        self.metadata["bpoints"]["min"] = _min
+        self.metadata["bpoints"]["max"] = _max
         # do not just take the sampling value (because if start == end, they
         # are incorrect and we only have exactly one point)
-        self.config["bpoints"]["sample"] = {
+        self.metadata["bpoints"]["sample"] = {
             key: len(value) for key, value in lists.items()
         }
 
@@ -294,12 +294,12 @@ class Scanner(object):
         )
 
     @staticmethod
-    def config_output_path(general_output_path):
-        """ Taking the general output path, return the path to the config file.
+    def metadata_output_path(general_output_path):
+        """ Taking the general output path, return the path to the metadata file.
         """
         return os.path.join(
             os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_config.json"
+            os.path.basename(general_output_path) + "_metadata.json"
         )
 
     def write(self, general_output_path) -> None:
@@ -317,13 +317,13 @@ class Scanner(object):
 
         # *** 1. Clean files and make sure the folders exist ***
 
-        config_path = self.config_output_path(general_output_path)
+        metadata_path = self.metadata_output_path(general_output_path)
         data_path = self.data_output_path(general_output_path)
 
-        self.log.info("Will write config to '{}'.".format(config_path))
+        self.log.info("Will write metadata to '{}'.".format(metadata_path))
         self.log.info("Will write data to '{}'.".format(data_path))
 
-        paths = [config_path, data_path]
+        paths = [metadata_path, data_path]
         for path in paths:
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
@@ -333,13 +333,13 @@ class Scanner(object):
                 self.log.debug("Removing file '{}'.".format(path))
                 os.remove(path)
 
-        # *** 2. Write out config ***
+        # *** 2. Write out metadata ***
 
-        self.log.debug("Converting config data to json and writing to file "
-                       "'{}'.".format(config_path))
-        global_config = {"scan": self.config}
-        with open(config_path, "w") as config_file:
-            json.dump(global_config, config_file, sort_keys=True, indent=4)
+        self.log.debug("Converting metadata data to json and writing to file "
+                       "'{}'.".format(metadata_path))
+        global_metadata = {"scan": self.metadata}
+        with open(metadata_path, "w") as metadata_file:
+            json.dump(global_metadata, metadata_file, sort_keys=True, indent=4)
         self.log.debug("Done.")
 
         # *** 3. Write out data ***
@@ -399,7 +399,7 @@ def cli():
     s.log.info("q2 will be sampled with {} sampling points.".format(
         args.q2_bins))
 
-    paths = [s.config_output_path(args.output_path),
+    paths = [s.metadata_output_path(args.output_path),
              s.data_output_path(args.output_path)]
     existing_paths = [path for path in paths if os.path.exists(path)]
     if existing_paths:

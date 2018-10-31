@@ -76,7 +76,7 @@ class Cluster(object):
 
     def _get_scan_metadata(self):
         """ Read metadata from scan.py """
-        path = Scanner.config_output_path(self.input_path)
+        path = Scanner.metadata_output_path(self.input_path)
         self.log.debug("Loading scanner metadata from '{}'.".format(path))
         with open(path, 'r') as metadata_file:
             scan_metadata = json.load(metadata_file)
@@ -106,9 +106,9 @@ class Cluster(object):
         linkage_config.update(kwargs)
 
         self.hierarchy = linkage(data, **linkage_config)
-        config = self.metadata["cluster"]["hierarchy"]
-        config["metric"] = linkage_config["metric"]
-        config["method"] = linkage_config["method"]
+        md = self.metadata["cluster"]["hierarchy"]
+        md["metric"] = linkage_config["metric"]
+        md["method"] = linkage_config["method"]
         self.log.debug("Done")
 
     def cluster(self, max_d=0.02, **kwargs):
@@ -138,10 +138,10 @@ class Cluster(object):
 
         self.df["cluster"] = pd.Series(clusters, index=self.df.index)
 
-        config = self.metadata["cluster"]["cluster"]
-        config["max_d"] = max_d
-        config["criterion"] = fcluster_config["criterion"]
-        config["nclusters"] = nclusters
+        md = self.metadata["cluster"]["cluster"]
+        md["max_d"] = max_d
+        md["criterion"] = fcluster_config["criterion"]
+        md["nclusters"] = nclusters
 
     # **************************************************************************
     # C:  Built-in plotting methods
@@ -230,7 +230,7 @@ class Cluster(object):
 
     @staticmethod
     def metadata_output_path(general_output_path):
-        """ Taking the general output path, return the path to the config file.
+        """ Taking the general output path, return the path to the metadata file.
         """
         return os.path.join(
             os.path.dirname(general_output_path),
@@ -248,13 +248,13 @@ class Cluster(object):
 
         # *** 1. Clean files and make sure the folders exist ***
 
-        config_path = self.metadata_output_path(general_output_path)
+        metadata_path = self.metadata_output_path(general_output_path)
         data_path = self.data_output_path(general_output_path)
 
-        self.log.info("Will write config to '{}'.".format(config_path))
+        self.log.info("Will write metadata to '{}'.".format(metadata_path))
         self.log.info("Will write data to '{}'.".format(data_path))
 
-        paths = [config_path, data_path]
+        paths = [metadata_path, data_path]
         for path in paths:
             dirname = os.path.dirname(path)
             if dirname and not os.path.exists(dirname):
@@ -264,12 +264,12 @@ class Cluster(object):
                 self.log.debug("Removing file '{}'.".format(path))
                 os.remove(path)
 
-        # *** 2. Write out config ***
+        # *** 2. Write out metadata ***
 
-        self.log.debug("Converting config data to json and writing to file "
-                       "'{}'.".format(config_path))
-        with open(config_path, "w") as config_file:
-            json.dump(self.metadata, config_file, sort_keys=True, indent=4)
+        self.log.debug("Converting metadata data to json and writing to file "
+                       "'{}'.".format(metadata_path))
+        with open(metadata_path, "w") as metadata_file:
+            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
         self.log.debug("Done.")
 
         # *** 3. Write out data ***

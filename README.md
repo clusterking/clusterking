@@ -27,7 +27,7 @@ This produces two output files:
 
 * ``output/scan/quick_data.csv`` holds the data as a CSV file with the 
     columns ``index`` (number of the benchmark point), 
-    ``l``, ``r``, ``sr``, ``sl``, ``t`` (the five Wilson coefficient),
+    ``l``, ``r``, ``sr``, ``sl``, ``t`` (the five Wilson coefficients),
     ``bin0``, ``bin1``, ..., ``bin4`` (the five bins of the q2 
     distribution). 
     

@@ -29,7 +29,7 @@ class Cluster(object):
 
     Example:
     ```python
-    c = Cluster("output/scan/general_output")
+    c = Cluster("output/scan/global_output")
     c.build_hierarchy()
     c.dendrogram(show=True)
     c.cluster(max_d=0.2)

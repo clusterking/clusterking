@@ -92,14 +92,14 @@ class Scanner(object):
 
         # This will hold all the configuration that we will write out
         self.metadata = nested_dict()
-        self.metadata["git"] = git_info(self.log)
-        self.metadata["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
+        self.metadata["scan"]["git"] = git_info(self.log)
+        self.metadata["scan"]["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
 
     def set_q2points_manual(self, q2points: np.array) -> None:
         """ Manually set the edges of the q2 binning. """
         self._q2points = q2points
-        self.metadata["q2points"]["sampling"] = "manual"
-        self.metadata["q2points"]["nbins"] = len(self._q2points)
+        self.metadata["scan"]["q2points"]["sampling"] = "manual"
+        self.metadata["scan"]["q2points"]["nbins"] = len(self._q2points)
 
     def set_q2points_equidist(
         self,
@@ -118,16 +118,17 @@ class Scanner(object):
             None
         """
         self._q2points = np.linspace(dist_min, dist_max, no_bins+1)
-        self.metadata["q2points"]["sampling"] = "equidistant"
-        self.metadata["q2points"]["nbins"] = len(self._q2points) - 1
-        self.metadata["q2points"]["min"] = dist_min
-        self.metadata["q2points"]["max"] = dist_max
+        md = self.metadata["scan"]["q2points"]
+        md["sampling"] = "equidistant"
+        md["nbins"] = len(self._q2points) - 1
+        md["min"] = dist_min
+        md["max"] = dist_max
 
     def set_bpoints_manual(self, bpoints) -> None:
         """ Manually set a list of benchmark points """
         self._bpoints = bpoints
-        self.metadata["bpoints"]["sampling"] = "manual"
-        self.metadata["bpoints"]["npoints"] = len(self._bpoints)
+        self.metadata["scan"]["bpoints"]["sampling"] = "manual"
+        self.metadata["scan"]["bpoints"]["npoints"] = len(self._bpoints)
 
     def set_bpoints_equidist(self, sampling=20, minima=None,
                              maxima=None) -> None:
@@ -198,13 +199,14 @@ class Scanner(object):
                             bpoints.append(Wilson(l, r, sr, sl, t))
 
         self._bpoints = bpoints
-        self.metadata["bpoints"]["sampling"] = "equidistant"
-        self.metadata["bpoints"]["npoints"] = len(self._bpoints)
-        self.metadata["bpoints"]["min"] = _min
-        self.metadata["bpoints"]["max"] = _max
+        md = self.metadata["scan"]["bpoints"]
+        md["sampling"] = "equidistant"
+        md["npoints"] = len(self._bpoints)
+        md["min"] = _min
+        md["max"] = _max
         # do not just take the sampling value (because if start == end, they
         # are incorrect and we only have exactly one point)
-        self.metadata["bpoints"]["sample"] = {
+        md["sample"] = {
             key: len(value) for key, value in lists.items()
         }
 
@@ -337,9 +339,8 @@ class Scanner(object):
 
         self.log.debug("Converting metadata data to json and writing to file "
                        "'{}'.".format(metadata_path))
-        global_metadata = {"scan": self.metadata}
         with open(metadata_path, "w") as metadata_file:
-            json.dump(global_metadata, metadata_file, sort_keys=True, indent=4)
+            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
         self.log.debug("Done.")
 
         # *** 3. Write out data ***

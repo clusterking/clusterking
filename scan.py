@@ -350,6 +350,7 @@ class Scanner(object):
         if self.df.empty:
             self.log.error("Dataframe seems to be empty. Still writing "
                            "out anyway.")
+        self.df.index.name = "index"
         with open(data_path, "w") as data_file:
             self.df.to_csv(data_file)
         self.log.debug("Done")

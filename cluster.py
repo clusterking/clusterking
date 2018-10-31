@@ -48,6 +48,7 @@ class Cluster(object):
         self.log.debug("Loading scanner data from '{}'.".format(path))
         with open(path, 'r') as data_file:
             self.df = pd.read_csv(data_file)
+        self.df.set_index("index", inplace=True)
         self.log.debug("Done.")
 
     def _get_scan_metadata(self):
@@ -268,11 +269,11 @@ def cli():
     c.log.info("Output file: '{}'".format(args.output_path))
 
     c.build_hierarchy()
-    c.dendogram(show=True, output="test.pdf")
+    # c.dendogram(show=True, output="test.pdf")
     c.cluster()
     c.write(args.output_path)
 
-    plt.show()
+    # plt.show()
 
 if __name__ == "__main__":
     # Run command line interface

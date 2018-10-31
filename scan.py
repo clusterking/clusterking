@@ -309,7 +309,7 @@ class Scanner(object):
 
         Args:
             general_output_path: Path to the output file without file extension.
-            We will add suffixes and file extensions to this!
+                We will add suffixes and file extensions to this!
         """
         if self.df.empty:
             self.log.error("Data frame is empty yet attempting to write out. "

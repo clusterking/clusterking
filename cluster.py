@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Read the results from distance_matrix.py and cluster them.
+"""Read the results from scan.py and clusters them.
 """
 
 # standard
@@ -25,6 +25,22 @@ from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 
 class Cluster(object):
+    """This class implements the clustering functionality
+
+    Example:
+    ```python
+    c = Cluster("output/scan/general_output")
+    c.build_hierarchy()
+    c.dendogram(show=True)
+    c.cluster(max_d=0.2)
+    c.write("output/scan/general_output)
+    ```
+    """
+
+    # **************************************************************************
+    # A:  Setup
+    # **************************************************************************
+
     def __init__(self, input_path):
         self.log = get_logger("Cluster")
 
@@ -50,6 +66,7 @@ class Cluster(object):
         atexit.register(self.close)
 
     def _get_scan_data(self):
+        """ Read data from scan.py """
         path = Scanner.data_output_path(self.input_path)
         self.log.debug("Loading scanner data from '{}'.".format(path))
         with open(path, 'r') as data_file:
@@ -58,6 +75,7 @@ class Cluster(object):
         self.log.debug("Done.")
 
     def _get_scan_metadata(self):
+        """ Read metadata from scan.py """
         path = Scanner.config_output_path(self.input_path)
         self.log.debug("Loading scanner metadata from '{}'.".format(path))
         with open(path, 'r') as metadata_file:
@@ -65,7 +83,15 @@ class Cluster(object):
         self.metadata.update(scan_metadata)
         self.log.debug("Done.")
 
-    def build_hierarchy(self, **kwargs):
+    # **************************************************************************
+    # B:  Cluster
+    # **************************************************************************
+
+    def build_hierarchy(self, **kwargs) -> None:
+        """ Build the hierarchy object.
+        Args:
+            **kwargs: keyword arguments to scipy.cluster.hierarchy.linkage
+        """
         self.log.debug("Building hierarchy.")
         nbins = self.metadata["scan"]["q2points"]["nbins"]
         # only the q2 bins without any other information in the dataframe
@@ -84,75 +110,6 @@ class Cluster(object):
         config["metric"] = linkage_config["metric"]
         config["method"] = linkage_config["method"]
         self.log.debug("Done")
-
-    def dendogram(
-            self,
-            output: Union[None, str]=None,
-            ax=None,
-            show=False,
-            **kwargs
-    ) -> plt.Axes:
-        """Creates dendogram
-
-        Args:
-            output: If supplied, we save the dendogram there
-            ax: An axes object if you want to add the dendogram to an existing
-                axes rather than creating a new one
-            show: If true, the dendogram is shown in a viewer.
-            **kwargs: Additional keyword options to
-                scipy.cluster.hierarchy.dendogram
-
-        Returns:
-            The matplotlib.pyplot.Axes object
-        """
-        if self.hierarchy is None:
-            self.log.error("Hierarchy not yet set up. Returning without "
-                           "doing anything.")
-            return
-
-        # do we add to a plot or generate a whole new figure?
-        if ax:
-            fig = ax.get_figure()
-        else:
-            fig, ax = plt.subplots()
-
-        labelsize = 20
-        ticksize = 15
-        ax.set_title('Hierarchical Clustering Dendrogram', fontsize=labelsize)
-        ax.set_xlabel('ID', fontsize=labelsize)
-        ax.set_ylabel('Distance', fontsize=labelsize)
-
-        # set defaults for dendogram plotting options here
-        # (this way we can overwrite them with additional arguments)
-        den_config = {
-            "color_threshold": "default",
-            "leaf_rotation": 90.,  # rotates the x axis labels
-            "leaf_font_size": 8,   # font size for the x axis labels
-        }
-        den_config.update(kwargs)
-
-        den = dendrogram(
-            self.hierarchy,
-            ax=ax,
-            **den_config
-        )
-
-        if show:
-            fig.show()
-
-            # Trigger a plt.show() at the end of this script
-            self.wait_plots = True
-
-        if output:
-            assert(isinstance(output, str))
-            dirname = os.path.dirname(output)
-            if dirname and not os.path.exists(dirname):
-                self.log.debug("Creating dir '{}'.".format(dirname))
-                os.makedirs(dirname)
-            fig.savefig(output, bbox_inches="tight")
-            self.log.info("Wrote dendogram to '{}'.".format(output))
-
-        return ax
 
     def cluster(self, max_d=0.02, **kwargs):
         """Performs the actual clustering
@@ -186,6 +143,82 @@ class Cluster(object):
         config["criterion"] = fcluster_config["criterion"]
         config["nclusters"] = nclusters
 
+    # **************************************************************************
+    # C:  Built-in plotting methods
+    # **************************************************************************
+
+    def dendogram(
+            self,
+            output: Union[None, str]=None,
+            ax=None,
+            show=False,
+            **kwargs
+    ) -> plt.Axes:
+        """Creates dendogram
+
+        Args:
+            output: If supplied, we save the dendogram there
+            ax: An axes object if you want to add the dendogram to an existing
+                axes rather than creating a new one
+            show: If true, the dendogram is shown in a viewer.
+            **kwargs: Additional keyword options to
+                scipy.cluster.hierarchy.dendogram
+
+        Returns:
+            The matplotlib.pyplot.Axes object
+        """
+        if self.hierarchy is None:
+            self.log.error("Hierarchy not yet set up. Returning without "
+                           "doing anything.")
+            return
+
+        # do we add to a plot or generate a whole new figure?
+        if ax:
+            fig = ax.get_figure()
+        else:
+            fig, ax = plt.subplots()
+
+        labelsize = 20
+        ax.set_title('Hierarchical Clustering Dendrogram', fontsize=labelsize)
+        ax.set_xlabel('ID', fontsize=labelsize)
+        ax.set_ylabel('Distance', fontsize=labelsize)
+
+        # set defaults for dendogram plotting options here
+        # (this way we can overwrite them with additional arguments)
+        den_config = {
+            "color_threshold": "default",
+            "leaf_rotation": 90.,  # rotates the x axis labels
+            "leaf_font_size": 8,   # font size for the x axis labels
+        }
+        den_config.update(kwargs)
+
+        dendrogram(
+            self.hierarchy,
+            ax=ax,
+            **den_config
+        )
+
+        if show:
+            fig.show()
+
+            # Trigger a plt.show() at the end of this script
+            self.wait_plots = True
+
+        if output:
+            assert(isinstance(output, str))
+            dirname = os.path.dirname(output)
+            if dirname and not os.path.exists(dirname):
+                self.log.debug("Creating dir '{}'.".format(dirname))
+                os.makedirs(dirname)
+            fig.savefig(output, bbox_inches="tight")
+            self.log.info("Wrote dendogram to '{}'.".format(output))
+
+        return ax
+
+    # **************************************************************************
+    # D:  Write out
+    # **************************************************************************
+
     @staticmethod
     def data_output_path(general_output_path):
         """ Taking the general output path, return the path to the data file.
@@ -205,6 +238,13 @@ class Cluster(object):
         )
 
     def write(self, general_output_path):
+        """ Write out all results.
+        IMPORTANT NOTE: All output files will always be overwritten!
+
+        Args:
+            general_output_path: Path to the output file without file extension.
+                We will add suffixes and file extensions to this!
+        """
 
         # *** 1. Clean files and make sure the folders exist ***
 
@@ -247,6 +287,10 @@ class Cluster(object):
 
         self.log.info("Writing out finished.")
 
+    # **************************************************************************
+    # E:  MISC
+    # **************************************************************************
+
     def close(self):
         """This method is called when this script exits. A corresponding
         hook has been set up in the __init__ method.
@@ -287,11 +331,9 @@ def cli():
     c.log.info("Output file: '{}'".format(args.output_path))
 
     c.build_hierarchy()
-    c.dendogram(show=True, output="test.pdf")
+    c.dendogram(show=True)
     c.cluster(max_d=0.2)
     c.write(args.output_path)
-
-    # plt.show()
 
 if __name__ == "__main__":
     # Run command line interface

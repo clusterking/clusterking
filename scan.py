@@ -21,7 +21,7 @@ from modules.inputs import Wilson
 import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
-from modules.util.misc import nested_dict
+from modules.util.misc import nested_dict, git_info
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading
@@ -41,27 +41,35 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
                                      normalized=True)
 
 
+# todo: implement getters? (especially for the result)
 class Scanner(object):
     """ Scans the NP parameter space in a grid and also q2, producing the
     normalized q2 distribution.
 
     Usage example:
-        ```python
-        # Initialize Scanner object
-        s = Scanner()
 
-        # Sample 3 points for each of the 5 Wilson coefficients
-        s.set_bpoints_equidist(3)
+    ```python
+    # Initialize Scanner object
+    s = Scanner()
 
-        # Use 5 bins in q2
-        s.set_q2points_equidist(5)
+    # Sample 3 points for each of the 5 Wilson coefficients
+    s.set_bpoints_equidist(3)
 
-        # Start running with maximally 3 cores
-        s.run(no_workers=3)
+    # Use 5 bins in q2
+    s.set_q2points_equidist(5)
 
-        # Write out results
-        s.write("out/scan/global_output")
-        ```
+    # Start running with maximally 3 cores
+    s.run(no_workers=3)
+
+    # Write out results
+    s.write("output/scan/global_output")
+    ```
+
+    This is example is equivalent to calling
+    ```./scan.py -n 3 -g 5 -o output/scan/global_output -p 3```
+    or
+    ```./scan.py --np-grid-subdivision 3 --grid-subdivision 5 \
+        --output output/scan/global_output --parallel 3 ```
     """
 
     # **************************************************************************
@@ -84,6 +92,8 @@ class Scanner(object):
 
         # This will hold all the configuration that we will write out
         self.config = nested_dict()
+        self.config["git"] = git_info(self.log)
+        self.config["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
 
     def set_q2points_manual(self, q2points: np.array) -> None:
         """ Manually set the edges of the q2 binning. """

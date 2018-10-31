@@ -1,6 +1,13 @@
 """ Miscellaneous utilities """
 
 import collections
+import logging
+try:
+    import git
+except ImportError:
+    git = None
+import time
+
 
 def nested_dict():
     """ This is very clever and stolen from
@@ -12,3 +19,42 @@ def nested_dict():
         a['test']['this']['is']['working'] = "yaaay"
     """
     return collections.defaultdict(nested_dict)
+
+
+def git_info(log=None):
+    """ Return dictionary containing status of the git repository (commit hash,
+    date etc.
+
+    Args:
+        log: logging.Logger object (optional)
+
+    Returns:
+        dictionary
+    """
+    if git is None:
+        msg_warn = "Module 'git' not found, will not add git version " \
+                   "information to the output files."
+        msg_debug = "Install the 'git' module by running " \
+                    "'sudo pip3 install gitpython' or similar. "
+        if log:
+            log.warning(msg_warn)
+            log.debug(msg_debug)
+        else:
+            print(msg_warn)
+            print(msg_debug)
+        return
+
+    git_config = {}
+    repo = git.Repo(search_parent_directories=True)
+    hcommit = repo.head.commit
+    git_config["sha"] = hcommit.hexsha
+    git_config["msg"] = hcommit.message
+    commit_time = hcommit.committed_date
+    git_config["time"] = time.strftime("%a %d %b %Y %H:%M",
+                                       time.gmtime(commit_time))
+    return git_config
+
+
+if __name__ == "__main__":
+    print("Testing git_info")
+    print(git_info())

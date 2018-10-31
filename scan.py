@@ -21,7 +21,7 @@ from modules.inputs import Wilson
 import modules.distribution as distribution
 from modules.util.cli import yn_prompt
 from modules.util.log import get_logger
-from modules.util.misc import nested_dict, git_info
+from modules.util.metadata import nested_dict, git_info
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading
@@ -260,14 +260,17 @@ class Scanner(object):
 
             completed = index + 1
             rem_time = (len(self._bpoints) - completed) * timedelta/completed
-            self.log.debug("Progress: {:04}/{:04} ({:04.1f}%) of benchmark "
-                           "points. Time/bpoint: {:.1f}s => "
-                           "time remaining: {}".format(
-                                completed,
+            self.log.debug("Progress: {}/{} ({:04.1f}%) of bpoints. "
+                           "Time/bpoint: {:.1f}s => "
+                           "time remaining: {} "
+                           "(total elapsed: {})".format(
+                                str(completed).zfill(
+                                    len(str(len(self._bpoints)))),
                                 len(self._bpoints),
                                 100*completed/len(self._bpoints),
                                 timedelta/completed,
-                                datetime.timedelta(seconds=rem_time)
+                                datetime.timedelta(seconds=int(rem_time)),
+                                datetime.timedelta(seconds=int(timedelta))
                                 ))
 
         # Wait for completion of all jobs here

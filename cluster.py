@@ -5,6 +5,7 @@
 
 # standard
 import argparse
+import atexit
 import json
 import os.path
 import sys
@@ -43,6 +44,11 @@ class Cluster(object):
 
         self.hierarchy = None
 
+        # should we wait for plots to be shown?
+        self.wait_plots = False
+        # call self.close() when this script exits
+        atexit.register(self.close)
+
     def _get_scan_data(self):
         path = Scanner.data_output_path(self.input_path)
         self.log.debug("Loading scanner data from '{}'.".format(path))
@@ -59,7 +65,6 @@ class Cluster(object):
         self.metadata.update(scan_metadata)
         self.log.debug("Done.")
 
-    # todo: switch to more flexible keyword approach as below
     def build_hierarchy(self, **kwargs):
         self.log.debug("Building hierarchy.")
         nbins = self.metadata["scan"]["q2points"]["nbins"]
@@ -133,10 +138,11 @@ class Cluster(object):
         )
 
         if show:
-            # Note: we do not block here, so make sure that you're including
-            # plt.show() or an input statement somewhere in this script so
-            # that it doesn't just exit.
             fig.show()
+
+            # Trigger a plt.show() at the end of this script
+            self.wait_plots = True
+
         if output:
             assert(isinstance(output, str))
             dirname = os.path.dirname(output)
@@ -170,11 +176,15 @@ class Cluster(object):
         }
         fcluster_config.update(kwargs)
         clusters = fcluster(self.hierarchy, max_d, **fcluster_config)
+        nclusters = len(set(clusters))
+        self.log.info("This resulted in {} clusters.".format(nclusters))
+
         self.df["cluster"] = pd.Series(clusters, index=self.df.index)
 
         config = self.metadata["cluster"]["cluster"]
         config["max_d"] = max_d
         config["criterion"] = fcluster_config["criterion"]
+        config["nclusters"] = nclusters
 
     @staticmethod
     def data_output_path(general_output_path):
@@ -195,7 +205,6 @@ class Cluster(object):
         )
 
     def write(self, general_output_path):
-        pass
 
         # *** 1. Clean files and make sure the folders exist ***
 
@@ -238,6 +247,15 @@ class Cluster(object):
 
         self.log.info("Writing out finished.")
 
+    def close(self):
+        """This method is called when this script exits. A corresponding
+        hook has been set up in the __init__ method.
+        We use that to wait for interactive plots/plotting windows to close
+        if we made any. """
+        if self.wait_plots:
+            # this will block until all plotting windows were closed
+            plt.show()
+
 
 def cli():
     """Command line interface to run the integration jobs from the command
@@ -269,8 +287,8 @@ def cli():
     c.log.info("Output file: '{}'".format(args.output_path))
 
     c.build_hierarchy()
-    # c.dendogram(show=True, output="test.pdf")
-    c.cluster()
+    c.dendogram(show=True, output="test.pdf")
+    c.cluster(max_d=0.2)
     c.write(args.output_path)
 
     # plt.show()

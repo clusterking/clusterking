@@ -51,7 +51,7 @@ class Cluster(object):
         self.metadata = nested_dict()
         self._get_scan_metadata()
         self.metadata["cluster"]["git"] = git_info(self.log)
-        self.metadata["cluster"]["time"] = time.strftime("%a %d %b %Y %H:%M",
+        self.metadata["cluster"]["time"] = time.strftime("%a %_d %b %Y %H:%M",
                                                          time.gmtime())
 
         # dataframe from scanner
@@ -286,10 +286,10 @@ class Cluster(object):
 
         # *** 4. Save dendrogram ***
 
-        dend_path = os.path.join(os.path.dirname(general_output_path),
-                                 os.path.basename(general_output_path) +
-                                 "_dend.pdf")
-        self.dendrogram(output=dend_path)
+        # dend_path = os.path.join(os.path.dirname(general_output_path),
+        #                          os.path.basename(general_output_path) +
+        #                          "_dend.pdf")
+        # self.dendrogram(output=dend_path)
 
         # *** 5. Done ***
 
@@ -324,7 +324,7 @@ def cli():
                         help="Output file basename",
                         default="output/cluster/global_results",
                         dest="output_path")
-    parser.add_argument("-d", "--dist",
+    parser.add_argument("-_d", "--dist",
                         help="max_d",
                         default=0.2,
                         dest="max_d")

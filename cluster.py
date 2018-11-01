@@ -286,10 +286,14 @@ class Cluster(object):
 
         # *** 4. Save dendrogram ***
 
-        # dend_path = os.path.join(os.path.dirname(general_output_path),
-        #                          os.path.basename(general_output_path) +
-        #                          "_dend.pdf")
-        # self.dendrogram(output=dend_path)
+        if len(self.df) <= 100:
+            dend_path = os.path.join(os.path.dirname(general_output_path),
+                                     os.path.basename(general_output_path) +
+                                     "_dend.pdf")
+            self.dendrogram(output=dend_path)
+        else:
+            self.log.info("Large number of benchmark points (>=100), so "
+                          "we will not generate a dendrogram by default.")
 
         # *** 5. Done ***
 
@@ -332,10 +336,13 @@ def cli():
 
     c = Cluster(args.input_path)
 
-    # todo: this doesn't make sense yet
-    if os.path.exists(args.output_path):
-        agree = yn_prompt("Output path '{}' already exists and will be "
-                          "overwritten. Proceed?".format(args.output_path))
+    paths = [c.metadata_output_path(args.output_path),
+             c.data_output_path(args.output_path)]
+    existing_paths = [path for path in paths if os.path.exists(path)]
+    if existing_paths:
+        agree = yn_prompt("Output paths {} already exist(s) and will be "
+                          "overwritten. "
+                          "Proceed?".format(', '.join(existing_paths)))
         if not agree:
             c.log.critical("User abort.")
             sys.exit(1)

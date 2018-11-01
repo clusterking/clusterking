@@ -47,177 +47,226 @@ def plot_histogram(ax: plt.axes,
     )
 
 
+# todo: warning if not enough colors for all clusters
+# todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
+class ClusterPlot(object):
+    def __init__(self, df):
+        # from arguments
+        self.df = df
 
+        # config values: Save to configure by user
 
+        self.colors = None
+        if not self.colors:
+            self.colors = ["red", "green", "blue", "black", "orange", "pink", ]
+        self.markers = None
+        if not self.markers:
+            self.markers = ["o", "v", "^", "v", "<", ">"]
+        self.max_subplots = 16
+        self.max_cols = 4
+        self.figsize = (4, 4)
+        self.debug = False
 
-def plot_clusters(df,
-                  cols,
-                  clusters=None,
-                  colors=None,
-                  markers=None,
-                  max_subplots=16,
-                  max_cols=4,
-                  figsize=(4, 4),
-                  debug=False,
-                  **kwargs):
-    """Creates 2D plots (slices) of the clusters.
+        # internal values: Do not modify
 
-    Args:
-        df: Dataframe
-        cols: List of the column names to plot
-        clusters: List of clusters to include
-        colors: List of colors to use for the different clusters
-        markers: List of colors to use for the different clusters
-        max_subplots: Maximal number of different plots/slices
-        figsize: Size of each subplot (tuple)
-        debug: debug enabled?
-        kwargs: arguments for plt.scatter
+        self._cols = None
+        self._clusters = None
 
-    Returns:
-        matplotlib.pyplot.figure (unless inline matplotlib is used, then None)
-    """
-    def deb(*args, **kwargs):
-        """ For debugging this function """
-        if debug:
+        self._dofs = None
+        self._relevant_dofs = None
+        self._df_dofs = None
+
+        self._nsubplots = None
+        self._nrows = None
+        self._ncols = None
+
+        self._fig = None
+        self._axs = None
+        self._axli = None
+
+    def _d(self, *args, **kwargs):
+        """ For debugging this class """
+        if self.debug:
             print(*args, **kwargs)
 
-    assert(2 <= len(cols) <= 3)
+    def _find_dofs(self):
+        """ find all relevant wilson coefficients that are not axes on
+        the plots (called _dofs) """
 
-    # *** 1. find all relevant wilson coefficients that are not ***
-    # ***    axes on the plots (called dofs)                    ***
+        self._dofs = []
+        self._relevant_dofs = []
+        for col in ['l', 'r', 'sl', 'sr', 't']:
+            if col not in self._cols:
+                self._dofs.append(col)
+                if len(self.df[col].unique()) >= 2:
+                    self._relevant_dofs.append(col)
+        self._d("_dofs = {}, relevant_dofs = {}".format(self._dofs, self._relevant_dofs))
 
-    dofs = []
-    relevant_dofs = []
-    for col in ['l', 'r', 'sl', 'sr', 't']:
-        if col not in cols:
-            dofs.append(col)
-            if len(df[col].unique()) >= 2:
-                relevant_dofs.append(col)
-    deb("dofs = {}, relevant_dofs = {}".format(dofs, relevant_dofs))
+        # find all unique value combinations of these columns
+        self._df_dofs = self.df[self._dofs].drop_duplicates().sort_values(self._dofs)
+        self._df_dofs.reset_index(inplace=True)
+        self._d("number of subplots = {}".format(len(self._df_dofs)))
 
-    # find all unique value combinations of these columns
-    df_dofs = df[dofs].drop_duplicates().sort_values(dofs)
-    df_dofs.reset_index(inplace=True)
-    deb("number of subplots = {}".format(len(df_dofs)))
+    def _sample_dofs(self):
+        """Reduce the number of subplots by only sampling several points of
+        the Wilson coeffs that aren't on the axes"""
 
-    # *** 2. reduce the number of subplots by only sampling  **
-    # ***    several points of the above Wilson coeffs       **
+        if len(self._df_dofs) > self.max_subplots:
+            steps_per_dof = int(self.max_subplots ** (1 / len(self._relevant_dofs)))
+            self._d("number of steps per dof", steps_per_dof)
+            for col in self._relevant_dofs:
+                allowed_values = self._df_dofs[col].unique()
+                indizes = list(set(np.linspace(0, len(allowed_values)-1,
+                                               steps_per_dof).astype(int)))
+                allowed_values = allowed_values[indizes]
+                self._df_dofs = self._df_dofs[self._df_dofs[col].isin(allowed_values)]
+            self._d("number of subplots left after "
+                   "subsampling = {}".format(len(self._df_dofs)))
 
-    if len(df_dofs) > max_subplots:
-        steps_per_dof = int(max_subplots ** (1 / len(relevant_dofs)))
-        deb("number of steps per dof", steps_per_dof)
-        for col in relevant_dofs:
-            allowed_values = df_dofs[col].unique()
-            indizes = list(set(np.linspace(0, len(allowed_values)-1,
-                                           steps_per_dof).astype(int)))
-            allowed_values = allowed_values[indizes]
-            df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
-        deb("number of subplots left after "
-            "subsampling = {}".format(len(df_dofs)))
+        self.nsubplots = len(self._df_dofs)
+        self.ncols = min(self.max_cols, len(self._df_dofs))
+        self.nrows = ceil(len(self._df_dofs) / self.ncols)
+        self._d("nrows = {}, ncols = {}".format(self.nrows, self.ncols))
 
-    nsubplots = len(df_dofs)
+    def _setup_subplots(self):
+        """ Set up the subplot grid"""
 
+        # squeeze keyword: https://stackoverflow.com/questions/44598708/
+        # do not share axes, that makes problems if the grid is incomplete
+        subplots_args = {
+            "nrows": self.nrows,
+            "ncols": self.ncols,
+            "figsize": (self.ncols*self.figsize[0], self.nrows*self.figsize[1]),
+            "squeeze": False,
+        }
+        if len(self._cols) == 3:
+            subplots_args["subplot_kw"] = {'projection': '3d'}
+        self.fig, self.axs = plt.subplots(**subplots_args)
+        self.axli = self.axs.flatten()
 
-    # *** 3. Set up subplots ***
+        # note: axs contains all axes (subplots) as a 2D grid,
+        #       axsli contains the same objects but as a
+        #       simple list (easier to iterate over)
 
-    ncols = min(max_cols, len(df_dofs))
-    nrows = ceil(len(df_dofs)/ncols)
+        ihidden = self.nrows*self.ncols - self.nsubplots
+        icol_hidden = self.ncols - ihidden
+        self._d("ihidden = {}".format(ihidden))
+        self._d("icol_hidden = {}".format(icol_hidden))
 
-    deb("nrows = {}, ncols = {}".format(nrows, ncols))
+        if len(self._cols) == 2:
+            for isubplot in range(self.nrows * self.ncols):
+                irow = isubplot//self.ncols
+                icol = isubplot % self.ncols
 
-    # squeeze keyword: https://stackoverflow.com/questions/44598708/
-    # do not share axes, that makes problems if the grid is incomplete
-    subplots_args = {
-        "nrows":nrows,
-        "ncols": ncols,
-        "figsize": (ncols*figsize[0], nrows*figsize[1]),
-        "squeeze": False,
-    }
-    if len(cols) == 3:
-        subplots_args["subplot_kw"] = {'projection': '3d'}
-    fig, axs = plt.subplots(**subplots_args)
-    axli = axs.flatten()
+                if isubplot >= self.nsubplots:
+                    self._d("hiding", irow, icol)
+                    self.axli[isubplot].set_visible(False)
 
-    # note: axs contains all axes (subplots) as a 2D grid,
-    #       axsli contains the same objects but as a
-    #       simple list (easier to iterate over)
+                if icol == 0:
+                    self.axli[isubplot].set_ylabel(self._cols[1])
+                else:
+                    self.axli[isubplot].set_yticklabels([])
 
-    ihidden = nrows*ncols - nsubplots
-    icol_hidden = ncols - ihidden
-    deb("ihidden = {}".format(ihidden))
-    deb("icol_hidden = {}".format(icol_hidden))
-    if len(cols) == 2:
-        for isubplot in range(nrows * ncols):
-            irow = isubplot//ncols
-            icol = isubplot % ncols
+                if irow == self.nrows - 2 and icol >= icol_hidden:
+                    self.axli[isubplot].set_xlabel(self._cols[0])
+                elif irow == self.nrows - 1 and icol <= icol_hidden:
+                    self.axli[isubplot].set_xlabel(self._cols[0])
+                else:
+                    self.axli[isubplot].set_xticklabels([])
 
-            if isubplot >= nsubplots:
-                deb("hiding", irow, icol)
-                axli[isubplot].set_visible(False)
+        else:
+            for isubplot in range(self.nsubplots):
+                self.axli[isubplot].set_xlabel(self._cols[0])
+                self.axli[isubplot].set_ylabel(self._cols[1])
+                self.axli[isubplot].set_zlabel(self._cols[2])
 
-            if icol == 0:
-                axli[isubplot].set_ylabel(cols[1])
-            else:
-                axli[isubplot].set_yticklabels([])
+        for isubplot in range(self.nsubplots):
+            title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
+                             for key in self._relevant_dofs)
+            self.axli[isubplot].set_title(title)
 
-            if irow == nrows - 2 and icol >= icol_hidden:
-                axli[isubplot].set_xlabel(cols[0])
-            elif irow == nrows - 1 and icol <= icol_hidden:
-                axli[isubplot].set_xlabel(cols[0])
-            else:
-                axli[isubplot].set_xticklabels([])
+        # set the xrange explicitly in order to not depend
+        # on which clusters are shown etc.
 
-    else:
-        for isubplot in range(nsubplots):
-            axli[isubplot].set_xlabel(cols[0])
-            axli[isubplot].set_ylabel(cols[1])
-            axli[isubplot].set_zlabel(cols[2])
+        for isubplot in range(self.nsubplots):
+            self.axli[isubplot].set_xlim(self._get_lims(0))
+            self.axli[isubplot].set_ylim(self._get_lims(1))
+            if len(self._cols) == 3:
+                self.axli[isubplot].set_zlim(self._get_lims(2))
 
-    # set the xrange explicitly in order to not depend
-    # on which clusters are shown etc.
-
-    def get_lims(ax_no, stretch=0.1):
-        """ Get the limits with a bit of padding """
-        mi = min(df[cols[ax_no]].values)
-        ma = max(df[cols[ax_no]].values)
+    def _get_lims(self, ax_no, stretch=0.1):
+        """ Get lower and upper limit of axis (including padding) """
+        mi = min(self.df[self._cols[ax_no]].values)
+        ma = max(self.df[self._cols[ax_no]].values)
         d = ma-mi
         pad = stretch * d
         return mi-pad, ma+pad
 
-    for isubplot in range(nsubplots):
-        axli[isubplot].set_xlim(get_lims(0))
-        axli[isubplot].set_ylim(get_lims(1))
-        if len(cols) == 3:
-            axli[isubplot].set_zlim(get_lims(2))
+    def _setup_all(self, cols, clusters=None):
+        """ Performs all setups"""
+        assert(2 <= len(cols) <= 3)
+        self._clusters = clusters
+        self._cols = cols
+        if not self._clusters:
+            self._clusters = list(self.df['cluster'].unique())
+
+        self._find_dofs()
+        self._sample_dofs()
+        self._setup_subplots()
+
+    def scatter(self, cols, clusters=None):
+        """ Do a scatter plot """
+        self._setup_all(cols, clusters)
+
+        for isubplot in range(self.nsubplots):
+            for cluster in self._clusters:
+                df_cluster = self.df[self.df['cluster'] == cluster]
+                for col in self._relevant_dofs:
+                    df_cluster = df_cluster[df_cluster[col] ==
+                                                 self._df_dofs.iloc[isubplot][col]]
+                self.axli[isubplot].scatter(
+                    *[df_cluster[col] for col in self._cols],
+                    color=self.colors[cluster-1 % len(self.colors)],
+                    marker=self.markers[cluster-1 % len(self.markers)],
+                    label=cluster
+                )
+        if 'inline' not in matplotlib.get_backend():
+            return self.fig
+
+    def _set_fill_colors(self, matrix, color_offset=-1):
+        rows, cols = matrix.shape
+        matrix_colored = np.zeros((rows, cols, 3))
+        # todo: this is slow
+        for irow in range(rows):
+            for icol in range(cols):
+                value = int(matrix[irow, icol]) + color_offset
+                color = self.colors[value % len(self.colors)]
+                rgb = matplotlib.colors.hex2color(matplotlib.colors.cnames[color])
+                matrix_colored[irow, icol] = rgb
+        return matrix_colored
 
 
-    # *** 4. MISC preparations ***
+    def fill(self, cols):
+        print("This method only works with uniformly sampled NP and has not "
+              "been tested much either.")
 
-    if not colors:
-        colors = ["red", "green", "blue", "black", "orange","pink", ]
-    if not markers:
-        markers = ["o", "v", "^", "v", "<", ">"]
-    if not clusters:
-        # plot all
-        clusters = list(df['cluster'].unique())
+        assert( len(cols) == 2)
+        self._setup_all(cols)
 
-    # *** 5. Plot ***
-
-    for isubplot in range(nsubplots):
-        title = " ".join("{}={:.2f}".format(key, df_dofs.iloc[isubplot][key])
-                         for key in relevant_dofs)
-        axli[isubplot].set_title(title)
-        for cluster in clusters:
-            df_cluster = df[df['cluster'] == cluster]
-            for col in relevant_dofs:
-                df_cluster = df_cluster[df_cluster[col] ==
-                                        df_dofs.iloc[isubplot][col]]
-            axli[isubplot].scatter(
-                *[df_cluster[col] for col in cols],
-                color=colors[cluster-1 % len(colors)],
-                marker=markers[cluster-1 % len(markers)],
-                label=cluster,
-                **kwargs
+        for isubplot in range(self.nsubplots):
+            df_subplot = self.df.copy()
+            for col in self._relevant_dofs:
+                df_subplot = df_subplot[df_subplot[col] ==
+                                        self._df_dofs.iloc[isubplot][col]]
+            x = df_subplot[cols[0]].unique()
+            y = df_subplot[cols[1]].unique()
+            df_subplot.sort_values(by=[cols[1], cols[0]],
+                                   ascending=[False, True],
+                                   inplace=True)
+            z = df_subplot['cluster'].values
+            Z = z.reshape(y.shape[0], x.shape[0])
+            self.axli[isubplot].imshow(
+                self._set_fill_colors(Z, color_offset=-1),
+                interpolation='none',
+                extent=[min(x), max(x), min(y), max(y)]
             )
-    if 'inline' not in matplotlib.get_backend():
-        return fig

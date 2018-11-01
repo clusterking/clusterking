@@ -46,11 +46,12 @@ def git_info(log=None):
 
     git_config = {}
     repo = git.Repo(search_parent_directories=True)
+    git_config["branch"] = repo.head.name
     hcommit = repo.head.commit
     git_config["sha"] = hcommit.hexsha
     git_config["msg"] = hcommit.message
     commit_time = hcommit.committed_date
-    git_config["time"] = time.strftime("%a %d %b %Y %H:%M",
+    git_config["time"] = time.strftime("%a %_d %b %Y %H:%M",
                                        time.gmtime(commit_time))
     # todo: also add a nice string representation of git diff?
     return git_config

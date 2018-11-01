@@ -93,7 +93,7 @@ class Scanner(object):
         # This will hold all the configuration that we will write out
         self.metadata = nested_dict()
         self.metadata["scan"]["git"] = git_info(self.log)
-        self.metadata["scan"]["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
+        self.metadata["scan"]["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
     def set_q2points_manual(self, q2points: np.array) -> None:
         """ Manually set the edges of the q2 binning. """

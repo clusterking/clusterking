@@ -50,6 +50,22 @@ def plot_histogram(ax: plt.axes,
 # todo: warning if not enough colors for all clusters
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 class ClusterPlot(object):
+    """ Plot clusters!
+
+    Args:
+        df: Dataframe containing (at least) the 5 Wilson coefficients and
+            one column 'clusters'
+
+    Attributes:
+        colors: List of colors to color the clusters with. If there are more
+            clusters than colors, a warning is issued.
+        markers: List of markers of the clusters (scatter plot only).
+        max_subplots: Maximal number of subplots
+        max_cols: Maximal number of columns of the subplot grid
+        figsize: figure size of each subplot
+        debug: Set to true to see debug messages
+
+    """
     def __init__(self, df):
         # from arguments
         self.df = df

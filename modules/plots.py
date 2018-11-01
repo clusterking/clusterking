@@ -124,6 +124,7 @@ def plot_clusters(df,
     deb("nrows = {}, ncols = {}".format(nrows, ncols))
 
     # squeeze keyword: https://stackoverflow.com/questions/44598708/
+    # do not share axes, that makes problems if the grid is incomplete
     subplots_args = {
         "nrows":nrows,
         "ncols": ncols,
@@ -132,9 +133,6 @@ def plot_clusters(df,
     }
     if len(cols) == 3:
         subplots_args["subplot_kw"] = {'projection': '3d'}
-    if len(cols) == 2:
-        subplots_args["sharex"] = "col"
-        subplots_args["sharey"] = "row"
     fig, axs = plt.subplots(**subplots_args)
     axli = axs.flatten()
 
@@ -142,11 +140,31 @@ def plot_clusters(df,
     #       axsli contains the same objects but as a
     #       simple list (easier to iterate over)
 
+    ihidden = nrows*ncols - nsubplots
+    icol_hidden = ncols - ihidden
+    deb("ihidden = {}".format(ihidden))
+    deb("icol_hidden = {}".format(icol_hidden))
     if len(cols) == 2:
-        for irow in range(nrows):
-            axs[irow, 0].set_ylabel(cols[1])
-        for icol in range(ncols):
-            axs[nrows-1, icol].set_xlabel(cols[0])
+        for isubplot in range(nrows * ncols):
+            irow = isubplot//ncols
+            icol = isubplot % ncols
+
+            if isubplot >= nsubplots:
+                deb("hiding", irow, icol)
+                axli[isubplot].set_visible(False)
+
+            if icol == 0:
+                axli[isubplot].set_ylabel(cols[1])
+            else:
+                axli[isubplot].set_yticklabels([])
+
+            if irow == nrows - 2 and icol >= icol_hidden:
+                axli[isubplot].set_xlabel(cols[0])
+            elif irow == nrows - 1 and icol <= icol_hidden:
+                axli[isubplot].set_xlabel(cols[0])
+            else:
+                axli[isubplot].set_xticklabels([])
+
     else:
         for isubplot in range(nsubplots):
             axli[isubplot].set_xlabel(cols[0])
@@ -199,5 +217,5 @@ def plot_clusters(df,
                 label=cluster,
                 **kwargs
             )
-    if not 'inline' in matplotlib.get_backend():
+    if 'inline' not in matplotlib.get_backend():
         return fig

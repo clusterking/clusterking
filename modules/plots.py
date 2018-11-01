@@ -47,9 +47,9 @@ def plot_histogram(ax: plt.axes,
     )
 
 
-# todo: warning if not enough colors for all clusters
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: perhaps better to use logging object rather than a modified print function
+# todo: add basic command line interface?
 class ClusterPlot(object):
     """ Plot clusters!
 

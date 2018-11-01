@@ -98,12 +98,13 @@ def plot_clusters(df,
     # find all unique value combinations of these columns
     df_dofs = df[dofs].drop_duplicates().sort_values(dofs)
     df_dofs.reset_index(inplace=True)
-    deb("number of subplots = {}".format(len(df_dofs)))
+    nsubplots = len(df_dofs)
+    deb("number of subplots = {}".format(nsubplots))
 
     # *** 2. reduce the number of subplots by only sampling  **
     # ***    several points of the above Wilson coeffs       **
 
-    if max_subplots < len(df_dofs):
+    if nsubplots > max_subplots:
         steps_per_dof = int(max_subplots ** (1 / len(relevant_dofs)))
         deb("number of steps per dof", steps_per_dof)
         for col in relevant_dofs:
@@ -135,6 +136,11 @@ def plot_clusters(df,
         subplots_args["sharex"] = "col"
         subplots_args["sharey"] = "row"
     fig, axs = plt.subplots(**subplots_args)
+    axli = axs.flatten()
+
+    # note: axs contains all axes (subplots) as a 2D grid,
+    #       axsli contains the same objects but as a
+    #       simple list (easier to iterate over)
 
     if len(cols) == 2:
         for irow in range(nrows):
@@ -142,11 +148,28 @@ def plot_clusters(df,
         for icol in range(ncols):
             axs[nrows-1, icol].set_xlabel(cols[0])
     else:
-        for irow in range(nrows):
-            for icol in range(ncols):
-                axs[irow, icol].set_xlabel(cols[0])
-                axs[irow, icol].set_ylabel(cols[1])
-                axs[irow, icol].set_zlabel(cols[2])
+        for isubplot in range(nsubplots):
+            axli[isubplot].set_xlabel(cols[0])
+            axli[isubplot].set_ylabel(cols[1])
+            axli[isubplot].set_zlabel(cols[2])
+
+    # set the xrange explicitly in order to not depend
+    # on which clusters are shown etc.
+
+    def get_lims(ax_no, stretch=0.1):
+        """ Get the limits with a bit of padding """
+        mi = min(df[cols[ax_no]].values)
+        ma = max(df[cols[ax_no]].values)
+        d = ma-mi
+        pad = stretch * d
+        return mi-pad, ma+pad
+
+    for isubplot in range(nsubplots):
+        axli[isubplot].set_xlim(get_lims(0))
+        axli[isubplot].set_ylim(get_lims(1))
+        if len(cols) == 3:
+            axli[isubplot].set_zlim(get_lims(2))
+
 
     # *** 4. MISC preparations ***
 
@@ -160,8 +183,7 @@ def plot_clusters(df,
 
     # *** 5. Plot ***
 
-    axli = axs.flatten()
-    for isubplot in range(len(df_dofs)):
+    for isubplot in range(nsubplots):
         title = " ".join("{}={:.2f}".format(key, df_dofs.iloc[isubplot][key])
                          for key in relevant_dofs)
         axli[isubplot].set_title(title)

@@ -1,6 +1,10 @@
 import numpy as np
 from math import ceil
 import matplotlib.pyplot as plt
+import matplotlib
+
+# This import line is not explicitly used, but do not remove it!
+# It is nescessary to be able to perform
 from mpl_toolkits.mplot3d import Axes3D
 
 # todo: move to a more elaborate plotting concept
@@ -43,29 +47,34 @@ def plot_histogram(ax: plt.axes,
     )
 
 
+
+
+
 def plot_clusters(df,
-                     cols,
-                     clusters=None,
-                     colors=None,
-                     markers=None,
-                     max_levels=16,
-                     debug=False,
-                     **kwargs):
+                  cols,
+                  clusters=None,
+                  colors=None,
+                  markers=None,
+                  max_subplots=16,
+                  max_cols=4,
+                  figsize=(4, 4),
+                  debug=False,
+                  **kwargs):
     """Creates 2D plots (slices) of the clusters.
 
     Args:
         df: Dataframe
-        x_col: Name of wilson coeff to be plotted on x axis
-        y_col: Name of wilson coeff to be plotted on y axis
+        cols: List of the column names to plot
         clusters: List of clusters to include
         colors: List of colors to use for the different clusters
         markers: List of colors to use for the different clusters
-        max_levels: Maximal number of different plots/slices
+        max_subplots: Maximal number of different plots/slices
+        figsize: Size of each subplot (tuple)
         debug: debug enabled?
         kwargs: arguments for plt.scatter
 
     Returns:
-
+        matplotlib.pyplot.figure (unless inline matplotlib is used, then None)
     """
     def deb(*args, **kwargs):
         """ For debugging this function """
@@ -75,55 +84,57 @@ def plot_clusters(df,
     assert(2 <= len(cols) <= 3)
 
     # *** 1. find all relevant wilson coefficients that are not ***
-    # ***    axes on the plots                                  ***
+    # ***    axes on the plots (called dofs)                    ***
 
-    _rem_cols = [col for col in ['l', 'r', 'sl', 'sr', 't']
-                 if col not in cols]
-    deb("remaining columns", _rem_cols)
-    df_levels = df[_rem_cols].drop_duplicates().sort_values(_rem_cols)
-    rem_cols = []
-    for col in _rem_cols:
-        if len(df_levels[col].unique()) >= 2:
-            rem_cols.append(col)
-    df_levels = df_levels[rem_cols]
-    deb("remaining columns after cleaning", rem_cols)
-    deb("number of levels", len(df_levels))
+    dofs = []
+    relevant_dofs = []
+    for col in ['l', 'r', 'sl', 'sr', 't']:
+        if col not in cols:
+            dofs.append(col)
+            if len(df[col].unique()) >= 2:
+                relevant_dofs.append(col)
+    deb("dofs = {}, relevant_dofs = {}".format(dofs, relevant_dofs))
 
-    # *** 2. reduce the number of subplots by only samplling **
+    # find all unique value combinations of these columns
+    df_dofs = df[dofs].drop_duplicates().sort_values(dofs)
+    df_dofs.reset_index(inplace=True)
+    deb("number of subplots = {}".format(len(df_dofs)))
+
+    # *** 2. reduce the number of subplots by only sampling  **
     # ***    several points of the above Wilson coeffs       **
 
-    if max_levels < len(df_levels):
-        # still too many levels?
-        steps_per_dof = int(max_levels ** (1/len(rem_cols)))
+    if max_subplots < len(df_dofs):
+        steps_per_dof = int(max_subplots ** (1 / len(relevant_dofs)))
         deb("number of steps per dof", steps_per_dof)
-        for col in rem_cols:
-            allowed_values = df_levels[col].unique()
+        for col in relevant_dofs:
+            allowed_values = df_dofs[col].unique()
             indizes = list(set(np.linspace(0, len(allowed_values)-1,
-                                  steps_per_dof).astype(int)))
+                                           steps_per_dof).astype(int)))
             allowed_values = allowed_values[indizes]
-            df_levels = df_levels[df_levels[col].isin(allowed_values)]
-    deb("number of levels left after cleaning", len(df_levels))
+            df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
+        deb("number of subplots left after "
+            "subsampling = {}".format(len(df_dofs)))
 
     # *** 3. Set up subplots ***
 
-    max_cols = 4
-    ncols = min(max_cols, len(df_levels))
-    nrows = ceil(len(df_levels)/ncols)
+    ncols = min(max_cols, len(df_dofs))
+    nrows = ceil(len(df_dofs)/ncols)
 
-    deb("nrows", nrows, "ncols", ncols)
+    deb("nrows = {}, ncols = {}".format(nrows, ncols))
 
+    # squeeze keyword: https://stackoverflow.com/questions/44598708/
     subplots_args = {
         "nrows":nrows,
         "ncols": ncols,
-        "sharex": "col",
-        "sharey": "row",
-        "figsize": (ncols*4, nrows*4),
-        "squeeze": False
+        "figsize": (ncols*figsize[0], nrows*figsize[1]),
+        "squeeze": False,
     }
     if len(cols) == 3:
         subplots_args["subplot_kw"] = {'projection': '3d'}
+    if len(cols) == 2:
+        subplots_args["sharex"] = "col"
+        subplots_args["sharey"] = "row"
     fig, axs = plt.subplots(**subplots_args)
-    # squeeze keyword: https://stackoverflow.com/questions/44598708/
 
     if len(cols) == 2:
         for irow in range(nrows):
@@ -149,23 +160,22 @@ def plot_clusters(df,
 
     # *** 5. Plot ***
 
-    ilevel = 0
-    for _, level_rows in df_levels.iterrows():
-        irow = ilevel//ncols
-        icol = ceil(ilevel % ncols)
-        title = " ".join("{}={:.2f}".format(key, level_rows[key]) for key in rem_cols)
-        axs[irow, icol].set_title(title)
-        for icluster, cluster in enumerate(clusters):
+    axli = axs.flatten()
+    for isubplot in range(len(df_dofs)):
+        title = " ".join("{}={:.2f}".format(key, df_dofs.iloc[isubplot][key])
+                         for key in relevant_dofs)
+        axli[isubplot].set_title(title)
+        for cluster in clusters:
             df_cluster = df[df['cluster'] == cluster]
-            for col in rem_cols:
-                df_cluster = df_cluster[df_cluster[col] == level_rows[col]]
-            axs[irow, icol].scatter(
+            for col in relevant_dofs:
+                df_cluster = df_cluster[df_cluster[col] ==
+                                        df_dofs.iloc[isubplot][col]]
+            axli[isubplot].scatter(
                 *[df_cluster[col] for col in cols],
                 color=colors[cluster-1 % len(colors)],
                 marker=markers[cluster-1 % len(markers)],
                 label=cluster,
                 **kwargs
             )
-        ilevel += 1
-    # ax.legend(bbox_to_anchor=(1.2, 1.05))
-    # return fig
+    if not 'inline' in matplotlib.get_backend():
+        return fig

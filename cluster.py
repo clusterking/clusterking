@@ -111,7 +111,7 @@ class Cluster(object):
         md["method"] = linkage_config["method"]
         self.log.debug("Done")
 
-    def cluster(self, max_d=0.02, **kwargs):
+    def cluster(self, max_d=0.2, **kwargs):
         """Performs the actual clustering
         Args:
             max_d:

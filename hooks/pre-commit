@@ -19,7 +19,7 @@ fi
 (
 IFS='
 '
-NBS=`git diff-index -z --cached $against --name-only | tr -d '\000' | grep '\.ipynb$' | uniq`
+NBS=`git diff-index $against --name-only | grep '\.ipynb$' | uniq`
 
 for NB in $NBS ; do
     echo "Removing outputs from $NB"

@@ -49,6 +49,7 @@ def plot_histogram(ax: plt.axes,
 
 # todo: warning if not enough colors for all clusters
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
+# todo: perhaps better to use logging object rather than a modified print function
 class ClusterPlot(object):
     """ Plot clusters!
 
@@ -64,6 +65,9 @@ class ClusterPlot(object):
         max_cols: Maximal number of columns of the subplot grid
         figsize: figure size of each subplot
         debug: Set to true to see debug messages
+
+    Note: Undocumented attributes starting with and underscore are for
+          internal purposes only.
 
     """
     def __init__(self, df):
@@ -116,10 +120,12 @@ class ClusterPlot(object):
                 self._dofs.append(col)
                 if len(self.df[col].unique()) >= 2:
                     self._relevant_dofs.append(col)
-        self._d("_dofs = {}, relevant_dofs = {}".format(self._dofs, self._relevant_dofs))
+        self._d("_dofs = {}, relevant_dofs = {}".format(self._dofs,
+                                                        self._relevant_dofs))
 
         # find all unique value combinations of these columns
-        self._df_dofs = self.df[self._dofs].drop_duplicates().sort_values(self._dofs)
+        self._df_dofs = \
+            self.df[self._dofs].drop_duplicates().sort_values(self._dofs)
         self._df_dofs.reset_index(inplace=True)
         self._d("number of subplots = {}".format(len(self._df_dofs)))
 
@@ -128,21 +134,23 @@ class ClusterPlot(object):
         the Wilson coeffs that aren't on the axes"""
 
         if len(self._df_dofs) > self.max_subplots:
-            steps_per_dof = int(self.max_subplots ** (1 / len(self._relevant_dofs)))
+            steps_per_dof = int(self.max_subplots **
+                                (1 / len(self._relevant_dofs)))
             self._d("number of steps per dof", steps_per_dof)
             for col in self._relevant_dofs:
                 allowed_values = self._df_dofs[col].unique()
                 indizes = list(set(np.linspace(0, len(allowed_values)-1,
                                                steps_per_dof).astype(int)))
                 allowed_values = allowed_values[indizes]
-                self._df_dofs = self._df_dofs[self._df_dofs[col].isin(allowed_values)]
+                self._df_dofs = \
+                    self._df_dofs[self._df_dofs[col].isin(allowed_values)]
             self._d("number of subplots left after "
                    "subsampling = {}".format(len(self._df_dofs)))
 
-        self.nsubplots = len(self._df_dofs)
-        self.ncols = min(self.max_cols, len(self._df_dofs))
-        self.nrows = ceil(len(self._df_dofs) / self.ncols)
-        self._d("nrows = {}, ncols = {}".format(self.nrows, self.ncols))
+        self._nsubplots = len(self._df_dofs)
+        self._ncols = min(self.max_cols, len(self._df_dofs))
+        self._nrows = ceil(len(self._df_dofs) / self._ncols)
+        self._d("nrows = {}, ncols = {}".format(self._nrows, self._ncols))
 
     def _setup_subplots(self):
         """ Set up the subplot grid"""
@@ -150,9 +158,10 @@ class ClusterPlot(object):
         # squeeze keyword: https://stackoverflow.com/questions/44598708/
         # do not share axes, that makes problems if the grid is incomplete
         subplots_args = {
-            "nrows": self.nrows,
-            "ncols": self.ncols,
-            "figsize": (self.ncols*self.figsize[0], self.nrows*self.figsize[1]),
+            "nrows": self._nrows,
+            "ncols": self._ncols,
+            "figsize": (self._ncols * self.figsize[0],
+                        self._nrows * self.figsize[1]),
             "squeeze": False,
         }
         if len(self._cols) == 3:
@@ -164,17 +173,17 @@ class ClusterPlot(object):
         #       axsli contains the same objects but as a
         #       simple list (easier to iterate over)
 
-        ihidden = self.nrows*self.ncols - self.nsubplots
-        icol_hidden = self.ncols - ihidden
+        ihidden = self._nrows * self._ncols - self._nsubplots
+        icol_hidden = self._ncols - ihidden
         self._d("ihidden = {}".format(ihidden))
         self._d("icol_hidden = {}".format(icol_hidden))
 
         if len(self._cols) == 2:
-            for isubplot in range(self.nrows * self.ncols):
-                irow = isubplot//self.ncols
-                icol = isubplot % self.ncols
+            for isubplot in range(self._nrows * self._ncols):
+                irow = isubplot//self._ncols
+                icol = isubplot % self._ncols
 
-                if isubplot >= self.nsubplots:
+                if isubplot >= self._nsubplots:
                     self._d("hiding", irow, icol)
                     self.axli[isubplot].set_visible(False)
 
@@ -183,20 +192,20 @@ class ClusterPlot(object):
                 else:
                     self.axli[isubplot].set_yticklabels([])
 
-                if irow == self.nrows - 2 and icol >= icol_hidden:
+                if irow == self._nrows - 2 and icol >= icol_hidden:
                     self.axli[isubplot].set_xlabel(self._cols[0])
-                elif irow == self.nrows - 1 and icol <= icol_hidden:
+                elif irow == self._nrows - 1 and icol <= icol_hidden:
                     self.axli[isubplot].set_xlabel(self._cols[0])
                 else:
                     self.axli[isubplot].set_xticklabels([])
 
         else:
-            for isubplot in range(self.nsubplots):
+            for isubplot in range(self._nsubplots):
                 self.axli[isubplot].set_xlabel(self._cols[0])
                 self.axli[isubplot].set_ylabel(self._cols[1])
                 self.axli[isubplot].set_zlabel(self._cols[2])
 
-        for isubplot in range(self.nsubplots):
+        for isubplot in range(self._nsubplots):
             title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
                              for key in self._relevant_dofs)
             self.axli[isubplot].set_title(title)
@@ -204,7 +213,7 @@ class ClusterPlot(object):
         # set the xrange explicitly in order to not depend
         # on which clusters are shown etc.
 
-        for isubplot in range(self.nsubplots):
+        for isubplot in range(self._nsubplots):
             self.axli[isubplot].set_xlim(self._get_lims(0))
             self.axli[isubplot].set_ylim(self._get_lims(1))
             if len(self._cols) == 3:
@@ -225,21 +234,23 @@ class ClusterPlot(object):
         self._cols = cols
         if not self._clusters:
             self._clusters = list(self.df['cluster'].unique())
-
+        if len(self._clusters) > len(self.colors):
+            print("Warning: Not enough colors for all clusters.")
         self._find_dofs()
         self._sample_dofs()
         self._setup_subplots()
 
+    # todo: factor out the common part of scatter and fill into its own method?
     def scatter(self, cols, clusters=None):
         """ Do a scatter plot """
         self._setup_all(cols, clusters)
 
-        for isubplot in range(self.nsubplots):
+        for isubplot in range(self._nsubplots):
             for cluster in self._clusters:
                 df_cluster = self.df[self.df['cluster'] == cluster]
                 for col in self._relevant_dofs:
                     df_cluster = df_cluster[df_cluster[col] ==
-                                                 self._df_dofs.iloc[isubplot][col]]
+                                            self._df_dofs.iloc[isubplot][col]]
                 self.axli[isubplot].scatter(
                     *[df_cluster[col] for col in self._cols],
                     color=self.colors[cluster-1 % len(self.colors)],
@@ -252,15 +263,15 @@ class ClusterPlot(object):
     def _set_fill_colors(self, matrix, color_offset=-1):
         rows, cols = matrix.shape
         matrix_colored = np.zeros((rows, cols, 3))
-        # todo: this is slow
+        # todo: this is slow and probably there's a more elegant way
         for irow in range(rows):
             for icol in range(cols):
                 value = int(matrix[irow, icol]) + color_offset
                 color = self.colors[value % len(self.colors)]
-                rgb = matplotlib.colors.hex2color(matplotlib.colors.cnames[color])
+                rgb = matplotlib.colors.hex2color(
+                    matplotlib.colors.cnames[color])
                 matrix_colored[irow, icol] = rgb
         return matrix_colored
-
 
     def fill(self, cols):
         print("This method only works with uniformly sampled NP and has not "
@@ -269,7 +280,7 @@ class ClusterPlot(object):
         assert( len(cols) == 2)
         self._setup_all(cols)
 
-        for isubplot in range(self.nsubplots):
+        for isubplot in range(self._nsubplots):
             df_subplot = self.df.copy()
             for col in self._relevant_dofs:
                 df_subplot = df_subplot[df_subplot[col] ==

@@ -98,13 +98,12 @@ def plot_clusters(df,
     # find all unique value combinations of these columns
     df_dofs = df[dofs].drop_duplicates().sort_values(dofs)
     df_dofs.reset_index(inplace=True)
-    nsubplots = len(df_dofs)
-    deb("number of subplots = {}".format(nsubplots))
+    deb("number of subplots = {}".format(len(df_dofs)))
 
     # *** 2. reduce the number of subplots by only sampling  **
     # ***    several points of the above Wilson coeffs       **
 
-    if nsubplots > max_subplots:
+    if len(df_dofs) > max_subplots:
         steps_per_dof = int(max_subplots ** (1 / len(relevant_dofs)))
         deb("number of steps per dof", steps_per_dof)
         for col in relevant_dofs:
@@ -115,6 +114,9 @@ def plot_clusters(df,
             df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
         deb("number of subplots left after "
             "subsampling = {}".format(len(df_dofs)))
+
+    nsubplots = len(df_dofs)
+
 
     # *** 3. Set up subplots ***
 

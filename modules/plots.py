@@ -1,11 +1,16 @@
-import numpy as np
+# std
 from math import ceil
+from typing import List
+
+# 3d party
 import matplotlib.pyplot as plt
 import matplotlib
+from mpl_toolkits.mplot3d import Axes3D  # NOTE BELOW (*)
+import numpy as np
+import pandas as pd
 
-# This import line is not explicitly used, but do not remove it!
-# It is nescessary to be able to perform
-from mpl_toolkits.mplot3d import Axes3D
+# (*) This import line is not explicitly used, but do not remove it!
+# It is nescessary to load the 3d support!
 
 # todo: move to a more elaborate plotting concept
 # like https://scipy-cookbook.readthedocs.io/items/Matplotlib_UnfilledHistograms.html for unfilled histograms
@@ -53,9 +58,11 @@ def plot_histogram(ax: plt.axes,
 class ClusterPlot(object):
     """ Plot clusters!
 
+    After initialization, use the 'scatter' or 'fill' method for plotting.
+    See docstrings there for more instructions.
+
     Args:
-        df: Dataframe containing (at least) the 5 Wilson coefficients and
-            one column 'clusters'
+        df: Pandas dataframe
 
     Attributes:
         colors: List of colors to color the clusters with. If there are more
@@ -64,17 +71,21 @@ class ClusterPlot(object):
         max_subplots: Maximal number of subplots
         max_cols: Maximal number of columns of the subplot grid
         figsize: figure size of each subplot
+        index_columns: The names of the columns that hold the Wilson
+            coefficients
+        cluster_column: The name of the column that holds the cluster index
         debug: Set to true to see debug messages
 
     Note: Undocumented attributes starting with and underscore are for
           internal purposes only.
 
     """
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame):
         # from arguments
         self.df = df
 
-        # config values: Save to configure by user
+        # (Advanced) config values
+        # Documented in docstring of this class
 
         self.colors = None
         if not self.colors:
@@ -85,11 +96,15 @@ class ClusterPlot(object):
         self.max_subplots = 16
         self.max_cols = 4
         self.figsize = (4, 4)
+        self.index_columns = ['l', 'r', 'sl', 'sr', 't']
+        self.cluster_column = "cluster"
         self.debug = False
 
         # internal values: Do not modify
 
-        self._cols = None
+        # Names of the columns to be on the axes of
+        # the plot.
+        self._axis_columns = None
         self._clusters = None
 
         self._dofs = None
@@ -104,8 +119,9 @@ class ClusterPlot(object):
         self._axs = None
         self._axli = None
 
-    def _d(self, *args, **kwargs):
-        """ For debugging this class """
+    def _d(self, *args, **kwargs) -> None:
+        """ For debugging this class, this wraps around the print function
+        but only calls it if self.debug == True. """
         if self.debug:
             print(*args, **kwargs)
 
@@ -115,8 +131,10 @@ class ClusterPlot(object):
 
         self._dofs = []
         self._relevant_dofs = []
-        for col in ['l', 'r', 'sl', 'sr', 't']:
-            if col not in self._cols:
+        # 'Index columns' are by default the columns that hold the wilson
+        # coefficients.
+        for col in self.index_columns:
+            if col not in self._axis_columns:
                 self._dofs.append(col)
                 if len(self.df[col].unique()) >= 2:
                     self._relevant_dofs.append(col)
@@ -145,7 +163,7 @@ class ClusterPlot(object):
                 self._df_dofs = \
                     self._df_dofs[self._df_dofs[col].isin(allowed_values)]
             self._d("number of subplots left after "
-                   "subsampling = {}".format(len(self._df_dofs)))
+                    "subsampling = {}".format(len(self._df_dofs)))
 
         self._nsubplots = len(self._df_dofs)
         self._ncols = min(self.max_cols, len(self._df_dofs))
@@ -164,10 +182,10 @@ class ClusterPlot(object):
                         self._nrows * self.figsize[1]),
             "squeeze": False,
         }
-        if len(self._cols) == 3:
+        if len(self._axis_columns) == 3:
             subplots_args["subplot_kw"] = {'projection': '3d'}
-        self.fig, self.axs = plt.subplots(**subplots_args)
-        self.axli = self.axs.flatten()
+        self._fig, self.axs = plt.subplots(**subplots_args)
+        self._axli = self.axs.flatten()
 
         # note: axs contains all axes (subplots) as a 2D grid,
         #       axsli contains the same objects but as a
@@ -178,62 +196,78 @@ class ClusterPlot(object):
         self._d("ihidden = {}".format(ihidden))
         self._d("icol_hidden = {}".format(icol_hidden))
 
-        if len(self._cols) == 2:
+        if len(self._axis_columns) == 2:
             for isubplot in range(self._nrows * self._ncols):
                 irow = isubplot//self._ncols
                 icol = isubplot % self._ncols
 
                 if isubplot >= self._nsubplots:
                     self._d("hiding", irow, icol)
-                    self.axli[isubplot].set_visible(False)
+                    self._axli[isubplot].set_visible(False)
 
                 if icol == 0:
-                    self.axli[isubplot].set_ylabel(self._cols[1])
+                    self._axli[isubplot].set_ylabel(self._axis_columns[1])
                 else:
-                    self.axli[isubplot].set_yticklabels([])
+                    self._axli[isubplot].set_yticklabels([])
 
                 if irow == self._nrows - 2 and icol >= icol_hidden:
-                    self.axli[isubplot].set_xlabel(self._cols[0])
+                    self._axli[isubplot].set_xlabel(self._axis_columns[0])
                 elif irow == self._nrows - 1 and icol <= icol_hidden:
-                    self.axli[isubplot].set_xlabel(self._cols[0])
+                    self._axli[isubplot].set_xlabel(self._axis_columns[0])
                 else:
-                    self.axli[isubplot].set_xticklabels([])
+                    self._axli[isubplot].set_xticklabels([])
 
         else:
             for isubplot in range(self._nsubplots):
-                self.axli[isubplot].set_xlabel(self._cols[0])
-                self.axli[isubplot].set_ylabel(self._cols[1])
-                self.axli[isubplot].set_zlabel(self._cols[2])
+                self._axli[isubplot].set_xlabel(self._axis_columns[0])
+                self._axli[isubplot].set_ylabel(self._axis_columns[1])
+                self._axli[isubplot].set_zlabel(self._axis_columns[2])
 
         for isubplot in range(self._nsubplots):
             title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
                              for key in self._relevant_dofs)
-            self.axli[isubplot].set_title(title)
+            self._axli[isubplot].set_title(title)
 
         # set the xrange explicitly in order to not depend
         # on which clusters are shown etc.
 
         for isubplot in range(self._nsubplots):
-            self.axli[isubplot].set_xlim(self._get_lims(0))
-            self.axli[isubplot].set_ylim(self._get_lims(1))
-            if len(self._cols) == 3:
-                self.axli[isubplot].set_zlim(self._get_lims(2))
+            self._axli[isubplot].set_xlim(self._get_lims(0))
+            self._axli[isubplot].set_ylim(self._get_lims(1))
+            if len(self._axis_columns) == 3:
+                self._axli[isubplot].set_zlim(self._get_lims(2))
 
-    def _get_lims(self, ax_no, stretch=0.1):
-        """ Get lower and upper limit of axis (including padding) """
-        mi = min(self.df[self._cols[ax_no]].values)
-        ma = max(self.df[self._cols[ax_no]].values)
+    def _get_lims(self, ax_no: int, stretch=0.1):
+        """ Get lower and upper limit of axis (including padding)
+
+        Args:
+            ax_no: 0 for x-axis, 1 for y-axis etc.
+            stretch: Fraction of total value span to add as padding.
+
+        Returns:
+            (minimum of plotrange, maximum of plotrange)
+        """
+        mi = min(self.df[self._axis_columns[ax_no]].values)
+        ma = max(self.df[self._axis_columns[ax_no]].values)
         d = ma-mi
         pad = stretch * d
         return mi-pad, ma+pad
 
-    def _setup_all(self, cols, clusters=None):
-        """ Performs all setups"""
+    def _setup_all(self, cols: List[str], clusters=None) -> None:
+        """ Performs all setups.
+
+        Args:
+            cols: Names of the columns to be on the plot axes
+            clusters: Clusters to plot
+
+        Returns:
+            None
+            """
         assert(2 <= len(cols) <= 3)
         self._clusters = clusters
-        self._cols = cols
+        self._axis_columns = cols
         if not self._clusters:
-            self._clusters = list(self.df['cluster'].unique())
+            self._clusters = list(self.df[self.cluster_column].unique())
         if len(self._clusters) > len(self.colors):
             print("Warning: Not enough colors for all clusters.")
         self._find_dofs()
@@ -241,29 +275,55 @@ class ClusterPlot(object):
         self._setup_subplots()
 
     # todo: factor out the common part of scatter and fill into its own method?
-    def scatter(self, cols, clusters=None):
-        """ Do a scatter plot """
+    def scatter(self, cols: List[str], clusters=None):
+        """ Create scatter plot, specifying the columns to be on the axes of the
+        plot. If 3 column are specified, 3D scatter plots
+        are presented, else 2D plots. If the dataframe contains more columns,
+        such that each row is not only specified by the columns on the axes,
+        a selection of subplots is created, showing 'cuts'.
+
+        Args:
+            cols: The names of the columns to be shown on the x, y (and z)
+               axis of the plots.
+            clusters: The clusters to be plotted (default: all).
+
+        Returns:
+            The figure (unless the 'inline' setting of matplotllib is detected).
+        """
         self._setup_all(cols, clusters)
 
         for isubplot in range(self._nsubplots):
             for cluster in self._clusters:
-                df_cluster = self.df[self.df['cluster'] == cluster]
+                df_cluster = self.df[self.df[self.cluster_column] == cluster]
                 for col in self._relevant_dofs:
                     df_cluster = df_cluster[df_cluster[col] ==
                                             self._df_dofs.iloc[isubplot][col]]
-                self.axli[isubplot].scatter(
-                    *[df_cluster[col] for col in self._cols],
+                self._axli[isubplot].scatter(
+                    *[df_cluster[col] for col in self._axis_columns],
                     color=self.colors[cluster-1 % len(self.colors)],
                     marker=self.markers[cluster-1 % len(self.markers)],
                     label=cluster
                 )
         if 'inline' not in matplotlib.get_backend():
-            return self.fig
+            return self._fig
 
-    def _set_fill_colors(self, matrix, color_offset=-1):
+    def _set_fill_colors(self, matrix: np.ndarray, color_offset=-1) \
+            -> np.ndarray:
+        """ A helper function for the fill method. Given a n x m matrix of
+        cluster numbers, this returns a n x m x 3 matrix, where the last 3
+        dimensions contain the rgb value of the color that this cluster
+        should be colored with.
+
+        Args:
+            matrix: m x n matrix containing cluster numbers
+            color_offset: Cluster i will be assigned to i + color color_offset.
+                Set to -1, because cluster numbering seems to start at 1.
+
+        Returns:
+            n x m x 3 matrix with last 3 dimensions containing RGB codes
+        """
         rows, cols = matrix.shape
         matrix_colored = np.zeros((rows, cols, 3))
-        # todo: this is slow and probably there's a more elegant way
         for irow in range(rows):
             for icol in range(cols):
                 value = int(matrix[irow, icol]) + color_offset
@@ -273,10 +333,18 @@ class ClusterPlot(object):
                 matrix_colored[irow, icol] = rgb
         return matrix_colored
 
-    def fill(self, cols):
-        print("This method only works with uniformly sampled NP and has not "
-              "been tested much either.")
+    def fill(self, cols: List[str]):
+        """ Call this method with two column names, x and y. The results are
+        similar to those of 2D scatter plots as created by the scatter
+        method, except that the coloring is expanded to the whole xy plane.
+        Note: This method only works with uniformly sampled NP!
 
+        Args:
+            cols: List of name of column to be plotted on x-axis and on y-axis
+
+        Returns:
+            The figure (unless the 'inline' setting of matplotllib is detected).
+        """
         assert( len(cols) == 2)
         self._setup_all(cols)
 
@@ -290,9 +358,9 @@ class ClusterPlot(object):
             df_subplot.sort_values(by=[cols[1], cols[0]],
                                    ascending=[False, True],
                                    inplace=True)
-            z = df_subplot['cluster'].values
+            z = df_subplot[self.cluster_column].values
             Z = z.reshape(y.shape[0], x.shape[0])
-            self.axli[isubplot].imshow(
+            self._axli[isubplot].imshow(
                 self._set_fill_colors(Z, color_offset=-1),
                 interpolation='none',
                 extent=[min(x), max(x), min(y), max(y)]

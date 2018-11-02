@@ -105,19 +105,19 @@ class ClusterPlot(object):
         # Names of the columns to be on the axes of
         # the plot.
         self._axis_columns = None
+
         self._clusters = None
 
-        self._dofs = None
-        self._relevant_dofs = None
         self._df_dofs = None
-
-        self._nsubplots = None
-        self._nrows = None
-        self._ncols = None
 
         self._fig = None
         self._axs = None
-        self._axli = None
+
+    @property
+    def _axli(self):
+        """Note: axs contains all axes (subplots) as a 2D grid, axsli contains
+        the same objects but as a simple list (easier to iterate over)"""
+        return self._axs.flatten()
 
     def _d(self, *args, **kwargs) -> None:
         """ For debugging this class, this wraps around the print function
@@ -129,46 +129,59 @@ class ClusterPlot(object):
         """ find all relevant wilson coefficients that are not axes on
         the plots (called _dofs) """
 
-        self._dofs = []
-        self._relevant_dofs = []
+        dofs = []
         # 'Index columns' are by default the columns that hold the wilson
         # coefficients.
         for col in self.index_columns:
             if col not in self._axis_columns:
-                self._dofs.append(col)
                 if len(self.df[col].unique()) >= 2:
-                    self._relevant_dofs.append(col)
-        self._d("_dofs = {}, relevant_dofs = {}".format(self._dofs,
-                                                        self._relevant_dofs))
+                    dofs.append(col)
+        self._d("dofs = {}".format(dofs))
 
-        # find all unique value combinations of these columns
-        self._df_dofs = \
-            self.df[self._dofs].drop_duplicates().sort_values(self._dofs)
-        self._df_dofs.reset_index(inplace=True)
-        self._d("number of subplots = {}".format(len(self._df_dofs)))
+        if not dofs:
+            df_dofs = pd.DataFrame([])
+        else:
+            df_dofs = self.df[dofs].drop_duplicates().sort_values(dofs)
+            df_dofs.reset_index(inplace=True, drop=True)
 
-    def _sample_dofs(self):
-        """Reduce the number of subplots by only sampling several points of
-        the Wilson coeffs that aren't on the axes"""
+        self._d("number of subplots = {}".format(len(df_dofs)))
 
-        if len(self._df_dofs) > self.max_subplots:
+        # Reduce the number of subplots by only sampling several points of
+        # the Wilson coeffs that aren't on the axes
+
+        if len(df_dofs) > self.max_subplots:
             steps_per_dof = int(self.max_subplots **
-                                (1 / len(self._relevant_dofs)))
+                                (1 / len(dofs)))
             self._d("number of steps per dof", steps_per_dof)
-            for col in self._relevant_dofs:
-                allowed_values = self._df_dofs[col].unique()
+            for col in self._dofs:
+                allowed_values = df_dofs[col].unique()
                 indizes = list(set(np.linspace(0, len(allowed_values)-1,
                                                steps_per_dof).astype(int)))
                 allowed_values = allowed_values[indizes]
-                self._df_dofs = \
-                    self._df_dofs[self._df_dofs[col].isin(allowed_values)]
+                df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
             self._d("number of subplots left after "
-                    "subsampling = {}".format(len(self._df_dofs)))
+                    "subsampling = {}".format(len(df_dofs)))
 
-        self._nsubplots = len(self._df_dofs)
-        self._ncols = min(self.max_cols, len(self._df_dofs))
-        self._nrows = ceil(len(self._df_dofs) / self._ncols)
-        self._d("nrows = {}, ncols = {}".format(self._nrows, self._ncols))
+        self._df_dofs = df_dofs
+
+    @property
+    def _dofs(self):
+        return list(self._df_dofs.columns)
+
+    @property
+    def _nsubplots(self):
+        """ Number of subplots. """
+        return max(1, len(self._df_dofs))
+
+    @property
+    def _ncols(self):
+        """ Number of columns of the subplot grid. """
+        return min(self.max_cols, self._nsubplots)
+
+    @property
+    def _nrows(self):
+        """ Number of rows of the subplot grid. """
+        return ceil(self._nsubplots / self._ncols)
 
     def _setup_subplots(self):
         """ Set up the subplot grid"""
@@ -184,12 +197,8 @@ class ClusterPlot(object):
         }
         if len(self._axis_columns) == 3:
             subplots_args["subplot_kw"] = {'projection': '3d'}
-        self._fig, self.axs = plt.subplots(**subplots_args)
-        self._axli = self.axs.flatten()
-
-        # note: axs contains all axes (subplots) as a 2D grid,
-        #       axsli contains the same objects but as a
-        #       simple list (easier to iterate over)
+        self._fig, self._axs = plt.subplots(**subplots_args)
+        # this also sets self._axli
 
         ihidden = self._nrows * self._ncols - self._nsubplots
         icol_hidden = self._ncols - ihidden
@@ -225,7 +234,7 @@ class ClusterPlot(object):
 
         for isubplot in range(self._nsubplots):
             title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
-                             for key in self._relevant_dofs)
+                             for key in self._dofs)
             self._axli[isubplot].set_title(title)
 
         # set the xrange explicitly in order to not depend
@@ -271,7 +280,6 @@ class ClusterPlot(object):
         if len(self._clusters) > len(self.colors):
             print("Warning: Not enough colors for all clusters.")
         self._find_dofs()
-        self._sample_dofs()
         self._setup_subplots()
 
     # todo: factor out the common part of scatter and fill into its own method?
@@ -295,7 +303,7 @@ class ClusterPlot(object):
         for isubplot in range(self._nsubplots):
             for cluster in self._clusters:
                 df_cluster = self.df[self.df[self.cluster_column] == cluster]
-                for col in self._relevant_dofs:
+                for col in self._dofs:
                     df_cluster = df_cluster[df_cluster[col] ==
                                             self._df_dofs.iloc[isubplot][col]]
                 self._axli[isubplot].scatter(
@@ -350,7 +358,7 @@ class ClusterPlot(object):
 
         for isubplot in range(self._nsubplots):
             df_subplot = self.df.copy()
-            for col in self._relevant_dofs:
+            for col in self._dofs:
                 df_subplot = df_subplot[df_subplot[col] ==
                                         self._df_dofs.iloc[isubplot][col]]
             x = df_subplot[cols[0]].unique()

@@ -24,19 +24,10 @@ from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 
-# todo: Save hierarchy and give option to load again?
 # todo: document attributes
 class Cluster(object):
-    """This class implements the clustering functionality
-
-    Example:
-    ```python
-    c = Cluster("output/scan/global_output")
-    c.build_hierarchy()
-    c.dendrogram(show=True)
-    c.cluster(max_d=0.2)
-    c.write("output/scan/general_output)
-    ```
+    """This class is subclassed to implement specific clustering algorithms and
+    defines common functions.
     """
 
     # **************************************************************************
@@ -60,8 +51,6 @@ class Cluster(object):
         self.df = None
         self._get_scan_data()
 
-        self.hierarchy = None
-
         # should we wait for plots to be shown?
         self.wait_plots = False
         # call self.close() when this script exits
@@ -70,7 +59,8 @@ class Cluster(object):
     def _get_scan_data(self):
         """ Read data from scan.py """
         path = Scanner.data_output_path(self.input_path)
-        self.log.debug("Loading scanner data from '{}'.".format(path))
+        self.log.debug("Loading scanner data from '{}'.".format(
+            os.path.abspath(path)))
         with open(path, 'r') as data_file:
             self.df = pd.read_csv(data_file)
         self.df.set_index("index", inplace=True)
@@ -79,7 +69,8 @@ class Cluster(object):
     def _get_scan_metadata(self):
         """ Read metadata from scan.py """
         path = Scanner.metadata_output_path(self.input_path)
-        self.log.debug("Loading scanner metadata from '{}'.".format(path))
+        self.log.debug("Loading scanner metadata from '{}'.".format(
+            os.path.abspath(path)))
         with open(path, 'r') as metadata_file:
             scan_metadata = json.load(metadata_file)
         self.metadata.update(scan_metadata)
@@ -89,7 +80,105 @@ class Cluster(object):
     # B:  Cluster
     # **************************************************************************
 
-    def build_hierarchy(self, **kwargs) -> None:
+    def cluster(self, *args, **kwargs):
+        # Must be implemented in subclass.
+        raise NotImplementedError
+
+    # **************************************************************************
+    # C:  Write out
+    # **************************************************************************
+
+    @staticmethod
+    def data_output_path(general_output_path):
+        """ Taking the general output path, return the path to the data file.
+        """
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_data.csv"
+        )
+
+    @staticmethod
+    def metadata_output_path(general_output_path):
+        """ Taking the general output path, return the path to the metadata file.
+        """
+        return os.path.join(
+            os.path.dirname(general_output_path),
+            os.path.basename(general_output_path) + "_metadata.json"
+        )
+
+    def write(self, general_output_path):
+        """ Write out all results.
+        IMPORTANT NOTE: All output files will always be overwritten!
+
+        Args:
+            general_output_path: Path to the output file without file extension.
+                We will add suffixes and file extensions to this!
+        """
+
+        # *** 1. Clean files and make sure the folders exist ***
+
+        metadata_path = self.metadata_output_path(general_output_path)
+        data_path = self.data_output_path(general_output_path)
+
+        self.log.info("Will write metadata to '{}'.".format(metadata_path))
+        self.log.info("Will write data to '{}'.".format(data_path))
+
+        paths = [metadata_path, data_path]
+        for path in paths:
+            dirname = os.path.dirname(path)
+            if dirname and not os.path.exists(dirname):
+                self.log.debug("Creating directory '{}'.".format(dirname))
+                os.makedirs(dirname)
+            if os.path.exists(path):
+                self.log.debug("Removing file '{}'.".format(path))
+                os.remove(path)
+
+        # *** 2. Write out metadata ***
+
+        self.log.debug("Converting metadata data to json and writing to file "
+                       "'{}'.".format(metadata_path))
+        with open(metadata_path, "w") as metadata_file:
+            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
+        self.log.debug("Done.")
+
+        # *** 3. Write out data ***
+
+        self.log.debug("Converting data to csv and writing to "
+                       "file '{}'.".format(data_path))
+        if self.df.empty:
+            self.log.error("Dataframe seems to be empty. Still writing "
+                           "out anyway.")
+        with open(data_path, "w") as data_file:
+            self.df.to_csv(data_file)
+        self.log.debug("Done")
+
+        # *** 4. Done ***
+
+        self.log.info("Writing out finished.")
+
+    # **************************************************************************
+    # E:  MISC
+    # **************************************************************************
+
+    def close(self):
+        """This method is called when this script exits. A corresponding
+        hook has been set up in the __init__ method.
+        We use that to wait for interactive plots/plotting windows to close
+        if we made any. """
+        if self.wait_plots:
+            # this will block until all plotting windows were closed
+            plt.show()
+
+
+class HierarchyCluster(Cluster):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.hierarchy = None
+
+    # todo: Save hierarchy and give option to load again?
+    # todo: implement in subclass
+    def _build_hierarchy(self,) -> None:
         """ Build the hierarchy object.
         Args:
             **kwargs: keyword arguments to scipy.cluster.hierarchy.linkage
@@ -105,13 +194,24 @@ class Cluster(object):
             "metric": "euclidean",
             "method": "complete"
         }
-        linkage_config.update(kwargs)
+        # linkage_config.update(kwargs)
 
         self.hierarchy = linkage(data, **linkage_config)
         md = self.metadata["cluster"]["hierarchy"]
         md["metric"] = linkage_config["metric"]
         md["method"] = linkage_config["method"]
         self.log.debug("Done")
+
+    #     # *** 4. Save dendrogram ***
+    #
+    #     if len(self.df) <= 100:
+    #         dend_path = os.path.join(os.path.dirname(general_output_path),
+    #                                  os.path.basename(general_output_path) +
+    #                                  "_dend.pdf")
+    #         self.dendrogram(output=dend_path)
+    #     else:
+    #         self.log.info("Large number of benchmark points (>=100), so "
+    #                       "we will not generate a dendrogram by default.")
 
     def cluster(self, max_d=0.2, **kwargs):
         """Performs the actual clustering
@@ -123,10 +223,9 @@ class Cluster(object):
             None
         """
         self.log.debug("Performing clustering.")
-        if self.hierarchy is None:
-            self.log.error("Hierarchy not yet set up. Returning without "
-                           "doing anything")
-            return
+
+        if not self.hierarchy:
+            self._build_hierarchy()
 
         # set up defaults for clustering here
         # (this way we can overwrite them with additional arguments)
@@ -144,10 +243,6 @@ class Cluster(object):
         md["max_d"] = max_d
         md["criterion"] = fcluster_config["criterion"]
         md["nclusters"] = nclusters
-
-    # **************************************************************************
-    # C:  Built-in plotting methods
-    # **************************************************************************
 
     def dendrogram(
             self,
@@ -218,102 +313,6 @@ class Cluster(object):
 
         return ax
 
-    # **************************************************************************
-    # D:  Write out
-    # **************************************************************************
-
-    @staticmethod
-    def data_output_path(general_output_path):
-        """ Taking the general output path, return the path to the data file.
-        """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_data.csv"
-        )
-
-    @staticmethod
-    def metadata_output_path(general_output_path):
-        """ Taking the general output path, return the path to the metadata file.
-        """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_metadata.json"
-        )
-
-    def write(self, general_output_path):
-        """ Write out all results.
-        IMPORTANT NOTE: All output files will always be overwritten!
-
-        Args:
-            general_output_path: Path to the output file without file extension.
-                We will add suffixes and file extensions to this!
-        """
-
-        # *** 1. Clean files and make sure the folders exist ***
-
-        metadata_path = self.metadata_output_path(general_output_path)
-        data_path = self.data_output_path(general_output_path)
-
-        self.log.info("Will write metadata to '{}'.".format(metadata_path))
-        self.log.info("Will write data to '{}'.".format(data_path))
-
-        paths = [metadata_path, data_path]
-        for path in paths:
-            dirname = os.path.dirname(path)
-            if dirname and not os.path.exists(dirname):
-                self.log.debug("Creating directory '{}'.".format(dirname))
-                os.makedirs(dirname)
-            if os.path.exists(path):
-                self.log.debug("Removing file '{}'.".format(path))
-                os.remove(path)
-
-        # *** 2. Write out metadata ***
-
-        self.log.debug("Converting metadata data to json and writing to file "
-                       "'{}'.".format(metadata_path))
-        with open(metadata_path, "w") as metadata_file:
-            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
-        self.log.debug("Done.")
-
-        # *** 3. Write out data ***
-
-        self.log.debug("Converting data to csv and writing to "
-                       "file '{}'.".format(data_path))
-        if self.df.empty:
-            self.log.error("Dataframe seems to be empty. Still writing "
-                           "out anyway.")
-        with open(data_path, "w") as data_file:
-            self.df.to_csv(data_file)
-        self.log.debug("Done")
-
-        # *** 4. Save dendrogram ***
-
-        if len(self.df) <= 100:
-            dend_path = os.path.join(os.path.dirname(general_output_path),
-                                     os.path.basename(general_output_path) +
-                                     "_dend.pdf")
-            self.dendrogram(output=dend_path)
-        else:
-            self.log.info("Large number of benchmark points (>=100), so "
-                          "we will not generate a dendrogram by default.")
-
-        # *** 5. Done ***
-
-        self.log.info("Writing out finished.")
-
-    # **************************************************************************
-    # E:  MISC
-    # **************************************************************************
-
-    def close(self):
-        """This method is called when this script exits. A corresponding
-        hook has been set up in the __init__ method.
-        We use that to wait for interactive plots/plotting windows to close
-        if we made any. """
-        if self.wait_plots:
-            # this will block until all plotting windows were closed
-            plt.show()
-
 
 def cli():
     """Command line interface to run the integration jobs from the command
@@ -330,13 +329,23 @@ def cli():
                         help="Output file basename",
                         default="output/cluster/global_results",
                         dest="output_path")
-    parser.add_argument("-_d", "--dist",
+    parser.add_argument("-a", "--algorithm",
+                        help="Algorithm for the clustering",
+                        choices=['hierarchy'],
+                        default='hierarchy',
+                        dest="algorithm")
+    parser.add_argument("-d", "--dist",
                         help="max_d",
                         default=0.2,
                         dest="max_d")
     args = parser.parse_args()
 
-    c = Cluster(args.input_path)
+    if args.algorithm == "hierarchy":
+        c = HierarchyCluster(args.input_path)
+    else:
+        print("Unknown option '{}' for algorithm! "
+              "Will abort.".format(args.algorithm), file=sys.stderr)
+        sys.exit(113)
 
     paths = [c.metadata_output_path(args.output_path),
              c.data_output_path(args.output_path)]
@@ -347,12 +356,13 @@ def cli():
                           "Proceed?".format(', '.join(existing_paths)))
         if not agree:
             c.log.critical("User abort.")
-            sys.exit(1)
+            sys.exit(15)
 
     c.log.info("Output file: '{}'".format(args.output_path))
 
-    c.build_hierarchy()
-    c.cluster(max_d=args.max_d)
+    if args.algorithm == "hierarchy":
+        c.cluster(max_d=args.max_d)
+
     c.write(args.output_path)
 
 if __name__ == "__main__":

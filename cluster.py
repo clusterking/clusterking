@@ -24,6 +24,8 @@ from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 
+# todo: Save hierarchy and give option to load again?
+# todo: document attributes
 class Cluster(object):
     """This class implements the clustering functionality
 

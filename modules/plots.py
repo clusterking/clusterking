@@ -5,6 +5,7 @@ from typing import List
 # 3d party
 import matplotlib.pyplot as plt
 import matplotlib
+# noinspection PyUnresolvedReferences
 from mpl_toolkits.mplot3d import Axes3D  # NOTE BELOW (*)
 import numpy as np
 import pandas as pd
@@ -282,6 +283,7 @@ class ClusterPlot(object):
         self._find_dofs()
         self._setup_subplots()
 
+    # todo: **kwargs
     # todo: factor out the common part of scatter and fill into its own method?
     def scatter(self, cols: List[str], clusters=None):
         """ Create scatter plot, specifying the columns to be on the axes of the
@@ -341,6 +343,8 @@ class ClusterPlot(object):
                 matrix_colored[irow, icol] = rgb
         return matrix_colored
 
+    # todo: implement interpolation
+    # todo: **kwargs
     def fill(self, cols: List[str]):
         """ Call this method with two column names, x and y. The results are
         similar to those of 2D scatter plots as created by the scatter
@@ -353,7 +357,7 @@ class ClusterPlot(object):
         Returns:
             The figure (unless the 'inline' setting of matplotllib is detected).
         """
-        assert( len(cols) == 2)
+        assert(len(cols) == 2)
         self._setup_all(cols)
 
         for isubplot in range(self._nsubplots):

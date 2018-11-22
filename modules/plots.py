@@ -53,6 +53,7 @@ def plot_histogram(ax: plt.axes,
     )
 
 
+# todo: legend!
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: perhaps better to use logging object rather than a modified print function
 # todo: add basic command line interface?

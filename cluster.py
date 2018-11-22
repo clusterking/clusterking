@@ -14,7 +14,9 @@ from typing import Union
 
 # 3rd party
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import sklearn.cluster
 
 # us
 from modules.util.log import get_logger
@@ -24,6 +26,7 @@ from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 
+# todo: method to change cluster names or add several as different columns
 # todo: document attributes
 class Cluster(object):
     """This class is subclassed to implement specific clustering algorithms and
@@ -224,7 +227,7 @@ class HierarchyCluster(Cluster):
         """
         self.log.debug("Performing clustering.")
 
-        if not self.hierarchy:
+        if self.hierarchy is None:
             self._build_hierarchy()
 
         # set up defaults for clustering here
@@ -314,6 +317,20 @@ class HierarchyCluster(Cluster):
         return ax
 
 
+class KmeansCluster(Cluster):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def cluster(self, n_clusters=2):
+        self.log.debug("Performing clustering.")
+        kmeans = sklearn.cluster.KMeans(n_clusters=n_clusters)
+        bin_columns = [col for col in self.df.columns if col.startswith("bin")]
+        X = np.array(self.df[bin_columns].astype(float))
+        kmeans.fit(X)
+        self.df["cluster"] = kmeans.predict(X)
+        self.log.debug("Done")
+
+
 def cli():
     """Command line interface to run the integration jobs from the command
     line with additional options.
@@ -331,17 +348,24 @@ def cli():
                         dest="output_path")
     parser.add_argument("-a", "--algorithm",
                         help="Algorithm for the clustering",
-                        choices=['hierarchy'],
+                        choices=['hierarchy', 'kmeans'],
                         default='hierarchy',
                         dest="algorithm")
+    # todo: the available options depend on the choice of algorithm, so this should be checked for
     parser.add_argument("-d", "--dist",
                         help="max_d",
                         default=0.2,
                         dest="max_d")
+    parser.add_argument("-n", "--nclusters",
+                        help="Number of clusters",
+                        default=3,
+                        dest="nclusters")
     args = parser.parse_args()
 
     if args.algorithm == "hierarchy":
         c = HierarchyCluster(args.input_path)
+    elif args.algorithm == "kmeans":
+        c = KmeansCluster(args.input_path)
     else:
         print("Unknown option '{}' for algorithm! "
               "Will abort.".format(args.algorithm), file=sys.stderr)
@@ -362,6 +386,8 @@ def cli():
 
     if args.algorithm == "hierarchy":
         c.cluster(max_d=args.max_d)
+    elif args.algorithm == "kmeans":
+        c.cluster(n_clusters=args.nclusters)
 
     c.write(args.output_path)
 

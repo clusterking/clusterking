@@ -83,8 +83,40 @@ class Cluster(object):
     # B:  Cluster
     # **************************************************************************
 
-    def cluster(self, *args, **kwargs):
-        # Must be implemented in subclass.
+    def cluster(self, column="cluster", **kwargs):
+        """ Performs the clustering. 
+        This method is a wrapper around the _cluster implementation in the 
+        subclasses. See there for additional arguments. 
+        
+        Args:
+            column: Column to which the clusters should be appended.
+            
+        Returns:
+            None
+        """
+        self.log.info("Performing clustering.")
+
+        # Taking the column name as additional key means that we can easily save
+        # the configuration values of different clusterings
+        md = self.metadata["cluster"][column]
+
+        for key, value in kwargs.items():
+            md[key] = value
+
+        clusters = self._cluster(**kwargs)
+
+        n_clusters = len(set(clusters))
+        self.log.info("Clustering resulted in {} clusters.".format(n_clusters))
+        md["n_clusters"] = n_clusters
+
+        self.df[column] = clusters
+
+        self.log.info("Done")
+
+    def _cluster(self, **kwargs):
+        """ Implmentation of the clustering. Should return an array-like object
+        with the cluster number.
+        """
         raise NotImplementedError
 
     # **************************************************************************
@@ -216,7 +248,7 @@ class HierarchyCluster(Cluster):
     #         self.log.info("Large number of benchmark points (>=100), so "
     #                       "we will not generate a dendrogram by default.")
 
-    def cluster(self, max_d=0.2, **kwargs):
+    def _cluster(self, max_d=0.2, **kwargs):
         """Performs the actual clustering
         Args:
             max_d:
@@ -225,7 +257,6 @@ class HierarchyCluster(Cluster):
         Returns:
             None
         """
-        self.log.debug("Performing clustering.")
 
         if self.hierarchy is None:
             self._build_hierarchy()
@@ -237,15 +268,8 @@ class HierarchyCluster(Cluster):
         }
         fcluster_config.update(kwargs)
         clusters = fcluster(self.hierarchy, max_d, **fcluster_config)
-        nclusters = len(set(clusters))
-        self.log.info("This resulted in {} clusters.".format(nclusters))
 
-        self.df["cluster"] = pd.Series(clusters, index=self.df.index)
-
-        md = self.metadata["cluster"]["cluster"]
-        md["max_d"] = max_d
-        md["criterion"] = fcluster_config["criterion"]
-        md["nclusters"] = nclusters
+        return clusters
 
     def dendrogram(
             self,
@@ -321,14 +345,12 @@ class KmeansCluster(Cluster):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def cluster(self, n_clusters=2):
-        self.log.debug("Performing clustering.")
-        kmeans = sklearn.cluster.KMeans(n_clusters=n_clusters)
+    def _cluster(self, **kwargs):
+        kmeans = sklearn.cluster.KMeans(**kwargs)
         bin_columns = [col for col in self.df.columns if col.startswith("bin")]
         X = np.array(self.df[bin_columns].astype(float))
         kmeans.fit(X)
-        self.df["cluster"] = kmeans.predict(X)
-        self.log.debug("Done")
+        return kmeans.predict(X)
 
 
 def cli():

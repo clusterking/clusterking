@@ -111,6 +111,8 @@ class Cluster(object):
 
         self.df[column] = clusters
 
+        self.rename_clusters_auto(column)
+
         self.log.info("Done")
 
     def _cluster(self, **kwargs):
@@ -120,7 +122,75 @@ class Cluster(object):
         raise NotImplementedError
 
     # **************************************************************************
-    # C:  Write out
+    # C:  Utility
+    # **************************************************************************
+
+    def rename_clusters(self, old2new, column="cluster", new_column=None):
+        """Renames the clusters. This also allows to merge several clusters 
+        by assigning them the same name. 
+        
+        Args:
+            old2new: Dictionary old name -> new name. If no mapping is defined
+                for a key, it remains unchanged.
+            column: The column with the original cluster numbers. 
+            new_columns: Write out as a new column with name `new_columns`, 
+                e.g. when merging clusters with this method
+        """
+        clusters_old_unique = self.df[column].unique()
+        # If a key doesn't appear in old2new, this means we don't change it.
+        for cluster in clusters_old_unique:
+            if not cluster in old2new:
+                old2new[cluster] = cluster
+        self.rename_clusters_apply(
+            lambda name: old2new[name],
+            column,
+            new_column
+        )
+
+    def rename_clusters_apply(self, funct, column="cluster", new_column=None):
+        """Apply method to cluster names. 
+        
+        Example:
+            # Suppose your clusters are numbered from 1 to 10, but you want to
+            # start counting at 0:
+            self.rename_clusters_apply(lambda i: i-1)
+        
+        Args:
+            funct: Function to be applied to each cluster name (taking one 
+                argument)
+            column: The column with the original cluster numbers. 
+            new_column: Write out as a new column with new name
+            
+        Returns:
+            None
+        """
+        if not new_column:
+            new_column = column
+        self.df[new_column] = \
+            [funct(cluster) for cluster in self.df[column].values]
+
+    def rename_clusters_auto(self, column="cluster", new_column=None):
+        """Try to name clusters in a way that doesn't depend on the clustering 
+        algorithm (e.g. hierarchy clustering assigns names from 1 to n, whereas
+        other cluster methods assign names from 0, etc.).
+        Right now, we simply change the names of the clusters in such a way,
+        that they are numbered from 0 to n-1 in an 'ascending' way with respect
+        to the order of rows in the dataframe.
+        
+        Args:
+            column: Column containing the cluster names
+            new_column: Write out as a new column with new name
+            
+        Returns:
+            None
+        """
+        old_cluster_names = self.df[column].unique()
+        new_cluster_names = range(len(old_cluster_names))
+        old2new = dict(zip(old_cluster_names, new_cluster_names))
+        self.rename_clusters(old2new, column, new_column)
+
+    # **************************************************************************
+    # D:  Write out
     # **************************************************************************
 
     @staticmethod

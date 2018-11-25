@@ -16,18 +16,12 @@ def test_jupyter_notebook(path: str) -> bool:
     """ Runs jupyter notebook and returns True if it executed without
     error and false otherwise. """
     if not os.path.exists(path):
-        print("Notebook '{}' wasn't even found!".format(path),
-              file=sys.stderr)
-        return False
+        raise ValueError("Notebook '{}' wasn't even found!".format(path))
     run_path = os.path.dirname(path)
     ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
     with open(path) as f:
         nb = nbformat.read(f, as_version=4)
-        try:
-            ep.preprocess(nb, {'metadata': {'path': run_path}})
-        except:
-            return False
-    return True
+        ep.preprocess(nb, {'metadata': {'path': run_path}})
 
 
 class TestJupyter(unittest.TestCase):
@@ -36,7 +30,13 @@ class TestJupyter(unittest.TestCase):
 
 def test_generator(path):
     def test(self):
-        self.assertTrue(test_jupyter_notebook(path))
+        test_jupyter_notebook(path)
+    return test
+
+def failed_test_generator(path):
+    def test(self):
+        with self.assertRaises(Exception):
+            test_jupyter_notebook(path)
     return test
 
 
@@ -49,14 +49,15 @@ def underscore_string(path: str):
             ret += "_"
     return ret
 
-
-if __name__ == "__main__":
-    notebook_dir = os.path.join("..", "jupyter")
-    notebooks = [ fn for fn in os.listdir(notebook_dir) if fn.endswith(".ipynb") ]
-    notebook_paths = [os.path.join(notebook_dir, notebook) for notebook in notebooks]
-    for path in notebook_paths:
+# note: Do NOT move that in an __file__ == "__main__" check!
+this_dir = os.path.dirname(os.path.abspath(__file__))
+notebook_dir = os.path.join(this_dir, "..", "jupyter")
+notebooks = [ fn for fn in os.listdir(notebook_dir) if fn.endswith(".ipynb") ]
+notebook_paths = [os.path.join(notebook_dir, notebook) for notebook in notebooks]
+for path in notebook_paths:
+    test_name = "test_" + underscore_string(path)
+    if os.path.basename(path) == "unittest_jupyter_exception.ipynb":
+        test = failed_test_generator(path)
+    else:
         test = test_generator(path)
-        test_name = "test_" + underscore_string(path)
-        setattr(TestJupyter, test_name, test)
-    # print(dir(TestJupyter))
-    unittest.main()
+    setattr(TestJupyter, test_name, test)

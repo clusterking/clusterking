@@ -155,7 +155,7 @@ class ClusterPlot(object):
             steps_per_dof = int(self.max_subplots **
                                 (1 / len(dofs)))
             self._d("number of steps per dof", steps_per_dof)
-            for col in self._dofs:
+            for col in dofs:
                 allowed_values = df_dofs[col].unique()
                 indizes = list(set(np.linspace(0, len(allowed_values)-1,
                                                steps_per_dof).astype(int)))

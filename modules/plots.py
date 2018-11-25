@@ -173,7 +173,8 @@ class ClusterPlot(object):
     @property
     def _nsubplots(self):
         """ Number of subplots. """
-        return max(1, len(self._df_dofs))
+        # +1 to have space for legend!
+        return max(1, len(self._df_dofs)) +1
 
     @property
     def _ncols(self):
@@ -202,7 +203,7 @@ class ClusterPlot(object):
         self._fig, self._axs = plt.subplots(**subplots_args)
         # this also sets self._axli
 
-        ihidden = self._nrows * self._ncols - self._nsubplots
+        ihidden = self._nrows * self._ncols - self._nsubplots + 1
         icol_hidden = self._ncols - ihidden
         self._d("ihidden = {}".format(ihidden))
         self._d("icol_hidden = {}".format(icol_hidden))
@@ -234,7 +235,7 @@ class ClusterPlot(object):
                 self._axli[isubplot].set_ylabel(self._axis_columns[1])
                 self._axli[isubplot].set_zlabel(self._axis_columns[2])
 
-        for isubplot in range(self._nsubplots):
+        for isubplot in range(self._nsubplots - 1):
             title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
                              for key in self._dofs)
             self._axli[isubplot].set_title(title)
@@ -247,6 +248,25 @@ class ClusterPlot(object):
             self._axli[isubplot].set_ylim(self._get_lims(1))
             if len(self._axis_columns) == 3:
                 self._axli[isubplot].set_zlim(self._get_lims(2))
+
+    def _add_legend(self):
+        legend_elements = []
+        for cluster in self._clusters:
+            color = self.colors[cluster % len(self.colors)]
+            p = matplotlib.patches.Patch(
+                facecolor=color,
+                edgecolor=color,
+                label=cluster,
+            )
+            legend_elements.append(p)
+        self._axli[self._nsubplots - 1].legend(
+            handles=legend_elements,
+            loc='center',
+            title="Clusters",
+            frameon=False
+        )
+        # todo: this shouldn't be necessary if setup axes worked as expected
+        self._axli[self._nsubplots - 1].set_axis_off()
 
     def _get_lims(self, ax_no: int, stretch=0.1):
         """ Get lower and upper limit of axis (including padding)
@@ -303,7 +323,7 @@ class ClusterPlot(object):
         """
         self._setup_all(cols, clusters)
 
-        for isubplot in range(self._nsubplots):
+        for isubplot in range(self._nsubplots -1):
             for cluster in self._clusters:
                 df_cluster = self.df[self.df[self.cluster_column] == cluster]
                 for col in self._dofs:
@@ -315,8 +335,12 @@ class ClusterPlot(object):
                     marker=self.markers[cluster-1 % len(self.markers)],
                     label=cluster
                 )
+
+        self._add_legend()
+
         if 'inline' not in matplotlib.get_backend():
             return self._fig
+
 
     def _set_fill_colors(self, matrix: np.ndarray, color_offset=-1) \
             -> np.ndarray:
@@ -361,7 +385,7 @@ class ClusterPlot(object):
         assert(len(cols) == 2)
         self._setup_all(cols)
 
-        for isubplot in range(self._nsubplots):
+        for isubplot in range(self._nsubplots -1):
             df_subplot = self.df.copy()
             for col in self._dofs:
                 df_subplot = df_subplot[df_subplot[col] ==
@@ -378,3 +402,5 @@ class ClusterPlot(object):
                 interpolation='none',
                 extent=[min(x), max(x), min(y), max(y)]
             )
+
+        self._add_legend()

@@ -1,4 +1,3 @@
-# todo: rename this file
 """ Miscellaneous utilities """
 
 import collections

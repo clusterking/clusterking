@@ -41,7 +41,6 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
                                      normalized=True)
 
 
-# todo: implement getters? (especially for the result)
 class Scanner(object):
     """ Scans the NP parameter space in a grid and also q2, producing the
     normalized q2 distribution.

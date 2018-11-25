@@ -26,7 +26,6 @@ from scan import Scanner
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 
-# todo: method to change cluster names or add several as different columns
 # todo: document attributes
 class Cluster(object):
     """This class is subclassed to implement specific clustering algorithms and
@@ -282,7 +281,6 @@ class HierarchyCluster(Cluster):
         self.hierarchy = None
 
     # todo: Save hierarchy and give option to load again?
-    # todo: implement in subclass
     def _build_hierarchy(self,) -> None:
         """ Build the hierarchy object.
         Args:

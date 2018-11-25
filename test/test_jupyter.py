@@ -7,7 +7,6 @@ import os.path
 import sys
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors import CellExecutionError
 
 # todo: use new python path class, rather than clumsy methods
 
@@ -32,6 +31,7 @@ def test_generator(path):
     def test(self):
         test_jupyter_notebook(path)
     return test
+
 
 def failed_test_generator(path):
     def test(self):

@@ -12,9 +12,5 @@ __pycache__/
 # Output files
 # ============
 
-# todo: remove these eventually
-*.out
-data_w_label
-
 output/**
 .ipynb_checkpoints/

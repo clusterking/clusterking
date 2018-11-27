@@ -1,11 +1,12 @@
 # Hooks for git
 
-This is to set up a hook for git that removes all output from the jupyter cells.
+This is to set up a hook for git that
 
-From: https://gist.github.com/minrk/6176788
+* Asks to run unit tests
+* Cleans output from jupyter notebooks
 
 ## Installation:
 
-Go to ``.git/hooks`` and then run
+Simply run
 
-	
+    ./install_hooks.sh

@@ -1,12 +1,34 @@
-#!/bin/sh
-#
+#!/bin/bash
+
+# https://stackoverflow.com/questions/3417896/
+exec < /dev/tty
+
+echo "Pre-commit hook engaged."
+
+####################
+# run unit checks
+
+read -p "Run unittests? [yY]" -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    `python3 -m unittest discover `
+    if [[ $? = 0 ]]
+    then
+        echo "Unittests passed."
+    else
+        echo "Unittests did not pass."
+        exit 1
+    fi
+else
+    echo "Skipping unit tests"
+fi
+
+####################
 # strip output of IPython Notebooks
-# add this as `.git/hooks/pre-commit`
-# to run every time you commit a notebook
-#
-# requires `nbstripout` to be available on your PATH
-#
-# LICENSE: Public Domain
+# FROM: https://gist.github.com/minrk/6176788
+
+echo "Now stripping output of IPython Notebooks"
 
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
    against=HEAD

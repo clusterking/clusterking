@@ -57,6 +57,7 @@ def plot_histogram(ax: plt.axes,
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: perhaps better to use logging object rather than a modified print function
 # todo: add basic command line interface?
+# todo: move to own file in subfolder plots
 class ClusterPlot(object):
     """ Plot clusters!
 
@@ -404,3 +405,28 @@ class ClusterPlot(object):
             )
 
         self._add_legend()
+
+
+# todo: move to own file in subfolder plots
+class PlotClusterHistos(object):
+    def __init__(self, df: pd.DataFrame):
+        self.df = df
+        # self.colors = ....
+        # todo: should be same colors as above, so maybe make colors a global variable or somethign
+        self.figure = None
+        self.ax = None
+
+    def _select_bpoints(self, cluster,bp_per_cluster=1):
+        """ Return list of benchmark points to be plotted for cluster"""
+        pass
+
+
+    def plot(self, cluster=None, bp_per_cluster=1):
+        # cluster: parameter to select only a few clusters from all
+        # bp_per_cluster: How manny benchmark points per cluster
+        # 1. _select_bpoints
+        # 2. call _add_histogram for each bpoint
+        pass
+
+    def _add_histogram(self, histogram: np.ndarray, cluster):
+        pass

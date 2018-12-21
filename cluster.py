@@ -280,12 +280,14 @@ class HierarchyCluster(Cluster):
 
         self.hierarchy = None
 
+
+    # todo: supply our precalculated metric again?
     # todo: Save hierarchy and give option to load again?
     def _build_hierarchy(self,) -> None:
         """ Build the hierarchy object.
         Args:
             **kwargs: keyword arguments to scipy.cluster.hierarchy.linkage
-        """
+        """ 
         self.log.debug("Building hierarchy.")
         nbins = self.metadata["scan"]["q2points"]["nbins"]
         # only the q2 bins without any other information in the dataframe

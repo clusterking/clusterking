@@ -54,7 +54,9 @@ class PlotBundles(object):
             return clusters
         return self.clusters
 
-    def plot_bundles(self, cluster, nlines=4, ax=None):
+    def _plot_bundles(self, cluster, nlines=3, ax=None):
+
+        linestyles = ['-', '--', '-.', ':']
 
         df_cluster = self.df[self.df[self.cluster_column] == cluster]
         if len(df_cluster) < nlines:
@@ -76,30 +78,20 @@ class PlotBundles(object):
 
         bin_numbers = np.array(range(1, len(self.bin_columns) + 1))
 
-        for index in indizes:
+        color = self.get_cluster_color(cluster)
+
+        for i, index in enumerate(indizes):
             data = df_cluster.iloc[[index]][self.bin_columns].values.reshape(len(self.bin_columns))
-            ax.step(bin_numbers, data, where="mid")
+            ax.step(bin_numbers, data, where="mid", color=color, linestyle=linestyles[i % len(linestyles)])
 
-    def plot_bundles_overlaid(self, clusters=None, nlines=1):
-
-        clusters = self.get_clusters(clusters)
-
-        bin_numbers = np.array(range(1, len(self.bin_columns) + 1))
-
+    def plot_bundles(self, clusters=None, nlines=1):
+        if not clusters:
+            clusters = self.get_clusters()
+        if isinstance(clusters, int):
+            clusters = [clusters]
         fig, ax = plt.subplots()
         for cluster in clusters:
-            df_cluster = self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
-            indizes = get_random_indizes(len(df_cluster), nlines)
-            color = self.get_cluster_color(cluster)
-            for index in indizes:
-                contents = df_cluster.iloc[[index]].values.reshape(len(self.bin_columns))
-                # print(contents)
-                ax.step(
-                    bin_numbers,
-                    contents,
-                    where="mid",
-                    color=color
-                )
+            self._plot_bundles(cluster, nlines=nlines, ax=ax)
 
     def _plot_minmax(self, cluster, ax=None):
         df_cluster = self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
@@ -130,6 +122,8 @@ class PlotBundles(object):
             )
 
     def plot_minmax(self, clusters=None):
+        if not clusters:
+            self.get_clusters()
         if isinstance(clusters, int):
             clusters = [clusters]
         fig, ax = plt.subplots()
@@ -164,10 +158,11 @@ class PlotBundles(object):
             whis=whiskers  # extend the range of the whiskers
         )
 
-    def box_plot(self, clusters):
+    def box_plot(self, clusters=None):
+        if not clusters:
+            self.get_clusters()
         if isinstance(clusters, int):
             clusters = [clusters]
-
         clusters = self.get_clusters(clusters)
         fig, ax = plt.subplots()
         for cluster in clusters:

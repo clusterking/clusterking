@@ -7,10 +7,10 @@
 import argparse
 import atexit
 import json
-import os.path
 import sys
 import time
 from typing import Union
+import pathlib
 
 # 3rd party
 import matplotlib.pyplot as plt
@@ -40,7 +40,7 @@ class Cluster(object):
         self.log = get_logger("Cluster")
 
         self.log.info("Input file basename: '{}'.".format(input_path))
-        self.input_path = input_path
+        self.input_path = pathlib.Path(input_path)
 
         # will load the one metadata from scan and then add our own
         self.metadata = nested_dict()
@@ -62,8 +62,8 @@ class Cluster(object):
         """ Read data from scan.py """
         path = Scanner.data_output_path(self.input_path)
         self.log.debug("Loading scanner data from '{}'.".format(
-            os.path.abspath(path)))
-        with open(path, 'r') as data_file:
+            path.resolve()))
+        with path.open() as data_file:
             self.df = pd.read_csv(data_file)
         self.df.set_index("index", inplace=True)
         self.log.debug("Done.")
@@ -72,8 +72,8 @@ class Cluster(object):
         """ Read metadata from scan.py """
         path = Scanner.metadata_output_path(self.input_path)
         self.log.debug("Loading scanner metadata from '{}'.".format(
-            os.path.abspath(path)))
-        with open(path, 'r') as metadata_file:
+            path.resolve()))
+        with path.open() as metadata_file:
             scan_metadata = json.load(metadata_file)
         self.metadata.update(scan_metadata)
         self.log.debug("Done.")
@@ -95,8 +95,8 @@ class Cluster(object):
         """
         self.log.info("Performing clustering.")
 
-        # Taking the column name as additional key means that we can easily save
-        # the configuration values of different clusterings
+        # Taking the column name as additional key means that we can easily
+        # save the configuration values of different clusterings
         md = self.metadata["cluster"][column]
 
         for key, value in kwargs.items():
@@ -132,13 +132,13 @@ class Cluster(object):
             old2new: Dictionary old name -> new name. If no mapping is defined
                 for a key, it remains unchanged.
             column: The column with the original cluster numbers. 
-            new_columns: Write out as a new column with name `new_columns`, 
+            new_column: Write out as a new column with name `new_columns`, 
                 e.g. when merging clusters with this method
         """
         clusters_old_unique = self.df[column].unique()
         # If a key doesn't appear in old2new, this means we don't change it.
         for cluster in clusters_old_unique:
-            if not cluster in old2new:
+            if cluster not in old2new:
                 old2new[cluster] = cluster
         self.rename_clusters_apply(
             lambda name: old2new[name],
@@ -193,30 +193,29 @@ class Cluster(object):
     # **************************************************************************
 
     @staticmethod
-    def data_output_path(general_output_path):
+    def data_output_path(general_output_path: Union[pathlib.Path, str]) \
+            -> pathlib.Path:
         """ Taking the general output path, return the path to the data file.
         """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_data.csv"
-        )
+        path = pathlib.Path(general_output_path)
+        return path.parent / (path.name + "_data.csv")
 
     @staticmethod
-    def metadata_output_path(general_output_path):
-        """ Taking the general output path, return the path to the metadata file.
+    def metadata_output_path(general_output_path: Union[pathlib.Path, str]) \
+            -> pathlib.Path:
+        """ Taking the general output path, return the path to the 
+        metadata file.
         """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_metadata.json"
-        )
+        path = pathlib.Path(general_output_path)
+        return path.parent / (path.name + "_metadata.json")
 
     def write(self, general_output_path):
         """ Write out all results.
         IMPORTANT NOTE: All output files will always be overwritten!
 
         Args:
-            general_output_path: Path to the output file without file extension.
-                We will add suffixes and file extensions to this!
+            general_output_path: Path to the output file without file 
+                extension. We will add suffixes and file extensions to this!
         """
 
         # *** 1. Clean files and make sure the folders exist ***
@@ -229,19 +228,18 @@ class Cluster(object):
 
         paths = [metadata_path, data_path]
         for path in paths:
-            dirname = os.path.dirname(path)
-            if dirname and not os.path.exists(dirname):
-                self.log.debug("Creating directory '{}'.".format(dirname))
-                os.makedirs(dirname)
-            if os.path.exists(path):
+            if not path.parent.is_dir():
+                self.log.debug("Creating directory '{}'.".format(path.parent))
+                path.parent.mkdir(parents=True)
+            if path.exists():
                 self.log.debug("Removing file '{}'.".format(path))
-                os.remove(path)
+                path.unlink()
 
         # *** 2. Write out metadata ***
 
         self.log.debug("Converting metadata data to json and writing to file "
                        "'{}'.".format(metadata_path))
-        with open(metadata_path, "w") as metadata_file:
+        with metadata_path.open("w") as metadata_file:
             json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
         self.log.debug("Done.")
 
@@ -252,7 +250,7 @@ class Cluster(object):
         if self.df.empty:
             self.log.error("Dataframe seems to be empty. Still writing "
                            "out anyway.")
-        with open(data_path, "w") as data_file:
+        with data_path.open("w") as data_file:
             self.df.to_csv(data_file)
         self.log.debug("Done")
 
@@ -281,10 +279,8 @@ class HierarchyCluster(Cluster):
         self.hierarchy = None
 
     # todo: Save hierarchy and give option to load again?
-    def _build_hierarchy(self,) -> None:
+    def _build_hierarchy(self) -> None:
         """ Build the hierarchy object.
-        Args:
-            **kwargs: keyword arguments to scipy.cluster.hierarchy.linkage
         """
         self.log.debug("Building hierarchy.")
         nbins = self.metadata["scan"]["q2points"]["nbins"]
@@ -341,11 +337,11 @@ class HierarchyCluster(Cluster):
 
     def dendrogram(
             self,
-            output: Union[None, str]=None,
+            output: Union[None, str, pathlib.Path]=None,
             ax=None,
             show=False,
             **kwargs
-    ) -> plt.Axes:
+    ) -> Union[plt.Axes, None]:
         """Creates dendrogram
 
         Args:
@@ -398,11 +394,10 @@ class HierarchyCluster(Cluster):
             self.wait_plots = True
 
         if output:
-            assert(isinstance(output, str))
-            dirname = os.path.dirname(output)
-            if dirname and not os.path.exists(dirname):
-                self.log.debug("Creating dir '{}'.".format(dirname))
-                os.makedirs(dirname)
+            output = pathlib.Path(output)
+            if not output.parent.is_dir():
+                self.log.debug("Creating dir '{}'.".format(output.parent))
+                output.parent.mkdir(parents=True)
             fig.savefig(output, bbox_inches="tight")
             self.log.info("Wrote dendrogram to '{}'.".format(output))
 
@@ -463,11 +458,13 @@ def cli():
 
     paths = [c.metadata_output_path(args.output_path),
              c.data_output_path(args.output_path)]
-    existing_paths = [path for path in paths if os.path.exists(path)]
+    existing_paths = [path for path in paths if path.exists()]
     if existing_paths:
-        agree = yn_prompt("Output paths {} already exist(s) and will be "
-                          "overwritten. "
-                          "Proceed?".format(', '.join(existing_paths)))
+        agree = yn_prompt(
+            "Output paths {} already exist(s) and will be "
+            "overwritten. "
+            "Proceed?".format(', '.join(map(str, existing_paths)))
+        )
         if not agree:
             c.log.critical("User abort.")
             sys.exit(15)

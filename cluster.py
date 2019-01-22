@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Read the results from scan.py and clusters them.
+"""Read the results from scan.py and get_clusters them.
 """
 
 # standard
@@ -88,7 +88,7 @@ class Cluster(object):
         subclasses. See there for additional arguments. 
         
         Args:
-            column: Column to which the clusters should be appended.
+            column: Column to which the get_clusters should be appended.
             
         Returns:
             None
@@ -105,7 +105,7 @@ class Cluster(object):
         clusters = self._cluster(**kwargs)
 
         n_clusters = len(set(clusters))
-        self.log.info("Clustering resulted in {} clusters.".format(n_clusters))
+        self.log.info("Clustering resulted in {} get_clusters.".format(n_clusters))
         md["n_clusters"] = n_clusters
 
         self.df[column] = clusters
@@ -125,7 +125,7 @@ class Cluster(object):
     # **************************************************************************
 
     def rename_clusters(self, old2new, column="cluster", new_column=None):
-        """Renames the clusters. This also allows to merge several clusters 
+        """Renames the get_clusters. This also allows to merge several get_clusters 
         by assigning them the same name. 
         
         Args:
@@ -133,7 +133,7 @@ class Cluster(object):
                 for a key, it remains unchanged.
             column: The column with the original cluster numbers. 
             new_column: Write out as a new column with name `new_columns`, 
-                e.g. when merging clusters with this method
+                e.g. when merging get_clusters with this method
         """
         clusters_old_unique = self.df[column].unique()
         # If a key doesn't appear in old2new, this means we don't change it.
@@ -150,7 +150,7 @@ class Cluster(object):
         """Apply method to cluster names. 
         
         Example:
-            # Suppose your clusters are numbered from 1 to 10, but you want to
+            # Suppose your get_clusters are numbered from 1 to 10, but you want to
             # start counting at 0:
             self.rename_clusters_apply(lambda i: i-1)
         
@@ -169,10 +169,10 @@ class Cluster(object):
             [funct(cluster) for cluster in self.df[column].values]
 
     def rename_clusters_auto(self, column="cluster", new_column=None):
-        """Try to name clusters in a way that doesn't depend on the clustering 
+        """Try to name get_clusters in a way that doesn't depend on the clustering 
         algorithm (e.g. hierarchy clustering assigns names from 1 to n, whereas
         other cluster methods assign names from 0, etc.).
-        Right now, we simply change the names of the clusters in such a way,
+        Right now, we simply change the names of the get_clusters in such a way,
         that they are numbered from 0 to n-1 in an 'ascending' way with respect
         to the order of rows in the dataframe.
         
@@ -442,7 +442,7 @@ def cli():
                         default=0.2,
                         dest="max_d")
     parser.add_argument("-n", "--nclusters",
-                        help="Number of clusters",
+                        help="Number of get_clusters",
                         default=3,
                         dest="nclusters")
     args = parser.parse_args()

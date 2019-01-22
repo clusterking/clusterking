@@ -6,6 +6,7 @@ try:
 except ImportError:
     git = None
 import time
+import pathlib
 
 
 def nested_dict():
@@ -20,7 +21,7 @@ def nested_dict():
     return collections.defaultdict(nested_dict)
 
 
-def git_info(log=None):
+def git_info(log=None, path=None):
     """ Return dictionary containing status of the git repository (commit hash,
     date etc.
 
@@ -44,7 +45,12 @@ def git_info(log=None):
         return
 
     git_config = {}
-    repo = git.Repo(search_parent_directories=True)
+    if not path:
+        # give git.Repo the directory that includes this file as directory
+        # and let it search
+        this_dir = pathlib.Path(__file__)
+        path = this_dir
+    repo = git.Repo(path=path, search_parent_directories=True)
     git_config["branch"] = repo.head.name
     hcommit = repo.head.commit
     git_config["sha"] = hcommit.hexsha

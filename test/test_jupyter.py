@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 
-""" This file tests all jupyter notbooks """
+""" This file executes all jupyter notbooks and tests if they run 
+successfully. """
 
 import unittest
 import os.path
-import sys
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
 # todo: use new python path class, rather than clumsy methods
 
 
-def test_jupyter_notebook(path: str) -> bool:
+def test_jupyter_notebook(path: str) -> None:
     """ Runs jupyter notebook and returns True if it executed without
     error and false otherwise. """
     if not os.path.exists(path):
@@ -23,6 +23,7 @@ def test_jupyter_notebook(path: str) -> bool:
         ep.preprocess(nb, {'metadata': {'path': run_path}})
 
 
+# Will attach all tests to this class below.
 class TestJupyter(unittest.TestCase):
     pass
 
@@ -49,15 +50,27 @@ def underscore_string(path: str):
             ret += "_"
     return ret
 
+
+def setup_tests():
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    notebook_dir = os.path.join(this_dir, "..", "jupyter")
+    notebooks = [fn for fn in os.listdir(notebook_dir) if fn.endswith(".ipynb")]
+    notebook_paths = [
+        os.path.join(notebook_dir, notebook) for notebook in notebooks
+    ]
+    for path in notebook_paths:
+        test_name = "test_" + underscore_string(path)
+        if os.path.basename(path) == "unittest_jupyter_exception.ipynb":
+            test = failed_test_generator(path)
+        else:
+            test = test_generator(path)
+        setattr(TestJupyter, test_name, test)
+
+
 # note: Do NOT move that in an __file__ == "__main__" check!
-this_dir = os.path.dirname(os.path.abspath(__file__))
-notebook_dir = os.path.join(this_dir, "..", "jupyter")
-notebooks = [ fn for fn in os.listdir(notebook_dir) if fn.endswith(".ipynb") ]
-notebook_paths = [os.path.join(notebook_dir, notebook) for notebook in notebooks]
-for path in notebook_paths:
-    test_name = "test_" + underscore_string(path)
-    if os.path.basename(path) == "unittest_jupyter_exception.ipynb":
-        test = failed_test_generator(path)
-    else:
-        test = test_generator(path)
-    setattr(TestJupyter, test_name, test)
+# Else this won't work with python3 -m unittest discover
+setup_tests()
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -36,7 +36,9 @@ else
    # Initial commit: diff against an empty tree object
    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 fi
- 
+
+echo "checkpoint 3"
+
 # Find notebooks to be committed
 (
 IFS='
@@ -50,4 +52,8 @@ for NB in $NBS ; do
 done
 )
 
-exec git diff-index --check --cached $against --
+echo "checkpoint 4"
+
+# exec git diff-index --check --cached $against --
+
+echo "checkpoint 5"

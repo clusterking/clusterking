@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import unittest
-import numpy as np
 from modules.distribution import *
 
 

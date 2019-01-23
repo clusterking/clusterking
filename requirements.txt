@@ -6,3 +6,7 @@ gitpython
 nbconvert
 nbformat
 jupyter_client
+matplotlib
+sklearn
+colorlog
+ipykernel

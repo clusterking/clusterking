@@ -55,13 +55,14 @@ def underscore_string(path: str) -> str:
 
 def setup_tests():
     this_dir = pathlib.Path(__file__).resolve().parent
-    notebook_dir = this_dir / ".." / "jupyter"
+    notebook_base_dir = this_dir / ".." / "jupyter"
     notebooks = [
-        fn for fn in notebook_dir.iterdir() if fn.name.endswith(".ipynb")
+        fn for fn in notebook_base_dir.iterdir() if fn.name.endswith(".ipynb")
     ]
-    notebook_paths = [
-        notebook_dir / notebook for notebook in notebooks
-    ]
+    notebook_paths = sorted([
+        notebook_base_dir / notebook for notebook in notebooks
+    ])
+
     for path in notebook_paths:
         test_name = "test_" + underscore_string(path.name)
         if path.name == "unittest_jupyter_exception.ipynb":

@@ -27,7 +27,7 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
     indizes = set()
     iterations = 0
     while len(indizes) < n:
-        indizes.add(random.randint(start, stop))
+        indizes.add(random.randrange(start, stop))
         if iterations >= 10 * n:
             print(
                 "Did not manage to generate enough different random "
@@ -141,8 +141,8 @@ class PlotBundles(object):
         df_cluster = self.get_df_cluster(cluster)
         if len(df_cluster) < nlines:
             self.log.warning(
-                "Not enough rows in dataframe. "
-                "Only plotting {} lines.".format(len(df_cluster))
+                "Not enough rows for cluster {} "
+                "Only plotting {} lines.".format(cluster, len(df_cluster))
             )
             nlines = len(df_cluster)
 

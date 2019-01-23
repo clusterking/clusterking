@@ -5,12 +5,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import random
 import numpy as np
+from typing import List
 
 # ours
 from modules.util.log import get_logger
 
 
-def get_random_indizes(maximum: int, number: int):
+def get_random_indizes(maximum: int, number: int) -> List[int]:
+    """ Generate random indizes
+
+    Args:
+        maximum: Maximum of index
+        number: Number of random indizes to be generated
+
+    Returns:
+        List `number` many (different) random indizes
+    """
     indizes = set()
     iterations = 0
     while len(indizes) < number:
@@ -49,11 +59,6 @@ class PlotBundles(object):
     def get_cluster_color(self, cluster):
         return self.cluster_colors[cluster % len(self.cluster_colors)]
 
-    def get_clusters(self, clusters=None):
-        if clusters:
-            return clusters
-        return self.clusters
-
     def _plot_bundles(self, cluster, nlines=3, ax=None):
 
         linestyles = ['-', '--', '-.', ':']
@@ -86,7 +91,7 @@ class PlotBundles(object):
 
     def plot_bundles(self, clusters=None, nlines=1):
         if not clusters:
-            clusters = self.get_clusters()
+            clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
         fig, ax = plt.subplots()
@@ -123,11 +128,10 @@ class PlotBundles(object):
 
     def plot_minmax(self, clusters=None):
         if not clusters:
-            self.get_clusters()
+            clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
         fig, ax = plt.subplots()
-        clusters = self.get_clusters(clusters)
         for cluster in clusters:
             self._plot_minmax(cluster, ax=ax)
 
@@ -160,10 +164,9 @@ class PlotBundles(object):
 
     def box_plot(self, clusters=None):
         if not clusters:
-            self.get_clusters()
+            clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
-        clusters = self.get_clusters(clusters)
         fig, ax = plt.subplots()
         for cluster in clusters:
             self._box_plot(cluster, ax=ax)

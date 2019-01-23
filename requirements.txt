@@ -5,3 +5,4 @@ flavio
 gitpython
 nbconvert
 nbformat
+jupyter_client

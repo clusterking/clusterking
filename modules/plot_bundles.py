@@ -2,33 +2,36 @@
 
 # std
 import matplotlib.pyplot as plt
-import pandas as pd
 import random
-import numpy as np
 from typing import List
+
+# 3rd party
+import numpy as np
+import pandas as pd
 
 # ours
 from modules.util.log import get_logger
 
 
-def get_random_indizes(maximum: int, number: int) -> List[int]:
-    """ Generate random indizes
+def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
+    """ Generate a list of n distinct (!) random integers.
 
     Args:
-        maximum: Maximum of index
-        number: Number of random indizes to be generated
+        start: Minimum of index (start <= index)
+        stop: Maximum of index (index < stop)
+        n: Number of distinct random indizes to be generated
 
     Returns:
         List `number` many (different) random indizes
     """
     indizes = set()
     iterations = 0
-    while len(indizes) < number:
-        indizes.add(random.randint(0, maximum))
-        if iterations >= 10 * number:
+    while len(indizes) < n:
+        indizes.add(random.randint(start, stop))
+        if iterations >= 10 * n:
             print(
                 "Did not manage to generate enough different random "
-                "integers (only {} of {}).".format(len(indizes), number)
+                "integers (only {} of {}).".format(len(indizes), n)
             )
             break
     return sorted(list(indizes))
@@ -51,19 +54,28 @@ class PlotBundles(object):
         self.cluster_column = cluster_column
         self.clusters = list(self.df[self.cluster_column].unique())
 
-        self.cluster_colors = ["red", "green", "blue", "black", "orange", "pink", ]
+        self.cluster_colors = ["red", "green", "blue", "black", "orange",
+                               "pink"]
         if len(self.cluster_colors) < len(self.clusters):
-            print("Warning: Not enough colors for all clusters. Some of the "
-                  "colors will be identical.")
+            self.log.warning(
+                "Warning: Not enough colors for all clusters. Some of the "
+                "colors will be identical."
+            )
+
+        self.fig = None
+        self.ax = None
 
     def get_cluster_color(self, cluster):
         return self.cluster_colors[cluster % len(self.cluster_colors)]
 
-    def _plot_bundles(self, cluster, nlines=3, ax=None):
+    def get_df_cluster(self, cluster):
+        return self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
+
+    def _plot_bundles(self, ax, cluster, nlines=3):
 
         linestyles = ['-', '--', '-.', ':']
 
-        df_cluster = self.df[self.df[self.cluster_column] == cluster]
+        df_cluster = self.get_df_cluster(cluster)
         if len(df_cluster) < nlines:
             self.log.warning(
                 "Not enough rows in dataframe. "
@@ -71,42 +83,44 @@ class PlotBundles(object):
             )
             nlines = len(df_cluster)
 
-        indizes = get_random_indizes(len(df_cluster), nlines)
-
-        if not ax:
-            fig, ax = plt.subplots()
-            ax.set_title(
-                "{} examples of distributions for cluster {}".format(
-                    nlines, cluster
-                )
-            )
+        indizes = get_random_indizes(0, len(df_cluster), nlines)
 
         bin_numbers = np.array(range(1, len(self.bin_columns) + 1))
 
         color = self.get_cluster_color(cluster)
 
+        # todo: use post
         for i, index in enumerate(indizes):
-            data = df_cluster.iloc[[index]][self.bin_columns].values.reshape(len(self.bin_columns))
-            ax.step(bin_numbers, data, where="mid", color=color, linestyle=linestyles[i % len(linestyles)])
+            data = df_cluster.iloc[[index]].values.reshape(len(self.bin_columns))
+            ax.step(
+                bin_numbers,
+                data,
+                where="mid",
+                color=color,
+                linestyle=linestyles[i % len(linestyles)]
+            )
 
-    def plot_bundles(self, clusters=None, nlines=1):
+    def plot_bundles(self, clusters=None, nlines=1, ax=None):
         if not clusters:
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
-        fig, ax = plt.subplots()
-        for cluster in clusters:
-            self._plot_bundles(cluster, nlines=nlines, ax=ax)
-
-    def _plot_minmax(self, cluster, ax=None):
-        df_cluster = self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
-        maxima = list(df_cluster.max().values)
-        minima = list(df_cluster.min().values)
-
         if not ax:
             fig, ax = plt.subplots()
-            ax.set_title("Minima and maxima of the bin contents for "
-              "cluster {}".format(cluster))
+            ax.set_title(
+                "{} example(s) of distributions for cluster(s) {}".format(
+                    nlines, ", ".join(map(str, sorted(clusters)))
+                )
+            )
+            self.fig = fig
+            self.ax = ax
+        for cluster in clusters:
+            self._plot_bundles(ax, cluster, nlines=nlines)
+
+    def _plot_minmax(self, ax, cluster):
+        df_cluster = self.get_df_cluster(cluster)
+        maxima = list(df_cluster.max().values)
+        minima = list(df_cluster.min().values)
 
         bin_numbers = np.array(range(1, len(self.bin_columns) + 2))
 
@@ -126,27 +140,28 @@ class PlotBundles(object):
                 color=color
             )
 
-    def plot_minmax(self, clusters=None):
+    def plot_minmax(self, clusters=None, ax=None):
         if not clusters:
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
-        fig, ax = plt.subplots()
-        for cluster in clusters:
-            self._plot_minmax(cluster, ax=ax)
-
-
-    def _box_plot(self, cluster, ax=None):
-        df_cluster = self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
-        data = df_cluster.values
-
-        whiskers=2.5
-
         if not ax:
             fig, ax = plt.subplots()
-            ax.set_title("Box plot of the bin contents for cluster 5\n"
-                     "Whisker length set to {}*IQR".format(whiskers))
-        c=self.get_cluster_color(cluster)
+            ax.set_title(
+                "Minima and maxima of the bin contents for "
+                "cluster(s) {}".format(', '.join(map(str, sorted(clusters))))
+            )
+            self.fig = fig
+            self.ax = ax
+
+        for cluster in clusters:
+            self._plot_minmax(ax, cluster)
+
+    def _box_plot(self, ax, cluster, whiskers=1.5):
+        df_cluster = self.get_df_cluster(cluster)
+        data = df_cluster.values
+
+        c = self.get_cluster_color(cluster)
 
         ax.boxplot(
             data,
@@ -162,12 +177,21 @@ class PlotBundles(object):
             whis=whiskers  # extend the range of the whiskers
         )
 
-    def box_plot(self, clusters=None):
+    def box_plot(self, clusters=None, ax=None):
         if not clusters:
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
-        fig, ax = plt.subplots()
+        whiskers = 2.5
+        if not ax:
+            fig, ax = plt.subplots()
+            ax.set_title(
+                "Box plot of the bin contents for cluster(s) {}\n"
+                "Whisker length set to {}*IQR".format(
+                    ", ".join(map(str, sorted(clusters))),
+                    whiskers
+                )
+            )
         for cluster in clusters:
-            self._box_plot(cluster, ax=ax)
+            self._box_plot(ax, cluster, whiskers=whiskers)
 

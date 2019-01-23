@@ -94,6 +94,19 @@ class PlotBundles(object):
         """
         return self.cluster_colors[cluster % len(self.cluster_colors)]
 
+    def filter_clusters(self, clusters):
+        clusters = list(set(clusters))
+        selection = [c for c in clusters if c in self.clusters]
+        removed = [c for c in clusters if c not in self.clusters]
+        if removed:
+            self.log.warning(
+                "The cluster(s) {} does not exist in data, "
+                "so I removed them.".format(
+                    ", ".join(map(str, sorted(removed)))
+                )
+            )
+        return selection
+
     def get_df_cluster(self, cluster: int) -> pd.DataFrame:
         """ Return only the rows corresponding to one cluster in the 
         dataframe and only the columns that correspond to the bins. 
@@ -170,6 +183,7 @@ class PlotBundles(object):
             clusters = [clusters]
         if not clusters:
             clusters = self.clusters
+        clusters = self.filter_clusters(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -235,6 +249,7 @@ class PlotBundles(object):
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
+        clusters = self.filter_clusters(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -299,6 +314,7 @@ class PlotBundles(object):
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
+        clusters = self.filter_clusters(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(

@@ -3,4 +3,4 @@ numpy
 scipy
 flavio
 gitpython
-
+nbformat

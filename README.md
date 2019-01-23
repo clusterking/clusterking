@@ -1,5 +1,7 @@
 # Clustering of B to D tau nu kinematical shapes
 
+[![Build Status](https://travis-ci.org/RD-clustering/B_decays_clustering.svg?branch=master)](https://travis-ci.org/RD-clustering/B_decays_clustering)
+
 ## Installation
 
 **Essential packages**:

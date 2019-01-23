@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 # std
-import matplotlib.pyplot as plt
 import random
-from typing import List
+from typing import List, Iterable, Union
 
 # 3rd party
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -38,22 +38,37 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 
 
 class PlotBundles(object):
-    def __init__(self, df: pd.DataFrame, bin_column_prefix="bin", cluster_column="cluster"):
+    """ Plotting class to plot distributions by cluster in order to analyse 
+    which distributions get assigned to which cluster. """
+    def __init__(self,
+                 df: pd.DataFrame,
+                 bin_column_prefix="bin",
+                 bin_columns: List[str]=None,
+                 cluster_column="cluster"
+                 ):
+
+        #: logging.Logger object
         self.log = get_logger("PlotBundles")
 
-        self.df = df
+        #: pandas dataframe
+        self.df = df  # type: pd.DataFrame
 
-        # The names of the columns that hold the bin contents
-        # Can be redefined by the user afterwards.
-        self.bin_columns = [
-            col for col in self.df.columns if col.startswith(bin_column_prefix)
-        ]
+        #: The names of the columns that hold the bin contents
+        self.bin_columns = bin_columns
         if not self.bin_columns:
-            self.log.warning("Did not bin columns. Please set them manually.")
+            self.bin_columns = [
+                col for col in self.df.columns
+                if col.startswith(bin_column_prefix)
+            ]
 
+        #: Name of the column holding the cluster number
         self.cluster_column = cluster_column
+
+        #: Names of all clusters
         self.clusters = list(self.df[self.cluster_column].unique())
 
+        # todo: refactor that somewhere where it's shared through all plotting classes
+        #: Colors of the clusters
         self.cluster_colors = ["red", "green", "blue", "black", "orange",
                                "pink"]
         if len(self.cluster_colors) < len(self.clusters):
@@ -62,16 +77,51 @@ class PlotBundles(object):
                 "colors will be identical."
             )
 
+        #: Instance of matplotlib.pyplot.figure
         self.fig = None
+        #: Instance of matplotlib.axes.Axes
         self.ax = None
 
-    def get_cluster_color(self, cluster):
+    # todo: refactor that somewhere where it's shared through all plotting classes
+    def get_cluster_color(self, cluster: int):
+        """ Return color of cluster.
+        
+        Args:
+            cluster: The cluster
+            
+        Returns:
+            Color specification understood by matplotlib.
+        """
         return self.cluster_colors[cluster % len(self.cluster_colors)]
 
-    def get_df_cluster(self, cluster):
-        return self.df[self.df[self.cluster_column] == cluster][self.bin_columns]
+    def get_df_cluster(self, cluster: int) -> pd.DataFrame:
+        """ Return only the rows corresponding to one cluster in the 
+        dataframe and only the columns that correspond to the bins. 
+        
+        Args:
+            cluster: Name of the cluster
+        
+        Returns:
+            pandas.DataFrame as described above
+        """
+        # to avoid long line:
+        cc = self.cluster_column
+        bc = self.bin_columns
+        return self.df[self.df[cc] == cluster][bc]
 
-    def _plot_bundles(self, ax, cluster, nlines=3):
+    def _plot_bundles(self, ax, cluster: int, nlines=3) -> None:
+        """ Main implementation of self.plot_bundles (private method).
+        This method will be called for each cluster in self.plot_bundles.
+         
+        Args:
+            ax: Instance of matplotlib.axes.Axes to plot on
+            cluster: Number of cluster to be plotted
+            nlines: Number of example distributions of the cluster to be 
+                plotted
+        
+        Returns:
+            None
+        """
 
         linestyles = ['-', '--', '-.', ':']
 
@@ -91,7 +141,7 @@ class PlotBundles(object):
 
         # todo: use post
         for i, index in enumerate(indizes):
-            data = df_cluster.iloc[[index]].values.reshape(len(self.bin_columns))
+            data = np.squeeze(df_cluster.iloc[[index]].values)
             ax.step(
                 bin_numbers,
                 data,
@@ -100,11 +150,26 @@ class PlotBundles(object):
                 linestyle=linestyles[i % len(linestyles)]
             )
 
-    def plot_bundles(self, clusters=None, nlines=1, ax=None):
-        if not clusters:
-            clusters = self.clusters
+    def plot_bundles(self, clusters: Union[int, Iterable[int]]=None, nlines=1,
+                     ax=None) -> None:
+        """ Plot several examples of distributions for each cluster specified 
+        
+        Args:
+            clusters: List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            nlines: Number of example distributions of each cluster to be 
+                plotted
+            ax: Instance of matplotlib.axes.Axes to be plotted on. If None
+                (default), a new axes object and figure is initialized and 
+                saved as self.ax and self.fig.
+        
+        Returns:
+            None
+        """
         if isinstance(clusters, int):
             clusters = [clusters]
+        if not clusters:
+            clusters = self.clusters
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -114,10 +179,22 @@ class PlotBundles(object):
             )
             self.fig = fig
             self.ax = ax
+        # pycharm might be confused about the type of `clusters`:
+        # noinspection PyTypeChecker
         for cluster in clusters:
             self._plot_bundles(ax, cluster, nlines=nlines)
 
-    def _plot_minmax(self, ax, cluster):
+    def _plot_minmax(self, ax, cluster: int) -> None:
+        """ Main implementation of self.plot_minmax.
+        This method will be called for each cluster in self.plot_minmax.
+        
+        Args:
+            ax: Instance of matplotlib.axes.Axes to plot on
+            cluster: Name of cluster to be plotted
+        
+        Returns:
+            None
+        """
         df_cluster = self.get_df_cluster(cluster)
         maxima = list(df_cluster.max().values)
         minima = list(df_cluster.min().values)
@@ -140,7 +217,20 @@ class PlotBundles(object):
                 color=color
             )
 
-    def plot_minmax(self, clusters=None, ax=None):
+    def plot_minmax(self, clusters: Union[int, Iterable[int]]=None,
+                    ax=None) -> None:
+        """ Plot the minimum and maximum of each bin for the specified 
+        clusters. 
+        
+        Args:
+            clusters:  List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            ax: Instance of matplotlib.axes.Axes to plot on. If None, a new
+                one is instantiated.
+        
+        Returns:
+            None
+        """
         if not clusters:
             clusters = self.clusters
         if isinstance(clusters, int):
@@ -154,35 +244,61 @@ class PlotBundles(object):
             self.fig = fig
             self.ax = ax
 
+        # pycharm might be confused about the type of `clusters`:
+        # noinspection PyTypeChecker
         for cluster in clusters:
             self._plot_minmax(ax, cluster)
 
-    def _box_plot(self, ax, cluster, whiskers=1.5):
+    def _box_plot(self, ax, cluster, whiskers=1.5) -> None:
+        """ Main implementation of self.box_plot. 
+        Gets called for every cluster specified in self.box_plot.
+        
+        Args:
+            ax: Instance of matplotlib.axes.Axes to plot on
+            cluster: Name of cluster to be plotted
+            whiskers: Length of the whiskers of the box plot. 
+                See self.box_plot for more information.
+                Default: 1.5 (matplotlib default)
+        
+        Returns:
+            None
+        """
         df_cluster = self.get_df_cluster(cluster)
         data = df_cluster.values
 
-        c = self.get_cluster_color(cluster)
+        color = self.get_cluster_color(cluster)
 
         ax.boxplot(
             data,
             notch=False,
             vert=True,
             patch_artist=True,
-            boxprops=dict(facecolor=c, color=c, alpha=0.3),
-            capprops=dict(color=c),
-            whiskerprops=dict(color=c),
-            flierprops=dict(color=c, markeredgecolor=c),
-            medianprops=dict(color=c),
-            #facecolor=None,
+            boxprops=dict(facecolor=color, color=color, alpha=0.3),
+            capprops=dict(color=color),
+            whiskerprops=dict(color=color),
+            flierprops=dict(color=color, markeredgecolor=color),
+            medianprops=dict(color=color),
             whis=whiskers  # extend the range of the whiskers
         )
 
-    def box_plot(self, clusters=None, ax=None):
+    def box_plot(self, clusters: Union[int, Iterable[int]]=None, ax=None,
+                 whiskers: float=2.5) -> None:
+        """ Box plot of the bin contents of the distributions corresponding
+        to selected clusters.
+        
+        Args:
+            clusters:  List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            ax: Instance of matplotlib.axes.Axes to plot on. If None, a new
+                one is instantiated.
+            whiskers: Length of the whiskers of the box plot in units of IQR
+                (interquartile range, containing 50% of all values). Default 
+                2.5.
+        """
         if not clusters:
             clusters = self.clusters
         if isinstance(clusters, int):
             clusters = [clusters]
-        whiskers = 2.5
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -192,6 +308,7 @@ class PlotBundles(object):
                     whiskers
                 )
             )
+        # pycharm might be confused about the type of `clusters`:
+        # noinspection PyTypeChecker
         for cluster in clusters:
             self._box_plot(ax, cluster, whiskers=whiskers)
-

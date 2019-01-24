@@ -1,0 +1,4 @@
+# need this for readthedocs build
+python>=3.5
+
+# the rest should be taken care of in setup.py

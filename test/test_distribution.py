@@ -1,8 +1,13 @@
 #!/usr/bin/python3
 
+# std
 import unittest
 
-from physics.bdlnu.distribution import *
+# 3rd party
+import numpy as np
+
+# ours
+from bclustering.physics.bdlnu.distribution import bin_function
 
 
 class TestDistribution(unittest.TestCase):

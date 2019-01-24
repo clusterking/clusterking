@@ -20,7 +20,7 @@ import sklearn.cluster
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 # us
-from bclustering import Scanner
+from bclustering.scan import Scanner
 from bclustering.util.cli import yn_prompt
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info

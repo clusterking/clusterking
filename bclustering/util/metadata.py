@@ -23,16 +23,26 @@ def nested_dict():
     return collections.defaultdict(nested_dict)
 
 
+# fixme: This probably doesn't work anymore as intended now that we install stuff
 def git_info(log=None, path=None):
     """ Return dictionary containing status of the git repository (commit hash,
     date etc.
 
     Args:
         log: logging.Logger object (optional)
+        path: path to .git subfolder or search path (optional)
 
     Returns:
         dictionary
     """
+    # Fill in some dummy values first
+    git_config = {
+        "branch": "unknown",
+        "sha": "unknown",
+        "msg": "unknown",
+        "time": "unknown"
+    }
+
     if git is None:
         msg_warn = "Module 'git' not found, will not add git version " \
                    "information to the output files."
@@ -44,15 +54,18 @@ def git_info(log=None, path=None):
         else:
             print(msg_warn)
             print(msg_debug)
-        return
+        return git_config
 
-    git_config = {}
     if not path:
         # give git.Repo the directory that includes this file as directory
         # and let it search
         this_dir = pathlib.Path(__file__)
         path = this_dir
-    repo = git.Repo(path=path, search_parent_directories=True)
+    try:
+        repo = git.Repo(path=path, search_parent_directories=True)
+    except git.InvalidGitRepositoryError:
+        return git_config
+
     git_config["branch"] = repo.head.name
     hcommit = repo.head.commit
     git_config["sha"] = hcommit.hexsha

@@ -13,46 +13,6 @@ import pandas as pd
 # (*) This import line is not explicitly used, but do not remove it!
 # It is nescessary to load the 3d support!
 
-# todo: move to a more elaborate plotting concept
-# like https://scipy-cookbook.readthedocs.io/items/Matplotlib_UnfilledHistograms.html for unfilled histograms
-# todo: more flexible signature?
-def plot_histogram(ax: plt.axes,
-                   binning: np.array,
-                   contents: np.array,
-                   normalized=False,
-                   *args,
-                   **kwargs) -> None:
-    """ Plots histogram
-
-    Args:
-        ax: Axes of a plot
-        binning: numpy array of bin edges
-        contents: numpy array of bin contents
-        normalized: If true, the plotted histogram will be normalized
-
-    Returns:
-        None
-    """
-    assert len(binning.shape) == len(contents.shape) == 1
-    n = binning.shape[0] - 1  # number of bins
-    assert n == contents.shape[0]
-    assert n >= 1
-    mpoints = (binning[1:] + binning[:-1]) / 2
-
-    if normalized:
-        values = contents / sum(contents)
-    else:
-        values = contents
-
-    return ax.hist(mpoints,
-                   bins=binning,
-                   weights=values,
-                   linewidth=0,
-                   *args,
-                   **kwargs
-    )
-
-
 # todo: legend!
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: perhaps better to use logging object rather than a modified print function

@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 # ours
-from modules.util.log import get_logger
+from bclustering.util.log import get_logger
 
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:

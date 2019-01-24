@@ -7,23 +7,23 @@
 import argparse
 import atexit
 import json
+import pathlib
 import sys
 import time
 from typing import Union
-import pathlib
 
 # 3rd party
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn.cluster
+from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
 
 # us
-from modules.util.log import get_logger
-from modules.util.cli import yn_prompt
-from modules.util.metadata import nested_dict, git_info
-from scan import Scanner
-from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
+from bclustering import Scanner
+from bclustering.util.cli import yn_prompt
+from bclustering.util.log import get_logger
+from bclustering.util.metadata import nested_dict, git_info
 
 
 # todo: document attributes

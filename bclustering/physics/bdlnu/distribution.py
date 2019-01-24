@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-import numpy as np
-
 import scipy.integrate as integrate
-from .amplitude import *
-from .inputs import inputs, Wilson
 
-from typing import Callable, List, Union, Tuple, Iterable
+from bclustering.physics.bdlnu.amplitude import *
+from bclustering.wilson import Wilson
 
 ## kinematical limits
 

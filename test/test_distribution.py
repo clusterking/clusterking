@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 import unittest
-from modules.distribution import *
+
+from physics.bdlnu.distribution import *
 
 
 class TestDistribution(unittest.TestCase):

@@ -4,13 +4,21 @@
 __pycache__/
 *.pyc
 
-# IDE files
-# =========
+# IDE & editor files
+# ==================
 
 .idea/**
+*.swp
 
 # Output files
 # ============
 
 output/**
 .ipynb_checkpoints/
+
+# Installation files
+# ==================
+
+build/**
+dist/**
+*.egg-info/**

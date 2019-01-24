@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-from .inputs import inputs, Wilson
-from .form_factors import fplus, fzero, fT
 import numpy as np
+
+from bclustering.physics.bdlnu.form_factors import fplus, fzero, fT
+from bclustering.physics.bdlnu.inputs import inputs
+from bclustering.wilson import Wilson
 
 
 #  kinematic variables

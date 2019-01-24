@@ -3,25 +3,27 @@
 """ Scans the NP parameter space in a grid and also q2, producing the
 normalized q2 distribution. """
 
-# standard modules
+# std
 import argparse
 import datetime
 import functools
+import json
 import multiprocessing
-import numpy as np
 import pathlib
 import sys
 import time
-import json
-import pandas as pd
 from typing import Union
 
-# internal modules
-from modules.inputs import Wilson
-import modules.distribution as distribution
-from modules.util.cli import yn_prompt
-from modules.util.log import get_logger
-from modules.util.metadata import nested_dict, git_info
+# 3rd party
+import numpy as np
+import pandas as pd
+
+# ours
+import bclustering.physics.bdlnu.distribution as distribution
+from bclustering.util.cli import yn_prompt
+from bclustering.util.log import get_logger
+from bclustering.util.metadata import nested_dict, git_info
+from bclustering.wilson import Wilson
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading

@@ -27,6 +27,14 @@ Usage
 
 Good starting point: Jupyter notebooks in the ``jupyter`` directory.
 
+For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
+
+.. |readthedocs.io| replace:: **readthedocs.io**
+.. _readthedocs.io: http://bclustering.readthedocs.io/en/latest/
+
+Command Line Interface
+----------------------
+
 Step 1: Build histograms
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

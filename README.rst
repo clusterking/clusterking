@@ -10,7 +10,7 @@ Clustering of B to D tau nu kinematical shapes
    :target: https://bclustering.readthedocs.io/en/latest/
    :alt: Documentation Status
 
-
+.. start-body
 
 Installation
 ------------
@@ -77,3 +77,5 @@ Furthermore, a dendrogram is produced automatically and saved at
 .. figure:: https://raw.githubusercontent.com/celis/B_decays_clustering/master/readme_assets/quick_dend.png?raw=true)
     :alt: Dendrogram
     :align: center
+
+.. end-body

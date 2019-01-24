@@ -6,12 +6,21 @@
 Welcome to B Decays Kinematic Clustering's documentation!
 =========================================================
 
-Contents:
+Frist you might want to check out the readme
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
+  readme
 
+Documentation of modules
+========================
+
+.. toctree::
+  :maxdepth: 2
+
+  bclustering
+  bclustering.plots
 
 Indices and tables
 ==================

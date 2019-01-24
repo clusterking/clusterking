@@ -26,7 +26,6 @@ from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
 
 
-# todo: document attributes
 class Cluster(object):
     """This class is subclassed to implement specific clustering algorithms and
     defines common functions.

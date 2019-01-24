@@ -9,8 +9,6 @@ import nbformat
 from typing import Union
 from nbconvert.preprocessors import ExecutePreprocessor
 
-# todo: use new python path class, rather than clumsy methods
-
 
 def test_jupyter_notebook(path: Union[str, pathlib.Path]) -> None:
     """ Runs jupyter notebook and returns True if it executed without

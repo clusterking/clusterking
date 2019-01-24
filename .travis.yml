@@ -4,6 +4,6 @@ python:
 install:
   # To work around a problem with wilson package we take the git master version of it
   - "pip3 install git+https://github.com/wilson-eft/wilson.git"
-  - "pip3 install . --user"
+  - "pip3 install ."
 script: 
   - "python3 -m unittest discover"

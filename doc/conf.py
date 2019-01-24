@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # B Decays Kinematic Clustering documentation build configuration file, created by
-# sphinx-quickstart on Thu Jan 24 14:46:34 2019.
+# sphinx-quickstart on Thu Jan 24 15:01:53 2019.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -81,7 +81,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

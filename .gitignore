@@ -27,3 +27,4 @@ output/**
 build/**
 dist/**
 *.egg-info/**
+bclustering/git_info.json

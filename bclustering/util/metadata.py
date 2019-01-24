@@ -2,13 +2,18 @@
 
 """ Miscellaneous utilities """
 
+# std
 import collections
+import json
+import pathlib
+import time
+from typing import Dict
+
+# 3rd party
 try:
     import git
 except ImportError:
     git = None
-import time
-import pathlib
 
 
 def nested_dict():
@@ -23,8 +28,7 @@ def nested_dict():
     return collections.defaultdict(nested_dict)
 
 
-# fixme: This probably doesn't work anymore as intended now that we install stuff
-def git_info(log=None, path=None):
+def git_info(log=None, path=None) -> Dict[str, str]:
     """ Return dictionary containing status of the git repository (commit hash,
     date etc.
 
@@ -77,6 +81,31 @@ def git_info(log=None, path=None):
     return git_config
 
 
+def save_git_info(output_path=None, log=None, git_path=None):
+    if output_path:
+        output_path = pathlib.Path(output_path)
+    if not output_path:
+        this_dir = pathlib.Path(__file__).parent.resolve()
+        output_path = this_dir / ".." / "git_info.json"
+    with output_path.open("w") as output_file:
+        output_file.write(json.dumps(git_info(log, git_path)))
+
+
+def load_git_info(input_path=None):
+    if input_path:
+        input_path = pathlib.Path(input_path)
+    if not input_path:
+        this_dir = pathlib.Path(__file__).parent.resolve()
+        input_path = this_dir / ".." / "git_info.json"
+    with input_path.open() as input_file:
+        info = json.loads(input_file.read())
+    return info
+
+
 if __name__ == "__main__":
     print("Testing git_info")
     print(git_info())
+    print("Saving git_info")
+    save_git_info()
+    print("Loading git info again")
+    print(load_git_info())

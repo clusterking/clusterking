@@ -9,12 +9,12 @@ import datetime
 import functools
 import multiprocessing
 import numpy as np
-import os
-import os.path
+import pathlib
 import sys
 import time
 import json
 import pandas as pd
+from typing import Union
 
 # internal modules
 from modules.inputs import Wilson
@@ -290,24 +290,22 @@ class Scanner(object):
     # **************************************************************************
 
     @staticmethod
-    def data_output_path(general_output_path):
+    def data_output_path(general_output_path: Union[pathlib.Path, str]) \
+            -> pathlib.Path:
         """ Taking the general output path, return the path to the data file.
         """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_data.csv"
-        )
+        path = pathlib.Path(general_output_path)
+        return path.parent / (path.name + "_data.csv")
 
     @staticmethod
-    def metadata_output_path(general_output_path):
+    def metadata_output_path(general_output_path: Union[pathlib.Path, str]) \
+            -> pathlib.Path:
         """ Taking the general output path, return the path to the metadata file.
         """
-        return os.path.join(
-            os.path.dirname(general_output_path),
-            os.path.basename(general_output_path) + "_metadata.json"
-        )
+        path = pathlib.Path(general_output_path)
+        return path.parent / (path.name + "_metadata.json")
 
-    def write(self, general_output_path) -> None:
+    def write(self, general_output_path: Union[pathlib.Path, str]) -> None:
         """ Write out all results.
         IMPORTANT NOTE: All output files will always be overwritten!
 
@@ -330,19 +328,18 @@ class Scanner(object):
 
         paths = [metadata_path, data_path]
         for path in paths:
-            dirname = os.path.dirname(path)
-            if dirname and not os.path.exists(dirname):
-                self.log.debug("Creating directory '{}'.".format(dirname))
-                os.makedirs(dirname)
-            if os.path.exists(path):
+            if not path.parent.is_dir():
+                self.log.debug("Creating directory '{}'.".format(path.parent))
+                path.parent.mkdir(parents=True)
+            if path.exists():
                 self.log.debug("Removing file '{}'.".format(path))
-                os.remove(path)
+                path.unlink()
 
         # *** 2. Write out metadata ***
 
         self.log.debug("Converting metadata data to json and writing to file "
                        "'{}'.".format(metadata_path))
-        with open(metadata_path, "w") as metadata_file:
+        with metadata_path.open("w") as metadata_file:
             json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
         self.log.debug("Done.")
 
@@ -354,7 +351,7 @@ class Scanner(object):
             self.log.error("Dataframe seems to be empty. Still writing "
                            "out anyway.")
         self.df.index.name = "index"
-        with open(data_path, "w") as data_file:
+        with data_path.open("w") as data_file:
             self.df.to_csv(data_file)
         self.log.debug("Done")
 
@@ -405,11 +402,11 @@ def cli():
 
     paths = [s.metadata_output_path(args.output_path),
              s.data_output_path(args.output_path)]
-    existing_paths = [path for path in paths if os.path.exists(path)]
+    existing_paths = [path for path in paths if path.exists()]
     if existing_paths:
         agree = yn_prompt("Output paths {} already exist(s) and will be "
                           "overwritten. "
-                          "Proceed?".format(', '.join(existing_paths)))
+                          "Proceed?".format(', '.join(map(str, existing_paths))))
         if not agree:
             s.log.critical("User abort.")
             sys.exit(1)

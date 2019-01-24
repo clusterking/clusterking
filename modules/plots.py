@@ -59,7 +59,7 @@ def plot_histogram(ax: plt.axes,
 # todo: add basic command line interface?
 # todo: move to own file in subfolder plots
 class ClusterPlot(object):
-    """ Plot clusters!
+    """ Plot get_clusters!
 
     After initialization, use the 'scatter' or 'fill' method for plotting.
     See docstrings there for more instructions.
@@ -68,9 +68,9 @@ class ClusterPlot(object):
         df: Pandas dataframe
 
     Attributes:
-        colors: List of colors to color the clusters with. If there are more
-            clusters than colors, a warning is issued.
-        markers: List of markers of the clusters (scatter plot only).
+        colors: List of colors to color the get_clusters with. If there are more
+            get_clusters than colors, a warning is issued.
+        markers: List of markers of the get_clusters (scatter plot only).
         max_subplots: Maximal number of subplots
         max_cols: Maximal number of columns of the subplot grid
         figsize: figure size of each subplot
@@ -242,7 +242,7 @@ class ClusterPlot(object):
             self._axli[isubplot].set_title(title)
 
         # set the xrange explicitly in order to not depend
-        # on which clusters are shown etc.
+        # on which get_clusters are shown etc.
 
         for isubplot in range(self._nsubplots):
             self._axli[isubplot].set_xlim(self._get_lims(0))
@@ -301,7 +301,7 @@ class ClusterPlot(object):
         if not self._clusters:
             self._clusters = list(self.df[self.cluster_column].unique())
         if len(self._clusters) > len(self.colors):
-            print("Warning: Not enough colors for all clusters.")
+            print("Warning: Not enough colors for all get_clusters.")
         self._find_dofs()
         self._setup_subplots()
 
@@ -317,7 +317,7 @@ class ClusterPlot(object):
         Args:
             cols: The names of the columns to be shown on the x, y (and z)
                axis of the plots.
-            clusters: The clusters to be plotted (default: all).
+            clusters: The get_clusters to be plotted (default: all).
 
         Returns:
             The figure (unless the 'inline' setting of matplotllib is detected).

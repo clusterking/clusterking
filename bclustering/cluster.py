@@ -37,24 +37,27 @@ class Cluster(object):
     # **************************************************************************
 
     def __init__(self, input_path):
+        #: Instance of logging.Logger to write out log messages
         self.log = get_logger("Cluster")
 
         self.log.info("Input file basename: '{}'.".format(input_path))
+
+        #: The input path
         self.input_path = pathlib.Path(input_path)
 
-        # will load the one metadata from scan and then add our own
+        #: Metadata
         self.metadata = nested_dict()
         self._get_scan_metadata()
         self.metadata["cluster"]["git"] = git_info(self.log)
         self.metadata["cluster"]["time"] = time.strftime("%a %_d %b %Y %H:%M",
                                                          time.gmtime())
 
-        # dataframe from scanner
+        #: Dataframe from scanner
         self.df = None
         self._get_scan_data()
 
-        # should we wait for plots to be shown?
-        self.wait_plots = False
+        #: Should we wait for plots to be shown?
+        self._wait_plots = False
         # call self.close() when this script exits
         atexit.register(self.close)
 
@@ -149,9 +152,11 @@ class Cluster(object):
     def rename_clusters_apply(self, funct, column="cluster", new_column=None):
         """Apply method to cluster names. 
         
-        Example:
-            # Suppose your get_clusters are numbered from 1 to 10, but you want to
-            # start counting at 0:
+        Example:  Suppose your get_clusters are numbered from 1 to 10, but you
+        want to start counting at 0:
+        
+        .. code-block:: python
+            
             self.rename_clusters_apply(lambda i: i-1)
         
         Args:
@@ -267,7 +272,7 @@ class Cluster(object):
         hook has been set up in the __init__ method.
         We use that to wait for interactive plots/plotting windows to close
         if we made any. """
-        if self.wait_plots:
+        if self._wait_plots:
             # this will block until all plotting windows were closed
             plt.show()
 

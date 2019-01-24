@@ -13,6 +13,7 @@ import pandas as pd
 # (*) This import line is not explicitly used, but do not remove it!
 # It is nescessary to load the 3d support!
 
+
 # todo: legend!
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: perhaps better to use logging object rather than a modified print function
@@ -25,22 +26,6 @@ class ClusterPlot(object):
 
     Args:
         df: Pandas dataframe
-
-    Attributes:
-        colors: List of colors to color the get_clusters with. If there are more
-            get_clusters than colors, a warning is issued.
-        markers: List of markers of the get_clusters (scatter plot only).
-        max_subplots: Maximal number of subplots
-        max_cols: Maximal number of columns of the subplot grid
-        figsize: figure size of each subplot
-        index_columns: The names of the columns that hold the Wilson
-            coefficients
-        cluster_column: The name of the column that holds the cluster index
-        debug: Set to true to see debug messages
-
-    Note: Undocumented attributes starting with and underscore are for
-          internal purposes only.
-
     """
     def __init__(self, df: pd.DataFrame):
         # from arguments
@@ -49,17 +34,33 @@ class ClusterPlot(object):
         # (Advanced) config values
         # Documented in docstring of this class
 
+        #: List of colors to color the get_clusters with. If there are more
+        #: get_clusters than colors, a warning is issued.
         self.colors = None
         if not self.colors:
             self.colors = ["red", "green", "blue", "black", "orange", "pink", ]
+
+        #: List of markers of the get_clusters (scatter plot only).
         self.markers = None
         if not self.markers:
             self.markers = ["o", "v", "^", "v", "<", ">"]
+
+        #: Maximal number of subplots
         self.max_subplots = 16
+
+        #: Maximal number of columns of the subplot grid
         self.max_cols = 4
+
+        #: figure size of each subplot
         self.figsize = (4, 4)
+
+        #: The names of the columns that hold the Wilson coefficients
         self.index_columns = ['l', 'r', 'sl', 'sr', 't']
+
+        #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
+
+        #: Set to true to see debug messages
         self.debug = False
 
         # internal values: Do not modify

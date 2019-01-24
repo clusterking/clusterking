@@ -49,28 +49,35 @@ class Scanner(object):
 
     Usage example:
 
-    ```python
-    # Initialize Scanner object
-    s = Scanner()
-
-    # Sample 3 points for each of the 5 Wilson coefficients
-    s.set_bpoints_equidist(3)
-
-    # Use 5 bins in q2
-    s.set_q2points_equidist(5)
-
-    # Start running with maximally 3 cores
-    s.run(no_workers=3)
-
-    # Write out results
-    s.write("output/scan/global_output")
-    ```
+    .. code-block:: python
+    
+        # Initialize Scanner object
+        s = Scanner()
+    
+        # Sample 3 points for each of the 5 Wilson coefficients
+        s.set_bpoints_equidist(3)
+    
+        # Use 5 bins in q2
+        s.set_q2points_equidist(5)
+    
+        # Start running with maximally 3 cores
+        s.run(no_workers=3)
+    
+        # Write out results
+        s.write("output/scan/global_output")
 
     This is example is equivalent to calling
-    ```./scan.py -n 3 -g 5 -o output/scan/global_output -p 3```
+    
+    .. code-block:: sh
+    
+        ./scan.py -n 3 -g 5 -o output/scan/global_output -p 3
+    
     or
-    ```./scan.py --np-grid-subdivision 3 --grid-subdivision 5 \
-        --output output/scan/global_output --parallel 3 ```
+    
+    .. code-block:: sh
+        
+        ./scan.py --np-grid-subdivision 3 --grid-subdivision 5 \\
+            --output output/scan/global_output --parallel 3
     """
 
     # **************************************************************************
@@ -80,18 +87,18 @@ class Scanner(object):
     def __init__(self):
         self.log = get_logger("Scanner")
 
-        # benchmark points (i.e. Wilson coefficients)
-        # Do NOT directly modify this, but use one of the methods below.
+        #: Benchmark points (i.e. Wilson coefficients)
+        #: Do NOT directly modify this, but use one of the methods below.
         self._bpoints = []
 
-        # EDGES of the q2 bins
-        # Do NOT directly modify this, but use one of the methods below.
+        #: EDGES of the q2 bins
+        #: Do NOT directly modify this, but use one of the methods below.
         self._q2points = np.array([])
 
-        # This will hold all of the results
+        #: This will hold all of the results
         self.df = pd.DataFrame()
 
-        # This will hold all the configuration that we will write out
+        #: This will hold all the configuration that we will write out
         self.metadata = nested_dict()
         self.metadata["scan"]["git"] = git_info(self.log)
         self.metadata["scan"]["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())

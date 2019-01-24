@@ -4,14 +4,10 @@
 
 ## Installation
 
-**Essential packages**:
-
-* ``flavio`` https://flav-io.github.io 
-
-**Nice-to-have packages**
-
-* ``gitpython`` (to have information about the git version with which 
-    files were generated in the metadata file)
+    pip3 install --user git+https://github.com/wilson-eft/wilson.git
+    git clone git@github.com:RD-clustering/B_decays_clustering.git
+    cd B_decays_clustering
+    pip3 install --user .
 
 ## Usage
 

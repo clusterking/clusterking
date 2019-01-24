@@ -11,12 +11,14 @@
 
 ## Usage
 
+Good starting point: Jupyter notebooks in the ``jupyter`` directory.
+
 ### Step 1: Build histograms
 
 Build q2 histograms for the different NP benchmark points.
 This can be done with the command line interface:
         
-    ./scan.py --np-grid-subdivision 3 --grid-subdivision 5 --output output/scan/quick
+    bclustering/bin/scan --np-grid-subdivision 3 --grid-subdivision 5 --output output/scan/quick
 
 More information on the command line options can be found by running
 ``scan.py --help``.
@@ -38,7 +40,7 @@ This produces two output files:
     
 This can be done with the command line interface as well: 
 
-    ./cluster.py --input output/scan/quick.out --output output/cluster/quick
+    bclustering/bin/cluster --input output/scan/quick.out --output output/cluster/quick
 
 This again produces two output files:
 

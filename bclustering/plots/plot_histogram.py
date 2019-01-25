@@ -5,6 +5,7 @@
 # 3rd party
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 
 def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs) \
@@ -50,6 +51,8 @@ def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs) \
             )
     else:
         edges = np.arange(len(contents) + 1)
+        # force to have only integers on the x axis
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
     # Normalize contents?
     if normalize:

@@ -72,4 +72,4 @@ class ColorScheme(object):
         Returns:
             Color as something that matplotlib understands.
         """
-        self._get_index(cluster, "cluster_colors")
+        return self._get_index(cluster, "cluster_colors")

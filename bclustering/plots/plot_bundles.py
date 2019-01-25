@@ -37,7 +37,7 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
     return sorted(list(indizes))
 
 
-class PlotBundles(object):
+class BundlePlot(object):
     """ Plotting class to plot distributions by cluster in order to analyse 
     which distributions get assigned to which cluster. """
     def __init__(self,
@@ -48,7 +48,7 @@ class PlotBundles(object):
                  ):
 
         #: logging.Logger object
-        self.log = get_logger("PlotBundles")
+        self.log = get_logger("BundlePlot")
 
         #: pandas dataframe
         self.df = df  # type: pd.DataFrame

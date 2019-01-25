@@ -8,10 +8,10 @@
   :members:
   :undoc-members:
 
-``PlotBundles``
+``BundlePlot``
 ---------------
 
-.. autoclass:: bclustering.plots.plot_bundles.PlotBundles
+.. autoclass:: bclustering.plots.plot_bundles.BundlePlot
   :members:
   :undoc-members:
 

@@ -34,11 +34,15 @@ install_requires = [
 this_dir = pathlib.Path(__file__).resolve().parent
 scripts_dir = this_dir / "bclustering" / "bin"
 scripts = [str(s.resolve()) for s in scripts_dir.iterdir()]
+print(scripts)
+
+packages = setuptools.find_packages()
+print(packages)
 
 setup(
     name='bclustering',
     version='dev',
-    packages=setuptools.find_packages(),
+    packages=packages,
     install_requires = install_requires,
     url="https://github.com/RD-clustering/B_decays_clustering",
     scripts=scripts,

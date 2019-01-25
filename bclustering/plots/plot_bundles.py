@@ -11,7 +11,7 @@ import pandas as pd
 
 # ours
 from bclustering.util.log import get_logger
-
+from bclustering.plots.plot_histogram import plot_histogram
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
     """ Generate a list of n distinct (!) random integers.
@@ -147,18 +147,13 @@ class BundlePlot(object):
             nlines = len(df_cluster)
 
         indizes = get_random_indizes(0, len(df_cluster), nlines)
-
-        bin_numbers = np.array(range(1, len(self.bin_columns) + 1))
-
         color = self.get_cluster_color(cluster)
-
-        # todo: use post
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster.iloc[[index]].values)
-            ax.step(
-                bin_numbers,
+            plot_histogram(
+                ax,
+                None,
                 data,
-                where="mid",
                 color=color,
                 linestyle=linestyles[i % len(linestyles)]
             )

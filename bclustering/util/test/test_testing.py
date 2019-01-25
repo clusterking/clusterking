@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 # std
+import pathlib
 import unittest
 
 # ours
 import bclustering.util.testing
 
 
-class TestTesting(unittest.TestCase):
+class TestTestingEnvVariable(unittest.TestCase):
 
     def test_true(self):
         bclustering.util.testing.set_testing_mode(True)
@@ -19,6 +20,30 @@ class TestTesting(unittest.TestCase):
 
     def tearDown(self):
         bclustering.util.testing.set_testing_mode(False)
+
+
+class TestTestJupyter(unittest.TestCase):
+
+    def setUp(self):
+        this_dir = pathlib.Path(__file__).resolve().parent
+        self.jupyter_dir = this_dir / "jupyter"
+
+    def test_failing(self):
+        passed = False
+        try:
+            bclustering.util.testing.test_jupyter_notebook(
+                self.jupyter_dir / "exception.ipynb"
+            )
+        except Exception:
+            passed = True
+        if not passed:
+            raise Exception("No exception raised")
+
+    def test_passing(self):
+        bclustering.util.testing.test_jupyter_notebook(
+            self.jupyter_dir / "hello_world.ipynb"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

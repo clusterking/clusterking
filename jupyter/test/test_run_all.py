@@ -38,18 +38,8 @@ def test_clustering():
 
 
 def test_plotcluster():
-    test_jupyter_notebook(jupyter_dir / "test_plotcluster.ipynb")
+    test_jupyter_notebook(jupyter_dir / "test_PlotCluster.ipynb")
 
 
 def test_voxel_plot():
     test_jupyter_notebook(jupyter_dir / "test_voxel_plot.ipynb")
-
-
-def test_exception():
-    passed = False
-    try:
-        test_jupyter_notebook(jupyter_dir / "unittest_jupyter_exception.ipynb")
-    except Exception:
-        passed = True
-    if not passed:
-        raise Exception("No exception raised")

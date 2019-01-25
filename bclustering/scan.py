@@ -101,7 +101,9 @@ class Scanner(object):
         #: This will hold all the configuration that we will write out
         self.metadata = nested_dict()
         self.metadata["scan"]["git"] = git_info(self.log)
-        self.metadata["scan"]["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
+        self.metadata["scan"]["time"] = time.strftime(
+            "%a %_d %b %Y %H:%M", time.gmtime()
+        )
 
     def set_q2points_manual(self, q2points: np.array) -> None:
         """ Manually set the edges of the q2 binning. """
@@ -304,6 +306,7 @@ class Scanner(object):
         """ Taking the general output path, return the path to the data file.
         """
         path = pathlib.Path(general_output_path)
+        # noinspection PyTypeChecker
         return path.parent / (path.name + "_data.csv")
 
     @staticmethod
@@ -312,6 +315,7 @@ class Scanner(object):
         """ Taking the general output path, return the path to the metadata file.
         """
         path = pathlib.Path(general_output_path)
+        # noinspection PyTypeChecker
         return path.parent / (path.name + "_metadata.json")
 
     def write(self, general_output_path: Union[pathlib.Path, str]) -> None:
@@ -319,8 +323,8 @@ class Scanner(object):
         IMPORTANT NOTE: All output files will always be overwritten!
 
         Args:
-            general_output_path: Path to the output file without file extension.
-                We will add suffixes and file extensions to this!
+            general_output_path: Path to the output file without file 
+                extension. We will add suffixes and file extensions to this!
         """
         if self.df.empty:
             self.log.error("Data frame is empty yet attempting to write out. "
@@ -413,9 +417,9 @@ def cli():
              s.data_output_path(args.output_path)]
     existing_paths = [path for path in paths if path.exists()]
     if existing_paths:
-        agree = yn_prompt("Output paths {} already exist(s) and will be "
-                          "overwritten. "
-                          "Proceed?".format(', '.join(map(str, existing_paths))))
+        agree = yn_prompt(
+            "Output paths {} already exist(s) and will be overwritten. "
+            "Proceed?".format(', '.join(map(str, existing_paths))))
         if not agree:
             s.log.critical("User abort.")
             sys.exit(1)

@@ -5,6 +5,7 @@ import os
 ENV_VAR_TESTING_MODE = "B_decays_clustering_TESTMODE"
 
 
+# todo: doc
 def set_testing_mode(testing_mode):
     if testing_mode:
         os.environ[ENV_VAR_TESTING_MODE] = "true"
@@ -12,6 +13,7 @@ def set_testing_mode(testing_mode):
         os.environ[ENV_VAR_TESTING_MODE] = "false"
 
 
+# todo: doc
 def is_testing_mode():
     testing_mode = os.environ[ENV_VAR_TESTING_MODE]
     if testing_mode == "true":

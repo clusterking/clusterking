@@ -81,6 +81,7 @@ def git_info(log=None, path=None) -> Dict[str, str]:
     return git_config
 
 
+# todo: doc
 def save_git_info(output_path=None, log=None, git_path=None):
     if output_path:
         output_path = pathlib.Path(output_path)
@@ -96,6 +97,7 @@ def save_git_info(output_path=None, log=None, git_path=None):
         )
 
 
+# todo: doc
 def load_git_info(input_path=None):
     if input_path:
         input_path = pathlib.Path(input_path)

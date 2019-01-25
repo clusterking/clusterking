@@ -16,7 +16,8 @@ class TestDistribution(unittest.TestCase):
             list(bin_function(lambda x: 1, np.array([1, 2, 3]))),
             [1, 1])
         self.assertSequenceEqual(
-            list(bin_function(lambda x: 1, np.array([1, 2, 3]), normalized=True)),
+            list(bin_function(lambda x: 1, np.array([1, 2, 3]),
+                              normalized=True)),
             [0.5, 0.5])
         self.assertSequenceEqual(
             list(bin_function(lambda x: x, np.array([0, 1]))),

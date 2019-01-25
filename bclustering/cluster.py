@@ -107,7 +107,9 @@ class Cluster(object):
         clusters = self._cluster(**kwargs)
 
         n_clusters = len(set(clusters))
-        self.log.info("Clustering resulted in {} get_clusters.".format(n_clusters))
+        self.log.info(
+            "Clustering resulted in {} get_clusters.".format(n_clusters)
+        )
         md["n_clusters"] = n_clusters
 
         self.df[column] = clusters
@@ -173,12 +175,12 @@ class Cluster(object):
             [funct(cluster) for cluster in self.df[column].values]
 
     def rename_clusters_auto(self, column="cluster", new_column=None):
-        """Try to name get_clusters in a way that doesn't depend on the clustering 
-        algorithm (e.g. hierarchy clustering assigns names from 1 to n, whereas
-        other cluster methods assign names from 0, etc.).
-        Right now, we simply change the names of the get_clusters in such a way,
-        that they are numbered from 0 to n-1 in an 'ascending' way with respect
-        to the order of rows in the dataframe.
+        """Try to name get_clusters in a way that doesn't depend on the 
+        clustering algorithm (e.g. hierarchy clustering assigns names from 1 
+        to n, whereas other cluster methods assign names from 0, etc.). 
+        Right now, we simply change the names of the get_clusters in such a 
+        way, that they are numbered from 0 to n-1 in an 'ascending' way with 
+        respect to the order of rows in the dataframe. 
         
         Args:
             column: Column containing the cluster names
@@ -202,6 +204,7 @@ class Cluster(object):
         """ Taking the general output path, return the path to the data file.
         """
         path = pathlib.Path(general_output_path)
+        # noinspection PyTypeChecker
         return path.parent / (path.name + "_data.csv")
 
     @staticmethod
@@ -211,6 +214,7 @@ class Cluster(object):
         metadata file.
         """
         path = pathlib.Path(general_output_path)
+        # noinspection PyTypeChecker
         return path.parent / (path.name + "_metadata.json")
 
     def write(self, general_output_path):
@@ -335,6 +339,7 @@ class HierarchyCluster(Cluster):
             "criterion": "distance"
         }
         fcluster_config.update(kwargs)
+        # noinspection PyTypeChecker
         clusters = fcluster(self.hierarchy, max_d, **fcluster_config)
 
         return clusters
@@ -395,7 +400,7 @@ class HierarchyCluster(Cluster):
             fig.show()
 
             # Trigger a plt.show() at the end of this script
-            self.wait_plots = True
+            self._wait_plots = True
 
         if output:
             output = pathlib.Path(output)
@@ -415,9 +420,9 @@ class KmeansCluster(Cluster):
     def _cluster(self, **kwargs):
         kmeans = sklearn.cluster.KMeans(**kwargs)
         bin_columns = [col for col in self.df.columns if col.startswith("bin")]
-        X = np.array(self.df[bin_columns].astype(float))
-        kmeans.fit(X)
-        return kmeans.predict(X)
+        x_matrix = np.array(self.df[bin_columns].astype(float))
+        kmeans.fit(x_matrix)
+        return kmeans.predict(x_matrix)
 
 
 def cli():
@@ -440,7 +445,8 @@ def cli():
                         choices=['hierarchy', 'kmeans'],
                         default='hierarchy',
                         dest="algorithm")
-    # todo: the available options depend on the choice of algorithm, so this should be checked for
+    # todo: the available options depend on the choice of algorithm, so this
+    # should be checked for
     parser.add_argument("-d", "--dist",
                         help="max_d",
                         default=0.2,

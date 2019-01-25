@@ -10,7 +10,7 @@ except ImportError:
     colorlog = None
 
 
-def get_logger(name="Logger"):
+def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
     """Sets up a logging.Logger.
 
     If the colorlog module is available, the logger will use colors,
@@ -18,8 +18,11 @@ def get_logger(name="Logger"):
     https://github.com/borntyping/python-colorlog but can also easily be
     installed with e.g. 'sudo pip3 colorlog' or similar commands.
     
-    Arguments:
+    Args:
         name: name of the logger
+        level: General logging level
+        sh_level: Logging level of stream handler
+    
     Returns:
         Logger
     """
@@ -34,7 +37,7 @@ def get_logger(name="Logger"):
         # logger ==> we don't need to do anything
         return _logger
 
-    _logger.setLevel(logging.DEBUG)
+    _logger.setLevel(level)
     if colorlog is not None:
         sh = colorlog.StreamHandler()
         log_colors = {'DEBUG':    'cyan',
@@ -50,7 +53,7 @@ def get_logger(name="Logger"):
         sh = logging.StreamHandler()
         formatter = logging.Formatter('%(name)s:%(levelname)s:%(message)s')
     sh.setFormatter(formatter)
-    sh.setLevel(logging.DEBUG)
+    sh.setLevel(sh_level)
     _logger.addHandler(sh)
 
     if colorlog is None:

@@ -29,6 +29,7 @@ class TestJupyter(unittest.TestCase):
 
 
 def test_generator(path):
+    # noinspection PyUnusedLocal
     def test(self):
         test_jupyter_notebook(path)
     return test
@@ -54,6 +55,7 @@ def underscore_string(path: str) -> str:
 def setup_tests():
     this_dir = pathlib.Path(__file__).resolve().parent
     notebook_base_dir = this_dir / ".." / "jupyter"
+    # noinspection PyUnresolvedReferences
     notebooks = [
         fn for fn in notebook_base_dir.iterdir() if fn.name.endswith(".ipynb")
     ]

@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 # std
 from math import ceil
+import logging
 from typing import List
 
 # 3d party
@@ -10,14 +13,15 @@ from mpl_toolkits.mplot3d import Axes3D  # NOTE BELOW (*)
 import numpy as np
 import pandas as pd
 
+# ours
+from bclustering.util.log import get_logger
+
 # (*) This import line is not explicitly used, but do not remove it!
 # It is nescessary to load the 3d support!
 
 
 # todo: legend!
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
-# todo: perhaps better to use logging object rather than a modified print function
-# todo: add basic command line interface?
 class ClusterPlot(object):
     """ Plot get_clusters!
 
@@ -28,7 +32,10 @@ class ClusterPlot(object):
         df: Pandas dataframe
     """
     def __init__(self, df: pd.DataFrame):
-        # from arguments
+        #: logging.Logger object
+        self.log = get_logger("ClusterPlot", sh_level=logging.WARNING)
+
+        #: Instance of pandas.DataFrame
         self.df = df
 
         # (Advanced) config values
@@ -82,12 +89,6 @@ class ClusterPlot(object):
         the same objects but as a simple list (easier to iterate over)"""
         return self._axs.flatten()
 
-    def _d(self, *args, **kwargs) -> None:
-        """ For debugging this class, this wraps around the print function
-        but only calls it if self.debug == True. """
-        if self.debug:
-            print(*args, **kwargs)
-
     def _find_dofs(self):
         """ find all relevant wilson coefficients that are not axes on
         the plots (called _dofs) """
@@ -99,7 +100,7 @@ class ClusterPlot(object):
             if col not in self._axis_columns:
                 if len(self.df[col].unique()) >= 2:
                     dofs.append(col)
-        self._d("dofs = {}".format(dofs))
+        self.log.debug("dofs = {}".format(dofs))
 
         if not dofs:
             df_dofs = pd.DataFrame([])
@@ -107,7 +108,7 @@ class ClusterPlot(object):
             df_dofs = self.df[dofs].drop_duplicates().sort_values(dofs)
             df_dofs.reset_index(inplace=True, drop=True)
 
-        self._d("number of subplots = {}".format(len(df_dofs)))
+        self.log.debug("number of subplots = {}".format(len(df_dofs)))
 
         # Reduce the number of subplots by only sampling several points of
         # the Wilson coeffs that aren't on the axes
@@ -115,15 +116,15 @@ class ClusterPlot(object):
         if len(df_dofs) > self.max_subplots:
             steps_per_dof = int(self.max_subplots **
                                 (1 / len(dofs)))
-            self._d("number of steps per dof", steps_per_dof)
+            self.log.debug("number of steps per dof", steps_per_dof)
             for col in dofs:
                 allowed_values = df_dofs[col].unique()
                 indizes = list(set(np.linspace(0, len(allowed_values)-1,
                                                steps_per_dof).astype(int)))
                 allowed_values = allowed_values[indizes]
                 df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
-            self._d("number of subplots left after "
-                    "subsampling = {}".format(len(df_dofs)))
+            self.log.debug("number of subplots left after "
+                           "subsampling = {}".format(len(df_dofs)))
 
         self._df_dofs = df_dofs
 
@@ -135,7 +136,7 @@ class ClusterPlot(object):
     def _nsubplots(self):
         """ Number of subplots. """
         # +1 to have space for legend!
-        return max(1, len(self._df_dofs)) +1
+        return max(1, len(self._df_dofs)) + 1
 
     @property
     def _ncols(self):
@@ -145,7 +146,10 @@ class ClusterPlot(object):
     @property
     def _nrows(self):
         """ Number of rows of the subplot grid. """
-        return ceil(self._nsubplots / self._ncols)
+        # the ``int`` technically does not make a difference, but pycharm
+        # thinks that ``ceil`` returns floats and therefore complains
+        # otherwise
+        return int(ceil(self._nsubplots / self._ncols))
 
     def _setup_subplots(self):
         """ Set up the subplot grid"""
@@ -166,8 +170,8 @@ class ClusterPlot(object):
 
         ihidden = self._nrows * self._ncols - self._nsubplots + 1
         icol_hidden = self._ncols - ihidden
-        self._d("ihidden = {}".format(ihidden))
-        self._d("icol_hidden = {}".format(icol_hidden))
+        self.log.debug("ihidden = {}".format(ihidden))
+        self.log.debug("icol_hidden = {}".format(icol_hidden))
 
         if len(self._axis_columns) == 2:
             for isubplot in range(self._nrows * self._ncols):
@@ -175,7 +179,7 @@ class ClusterPlot(object):
                 icol = isubplot % self._ncols
 
                 if isubplot >= self._nsubplots:
-                    self._d("hiding", irow, icol)
+                    self.log.debug("hiding", irow, icol)
                     self._axli[isubplot].set_visible(False)
 
                 if icol == 0:
@@ -197,8 +201,10 @@ class ClusterPlot(object):
                 self._axli[isubplot].set_zlabel(self._axis_columns[2])
 
         for isubplot in range(self._nsubplots - 1):
-            title = " ".join("{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
-                             for key in self._dofs)
+            title = " ".join(
+                "{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
+                for key in self._dofs
+            )
             self._axli[isubplot].set_title(title)
 
         # set the xrange explicitly in order to not depend
@@ -214,6 +220,8 @@ class ClusterPlot(object):
         legend_elements = []
         for cluster in self._clusters:
             color = self.colors[cluster % len(self.colors)]
+            # pycharm can't seem to find patches:
+            # noinspection PyUnresolvedReferences
             p = matplotlib.patches.Patch(
                 facecolor=color,
                 edgecolor=color,
@@ -280,11 +288,12 @@ class ClusterPlot(object):
             clusters: The get_clusters to be plotted (default: all).
 
         Returns:
-            The figure (unless the 'inline' setting of matplotllib is detected).
+            The figure (unless the 'inline' setting of matplotllib is 
+            detected).
         """
         self._setup_all(cols, clusters)
 
-        for isubplot in range(self._nsubplots -1):
+        for isubplot in range(self._nsubplots - 1):
             for cluster in self._clusters:
                 df_cluster = self.df[self.df[self.cluster_column] == cluster]
                 for col in self._dofs:
@@ -301,7 +310,6 @@ class ClusterPlot(object):
 
         if 'inline' not in matplotlib.get_backend():
             return self._fig
-
 
     def _set_fill_colors(self, matrix: np.ndarray, color_offset=-1) \
             -> np.ndarray:
@@ -324,8 +332,11 @@ class ClusterPlot(object):
             for icol in range(cols):
                 value = int(matrix[irow, icol]) + color_offset
                 color = self.colors[value % len(self.colors)]
+                # pycharm doesn't find ``colors`` in matplotlib:
+                # noinspection PyUnresolvedReferences
                 rgb = matplotlib.colors.hex2color(
-                    matplotlib.colors.cnames[color])
+                    matplotlib.colors.cnames[color]
+                )
                 matrix_colored[irow, icol] = rgb
         return matrix_colored
 
@@ -341,25 +352,27 @@ class ClusterPlot(object):
             cols: List of name of column to be plotted on x-axis and on y-axis
 
         Returns:
-            The figure (unless the 'inline' setting of matplotllib is detected).
+            The figure (unless the 'inline' setting of matplotllib is
+            detected).
         """
         assert(len(cols) == 2)
         self._setup_all(cols)
 
-        for isubplot in range(self._nsubplots -1):
+        for isubplot in range(self._nsubplots - 1):
             df_subplot = self.df.copy()
             for col in self._dofs:
-                df_subplot = df_subplot[df_subplot[col] ==
-                                        self._df_dofs.iloc[isubplot][col]]
+                df_subplot = df_subplot[
+                    df_subplot[col] == self._df_dofs.iloc[isubplot][col]
+                ]
             x = df_subplot[cols[0]].unique()
             y = df_subplot[cols[1]].unique()
             df_subplot.sort_values(by=[cols[1], cols[0]],
                                    ascending=[False, True],
                                    inplace=True)
             z = df_subplot[self.cluster_column].values
-            Z = z.reshape(y.shape[0], x.shape[0])
+            z_matrix = z.reshape(y.shape[0], x.shape[0])
             self._axli[isubplot].imshow(
-                self._set_fill_colors(Z, color_offset=-1),
+                self._set_fill_colors(z_matrix, color_offset=-1),
                 interpolation='none',
                 extent=[min(x), max(x), min(y), max(y)]
             )

@@ -13,6 +13,7 @@ import pandas as pd
 from bclustering.util.log import get_logger
 from bclustering.plots.plot_histogram import plot_histogram
 
+
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
     """ Generate a list of n distinct (!) random integers.
 

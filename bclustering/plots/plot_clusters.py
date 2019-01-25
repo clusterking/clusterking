@@ -15,11 +15,13 @@ import pandas as pd
 
 # ours
 from bclustering.util.log import get_logger
+from bclustering.plots.colors import ColorScheme
 
 # (*) This import line is not explicitly used, but do not remove it!
 # It is nescessary to load the 3d support!
 
 
+# fixme: Maybe not take _setup_all?
 # todo: legend!
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 class ClusterPlot(object):
@@ -41,11 +43,8 @@ class ClusterPlot(object):
         # (Advanced) config values
         # Documented in docstring of this class
 
-        #: List of colors to color the get_clusters with. If there are more
-        #: get_clusters than colors, a warning is issued.
-        self.colors = None
-        if not self.colors:
-            self.colors = ["red", "green", "blue", "black", "orange", "pink", ]
+        #: Color scheme
+        self.color_scheme = ColorScheme()
 
         #: List of markers of the get_clusters (scatter plot only).
         self.markers = None
@@ -219,7 +218,7 @@ class ClusterPlot(object):
     def _add_legend(self):
         legend_elements = []
         for cluster in self._clusters:
-            color = self.colors[cluster % len(self.colors)]
+            color = self.color_scheme.get_cluster_color(cluster)
             # pycharm can't seem to find patches:
             # noinspection PyUnresolvedReferences
             p = matplotlib.patches.Patch(
@@ -268,8 +267,7 @@ class ClusterPlot(object):
         self._axis_columns = cols
         if not self._clusters:
             self._clusters = list(self.df[self.cluster_column].unique())
-        if len(self._clusters) > len(self.colors):
-            print("Warning: Not enough colors for all get_clusters.")
+        self.color_scheme = ColorScheme(self._clusters)
         self._find_dofs()
         self._setup_subplots()
 
@@ -301,7 +299,7 @@ class ClusterPlot(object):
                                             self._df_dofs.iloc[isubplot][col]]
                 self._axli[isubplot].scatter(
                     *[df_cluster[col] for col in self._axis_columns],
-                    color=self.colors[cluster-1 % len(self.colors)],
+                    color=self.color_scheme.get_cluster_color(cluster),
                     marker=self.markers[cluster-1 % len(self.markers)],
                     label=cluster
                 )
@@ -311,7 +309,7 @@ class ClusterPlot(object):
         if 'inline' not in matplotlib.get_backend():
             return self._fig
 
-    def _set_fill_colors(self, matrix: np.ndarray, color_offset=-1) \
+    def _set_fill_colors(self, matrix: np.ndarray) \
             -> np.ndarray:
         """ A helper function for the fill method. Given a n x m matrix of
         cluster numbers, this returns a n x m x 3 matrix, where the last 3
@@ -320,8 +318,6 @@ class ClusterPlot(object):
 
         Args:
             matrix: m x n matrix containing cluster numbers
-            color_offset: Cluster i will be assigned to i + color color_offset.
-                Set to -1, because cluster numbering seems to start at 1.
 
         Returns:
             n x m x 3 matrix with last 3 dimensions containing RGB codes
@@ -330,8 +326,8 @@ class ClusterPlot(object):
         matrix_colored = np.zeros((rows, cols, 3))
         for irow in range(rows):
             for icol in range(cols):
-                value = int(matrix[irow, icol]) + color_offset
-                color = self.colors[value % len(self.colors)]
+                cluster = int(matrix[irow, icol])
+                color = self.color_scheme.get_cluster_color(cluster)
                 # pycharm doesn't find ``colors`` in matplotlib:
                 # noinspection PyUnresolvedReferences
                 rgb = matplotlib.colors.hex2color(
@@ -372,7 +368,7 @@ class ClusterPlot(object):
             z = df_subplot[self.cluster_column].values
             z_matrix = z.reshape(y.shape[0], x.shape[0])
             self._axli[isubplot].imshow(
-                self._set_fill_colors(z_matrix, color_offset=-1),
+                self._set_fill_colors(z_matrix),
                 interpolation='none',
                 extent=[min(x), max(x), min(y), max(y)]
             )

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # std
+import logging
 import random
 from typing import List, Iterable, Union
 
@@ -12,6 +13,7 @@ import pandas as pd
 # ours
 from bclustering.util.log import get_logger
 from bclustering.plots.plot_histogram import plot_histogram
+from bclustering.plots.colors import ColorScheme
 
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
@@ -49,7 +51,7 @@ class BundlePlot(object):
                  ):
 
         #: logging.Logger object
-        self.log = get_logger("BundlePlot")
+        self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
 
         #: pandas dataframe
         self.df = df  # type: pd.DataFrame
@@ -68,32 +70,14 @@ class BundlePlot(object):
         #: Names of all clusters
         self.clusters = list(self.df[self.cluster_column].unique())
 
-        # todo: refactor that somewhere where it's shared through all plotting classes
-        #: Colors of the clusters
-        self.cluster_colors = ["red", "green", "blue", "black", "orange",
-                               "pink"]
-        if len(self.cluster_colors) < len(self.clusters):
-            self.log.warning(
-                "Warning: Not enough colors for all clusters. Some of the "
-                "colors will be identical."
-            )
+        #: Color scheme
+        self.color_scheme = ColorScheme(self.clusters)
 
         #: Instance of matplotlib.pyplot.figure
         self.fig = None
         #: Instance of matplotlib.axes.Axes
         self.ax = None
 
-    # todo: refactor that somewhere where it's shared through all plotting classes
-    def get_cluster_color(self, cluster: int):
-        """ Return color of cluster.
-        
-        Args:
-            cluster: The cluster
-            
-        Returns:
-            Color specification understood by matplotlib.
-        """
-        return self.cluster_colors[cluster % len(self.cluster_colors)]
 
     def filter_clusters(self, clusters):
         clusters = list(set(clusters))
@@ -148,7 +132,7 @@ class BundlePlot(object):
             nlines = len(df_cluster)
 
         indizes = get_random_indizes(0, len(df_cluster), nlines)
-        color = self.get_cluster_color(cluster)
+        color = self.color_scheme.get_cluster_color(cluster)
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster.iloc[[index]].values)
             plot_histogram(
@@ -211,7 +195,7 @@ class BundlePlot(object):
 
         bin_numbers = np.array(range(1, len(self.bin_columns) + 2))
 
-        color = self.get_cluster_color(cluster)
+        color = self.color_scheme.get_cluster_color(cluster)
         for i in range(len(maxima)):
             x = bin_numbers[i:i+2]
             y1 = [minima[i], minima[i]]
@@ -277,7 +261,7 @@ class BundlePlot(object):
         df_cluster = self.get_df_cluster(cluster)
         data = df_cluster.values
 
-        color = self.get_cluster_color(cluster)
+        color = self.color_scheme.get_cluster_color(cluster)
 
         ax.boxplot(
             data,

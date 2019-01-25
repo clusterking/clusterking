@@ -73,7 +73,7 @@ def git_info(log=None, path=None) -> Dict[str, str]:
     git_config["branch"] = repo.head.name
     hcommit = repo.head.commit
     git_config["sha"] = hcommit.hexsha
-    git_config["msg"] = hcommit.message
+    git_config["msg"] = hcommit.message.strip("\n")
     commit_time = hcommit.committed_date
     git_config["time"] = time.strftime("%a %_d %b %Y %H:%M",
                                        time.gmtime(commit_time))
@@ -88,7 +88,12 @@ def save_git_info(output_path=None, log=None, git_path=None):
         this_dir = pathlib.Path(__file__).parent.resolve()
         output_path = this_dir / ".." / "git_info.json"
     with output_path.open("w") as output_file:
-        output_file.write(json.dumps(git_info(log, git_path)))
+        json.dump(
+            git_info(log, git_path),
+            output_file,
+            indent=4,
+            sort_keys=True
+        )
 
 
 def load_git_info(input_path=None):

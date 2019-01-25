@@ -11,8 +11,8 @@ from nbconvert.preprocessors import ExecutePreprocessor
 
 
 def test_jupyter_notebook(path: Union[str, pathlib.Path]) -> None:
-    """ Runs jupyter notebook and returns True if it executed without
-    error and false otherwise. """
+    """ Runs jupyter notebook. A ValueError is raised if the file was 
+    not found. """
     path = pathlib.Path(path)
     if not path.exists():
         raise ValueError("Notebook '{}' wasn't even found!".format(path))
@@ -22,27 +22,38 @@ def test_jupyter_notebook(path: Union[str, pathlib.Path]) -> None:
         nb = nbformat.read(f, as_version=4)
         ep.preprocess(nb, {'metadata': {'path': run_path_str}})
 
+def test_function_generator(path):
+    # path = pathlib.Path(path)
+    def test_fct():
+        return test_jupyter_notebook(path)
+    # name = underscore_string(path.name)
+    # test_fct.__name__ = "test_jupyter_{}".format(name)
+    return test_fct
 
-# Will attach all tests to this class below.
-class TestJupyter(unittest.TestCase):
-    pass
+#
+# # Will attach all tests to this class below.
+# class TestJupyter(unittest.TestCase):
+#     pass
+#
+#
+# def test_generator(path):
+#     path = pathlib.Path(path)
+#     # noinspection PyUnusedLocal
+#     def test(self):
+#         test_jupyter_notebook(path)
+#     return test
+#
+#
+# def failed_test_generator(path):
+#     def test(self):
+#         with self.assertRaises(Exception):
+#             test_jupyter_notebook(path)
+#     return test
+#
+#
 
-
-def test_generator(path):
-    # noinspection PyUnusedLocal
-    def test(self):
-        test_jupyter_notebook(path)
-    return test
-
-
-def failed_test_generator(path):
-    def test(self):
-        with self.assertRaises(Exception):
-            test_jupyter_notebook(path)
-    return test
-
-
-def underscore_string(path: str) -> str:
+def underscore_string(path) -> str:
+    path = str(path)
     ret = ""
     for letter in path:
         if letter.isalnum():
@@ -50,8 +61,8 @@ def underscore_string(path: str) -> str:
         else:
             ret += "_"
     return ret
-
-
+#
+#
 def setup_tests():
     this_dir = pathlib.Path(__file__).resolve().parent
     notebook_base_dir = this_dir / ".." / ".."/ "jupyter"
@@ -64,18 +75,24 @@ def setup_tests():
     ])
 
     for path in notebook_paths:
-        test_name = "test_" + underscore_string(path.name)
+        test_name = "test_jupyter_{}".format(underscore_string(path.name))
         if path.name == "unittest_jupyter_exception.ipynb":
-            test = failed_test_generator(path)
+            pass
+            # test = failed_test_generator(path)
         else:
-            test = test_generator(path)
-        setattr(TestJupyter, test_name, test)
+            fct = test_function_generator(path)
+            globals()[test_name] = fct
 
-
-# note: Do NOT move that in an __file__ == "__main__" check!
-# Else this won't work with python3 -m unittest discover
 setup_tests()
 
+# print(globals())
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
+#
+#
+# # note: Do NOT move that in an __file__ == "__main__" check!
+# # Else this won't work with python3 -m unittest discover
+# setup_tests()
+#
+#
+# if __name__ == '__main__':
+#     unittest.main(verbosity=2)

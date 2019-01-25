@@ -18,8 +18,8 @@ __pycache__/
 # Output files
 # ============
 
-output/**
-.ipynb_checkpoints/
+**/output/**
+**/.ipynb_checkpoints/**
 
 # Installation files
 # ==================
@@ -28,3 +28,8 @@ build/**
 dist/**
 *.egg-info/**
 bclustering/git_info.json
+
+# MISC
+# ====
+
+examples/jupyter_notebooks/test/test_auto_generated_tests/**

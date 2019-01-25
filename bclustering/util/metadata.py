@@ -81,24 +81,46 @@ def git_info(log=None, path=None) -> Dict[str, str]:
     return git_config
 
 
-# todo: doc
-def save_git_info(output_path=None, log=None, git_path=None):
+def save_git_info(output_path=None, *args, **kwargs) -> Dict[str, str]:
+    """
+    Save output of git_info to a file.
+    
+    Args:
+        output_path: Output path. If None, the default will be 
+            bclustering/git_info.json
+        *args: Passed on to git_info
+        **kwargs: Passed on to git_info
+
+    Returns:
+        Output of git_info
+    """
     if output_path:
         output_path = pathlib.Path(output_path)
     if not output_path:
         this_dir = pathlib.Path(__file__).parent.resolve()
         output_path = this_dir / ".." / "git_info.json"
+    gi = git_info(*args, **kwargs)
     with output_path.open("w") as output_file:
         json.dump(
-            git_info(log, git_path),
+            gi,
             output_file,
             indent=4,
             sort_keys=True
         )
+    return gi
 
 
-# todo: doc
-def load_git_info(input_path=None):
+def load_git_info(input_path=None) -> Dict[str, str]:
+    """
+    Load previously saved output of git_info from a json file.
+    
+    Args:
+        input_path: Input path to json file. If None, the default will be
+            bclustering/git_info.json
+
+    Returns:
+        Parsed json file (should be identical to saved output of git_info).
+    """
     if input_path:
         input_path = pathlib.Path(input_path)
     if not input_path:

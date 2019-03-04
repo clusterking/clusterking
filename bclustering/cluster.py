@@ -10,14 +10,14 @@ import json
 import pathlib
 import sys
 import time
-from typing import Union
+from typing import Union, Any
 
 # 3rd party
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn.cluster
-from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
+import scipy.cluster.hierarchy
 
 # us
 from bclustering.scan import Scanner
@@ -27,15 +27,18 @@ from bclustering.util.metadata import nested_dict, git_info
 
 
 class Cluster(object):
-    """This class is subclassed to implement specific clustering algorithms and
-    defines common functions.
-    """
-
     # **************************************************************************
     # A:  Setup
     # **************************************************************************
 
     def __init__(self, input_path):
+        """ This class is subclassed to implement specific clustering
+        algorithms and defines common functions.
+
+        Args:
+            input_path: Input path (without extensions) for metadata and
+                output from 'scan'
+        """
         #: Instance of logging.Logger to write out log messages
         self.log = get_logger("Cluster")
 
@@ -286,41 +289,47 @@ class HierarchyCluster(Cluster):
 
         self.hierarchy = None
 
-
-    # todo: supply our precalculated metric again?
     # todo: Save hierarchy and give option to load again?
-    def _build_hierarchy(self) -> None:
+    def build_hierarchy(self, metric: Any = "euclidean",
+                        method="complete", optimal_ordering=False) -> None:
         """ Build the hierarchy object.
+
+        Args:
+            metric: Either any of the keywords described on
+                scipy.cluster.hierarchy.linkage, or a condensed distance
+                matrix as described on scipy.cluster.hierarchy.linkage
+            method: See reference on scipy.cluster.hierarchy.linkage
+            optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
         """
         self.log.debug("Building hierarchy.")
-        nbins = self.metadata["scan"]["q2points"]["nbins"]
-        # only the q2 bins without any other information in the dataframe
-        data = self.df[["bin{}".format(i) for i in range(nbins)]]
 
-        # set defaults for linkage options here
-        # (this way we can overwrite them with additional arguments)
-        linkage_config = {
-            "metric": "euclidean",
-            "method": "complete"
-        }
-        # linkage_config.update(kwargs)
-
-        self.hierarchy = linkage(data, **linkage_config)
         md = self.metadata["cluster"]["hierarchy"]
-        md["metric"] = linkage_config["metric"]
-        md["method"] = linkage_config["method"]
-        self.log.debug("Done")
+        if isinstance(metric, str):
+            md["metric"] = metric
+        else:
+            md["metric"] = "custom supplied"
+        md["method"] = method
+        md["optimal_ordering"] = optimal_ordering
 
-    #     # *** 4. Save dendrogram ***
-    #
-    #     if len(self.df) <= 100:
-    #         dend_path = os.path.join(os.path.dirname(general_output_path),
-    #                                  os.path.basename(general_output_path) +
-    #                                  "_dend.pdf")
-    #         self.dendrogram(output=dend_path)
-    #     else:
-    #         self.log.info("Large number of benchmark points (>=100), so "
-    #                       "we will not generate a dendrogram by default.")
+        if isinstance(metric, str):
+            nbins = self.metadata["scan"]["q2points"]["nbins"]
+            # only the q2 bins without any other information in the dataframe
+            data = self.df[["bin{}".format(i) for i in range(nbins)]]
+
+            self.hierarchy = scipy.cluster.hierarchy.linkage(
+                data,
+                metric=metric,
+                method=method,
+                optimal_ordering=optimal_ordering
+            )
+        else:
+            self.hierarchy = scipy.cluster.hierarchy.linkage(
+                metric,
+                method=method,
+                optimal_ordering=optimal_ordering
+            )
+
+        self.log.debug("Done")
 
     def _cluster(self, max_d=0.2, **kwargs):
         """Performs the actual clustering
@@ -333,7 +342,9 @@ class HierarchyCluster(Cluster):
         """
 
         if self.hierarchy is None:
-            self._build_hierarchy()
+            msg = "Please run build_hierarchy first to set self.hierarchy!"
+            self.log.critical(msg)
+            raise ValueError(msg)
 
         # set up defaults for clustering here
         # (this way we can overwrite them with additional arguments)
@@ -342,7 +353,11 @@ class HierarchyCluster(Cluster):
         }
         fcluster_config.update(kwargs)
         # noinspection PyTypeChecker
-        clusters = fcluster(self.hierarchy, max_d, **fcluster_config)
+        clusters = scipy.cluster.hierarchy.fcluster(
+            self.hierarchy,
+            max_d,
+            **fcluster_config
+        )
 
         return clusters
 
@@ -392,7 +407,7 @@ class HierarchyCluster(Cluster):
         }
         den_config.update(kwargs)
 
-        dendrogram(
+        scipy.cluster.hierarchy.dendrogram(
             self.hierarchy,
             ax=ax,
             **den_config
@@ -489,6 +504,7 @@ def cli():
         c.cluster(n_clusters=args.nclusters)
 
     c.write(args.output_path)
+
 
 if __name__ == "__main__":
     # Run command line interface

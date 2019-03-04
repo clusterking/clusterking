@@ -3,19 +3,6 @@
 import numpy as np
 
 
-def cov2err(cov):
-    # sqrt(covii)
-    raise NotImplementedError
-
-
-def cov2corr(cov):
-    # err = cov2err
-    # corr = covij / (erri * errj)
-    raise NotImplementedError
-
-def corr2cov(corr, err):
-    # corrij * erri * errj
-    raise NotImplementedError
 
 
 class Histogram(object):

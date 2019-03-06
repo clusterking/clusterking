@@ -26,6 +26,7 @@ from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
 
 
+# todo: allow initializing from either file or directly the dataframe and the metadata
 class Cluster(object):
     # **************************************************************************
     # A:  Setup

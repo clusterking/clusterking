@@ -79,14 +79,28 @@ def abs2rel_cov(cov, data):
     raise NotImplementedError
 
 
+# todo: add metadata?
 class DataWithErrors(object):
     def __init__(self, data):
+        """
+        This class gets initialized with an array of n x nbins data points,
+        corresponding to n histograms with nbins bins.
+
+        Methods offer convenient and performant ways to add errors to this
+        dataset.
+
+        Args:
+            data: n x nbins matrix
+        """
         #: A self.n x self.nbins array
         self._data = data
         self.n, self.nbins = self._data.shape
         self._cov = np.zeros((self.n, self.nbins, self.nbins))
 
     def norms(self):
+        """ Return the n vector of sums of bin contents, alias the histogram
+        normalizations.
+        """
         return np.sum(self._data, axis=1)
 
     def data(self, normalize=False, decorrelate=False):
@@ -169,27 +183,41 @@ class DataWithErrors(object):
         pass
 
 
-def chi2_metric(dwe1: DataWithErrors, dwe2: DataWithErrors):
+def chi2_metric(dwe1: DataWithErrors):
     """
-    Returns the chi2 values of the comparison of two datasets.
+    Returns the chi2 values of the comparison of a datasets.
 
     Args:
         dwe1:
-        dwe2:
 
     Returns:
 
     """
-    # How do we even do this if we have (potentially different) correlations?
     # https://root.cern.ch/doc/master/classTH1.html#a6c281eebc0c0a848e7a0d620425090a5
-    # tells us how to do it without correlation
-    # fixme: How to do this if both correlation matrices are different???
-    n1 = dwe1.norms()  # todo: this stays untouched by decorrelation, right?
-    n2 = dwe2.norms()
-    d1 = dwe1.data(decorrelate=True)
-    d2 = dwe2.data(decorrelate=True)
-    e1 = dwe1.err()
-    e2 = dwe2.err()
-    nominator = np.square(n1 * d2 - n2 * d1)
-    denominator = np.square(n1 * e2) + np.square(n2 * e1)
-    return np.sum(nominator/denominator, axis=0)  # fixme: which axis to take?? Test this!!
+
+    # todo: in principle this could still be a factor of 2 faster, because we only need the upper triangular matrix
+
+    # n vector
+    n = dwe1.norms()  # todo: this stays untouched by decorrelation, right?
+    # n x nbins
+    d = dwe1.data(decorrelate=True)
+    # n x nbins
+    e = dwe1.err()
+
+    # n x n x nbins
+    nom1 = np.einsum("k,li->kli", n, d)
+    nom2 = np.transpose(nom1, (0, 1))
+    nominator = np.square(nom1 - nom2)
+
+    # n x n x nbins
+    den1 = np.einsum("k,li->kli", n, e)
+    den2 = np.transpose(den1, (0, 1))
+    denominator = np.square(den1) + np.square(den2)
+
+    # n x n x nbins
+    summand = nominator / denominator
+
+    # n x n
+    chi2 = np.einsum("kli->kl", summand)
+
+    return chi2

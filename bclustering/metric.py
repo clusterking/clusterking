@@ -131,7 +131,8 @@ class DataWithErrors(object):
         if not relative:
             return cov2err(self._cov)
         else:
-            return cov2err(self._cov) / self.norms()
+            # todo: make elegant
+            return cov2err(self._cov) / np.tile(self.norms(), (self.nbins, 1)).T
 
     # -------------------------------------------------------------------------
 
@@ -150,7 +151,7 @@ class DataWithErrors(object):
         Returns:
             None
         """
-        corr = np.identity((self.n, self.nbins, self.nbins))
+        corr = np.tile(np.identity(self.nbins), (self.n, 1, 1))
         self.add_err_corr(err, corr)
 
     def add_err_corr(self, err, corr):
@@ -171,7 +172,13 @@ class DataWithErrors(object):
         self.add_err_cov(rel2abs_cov(cov, self._data))
 
     def add_rel_err_uncorr(self, err):
-        corr = np.identity((self.nbins, self.nbins))
+        corr = np.identity(self.nbins)
+        self.add_rel_err_corr(err, corr)
+
+    def add_rel_err_maxcorr(self, err):
+        if isinstance(err, float):
+            err = [err] * self.nbins
+        corr = np.ones((self.nbins, self.nbins))
         self.add_rel_err_corr(err, corr)
 
     def add_rel_err_corr(self, err, corr):
@@ -179,16 +186,16 @@ class DataWithErrors(object):
 
     # -------------------------------------------------------------------------
 
-    def add_poisson_error(self, norm):
-        pass
+    def add_poisson_error(self):
+        self.add_err_uncorr(np.sqrt(self._data))
 
 
-def chi2_metric(dwe1: DataWithErrors):
+def chi2_metric(dwe: DataWithErrors):
     """
-    Returns the chi2 values of the comparison of a datasets.
+    Returns the chi2/ndf values of the comparison of a datasets.
 
     Args:
-        dwe1:
+        dwe:
 
     Returns:
 
@@ -198,20 +205,20 @@ def chi2_metric(dwe1: DataWithErrors):
     # todo: in principle this could still be a factor of 2 faster, because we only need the upper triangular matrix
 
     # n vector
-    n = dwe1.norms()  # todo: this stays untouched by decorrelation, right?
+    n = dwe.norms()  # todo: this stays untouched by decorrelation, right?
     # n x nbins
-    d = dwe1.data(decorrelate=True)
+    d = dwe.data(decorrelate=True)
     # n x nbins
-    e = dwe1.err()
+    e = dwe.err()
 
     # n x n x nbins
     nom1 = np.einsum("k,li->kli", n, d)
-    nom2 = np.transpose(nom1, (0, 1))
+    nom2 = np.transpose(nom1, (1, 0, 2))
     nominator = np.square(nom1 - nom2)
 
     # n x n x nbins
     den1 = np.einsum("k,li->kli", n, e)
-    den2 = np.transpose(den1, (0, 1))
+    den2 = np.transpose(den1, (1, 0, 2))
     denominator = np.square(den1) + np.square(den2)
 
     # n x n x nbins
@@ -220,4 +227,9 @@ def chi2_metric(dwe1: DataWithErrors):
     # n x n
     chi2 = np.einsum("kli->kl", summand)
 
-    return chi2
+    return chi2 / dwe.nbins
+
+
+def condense_distance_matrix(matrix):
+    return matrix[np.triu_indices(len(matrix), k=1)]
+

@@ -24,6 +24,7 @@ from bclustering.scan import Scanner
 from bclustering.util.cli import yn_prompt
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
+from bclustering.metric import condense_distance_matrix
 
 
 # todo: allow initializing from either file or directly the dataframe and the metadata
@@ -131,6 +132,9 @@ class Cluster(object):
     # **************************************************************************
     # C:  Utility
     # **************************************************************************
+
+    def data_matrix(self):
+        return self.df[["bin{}".format(i) for i in range(self.metadata["scan"]["q2points"]["nbins"])]].values
 
     def rename_clusters(self, old2new, column="cluster", new_column=None):
         """Renames the get_clusters. This also allows to merge several get_clusters 
@@ -324,6 +328,13 @@ class HierarchyCluster(Cluster):
                 optimal_ordering=optimal_ordering
             )
         else:
+            if len(metric.shape) == 1:
+                pass
+            elif len(metric.shape) == 2:
+                metric = condense_distance_matrix(metric)
+            else:
+                raise ValueError("Strange metric matrix dimensions >= 3")
+
             self.hierarchy = scipy.cluster.hierarchy.linkage(
                 metric,
                 method=method,

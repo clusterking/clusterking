@@ -150,7 +150,7 @@ class DataWithErrors(object):
         Returns:
             None
         """
-        corr = np.ones((self.n, self.nbins, self.nbins))
+        corr = np.identity((self.n, self.nbins, self.nbins))
         self.add_err_corr(err, corr)
 
     def add_err_corr(self, err, corr):
@@ -171,7 +171,7 @@ class DataWithErrors(object):
         self.add_err_cov(rel2abs_cov(cov, self._data))
 
     def add_rel_err_uncorr(self, err):
-        corr = np.ones((self.nbins, self.nbins))
+        corr = np.identity((self.nbins, self.nbins))
         self.add_rel_err_corr(err, corr)
 
     def add_rel_err_corr(self, err, corr):

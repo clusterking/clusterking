@@ -10,37 +10,62 @@ import numpy as np
 from bclustering.metric import *
 
 
-class TestMetricUtils1D(unittest.TestCase):
-    def setUp(self):
-        self.cov = np.array([[4, 4], [-4, 16]])
-        self.err = np.array([2, 4])
-        self.corr = np.array([[1, 1/2], [-1/2, 1]])
-
+class MyTestCase(unittest.TestCase):
+    """ Implements an additional general testing methods. """
     def assertAllClose(self, a, b):
+        """ Compares two numpy arrays """
         self.assertTrue(np.allclose(
             a, b
         ))
 
+
+class TestMetricUtils(MyTestCase):
+    """ To test the conversion functions cov2err etc.
+    Subclassed for specific test cases """
+    def setUp(self):
+        self.cov = None
+        self.corr = None
+        self.err = None
+
     def test_cov2err(self):
+        if self.cov is None:
+            return
         self.assertAllClose(
             cov2err(self.cov),
             self.err
         )
 
     def test_corr2cov(self):
+        if self.cov is None:
+            return
         self.assertAllClose(
             corr2cov(self.corr, self.err),
             self.cov
         )
 
     def test_cov2corr(self):
+        if self.cov is None:
+            return
         self.assertAllClose(
             cov2corr(self.cov),
             self.corr
         )
 
 
-class TestMetricUtils2D(unittest.TestCase):
+class TestMetricUtils1D(TestMetricUtils):
+    """ Test metric utils with 1 datapoint.
+    Testing methods inherited from TestMetricUtils
+    """
+    def setUp(self):
+        self.cov = np.array([[4, 4], [-4, 16]])
+        self.err = np.array([2, 4])
+        self.corr = np.array([[1, 1/2], [-1/2, 1]])
+
+
+class TestMetricUtils2D(TestMetricUtils):
+    """ Test metric utils with several datapoints
+    Testing methods inherited from TestMetricUtils
+    """
     def setUp(self):
         self.cov = np.array([
             [[4, 4], [-4, 16]],
@@ -55,29 +80,6 @@ class TestMetricUtils2D(unittest.TestCase):
             [[1, 0], [0, 1]]
         ])
 
-    def assertAllClose(self, a, b):
-        self.assertTrue(np.allclose(
-            a, b
-        ))
-
-    def test_cov2err(self):
-        self.assertAllClose(
-            cov2err(self.cov),
-            self.err
-        )
-
-    def test_corr2cov(self):
-        self.assertAllClose(
-            corr2cov(self.corr, self.err),
-            self.cov
-        )
-
-    def test_cov2corr(self):
-        self.assertAllClose(
-            cov2corr(self.cov),
-            self.corr
-        )
-
 
 class TestDataWithErrors(unittest.TestCase):
     def setUp(self):
@@ -87,7 +89,6 @@ class TestDataWithErrors(unittest.TestCase):
         ])
 
         self.dwe = DataWithErrors(self.data)
-
 
 
 if __name__ == "__main__":

@@ -81,7 +81,7 @@ def abs2rel_cov(cov, data):
 
 # todo: add metadata?
 class DataWithErrors(object):
-    def __init__(self, data):
+    def __init__(self, data: np.ndarray):
         """
         This class gets initialized with an array of n x nbins data points,
         corresponding to n histograms with nbins bins.
@@ -93,96 +93,185 @@ class DataWithErrors(object):
             data: n x nbins matrix
         """
         #: A self.n x self.nbins array
-        self._data = data
+        self._data = data.astype(float)
         self.n, self.nbins = self._data.shape
         self._cov = np.zeros((self.n, self.nbins, self.nbins))
 
     def norms(self):
-        """ Return the n vector of sums of bin contents, alias the histogram
+        """ Return the histogram
         normalizations.
+
+        Returns:
+            array of length self.n
         """
         return np.sum(self._data, axis=1)
 
     def data(self, normalize=False, decorrelate=False):
+        """ Return data matrix
+
+        Args:
+            normalize: Normalize data before returning it
+            decorrelate: Unrotate the correlation matrix to return uncorrelated
+                data entries
+
+        Returns:
+            self.n x self.nbins array
+        """
         ret = np.array(self._data)
-        if normalize:
-            ret /= self.norms()
         if decorrelate:
             inverses = np.linalg.inv(self.corr())
             ret = np.einsum("kij,kj->ki", inverses, ret)
+        # todo: does that work after decorrelate as well?
+        if normalize:
+            ret /= self.norms().reshape((self.n, 1))
         return ret
 
-    def normalized(self):
-        return self._data / self.norms()
-
     def cov(self, relative=False):
-        """ self.n x self.nbins x self.nbins array of covariance matrices """
+        """ Return covariance matrix
+
+        Args:
+            relative: "Relative to data", i.e. Cov_ij / (data_i * data_j)
+
+        Returns:
+            self.n x self.nbins x self.nbins array
+        """
         if not relative:
             return self._cov
         else:
             return abs2rel_cov(self._cov, self.data)
 
     def corr(self):
-        """ self.n x self.nbins x self.nbins array of correlation matrices """
+        """ Return correlation matrix
+
+        Returns:
+            self.n x self.nbins x self.nbins array
+        """
         return cov2corr(self._cov)
 
     def err(self, relative=False):
-        """ self.n x self.nbins array of errors """
+        """ Return errors per bin
+
+        Args:
+            relative: Relative errors
+
+        Returns:
+            self.n x self.nbins array
+        """
         if not relative:
             return cov2err(self._cov)
         else:
-            # todo: make elegant
-            return cov2err(self._cov) / np.tile(self.norms(), (self.nbins, 1)).T
+            return cov2err(self._cov) / self.norms().reshape((self.n, 1))
 
     # -------------------------------------------------------------------------
 
-    def add_err_cov(self, cov):
-        """ Add error from self.n x self.nbins x self.nbins covariance
-        matrix. """
-        self._cov += cov
+    def add_err_cov(self, cov: np.array) -> None:
+        """ Add error from covariance matrix.
 
-    def add_err_uncorr(self, err):
+        Args:
+            cov: self.n x self.nbins x self.nbins array of covariance matrices
+                or self.nbins x self.nbins covariance matrix (if equal for
+                all data points)
+        """
+        if len(cov.shape) == 2:
+            self._cov += np.tile(cov, (self.n, 1, 1))
+        elif len(cov.shape) == 3:
+            self._cov += cov
+        else:
+            raise ValueError("Wrong dimensionality of covariance matrix.")
+
+    def add_err_corr(self, err: np.array, corr: np.array) -> None:
+        """ Add error from errors vector and correlation matrix.
+
+        Args:
+            err: self.n x self.nbins vector of errors for each data point and
+                bin or self.nbins vector of uniform errors per data point or
+                float (uniform error per bin and datapoint)
+            corr: self.n x self.nbins x self.nbins correlation matrices
+                or self.nbins x self.nbins correlation matrix
+        """
+        if not isinstance(err, np.ndarray):
+            err = np.array(err)
+        if not isinstance(corr, np.ndarray):
+            corr = np.array(corr)
+
+        if len(err.shape) == 0:
+            err = np.tile(err, (self.n, self.nbins))
+        if len(err.shape) == 1:
+            err = np.tile(err, (self.n, 1))
+        elif len(err.shape) == 2:
+            pass
+        else:
+            raise ValueError("Wrong dimension of error array.")
+
+        if len(corr.shape) == 2:
+            corr = np.tile(corr, (self.n, 1, 1))
+        elif len(corr.shape) == 3:
+            pass
+        else:
+            raise ValueError("Wrong dimension of correlation matrix")
+
+        self.add_err_cov(corr2cov(corr, err))
+
+    def add_err_uncorr(self, err: np.array) -> None:
         """
         Add uncorrelated error.
 
         Args:
-            err: A self.n x self.nbins array
-
-        Returns:
-            None
+            err: see argument of add_err_corr
         """
         corr = np.tile(np.identity(self.nbins), (self.n, 1, 1))
         self.add_err_corr(err, corr)
 
-    def add_err_corr(self, err, corr):
-        self.add_err_cov(corr2cov(corr, err))
+    def add_err_maxcorr(self, err) -> None:
+        """
+        Add maximally correlated error.
+
+        Args:
+            err: see argument of add_err_corr
+        """
+        corr = np.ones(self.n, self.nbins, self.nbins)
+        self.add_err_corr(err, corr)
 
     # -------------------------------------------------------------------------
 
-    def add_rel_err_cov(self, cov):
+    def add_rel_err_cov(self, cov: np.array) -> None:
         """
-        Add relative error from covariance matrix
+        Add error from "relative" covariance matrix
 
         Args:
-            cov: self.nbins x self.nbins array
-
-        Returns:
-            None
+            cov: see argument of add_err_cov
         """
         self.add_err_cov(rel2abs_cov(cov, self._data))
 
-    def add_rel_err_uncorr(self, err):
+    def add_rel_err_corr(self, err: np.array, corr: np.array) -> None:
+        """
+        Add error from relative errors and correlation matrix.
+
+        Args:
+            err: see argument of add_err_corr
+            corr: see argument of add_err_corr
+        """
+        self.add_rel_err_cov(corr2cov(corr, err))
+
+    def add_rel_err_uncorr(self, err: np.array) -> None:
+        """
+        Add uncorrelated relative error.
+
+        Args:
+            err: see argument of add_err_corr
+        """
         corr = np.identity(self.nbins)
         self.add_rel_err_corr(err, corr)
 
-    def add_rel_err_maxcorr(self, err):
-        if isinstance(err, float):
-            err = [err] * self.nbins
+    def add_rel_err_maxcorr(self, err: np.array) -> None:
+        """
+        Add maximally correlated relative error.
+
+        Args:
+            err: see argument of add_err_corr
+        """
         corr = np.ones((self.nbins, self.nbins))
         self.add_rel_err_corr(err, corr)
-
-    def add_rel_err_corr(self, err, corr):
-        self.add_rel_err_cov(corr2cov(corr, err))
 
     # -------------------------------------------------------------------------
 

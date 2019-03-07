@@ -81,14 +81,37 @@ class TestMetricUtils2D(TestMetricUtils):
         ])
 
 
-class TestDataWithErrors(unittest.TestCase):
+class TestDataWithErrors(MyTestCase):
     def setUp(self):
         self.data = np.array([
             [100, 200],
             [400, 500]
         ])
 
-        self.dwe = DataWithErrors(self.data)
+    def test_norms(self):
+        self.assertAllClose(
+            DataWithErrors(self.data).norms(),
+            np.array([300, 900])
+        )
+
+    def test_data(self):
+        dwe = DataWithErrors(self.data)
+        self.assertAllClose(
+            dwe.data(),
+            self.data
+        )
+        self.assertAllClose(
+            dwe.data(normalize=True),
+            np.array([
+                [1/3, 2/3],
+                [4/9, 5/9]
+            ])
+        )
+        # fixme
+        # self.assertAllClose(
+        #     dwe.data(decorrelate=True),
+        #     self.data
+        # )
 
 
 if __name__ == "__main__":

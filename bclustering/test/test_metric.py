@@ -15,6 +15,10 @@ class MyTestCase(unittest.TestCase):
 
     def assertAllClose(self, a, b):
         """ Compares two numpy arrays """
+        if not isinstance(a, np.ndarray):
+            a = np.array(a)
+        if not isinstance(b, np.ndarray):
+            b = np.array(b)
         self.assertTrue(np.allclose(
             a, b
         ))
@@ -74,11 +78,11 @@ class TestMetricUtils1D(TestMetricUtils):
     Testing methods inherited from TestMetricUtils
     """
     def setUp(self):
-        self.cov = np.array([[4, 4], [-4, 16]])
-        self.cov_rel = np.array([[1, 2], [-2, 16]])
-        self.err = np.array([2, 4])
-        self.corr = np.array([[1, 1/2], [-1/2, 1]])
-        self.data = np.array([2, 1])
+        self.cov = [[4, 4], [-4, 16]]
+        self.cov_rel = [[1, 2], [-2, 16]]
+        self.err = [2, 4]
+        self.corr = [[1, 1/2], [-1/2, 1]]
+        self.data = [2, 1]
 
 
 class TestMetricUtils2D(TestMetricUtils):
@@ -86,39 +90,39 @@ class TestMetricUtils2D(TestMetricUtils):
     Testing methods inherited from TestMetricUtils
     """
     def setUp(self):
-        self.cov = np.array([
+        self.cov = [
             [[4, 4], [-4, 16]],
             [[4, 0], [0, 25]]
-        ])
-        self.cov_rel = np.array([
+        ]
+        self.cov_rel = [
             [[1, 2], [-2, 16]],
             [[4, 0], [0, 25]]
-        ])
-        self.err = np.array([
+        ]
+        self.err = [
             [2, 4],
             [2, 5]
-        ])
-        self.corr = np.array([
+        ]
+        self.corr = [
             [[1, 1/2], [-1/2, 1]],
             [[1, 0], [0, 1]]
-        ])
-        self.data = np.array([
+        ]
+        self.data = [
             [2, 1],
             [1, 1]
-        ])
+        ]
 
 
 class TestDataWithErrors(MyTestCase):
     def setUp(self):
-        self.data = np.array([
+        self.data = [
             [100, 200],
             [400, 500]
-        ])
+        ]
 
     def test_norms(self):
         self.assertAllClose(
             DataWithErrors(self.data).norms(),
-            np.array([300, 900])
+            [300, 900]
         )
 
     def test_data(self):
@@ -129,15 +133,26 @@ class TestDataWithErrors(MyTestCase):
         )
         self.assertAllClose(
             dwe.data(normalize=True),
-            np.array([
+            [
                 [1/3, 2/3],
                 [4/9, 5/9]
-            ])
+            ]
         )
         # fixme
         # self.assertAllClose(
         #     dwe.data(decorrelate=True),
         #     self.data
+        # )
+
+    # -------------------------------------------------------------------------
+
+    def test_add_err_cov(self):
+        dwe = DataWithErrors(self.data)
+        # Equal for all data points
+        dwe.add_err_cov([[16, 0], [0, 25]])
+        # self.assertAllClose(
+        #     dwe.err(),
+        #     np.array([])
         # )
 
 

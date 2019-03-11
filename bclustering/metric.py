@@ -15,9 +15,9 @@ def cov2err(cov):
     Returns
         [n x ] nbins array
     """
-    if len(cov.shape) == 2:
+    if cov.ndim == 2:
         return np.sqrt(cov.diagonal())
-    elif len(cov.shape) == 3:
+    elif cov.ndim == 3:
         return np.sqrt(cov.diagonal(axis1=1, axis2=2))
     else:
         raise ValueError("Wrong dimensions.")
@@ -34,9 +34,9 @@ def cov2corr(cov):
         [n x ] nbins x nbins array
     """
     err = cov2err(cov)
-    if len(cov.shape) == 2:
+    if cov.ndim == 2:
         return cov / np.outer(err, err)
-    elif len(cov.shape) == 3:
+    elif cov.ndim == 3:
         return cov / np.einsum("ki,kj->kij", err, err)
     else:
         raise ValueError("Wrong dimensions")
@@ -54,9 +54,9 @@ def corr2cov(corr, err):
     Returns
         [n x ] nbins x nbins array
     """
-    if len(corr.shape) == 2:
+    if corr.ndim == 2:
         return np.einsum("ij,i,j->ij", corr, err, err)
-    elif len(corr.shape) == 3:
+    elif corr.ndim == 3:
         return np.einsum("kij,ki,kj->kij", corr, err, err)
     else:
         raise ValueError("Wrong dimensions")
@@ -72,11 +72,35 @@ def rel2abs_cov(cov, data):
     Returns:
         n x nbins x nbins array
     """
-    return np.einsum("ij,ki,kj->kij", cov, data, data)
+    assert cov.ndim == data.ndim + 1
+    if data.ndim == 1:
+        return np.einsum("ij,i,j->ij", cov, data, data)
+    elif data.ndim == 2:
+        return np.einsum("kij,ki,kj->kij", cov, data, data)
+    else:
+        raise ValueError("Wrong dimensions")
 
 
 def abs2rel_cov(cov, data):
-    raise NotImplementedError
+    """ Convert covariance matrix to relative covariance matrix
+
+    Args:
+        cov: n x nbins x nbins array
+        data: n x nbins array
+
+    Returns:
+        n x nbins x nbins array
+    """
+    assert cov.ndim == data.ndim + 1
+    if data.ndim == 1:
+        nbins = len(data)
+        return cov / data.reshape((nbins, 1)) / data.reshape((1, nbins))
+    elif data.ndim == 2:
+        n, nbins = data.shape
+        return cov / data.reshape((n, nbins, 1)) / data.reshape((n, 1, nbins))
+    else:
+        raise ValueError("Wrong dimensions")
+
 
 
 # todo: add metadata?

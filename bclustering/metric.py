@@ -11,6 +11,7 @@ def ensure_array(x):
     else:
         return x
 
+
 def cov2err(cov):
     """ Convert covariance matrix (or array of covariance matrices of equal
     shape) to error array (or array thereof).
@@ -117,6 +118,7 @@ def abs2rel_cov(cov, data):
 
 
 # todo: add metadata?
+# todo: simplify the cases with different dimensions by just having a method for it
 class DataWithErrors(object):
     def __init__(self, data):
         """
@@ -278,9 +280,16 @@ class DataWithErrors(object):
         Args:
             cov: see argument of add_err_cov
         """
+        cov = ensure_array(cov)
+        if cov.ndim == 2:
+            cov = np.tile(cov, (self.n, 1, 1))
+        elif cov.ndim == 3:
+            pass
+        else:
+            raise ValueError("Wrong dimensions")
         self.add_err_cov(rel2abs_cov(cov, self._data))
 
-    def add_rel_err_corr(self, err: np.array, corr: np.array) -> None:
+    def add_rel_err_corr(self, err, corr) -> None:
         """
         Add error from relative errors and correlation matrix.
 
@@ -288,6 +297,22 @@ class DataWithErrors(object):
             err: see argument of add_err_corr
             corr: see argument of add_err_corr
         """
+        err = ensure_array(err)
+        corr = ensure_array(corr)
+        if err.ndim == 0:
+            err = np.tile(err, (self.n, self.nbins))
+        elif err.ndim == 1:
+            err = np.tile(err, (self.n, 1))
+        elif err.ndim == 2:
+            pass
+        else:
+            raise ValueError("Wrong dimensions.")
+        if corr.ndim == 2:
+            corr = np.tile(corr, (self.n, 1, 1))
+        elif corr.ndim == 3:
+            pass
+        else:
+            raise ValueError("Wrong dimensions")
         self.add_rel_err_cov(corr2cov(corr, err))
 
     def add_rel_err_uncorr(self, err: np.array) -> None:
@@ -297,6 +322,13 @@ class DataWithErrors(object):
         Args:
             err: see argument of add_err_corr
         """
+        err = ensure_array(err)
+        if err.ndim == 0:
+            err = np.tile(err, (self.n, self.nbins))
+        elif err.ndim == 1:
+            err = np.tile(err, (self.n, 1))
+        elif err.ndim == 2:
+            pass
         corr = np.identity(self.nbins)
         self.add_rel_err_corr(err, corr)
 
@@ -307,6 +339,13 @@ class DataWithErrors(object):
         Args:
             err: see argument of add_err_corr
         """
+        err = ensure_array(err)
+        if err.ndim == 0:
+            err = np.tile(err, (self.n, self.nbins))
+        elif err.ndim == 1:
+            err = np.tile(err, (self.n, 1))
+        elif err.ndim == 2:
+            pass
         corr = np.ones((self.nbins, self.nbins))
         self.add_rel_err_corr(err, corr)
 

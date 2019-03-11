@@ -43,7 +43,7 @@ def cov2corr(cov):
     cov = ensure_array(cov)
     err = cov2err(cov)
     if cov.ndim == 2:
-        return cov / np.outer(err, err)
+        return cov / np.einsum("i,j->ij", err, err)
     elif cov.ndim == 3:
         return cov / np.einsum("ki,kj->kij", err, err)
     else:
@@ -114,7 +114,6 @@ def abs2rel_cov(cov, data):
         return cov / data.reshape((n, nbins, 1)) / data.reshape((n, 1, nbins))
     else:
         raise ValueError("Wrong dimensions")
-
 
 
 # todo: add metadata?
@@ -229,10 +228,8 @@ class DataWithErrors(object):
             corr: self.n x self.nbins x self.nbins correlation matrices
                 or self.nbins x self.nbins correlation matrix
         """
-        if not isinstance(err, np.ndarray):
-            err = np.array(err)
-        if not isinstance(corr, np.ndarray):
-            corr = np.array(corr)
+        err = ensure_array(err)
+        corr = ensure_array(corr)
 
         if len(err.shape) == 0:
             err = np.tile(err, (self.n, self.nbins))
@@ -252,7 +249,7 @@ class DataWithErrors(object):
 
         self.add_err_cov(corr2cov(corr, err))
 
-    def add_err_uncorr(self, err: np.array) -> None:
+    def add_err_uncorr(self, err) -> None:
         """
         Add uncorrelated error.
 
@@ -269,7 +266,7 @@ class DataWithErrors(object):
         Args:
             err: see argument of add_err_corr
         """
-        corr = np.ones(self.n, self.nbins, self.nbins)
+        corr = np.ones((self.n, self.nbins, self.nbins))
         self.add_err_corr(err, corr)
 
     # -------------------------------------------------------------------------
@@ -319,6 +316,7 @@ class DataWithErrors(object):
         self.add_err_uncorr(np.sqrt(self._data))
 
 
+# todo: unittest
 def chi2_metric(dwe: DataWithErrors):
     """
     Returns the chi2/ndf values of the comparison of a datasets.
@@ -359,6 +357,7 @@ def chi2_metric(dwe: DataWithErrors):
     return chi2 / dwe.nbins
 
 
+# todo: unittest
 def condense_distance_matrix(matrix):
     return matrix[np.triu_indices(len(matrix), k=1)]
 

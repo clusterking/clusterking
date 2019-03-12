@@ -135,90 +135,103 @@ class Scanner(object):
         md["max"] = dist_max
 
     def set_bpoints_manual(self, bpoints) -> None:
-        """ Manually set a list of benchmark points """
+        """ Manually set a list of benchmark points.
+
+        Args:
+            bpoints: List of Wilson objects
+
+        Returns:
+            None
+        """
         self._bpoints = bpoints
         self.metadata["scan"]["bpoints"]["sampling"] = "manual"
         self.metadata["scan"]["bpoints"]["npoints"] = len(self._bpoints)
 
-    def set_bpoints_equidist(self, sampling=20, minima=None,
-                             maxima=None) -> None:
+    def set_bpoints_grid(self, config) -> None:
+        """ Set a grid of benchmark points """
+
+        raise NotImplementedError
+
+    def set_bpoints_equidist(self, ) -> None:
         """ Set a list of 'equidistant' benchmark points.
 
         Args:
-            sampling: If int, this will be taken as the number of points to
-                be sampled from all 5 Wilson coefficients.
-                If a dictionary with the keys 'l', 'r', 'sl' is supplied, these
-                will set the number of sampling pointsn separately for each
-                Wilson coefficient.
-            minima:
-                Minima of the Wilson coefficients. If None, default values are
-                chosen, else supply a dictionary similar to the one of the
-                sampling parameter.
-            maxima:
-                Similar to the minimal parameter
+            Args:
+                config: {
+                    <wilson coeff name>: {
+                        "min": <Minimum of wilson coeff>,
+                        "max": <Maximum of wilson coeff>,
+                        "nbins": <Number of bins between min and max>,
+                        "scale": <Wilson coeff input scale in GeV>,
+                        "eft": <Wilson coeff input eft>,
+                        "basis": <Wilson coeff input basis>
+                    }
+                }
 
         Returns:
             None
         """
 
+        raise NotImplementedError
+
         # I set epsR an epsSR to zero  as the observables are only sensitive to
         # linear combinations  L + R
 
-        _min = minima
-        if not _min:
-            _min = {
-                'l': -0.3,
-                'r': 0.,
-                'sl': -0.3,
-                'sr': 0.,
-                't': -0.4
-            }
-
-        _max = maxima
-        if not _max:
-            _max = {
-                'l': 0.3,
-                'r': 0.,
-                'sl': 0.3,
-                'sr': 0.,
-                't': 0.4
-            }
-
-        if isinstance(sampling, int):
-            _sam = {key: sampling for key in ['l', 'r', 'sl', 'sr', 't']}
-        elif isinstance(sampling, dict):
-            _sam = sampling
-        else:
-            raise ValueError("Can't handle that type.")
-
-        def lsp(dmin, dmax, dsam):
-            """ Like np.linspace, but throws out identical values"""
-            return sorted(list(set(np.linspace(dmin, dmax, dsam))))
-
-        lists = {
-            key: lsp(_min[key], _max[key], _sam[key])
-            for key in ['l', 'r', 'sr', 'sl', 't']
-        }
-
-        bpoints = []
-        for l in lists['l']:
-            for r in lists['r']:
-                for sr in lists['sr']:
-                    for sl in lists['sl']:
-                        for t in lists['t']:
-                            bpoints.append(Wilson(l, r, sr, sl, t))
-
-        self._bpoints = bpoints
-        md = self.metadata["scan"]["bpoints"]
-        md["sampling"] = "equidistant"
-        md["npoints"] = len(self._bpoints)
-        md["min"] = _min
-        md["max"] = _max
-        # do not just take the sampling value (because if start == end, they
-        # are incorrect and we only have exactly one point)
-        md["sample"] = {
-            key: len(value) for key, value in lists.items()
-        }
+        # _min = minima
+        # if not _min:
+        #     _min = {
+        #         'l': -0.3,
+        #         'r': 0.,
+        #         'sl': -0.3,
+        #         'sr': 0.,
+        #         't': -0.4
+        #     }
+        #
+        # _max = maxima
+        # if not _max:
+        #     _max = {
+        #         'l': 0.3,
+        #         'r': 0.,
+        #         'sl': 0.3,
+        #         'sr': 0.,
+        #         't': 0.4
+        #     }
+        #
+        # if isinstance(sampling, int):
+        #     _sam = {key: sampling for key in ['l', 'r', 'sl', 'sr', 't']}
+        # elif isinstance(sampling, dict):
+        #     _sam = sampling
+        # else:
+        #     raise ValueError("Can't handle that type.")
+        #
+        # def lsp(dmin, dmax, dsam):
+        #     """ Like np.linspace, but throws out identical values"""
+        #     return sorted(list(set(np.linspace(dmin, dmax, dsam))))
+        #
+        # lists = {
+        #     key: lsp(_min[key], _max[key], _sam[key])
+        #     for key in ['l', 'r', 'sr', 'sl', 't']
+        # }
+        #
+        # bpoints = []
+        # for l in lists['l']:
+        #     for r in lists['r']:
+        #         for sr in lists['sr']:
+        #             for sl in lists['sl']:
+        #                 for t in lists['t']:
+        #                     bpoints.append(Wilson(l, r, sr, sl, t))
+        #
+        # self._bpoints = bpoints
+        # md = self.metadata["scan"]["bpoints"]
+        # md["sampling"] = "equidistant"
+        # md["npoints"] = len(self._bpoints)
+        # md["min"] = _min
+        # md["max"] = _max
+        # # do not just take the sampling value (because if start == end, they
+        # # are incorrect and we only have exactly one point)
+        # md["sample"] = {
+        #     key: len(value) for key, value in lists.items()
+        # }
 
     # **************************************************************************
     # B:  Run

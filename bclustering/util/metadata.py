@@ -4,6 +4,7 @@
 
 # std
 import collections
+from collections.abc import Iterable
 import json
 import pathlib
 import time
@@ -129,6 +130,18 @@ def load_git_info(input_path=None) -> Dict[str, str]:
     with input_path.open() as input_file:
         info = json.loads(input_file.read())
     return info
+
+
+# todo: docstring
+def failsafe_serialize(object):
+    if isinstance(object, dict):
+        return {key: failsafe_serialize(v) for key, v in object.items()}
+    elif isinstance(object, Iterable) and not isinstance(object, str):
+        return [failsafe_serialize(v) for v in object]
+    elif isinstance(object, (int, float)):
+        return object
+    else:
+        return str(object)
 
 
 if __name__ == "__main__":

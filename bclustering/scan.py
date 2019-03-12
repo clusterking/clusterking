@@ -21,7 +21,7 @@ import wilson
 # ours
 import bclustering.physics.bdlnu.distribution as distribution
 from bclustering.util.log import get_logger
-from bclustering.util.metadata import nested_dict, git_info
+from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading
@@ -90,9 +90,8 @@ class Scanner(object):
         #: Do NOT directly modify this, but use one of the methods below.
         self._bpoints = []
 
-        #: EDGES of bins of the kinematic variable
-        #: Do NOT directly modify this, but use one of the methods below.
-        self._kbins = np.array([])
+        # todo: document
+        self._dfunct = None
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -106,75 +105,16 @@ class Scanner(object):
 
     # Write only access
     @property
-    def kbins(self):
-        return self._kbins
-
-    # Write only access
-    @property
     def bpoints(self):
         return self._bpoints
 
-    def set_kbins(self, values):
-        """
-
-        Args:
-            values: {
-                <parameter name>: [
-                    value1,
-                    value2,
-                    ...
-                ]
-            }
-
-        Returns:
-
-        """
-
-        # Important to remember the order now, because of what we do next.
-        # Dicts are NOT ordered
-        params = list(values.keys())
-        # It's very important to sort the parameter names here
-        params.sort()
-        # Nowe we collect all lists of values.
-        values_lists = [
-            values[param] for param in params
-        ]
-        # todo: the order here is quite important, make sure we remember!
-        # Now we build the cartesian product, i.e.
-        # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
-        # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
-        cartesians = itertools.product(*values_lists)
-        self._kbins = [
-            dict(zip(params, cartesian)) for cartesian in cartesians
-        ]
-
-        md = self.metadata["scan"]["kbins"]
-        md["sampling"] = "manual"
-        md["values"] = values
-        md["params"] = params
-        md["nbins"] = len(self._kbins)
-
-    def set_kbins_equidist(self, ranges) -> None:
-        """ Set the edges of the q2 binning automatically.
-
-        Args:
-            ranges: {
-                <parameter name>: (min, max, nbins)
-            }
-
-        Returns:
-            None
-        """
-
-        grid_config = {
-            param: np.linspace(*ranges[param])
-            for param in ranges
-        }
-        self.set_kbins(grid_config)
-
-        md = self.metadata["scan"]["kbins"]
-        md["sampling"] = "equidistant"
-        md["ranges"] = ranges
+    def set_dfunction(self, func, binning=None, **kwargs):
+        md = self.metadata["scan"]["dfunction"]
+        md["name"] = func.__name__
+        md["doc"] = func.__doc__
+        md["kwargs"] = failsafe_serialize(kwargs)
+        if binning:
+            md["nbins"] = len(binning) - 1
 
     def set_bpoints_grid(self, values, scale, eft, basis) -> None:
         """ Set a grid of benchmark points
@@ -342,6 +282,8 @@ class Scanner(object):
         )
         self.df = pd.DataFrame(data=rows, columns=cols)
         self.df.index.name = "index"
+
+        # todo: set nbins ourself
 
         self.log.info("Integration done.")
 

@@ -57,7 +57,7 @@ class Scanner(object):
         s.set_bpoints_equidist(3)
     
         # Use 5 bins in q2
-        s.set_q2points_equidist(5)
+        s.set_kbins_equidist(5)
     
         # Start running with maximally 3 cores
         s.run(no_workers=3)
@@ -90,9 +90,9 @@ class Scanner(object):
         #: Do NOT directly modify this, but use one of the methods below.
         self._bpoints = []
 
-        #: EDGES of the q2 bins
+        #: EDGES of bins of the kinematic variable
         #: Do NOT directly modify this, but use one of the methods below.
-        self._q2points = np.array([])
+        self._kbins = np.array([])
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -104,34 +104,77 @@ class Scanner(object):
             "%a %_d %b %Y %H:%M", time.gmtime()
         )
 
-    def set_q2points_manual(self, q2points: np.array) -> None:
-        """ Manually set the edges of the q2 binning. """
-        self._q2points = q2points
-        self.metadata["scan"]["q2points"]["sampling"] = "manual"
-        self.metadata["scan"]["q2points"]["nbins"] = len(self._q2points)
+    # Write only access
+    @property
+    def kbins(self):
+        return self._kbins
 
-    def set_q2points_equidist(
-        self,
-        no_bins,
-        dist_max=distribution.q2max,
-        dist_min=distribution.q2min
-    ) -> None:
+    # Write only access
+    @property
+    def bpoints(self):
+        return self._bpoints
+
+    def set_kbins(self, values):
+        """
+
+        Args:
+            values: {
+                <parameter name>: [
+                    value1,
+                    value2,
+                    ...
+                ]
+            }
+
+        Returns:
+
+        """
+
+        # Important to remember the order now, because of what we do next.
+        # Dicts are NOT ordered
+        params = list(values.keys())
+        # It's very important to sort the parameter names here
+        params.sort()
+        # Nowe we collect all lists of values.
+        values_lists = [
+            values[param] for param in params
+        ]
+        # todo: the order here is quite important, make sure we remember!
+        # Now we build the cartesian product, i.e.
+        # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
+        # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
+        cartesians = itertools.product(*values_lists)
+        self._kbins = [
+            dict(zip(params, cartesian)) for cartesian in cartesians
+        ]
+
+        md = self.metadata["scan"]["kbins"]
+        md["sampling"] = "manual"
+        md["values"] = values
+        md["params"] = params
+        md["nbins"] = len(self._kbins)
+
+    def set_kbins_equidist(self, ranges) -> None:
         """ Set the edges of the q2 binning automatically.
 
         Args:
-            no_bins: Number of bins
-            dist_max: The right edge of the last bin (=maximal q2 value)
-            dist_min: The left edge of the first bin (=minimal q2 value)
+            ranges: {
+                <parameter name>: (min, max, nbins)
+            }
 
         Returns:
             None
         """
-        self._q2points = np.linspace(dist_min, dist_max, no_bins+1)
-        md = self.metadata["scan"]["q2points"]
+
+        grid_config = {
+            param: np.linspace(*ranges[param])
+            for param in ranges
+        }
+        self.set_kbins(grid_config)
+
+        md = self.metadata["scan"]["kbins"]
         md["sampling"] = "equidistant"
-        md["nbins"] = len(self._q2points) - 1
-        md["min"] = dist_min
-        md["max"] = dist_max
+        md["ranges"] = ranges
 
     def set_bpoints_grid(self, values, scale, eft, basis) -> None:
         """ Set a grid of benchmark points
@@ -158,7 +201,7 @@ class Scanner(object):
         coeffs.sort()
         # Nowe we collect all lists of values.
         values_lists = [
-            values[coeff]["values"] for coeff in coeffs
+            values[coeff] for coeff in coeffs
         ]
         # Now we build the cartesian product, i.e.
         # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
@@ -234,11 +277,11 @@ class Scanner(object):
             no_workers: Number of worker nodes/cores
         """
 
-        if self._bpoints == 0:
+        if not self._bpoints:
             self.log.error("No benchmark points specified. Returning without "
                            "doing anything.")
             return
-        if self._q2points.size == 0:
+        if not self._kbins:
             self.log.error("No q2points specified. Returning without "
                            "doing anything.")
             return
@@ -250,7 +293,7 @@ class Scanner(object):
         # arguments frozen
         worker = functools.partial(
             calculate_bpoint,
-            bin_edges=self._q2points
+            bin_edges=self._kbins
         )
 
         results = pool.imap(worker, self._bpoints)
@@ -295,7 +338,7 @@ class Scanner(object):
         # todo: check that there isn't any trouble with sorting.
         cols = self.metadata["scan"]["bpoints"]["coeffs"].copy()
         cols.extend(
-            ["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)]
+            ["bin{}".format(no_bin) for no_bin in range(len(self._kbins) - 1)]
         )
         self.df = pd.DataFrame(data=rows, columns=cols)
         self.df.index.name = "index"

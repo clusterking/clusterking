@@ -4,30 +4,28 @@
 normalized q2 distribution. """
 
 # std
-import argparse
 import datetime
 import functools
+import itertools
 import json
 import multiprocessing
 import pathlib
-import sys
 import time
 from typing import Union
 
 # 3rd party
 import numpy as np
 import pandas as pd
+import wilson
 
 # ours
 import bclustering.physics.bdlnu.distribution as distribution
-from bclustering.util.cli import yn_prompt
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
-from bclustering.wilson import Wilson
 
 
 # NEEDS TO BE GLOBAL FUNCTION for multithreading
-def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
+def calculate_bpoint(w: wilson.Wilson, bin_edges: np.array) -> np.array:
     """Calculates one benchmark point.
 
     Args:
@@ -44,6 +42,7 @@ def calculate_bpoint(w: Wilson, bin_edges: np.array) -> np.array:
 
 
 class Scanner(object):
+    # todo: update example in docstring
     """ Scans the NP parameter space in a grid and also q2, producing the
     normalized q2 distribution.
 
@@ -134,104 +133,94 @@ class Scanner(object):
         md["min"] = dist_min
         md["max"] = dist_max
 
-    def set_bpoints_manual(self, bpoints) -> None:
-        """ Manually set a list of benchmark points.
+    def set_bpoints_grid(self, values, scale, eft, basis) -> None:
+        """ Set a grid of benchmark points
 
         Args:
-            bpoints: List of Wilson objects
-
-        Returns:
-            None
+            values: {
+                    <wilson coeff name>: [
+                        value1,
+                        value2,
+                        ...
+                    ]
+                }
+            scale: <Wilson coeff input scale in GeV>,
+            eft: <Wilson coeff input eft>,
+            basis: <Wilson coeff input basis>
         """
-        self._bpoints = bpoints
-        self.metadata["scan"]["bpoints"]["sampling"] = "manual"
-        self.metadata["scan"]["bpoints"]["npoints"] = len(self._bpoints)
 
-    def set_bpoints_grid(self, config) -> None:
-        """ Set a grid of benchmark points """
+        # Important to remember the order now, because of what we do next.
+        # Dicts are NOT ordered
+        coeffs = list(values.keys())
+        # It's very important to sort the coefficient names here, because when
+        # calling wilson.Wilson(...).wc.values() later, these will also
+        # be alphabetically ordered.
+        coeffs.sort()
+        # Nowe we collect all lists of values.
+        values_lists = [
+            values[coeff]["values"] for coeff in coeffs
+        ]
+        # Now we build the cartesian product, i.e.
+        # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
+        # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
+        cartesians = itertools.product(*values_lists)
+        # And build wilson coefficients from this
+        self._bpoints = [
+            wilson.Wilson(
+                wcdict={
+                    coeffs[icoeff]: cartesian[icoeff]
+                    for icoeff in range(len(coeffs))
+                },
+                scale=scale,
+                eft=eft,
+                basis=basis
+            )
+            for cartesian in cartesians
+        ]
 
-        raise NotImplementedError
+        md = self.metadata["scan"]["bpoints"]
+        md["coeffs"] = list(values.keys())
+        md["values"] = values
+        md["scale"] = scale
+        md["eft"] = eft
+        md["basis"] = basis
 
-    def set_bpoints_equidist(self, ) -> None:
+    def set_bpoints_equidist(self, ranges, scale, eft, basis) -> None:
         """ Set a list of 'equidistant' benchmark points.
 
         Args:
-            Args:
-                config: {
-                    <wilson coeff name>: {
-                        "min": <Minimum of wilson coeff>,
-                        "max": <Maximum of wilson coeff>,
-                        "nbins": <Number of bins between min and max>,
-                        "scale": <Wilson coeff input scale in GeV>,
-                        "eft": <Wilson coeff input eft>,
-                        "basis": <Wilson coeff input basis>
-                    }
-                }
+            ranges: {
+                <wilson coeff name>: (
+                    <Minimum of wilson coeff>,
+                    <Maximum of wilson coeff>,
+                    <Number of bins between min and max>,
+                )
+            }
+            scale: <Wilson coeff input scale in GeV>,
+            eft: <Wilson coeff input eft>,
+            basis: <Wilson coeff input basis>
 
         Returns:
             None
         """
 
-        raise NotImplementedError
-
-        # I set epsR an epsSR to zero  as the observables are only sensitive to
-        # linear combinations  L + R
-
-        # _min = minima
-        # if not _min:
-        #     _min = {
-        #         'l': -0.3,
-        #         'r': 0.,
-        #         'sl': -0.3,
-        #         'sr': 0.,
-        #         't': -0.4
-        #     }
-        #
-        # _max = maxima
-        # if not _max:
-        #     _max = {
-        #         'l': 0.3,
-        #         'r': 0.,
-        #         'sl': 0.3,
-        #         'sr': 0.,
-        #         't': 0.4
-        #     }
-        #
-        # if isinstance(sampling, int):
-        #     _sam = {key: sampling for key in ['l', 'r', 'sl', 'sr', 't']}
-        # elif isinstance(sampling, dict):
-        #     _sam = sampling
-        # else:
-        #     raise ValueError("Can't handle that type.")
-        #
-        # def lsp(dmin, dmax, dsam):
-        #     """ Like np.linspace, but throws out identical values"""
-        #     return sorted(list(set(np.linspace(dmin, dmax, dsam))))
-        #
-        # lists = {
-        #     key: lsp(_min[key], _max[key], _sam[key])
-        #     for key in ['l', 'r', 'sr', 'sl', 't']
-        # }
-        #
-        # bpoints = []
-        # for l in lists['l']:
-        #     for r in lists['r']:
-        #         for sr in lists['sr']:
-        #             for sl in lists['sl']:
-        #                 for t in lists['t']:
-        #                     bpoints.append(Wilson(l, r, sr, sl, t))
-        #
-        # self._bpoints = bpoints
-        # md = self.metadata["scan"]["bpoints"]
-        # md["sampling"] = "equidistant"
-        # md["npoints"] = len(self._bpoints)
-        # md["min"] = _min
-        # md["max"] = _max
-        # # do not just take the sampling value (because if start == end, they
-        # # are incorrect and we only have exactly one point)
-        # md["sample"] = {
-        #     key: len(value) for key, value in lists.items()
-        # }
+        grid_config = {
+            coeff: {
+                "values": list(np.linspace(*ranges[coeff])),
+            }
+            for coeff in ranges
+        }
+        self.set_bpoints_grid(
+            grid_config,
+            scale=scale,
+            eft=eft,
+            basis=basis,
+        )
+        # Make sure to do this after set_bpoints_grid, so we overwrite
+        # the relevant parts.
+        md = self.metadata["scan"]["bpoints"]
+        md["sampling"] = "equidistant"
+        md["ranges"] = ranges
 
     # **************************************************************************
     # B:  Run
@@ -276,8 +265,8 @@ class Scanner(object):
         rows = []
         for index, result in enumerate(results):
 
-            bpoint_dict = self._bpoints[index].dict().values()
-            rows.append([*bpoint_dict, *result])
+            coeff_values = list(self._bpoints[index].wc.values.values())
+            rows.append([*coeff_values, *result])
 
             timedelta = time.time() - starttime
 
@@ -300,7 +289,8 @@ class Scanner(object):
         pool.join()
 
         self.log.debug("Converting data to pandas dataframe.")
-        cols = list(Wilson(0, 0, 0, 0, 0).dict().keys())
+        # todo: check that there isn't any trouble with sorting.
+        cols = self.metadata["scan"]["bpoints"]["coeffs"]
         cols.extend(
             ["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)]
         )
@@ -386,64 +376,14 @@ class Scanner(object):
         self.log.info("Writing out finished.")
 
 
-def cli():
-    """Command line interface to run the integration jobs from the command
-    line with additional options.
-
-    Simply run this script with '--help' to see all options.
-    """
-
-    desc = "Build q2 histograms for the different NP benchmark points."
-
-    parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument("-o", "--output",
-                        help="Output file.",
-                        default="output/scan/global_results",
-                        dest="output_path")
-    parser.add_argument("-p", "--parallel",
-                        help="Number of processes to run in parallel",
-                        type=int,
-                        default=4)
-    parser.add_argument("-n", "--np-grid-subdivision",
-                        help="Number of points sampled per NP parameter",
-                        type=int,
-                        default=20,
-                        dest="np_grid_subdivision")
-    parser.add_argument("-g", "--grid-subdivision",
-                        help="Number of bins in q2",
-                        type=int,
-                        default=15,
-                        dest="q2_bins")
-    args = parser.parse_args()
-
-    s = Scanner()
-
-    s.set_bpoints_equidist(args.np_grid_subdivision)
-    s.log.info("NP parameters will be sampled with {} sampling points.".format(
-        args.np_grid_subdivision))
-
-    s.set_q2points_equidist(args.q2_bins)
-    s.log.info("q2 will be sampled with {} sampling points.".format(
-        args.q2_bins))
-
-    paths = [s.metadata_output_path(args.output_path),
-             s.data_output_path(args.output_path)]
-    existing_paths = [path for path in paths if path.exists()]
-    if existing_paths:
-        agree = yn_prompt(
-            "Output paths {} already exist(s) and will be overwritten. "
-            "Proceed?".format(', '.join(map(str, existing_paths))))
-        if not agree:
-            s.log.critical("User abort.")
-            sys.exit(1)
-
-    # s.log.info("Output file will be: '{}'.".format(args.output_path))
-
-    s.run(no_workers=args.parallel)
-
-    s.write(args.output_path)
-
-
-if __name__ == "__main__":
-    # Check command line arguments and run computation
-    cli()
+# todo: move this check somewhere
+# paths = [s.metadata_output_path(args.output_path),
+#          s.data_output_path(args.output_path)]
+# existing_paths = [path for path in paths if path.exists()]
+# if existing_paths:
+#     agree = yn_prompt(
+#         "Output paths {} already exist(s) and will be overwritten. "
+#         "Proceed?".format(', '.join(map(str, existing_paths))))
+#     if not agree:
+#         s.log.critical("User abort.")
+#         sys.exit(1)

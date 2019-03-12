@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
+# std
 import scipy.integrate as integrate
 
+# ours
 from bclustering.physics.bdlnu.amplitude import *
-from bclustering.wilson import Wilson
+
+# todo: make pycharm ignore name convention pylinting in this file
 
 ## kinematical limits
 

@@ -248,17 +248,19 @@ class Scanner(object):
 
         # this is the worker function: calculate_bpoints with additional
         # arguments frozen
-        worker = functools.partial(calculate_bpoint,
-                                   bin_edges=self._q2points)
+        worker = functools.partial(
+            calculate_bpoint,
+            bin_edges=self._q2points
+        )
 
         results = pool.imap(worker, self._bpoints)
 
         # close the queue for new jobs
         pool.close()
 
-        self.log.info("Started queue with {} job(s) distributed over up to {} "
-                      "core(s)/worker(s).".format(len(self._bpoints),
-                                                  no_workers))
+        self.log.info(
+            "Started queue with {} job(s) distributed over up to {} "
+            "core(s)/worker(s).".format(len(self._bpoints), no_workers))
 
         starttime = time.time()
 
@@ -272,25 +274,26 @@ class Scanner(object):
 
             completed = index + 1
             rem_time = (len(self._bpoints) - completed) * timedelta/completed
-            self.log.debug("Progress: {}/{} ({:04.1f}%) of bpoints. "
-                           "Time/bpoint: {:.1f}s => "
-                           "time remaining: {} "
-                           "(total elapsed: {})".format(
-                                str(completed).zfill(
-                                    len(str(len(self._bpoints)))),
-                                len(self._bpoints),
-                                100*completed/len(self._bpoints),
-                                timedelta/completed,
-                                datetime.timedelta(seconds=int(rem_time)),
-                                datetime.timedelta(seconds=int(timedelta))
-                                ))
+            self.log.debug(
+                "Progress: {}/{} ({:04.1f}%) of bpoints. "
+                "Time/bpoint: {:.1f}s => "
+                "time remaining: {} "
+                "(total elapsed: {})".format(
+                    str(completed).zfill(len(str(len(self._bpoints)))),
+                    len(self._bpoints),
+                    100*completed/len(self._bpoints),
+                    timedelta/completed,
+                    datetime.timedelta(seconds=int(rem_time)),
+                    datetime.timedelta(seconds=int(timedelta))
+                )
+            )
 
         # Wait for completion of all jobs here
         pool.join()
 
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
-        cols = self.metadata["scan"]["bpoints"]["coeffs"]
+        cols = self.metadata["scan"]["bpoints"]["coeffs"].copy()
         cols.extend(
             ["bin{}".format(no_bin) for no_bin in range(len(self._q2points)-1)]
         )

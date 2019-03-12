@@ -454,70 +454,15 @@ class KmeansCluster(Cluster):
         return kmeans.predict(x_matrix)
 
 
-def cli():
-    """Command line interface to run the integration jobs from the command
-    line with additional options.
-
-    Simply run this script with '--help' to see all options.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input",
-                        help="Input file basename",
-                        default="output/scan/global_results",
-                        dest="input_path")
-    parser.add_argument("-o", "--output",
-                        help="Output file basename",
-                        default="output/cluster/global_results",
-                        dest="output_path")
-    parser.add_argument("-a", "--algorithm",
-                        help="Algorithm for the clustering",
-                        choices=['hierarchy', 'kmeans'],
-                        default='hierarchy',
-                        dest="algorithm")
-    # todo: the available options depend on the choice of algorithm, so this
-    # should be checked for
-    parser.add_argument("-d", "--dist",
-                        help="max_d",
-                        default=0.2,
-                        dest="max_d")
-    parser.add_argument("-n", "--nclusters",
-                        help="Number of get_clusters",
-                        default=3,
-                        dest="nclusters")
-    args = parser.parse_args()
-
-    if args.algorithm == "hierarchy":
-        c = HierarchyCluster(args.input_path)
-    elif args.algorithm == "kmeans":
-        c = KmeansCluster(args.input_path)
-    else:
-        print("Unknown option '{}' for algorithm! "
-              "Will abort.".format(args.algorithm), file=sys.stderr)
-        sys.exit(113)
-
-    paths = [c.metadata_output_path(args.output_path),
-             c.data_output_path(args.output_path)]
-    existing_paths = [path for path in paths if path.exists()]
-    if existing_paths:
-        agree = yn_prompt(
-            "Output paths {} already exist(s) and will be "
-            "overwritten. "
-            "Proceed?".format(', '.join(map(str, existing_paths)))
-        )
-        if not agree:
-            c.log.critical("User abort.")
-            sys.exit(15)
-
-    c.log.info("Output file: '{}'".format(args.output_path))
-
-    if args.algorithm == "hierarchy":
-        c.cluster(max_d=args.max_d)
-    elif args.algorithm == "kmeans":
-        c.cluster(n_clusters=args.nclusters)
-
-    c.write(args.output_path)
-
-
-if __name__ == "__main__":
-    # Run command line interface
-    cli()
+# paths = [c.metadata_output_path(args.output_path),
+#          c.data_output_path(args.output_path)]
+# existing_paths = [path for path in paths if path.exists()]
+# if existing_paths:
+#     agree = yn_prompt(
+#         "Output paths {} already exist(s) and will be "
+#         "overwritten. "
+#         "Proceed?".format(', '.join(map(str, existing_paths)))
+#     )
+#     if not agree:
+#         c.log.critical("User abort.")
+#         sys.exit(15)

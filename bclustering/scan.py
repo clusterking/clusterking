@@ -11,7 +11,7 @@ import json
 import multiprocessing
 import pathlib
 import time
-from typing import Union
+from typing import Union, Callable
 
 # 3rd party
 import numpy as np
@@ -19,27 +19,38 @@ import pandas as pd
 import wilson
 
 # ours
-import maths.binning
-import physics.models.bdlnu.distribution as distribution
+import bclustering.maths.binning
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
 
+dfunc = None  # type: Callable
+dfunc_binning = None
+dfunc_normalize = None
+dfunc_kwargs = {}
+
+
+# todo: I wish we could do that in a more clever way than relying on so many
+#  global variables
 # NEEDS TO BE GLOBAL FUNCTION for multithreading
-def calculate_bpoint(w: wilson.Wilson, bin_edges: np.array) -> np.array:
+def calculate_bpoint(w: wilson.Wilson) -> np.array:
     """Calculates one benchmark point.
 
     Args:
         w: Wilson coefficients
-        bin_edges:
 
     Returns:
         np.array of the integration results
     """
 
-    return maths.binning.bin_function(lambda x: distribution.dGq2(w, x),
-                                      bin_edges,
-                                      normalized=True)
+    if dfunc_binning is not None:
+        return bclustering.maths.binning.bin_function(
+            functools.partial(dfunc, w, **dfunc_kwargs),
+            dfunc_binning,
+            normalize=dfunc_normalize
+        )
+    else:
+        return dfunc(w, **dfunc_kwargs)
 
 
 class Scanner(object):
@@ -91,8 +102,6 @@ class Scanner(object):
         #: Do NOT directly modify this, but use one of the methods below.
         self._bpoints = []
 
-        # todo: document
-        self._dfunct = None
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -109,13 +118,22 @@ class Scanner(object):
     def bpoints(self):
         return self._bpoints
 
-    def set_dfunction(self, func, binning=None, **kwargs):
+    def set_dfunction(self, func, binning=None, normalize=False, **kwargs):
         md = self.metadata["scan"]["dfunction"]
         md["name"] = func.__name__
         md["doc"] = func.__doc__
         md["kwargs"] = failsafe_serialize(kwargs)
-        if binning:
+        if binning is not None:
             md["nbins"] = len(binning) - 1
+
+        global dfunc
+        global dfunc_kwargs
+        global dfunc_binning
+        global dfunc_normalize
+        dfunc = func
+        dfunc_kwargs = kwargs
+        dfunc_binning = binning
+        dfunc_normalize = normalize
 
     def set_bpoints_grid(self, values, scale, eft, basis) -> None:
         """ Set a grid of benchmark points
@@ -147,7 +165,8 @@ class Scanner(object):
         # Now we build the cartesian product, i.e.
         # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
         # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
-        cartesians = itertools.product(*values_lists)
+        cartesians = list(itertools.product(*values_lists))
+
         # And build wilson coefficients from this
         self._bpoints = [
             wilson.Wilson(
@@ -189,9 +208,7 @@ class Scanner(object):
         """
 
         grid_config = {
-            coeff: {
-                "values": list(np.linspace(*ranges[coeff])),
-            }
+            coeff: list(np.linspace(*ranges[coeff]))
             for coeff in ranges
         }
         self.set_bpoints_grid(
@@ -219,23 +236,25 @@ class Scanner(object):
         """
 
         if not self._bpoints:
-            self.log.error("No benchmark points specified. Returning without "
-                           "doing anything.")
+            self.log.error(
+                "No benchmark points specified. Returning without doing "
+                "anything."
+            )
             return
-        if not self._kbins:
-            self.log.error("No q2points specified. Returning without "
-                           "doing anything.")
+        global dfunc
+        if not dfunc:
+            self.log.error(
+                "No function specified. Please set it "
+                "using ``Scanner.set_dfunction``. Returning without doing "
+                "anything."
+            )
             return
 
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)
 
-        # this is the worker function: calculate_bpoints with additional
-        # arguments frozen
-        worker = functools.partial(
-            calculate_bpoint,
-            bin_edges=self._kbins
-        )
+        # this is the worker function.
+        worker = calculate_bpoint
 
         results = pool.imap(worker, self._bpoints)
 
@@ -250,6 +269,9 @@ class Scanner(object):
 
         rows = []
         for index, result in enumerate(results):
+            md = self.metadata["scan"]["dfunction"]
+            if "nbins" not in md:
+                md["nbins"] = len(result) - 1
 
             coeff_values = list(self._bpoints[index].wc.values.values())
             rows.append([*coeff_values, *result])
@@ -278,13 +300,12 @@ class Scanner(object):
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
         cols = self.metadata["scan"]["bpoints"]["coeffs"].copy()
-        cols.extend(
-            ["bin{}".format(no_bin) for no_bin in range(len(self._kbins) - 1)]
-        )
+        cols.extend([
+            "bin{}".format(no_bin)
+            for no_bin in range(self.metadata["scan"]["dfunction"]["nbins"])
+        ])
         self.df = pd.DataFrame(data=rows, columns=cols)
         self.df.index.name = "index"
-
-        # todo: set nbins ourself
 
         self.log.info("Integration done.")
 

@@ -7,8 +7,8 @@ import numpy as np
 from wilson import Wilson
 
 # ours
-from physics.models.bdlnu import fplus, fzero, fT
-from physics.models.bdlnu.inputs import inputs
+from bclustering.physics.models.bdlnu.form_factors import fplus, fzero, fT
+from bclustering.physics.models.bdlnu.inputs import inputs
 
 # todo: make pycharm ignore name convention pylinting in this file
 

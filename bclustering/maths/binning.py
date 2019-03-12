@@ -5,13 +5,13 @@ import numpy as np
 
 
 # todo: unittest
-def bin_function(fct, binning: np.array, normalized=False) -> np.array:
+def bin_function(fct, binning: np.array, normalize=False) -> np.array:
     """Bin function, i.e. calculate the integrals of a function for each bin.
 
     Args:
         fct: Function to be integrated per bin
         binning:  Array of bin edge points.
-        normalized: If true, we will normalize the distribution, i.e. divide
+        normalize: If true, we will normalize the distribution, i.e. divide
             by the sum of all bins in the end.
 
     Returns:
@@ -29,7 +29,7 @@ def bin_function(fct, binning: np.array, normalized=False) -> np.array:
 
     bin_contents = np.array(bin_contents)
 
-    if normalized:
+    if normalize:
         bin_contents = bin_contents / sum(bin_contents)
 
     return bin_contents

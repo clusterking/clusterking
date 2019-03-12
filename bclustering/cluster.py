@@ -4,11 +4,9 @@
 """
 
 # standard
-import argparse
 import atexit
 import json
 import pathlib
-import sys
 import time
 from typing import Union, Any
 
@@ -21,10 +19,9 @@ import scipy.cluster.hierarchy
 
 # us
 from bclustering.scan import Scanner
-from bclustering.util.cli import yn_prompt
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
-from maths.metric import condense_distance_matrix
+from bclustering.maths.metric import condense_distance_matrix
 
 
 # todo: allow initializing from either file or directly the dataframe and the metadata
@@ -134,7 +131,8 @@ class Cluster(object):
     # **************************************************************************
 
     def data_matrix(self):
-        return self.df[["bin{}".format(i) for i in range(self.metadata["scan"]["q2points"]["nbins"])]].values
+        # todo: make flexible
+        return self.df[["bin{}".format(i) for i in range(self.metadata["scan"]["dfunction"]["nbins"])]].values
 
     def rename_clusters(self, old2new, column="cluster", new_column=None):
         """Renames the get_clusters. This also allows to merge several get_clusters 
@@ -317,7 +315,7 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
         if isinstance(metric, str):
-            nbins = self.metadata["scan"]["q2points"]["nbins"]
+            nbins = self.metadata["scan"]["dfunction"]["nbins"]
             # only the q2 bins without any other information in the dataframe
             data = self.df[["bin{}".format(i) for i in range(nbins)]]
 

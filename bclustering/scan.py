@@ -120,8 +120,17 @@ class Scanner(object):
 
     def set_dfunction(self, func, binning=None, normalize=False, **kwargs):
         md = self.metadata["scan"]["dfunction"]
-        md["name"] = func.__name__
-        md["doc"] = func.__doc__
+        try:
+            md["name"] = func.__name__
+            md["doc"] = func.__doc__
+        except AttributeError:
+            try:
+                # For functools.partial objects
+                md["name"] = func.func.__name__
+                md["doc"] = func.func.__doc__
+            except AttributeError:
+                pass
+
         md["kwargs"] = failsafe_serialize(kwargs)
         if binning is not None:
             md["nbins"] = len(binning) - 1

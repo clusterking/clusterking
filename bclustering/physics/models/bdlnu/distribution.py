@@ -4,7 +4,7 @@
 import scipy.integrate as integrate
 
 # ours
-from bclustering.physics.bdlnu.amplitude import *
+from bclustering.physics.models.bdlnu.amplitude import *
 
 # todo: make pycharm ignore name convention pylinting in this file
 
@@ -293,31 +293,3 @@ def dGnormtot(w: Wilson, q2, El, cthetal):
     return dG(w, q2, El , cthetal)/dGtot(w)
 
 
-def bin_function(fct, binning: np.array, normalized=False) -> np.array:
-    """Bin function, i.e. calculate the integrals of a function for each bin.
-
-    Args:
-        fct: Function to be integrated per bin
-        binning:  Array of bin edge points.
-        normalized: If true, we will normalize the distribution, i.e. divide
-            by the sum of all bins in the end.
-
-    Returns:
-        Array of bin contents
-    """
-    assert len(binning.shape) == 1
-    assert binning.shape[0] >= 2
-    binning = np.sort(binning)
-
-    bins = list(zip(binning[:-1], binning[1:]))
-
-    bin_contents = []
-    for this_bin in bins:
-        bin_contents.append(integrate.quad(fct, this_bin[0], this_bin[1])[0])
-
-    bin_contents = np.array(bin_contents)
-
-    if normalized:
-        bin_contents = bin_contents / sum(bin_contents)
-
-    return bin_contents

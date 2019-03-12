@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 # ours
-from bclustering.physics.bdlnu.distribution import bin_function
+from physics.models.bdlnu import bin_function
 
 
 class TestDistribution(unittest.TestCase):

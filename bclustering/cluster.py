@@ -24,7 +24,7 @@ from bclustering.scan import Scanner
 from bclustering.util.cli import yn_prompt
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
-from bclustering.metric import condense_distance_matrix
+from maths.metric import condense_distance_matrix
 
 
 # todo: allow initializing from either file or directly the dataframe and the metadata

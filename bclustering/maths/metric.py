@@ -5,6 +5,7 @@
 import numpy as np
 
 
+# todo: docstring
 def ensure_array(x):
     if not isinstance(x, np.ndarray):
         return np.array(x)

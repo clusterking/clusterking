@@ -19,7 +19,8 @@ import pandas as pd
 import wilson
 
 # ours
-import bclustering.physics.bdlnu.distribution as distribution
+import maths.binning
+import physics.models.bdlnu.distribution as distribution
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
@@ -36,9 +37,9 @@ def calculate_bpoint(w: wilson.Wilson, bin_edges: np.array) -> np.array:
         np.array of the integration results
     """
 
-    return distribution.bin_function(lambda x: distribution.dGq2(w, x),
-                                     bin_edges,
-                                     normalized=True)
+    return maths.binning.bin_function(lambda x: distribution.dGq2(w, x),
+                                      bin_edges,
+                                      normalized=True)
 
 
 class Scanner(object):

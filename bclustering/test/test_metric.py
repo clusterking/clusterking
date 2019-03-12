@@ -4,10 +4,9 @@
 import unittest
 
 # 3rd
-import numpy as np
 
 # ours
-from bclustering.metric import *
+from maths.metric import *
 
 
 class MyTestCase(unittest.TestCase):

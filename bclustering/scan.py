@@ -8,10 +8,11 @@ import functools
 import itertools
 import json
 import multiprocessing
+import os
 import pathlib
 import shutil
 import time
-from typing import Union, Callable
+from typing import Union, Callable, List, Sized
 
 # 3rd party
 import numpy as np
@@ -26,7 +27,7 @@ from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
 
 dfunc = None  # type: Callable
-dfunc_binning = None
+dfunc_binning = None  # type: Sized
 dfunc_normalize = None
 dfunc_kwargs = {}
 
@@ -100,9 +101,8 @@ class Scanner(object):
         self.log = get_logger("Scanner")
 
         #: Benchmark points (i.e. Wilson coefficients)
-        #: Do NOT directly modify this, but use one of the methods below.
+        #:  Use self.bpoints to access this write only.
         self._bpoints = []
-
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -119,7 +119,32 @@ class Scanner(object):
     def bpoints(self):
         return self._bpoints
 
-    def set_dfunction(self, func, binning=None, normalize=False, **kwargs):
+    def set_dfunction(
+            self,
+            func: Callable,
+            binning: Sized = None,
+            normalize=False,
+            **kwargs
+    ):
+        """ Set the function that generates the distributions that are later
+        clustered (e.g. a differential cross section).
+
+        Args:
+            func: A function that takes the wilson coefficient as the first
+                argument. It should either return a float (if the binning
+                option is specified), or a np.array elsewise.
+            binning: If this parameter is not set (None), we will use the
+                function as is. If it is set to an array-like object, we will
+                integrate the function over the bins specified by this
+                parameter.
+            normalize: If a binning is specified, normalize the resulting
+                distribution
+            **kwargs: All other keyword arguments are passed to the function.
+
+        Returns:
+            None
+
+        """
         md = self.metadata["scan"]["dfunction"]
         try:
             md["name"] = func.__name__
@@ -127,7 +152,9 @@ class Scanner(object):
         except AttributeError:
             try:
                 # For functools.partial objects
-                md["name"] = func.func.__name__
+                # noinspection PyUnresolvedReferences
+                md["name"] = "functools.partial({})".format(func.func.__name__)
+                # noinspection PyUnresolvedReferences
                 md["doc"] = func.func.__doc__
             except AttributeError:
                 pass
@@ -156,8 +183,8 @@ class Scanner(object):
                         ...
                     ]
                 }
-            scale: <Wilson coeff input scale in GeV>,
-            eft: <Wilson coeff input eft>,
+            scale: <Wilson coeff input scale in GeV>
+            eft: <Wilson coeff input eft>
             basis: <Wilson coeff input basis>
         """
 
@@ -237,12 +264,13 @@ class Scanner(object):
     # B:  Run
     # **************************************************************************
 
-    def run(self, no_workers=4) -> None:
+    def run(self, no_workers=None) -> None:
         """Calculate all benchmark points in parallel and saves the result in
         self.df.
 
         Args:
-            no_workers: Number of worker nodes/cores
+            no_workers: Number of worker nodes/cores. Default: Total number of
+                cores.
         """
 
         if not self._bpoints:
@@ -260,6 +288,16 @@ class Scanner(object):
             )
             return
 
+        if not no_workers:
+            no_workers = os.cpu_count()
+        if not no_workers:
+            # os.cpu_count() didn't work
+            self.log.warn(
+                "os.cpu_count() not determine number of cores. Fallling "
+                "back to no_workser = 1."
+            )
+            no_workers = 1
+
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)
 
@@ -273,7 +311,8 @@ class Scanner(object):
 
         self.log.info(
             "Started queue with {} job(s) distributed over up to {} "
-            "core(s)/worker(s).".format(len(self._bpoints), no_workers))
+            "core(s)/worker(s).".format(len(self._bpoints), no_workers)
+        )
 
         rows = []
         for index, result in tqdm.tqdm(

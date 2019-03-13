@@ -26,33 +26,37 @@ from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
 
-dfunc = None  # type: Callable
-dfunc_binning = None  # type: Sized
-dfunc_normalize = None
-dfunc_kwargs = {}
-
-
-# todo: I wish we could do that in a more clever way than relying on so many
-#  global variables
-# NEEDS TO BE GLOBAL FUNCTION for multithreading
-def calculate_bpoint(w: wilson.Wilson) -> np.array:
-    """Calculates one benchmark point.
-
-    Args:
-        w: Wilson coefficients
-
-    Returns:
-        np.array of the integration results
+class BpointCalculator(object):
+    """ A class that holds the function with which we calculate each
+    benchmark point. Note that this has to be a separate class from Scanner
+    to avoid problems related to multiprocessing's use of the pickle
+    library, which are described here:
+    https://stackoverflow.com/questions/1412787/
     """
+    def __init__(self, func: Callable, binning: Sized, normalize, kwargs):
+        self.dfunc = func
+        self.dfunc_binning = binning
+        self.dfunc_normalize = normalize
+        self.dfunc_kwargs = kwargs
 
-    if dfunc_binning is not None:
-        return bclustering.maths.binning.bin_function(
-            functools.partial(dfunc, w, **dfunc_kwargs),
-            dfunc_binning,
-            normalize=dfunc_normalize
-        )
-    else:
-        return dfunc(w, **dfunc_kwargs)
+    def calc(self, w: wilson.Wilson) -> np.array:
+        """Calculates one benchmark point.
+
+        Args:
+            w: Wilson coefficients
+
+        Returns:
+            np.array of the integration results
+        """
+
+        if self.dfunc_binning is not None:
+            return bclustering.maths.binning.bin_function(
+                functools.partial(self.dfunc, w, **self.dfunc_kwargs),
+                self.dfunc_binning,
+                normalize=self.dfunc_normalize
+            )
+        else:
+            return self.dfunc(w, **self.dfunc_kwargs)
 
 
 class Scanner(object):
@@ -103,6 +107,8 @@ class Scanner(object):
         #: Benchmark points (i.e. Wilson coefficients)
         #:  Use self.bpoints to access this write only.
         self._bpoints = []
+
+        self.bpoint_calculator = None
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -163,14 +169,10 @@ class Scanner(object):
         if binning is not None:
             md["nbins"] = len(binning) - 1
 
-        global dfunc
-        global dfunc_kwargs
-        global dfunc_binning
-        global dfunc_normalize
-        dfunc = func
-        dfunc_kwargs = kwargs
-        dfunc_binning = binning
-        dfunc_normalize = normalize
+        # global bpoint_calculator
+        self.bpoint_calculator = BpointCalculator(
+            func, binning, normalize, kwargs
+        )
 
     def set_bpoints_grid(self, values, scale, eft, basis) -> None:
         """ Set a grid of benchmark points
@@ -279,8 +281,7 @@ class Scanner(object):
                 "anything."
             )
             return
-        global dfunc
-        if not dfunc:
+        if not self.bpoint_calculator:
             self.log.error(
                 "No function specified. Please set it "
                 "using ``Scanner.set_dfunction``. Returning without doing "
@@ -302,7 +303,7 @@ class Scanner(object):
         pool = multiprocessing.Pool(processes=no_workers)
 
         # this is the worker function.
-        worker = calculate_bpoint
+        worker = self.bpoint_calculator.calc
 
         results = pool.imap(worker, self._bpoints)
 

@@ -18,6 +18,7 @@ import sklearn.cluster
 import scipy.cluster.hierarchy
 
 # us
+from bclustering.util.cli import yn_prompt
 from bclustering.scan import Scanner
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info
@@ -205,37 +206,37 @@ class Cluster(object):
     # **************************************************************************
 
     @staticmethod
-    def data_output_path(general_output_path: Union[pathlib.Path, str]) \
+    def data_output_path(directory: Union[pathlib.Path, str], name: str) \
             -> pathlib.Path:
         """ Taking the general output path, return the path to the data file.
         """
-        path = pathlib.Path(general_output_path)
-        # noinspection PyTypeChecker
-        return path.parent / (path.name + "_data.csv")
+        directory = pathlib.Path(directory)
+        return directory / (name + "_data.csv")
 
     @staticmethod
-    def metadata_output_path(general_output_path: Union[pathlib.Path, str]) \
+    def metadata_output_path(directory: Union[pathlib.Path, str], name: str) \
             -> pathlib.Path:
         """ Taking the general output path, return the path to the 
         metadata file.
         """
-        path = pathlib.Path(general_output_path)
-        # noinspection PyTypeChecker
-        return path.parent / (path.name + "_metadata.json")
+        directory = pathlib.Path(directory)
+        return directory / (name + "_metadata.json")
 
-    def write(self, general_output_path):
+    def write(self, directory, name, overwrite='ask'):
         """ Write out all results.
         IMPORTANT NOTE: All output files will always be overwritten!
 
         Args:
-            general_output_path: Path to the output file without file 
-                extension. We will add suffixes and file extensions to this!
+            directory: Directory to save file in
+            name: Name of output file (no extensions)
+            overwrite: How to proceed if output file already exists:
+                'ask', 'overwrite', 'raise'
         """
 
         # *** 1. Clean files and make sure the folders exist ***
 
-        metadata_path = self.metadata_output_path(general_output_path)
-        data_path = self.data_output_path(general_output_path)
+        metadata_path = self.metadata_output_path(directory, name)
+        data_path = self.data_output_path(directory, name)
 
         self.log.info("Will write metadata to '{}'.".format(metadata_path))
         self.log.info("Will write data to '{}'.".format(data_path))
@@ -245,9 +246,26 @@ class Cluster(object):
             if not path.parent.is_dir():
                 self.log.debug("Creating directory '{}'.".format(path.parent))
                 path.parent.mkdir(parents=True)
-            if path.exists():
-                self.log.debug("Removing file '{}'.".format(path))
-                path.unlink()
+
+        overwrite = overwrite.lower()
+        if any([p.exists() for p in paths]):
+            if overwrite == "ask":
+                prompt = "Some of the output files would be overwritten. " \
+                         "Are you ok with that?"
+                if not yn_prompt(prompt):
+                    self.log.warning("Returning without doing anything.")
+                    return
+            elif overwrite == "overwrite":
+                pass
+            elif overwrite == "raise":
+                msg = "Some of the output files would be overwritten."
+                self.log.critical(msg)
+                raise FileExistsError(msg)
+            else:
+                msg = "Unknown option for 'overwrite' argument."
+                self.log.critical(msg)
+                raise ValueError(msg)
+        # From here on we definitely overwrite
 
         # *** 2. Write out metadata ***
 
@@ -450,17 +468,3 @@ class KmeansCluster(Cluster):
         x_matrix = np.array(self.df[bin_columns].astype(float))
         kmeans.fit(x_matrix)
         return kmeans.predict(x_matrix)
-
-
-# paths = [c.metadata_output_path(args.output_path),
-#          c.data_output_path(args.output_path)]
-# existing_paths = [path for path in paths if path.exists()]
-# if existing_paths:
-#     agree = yn_prompt(
-#         "Output paths {} already exist(s) and will be "
-#         "overwritten. "
-#         "Proceed?".format(', '.join(map(str, existing_paths)))
-#     )
-#     if not agree:
-#         c.log.critical("User abort.")
-#         sys.exit(15)

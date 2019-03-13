@@ -321,7 +321,7 @@ class Scanner(object):
             desc="Scanning: ",
             unit=" bpoints",
             total=len(self._bpoints),
-            ncols=shutil.get_terminal_size((80, 20)).columns
+            ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
         ):
             md = self.metadata["scan"]["dfunction"]
             if "nbins" not in md:

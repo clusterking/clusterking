@@ -4,12 +4,12 @@
 normalized q2 distribution. """
 
 # std
-import datetime
 import functools
 import itertools
 import json
 import multiprocessing
 import pathlib
+import shutil
 import time
 from typing import Union, Callable
 
@@ -17,6 +17,7 @@ from typing import Union, Callable
 import numpy as np
 import pandas as pd
 import wilson
+import tqdm
 
 # ours
 import bclustering.maths.binning
@@ -274,34 +275,20 @@ class Scanner(object):
             "Started queue with {} job(s) distributed over up to {} "
             "core(s)/worker(s).".format(len(self._bpoints), no_workers))
 
-        starttime = time.time()
-
         rows = []
-        for index, result in enumerate(results):
+        for index, result in tqdm.tqdm(
+            enumerate(results),
+            desc="Scanning: ",
+            unit=" bpoints",
+            total=len(self._bpoints),
+            ncols=shutil.get_terminal_size((80, 20)).columns
+        ):
             md = self.metadata["scan"]["dfunction"]
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
             coeff_values = list(self._bpoints[index].wc.values.values())
             rows.append([*coeff_values, *result])
-
-            timedelta = time.time() - starttime
-
-            completed = index + 1
-            rem_time = (len(self._bpoints) - completed) * timedelta/completed
-            self.log.debug(
-                "Progress: {}/{} ({:04.1f}%) of bpoints. "
-                "Time/bpoint: {:.1f}s => "
-                "time remaining: {} "
-                "(total elapsed: {})".format(
-                    str(completed).zfill(len(str(len(self._bpoints)))),
-                    len(self._bpoints),
-                    100*completed/len(self._bpoints),
-                    timedelta/completed,
-                    datetime.timedelta(seconds=int(rem_time)),
-                    datetime.timedelta(seconds=int(timedelta))
-                )
-            )
 
         # Wait for completion of all jobs here
         pool.join()

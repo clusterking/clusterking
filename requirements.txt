@@ -12,3 +12,4 @@ sklearn
 colorlog
 ipykernel
 wilson
+tqdm

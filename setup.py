@@ -15,6 +15,7 @@ import bclustering.util.metadata
 bclustering.util.metadata.save_git_info()
 
 
+# todo: perhaps read from requirements.txt
 # todo: perhaps split up in install_requires and extras_require
 install_requires = [
     'pandas',
@@ -28,7 +29,9 @@ install_requires = [
     'matplotlib',
     'sklearn',
     'colorlog',
-    'ipykernel'
+    'ipykernel',
+    'wilson',
+    'tqdm'
 ]
 
 this_dir = pathlib.Path(__file__).resolve().parent

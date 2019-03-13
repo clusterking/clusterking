@@ -21,6 +21,7 @@ import wilson
 import tqdm
 
 # ours
+from bclustering.util.cli import yn_prompt
 import bclustering.maths.binning
 from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
@@ -67,21 +68,35 @@ class Scanner(object):
     Usage example:
 
     .. code-block:: python
-    
+        import flavio
+
         # Initialize Scanner object
         s = Scanner()
     
-        # Sample 3 points for each of the 5 Wilson coefficients
-        s.set_bpoints_equidist(3)
+        # Sample 4 points for each of the 5 Wilson coefficients
+        s.set_bpoints_equidist(
+            {
+                "CVL_bctaunutau": (-1, 1, 4),
+                "CSL_bctaunutau": (-1, 1, 4),
+                "CT_bctaunutau": (-1, 1, 4)
+            },
+            scale=5,
+            eft='WET',
+            basis='flavio'
+        )
     
-        # Use 5 bins in q2
-        s.set_kbins_equidist(5)
+        # Set function and binning
+        s.set_dfunction(
+           functools.partial(flavio.np_prediction, "dBR/dq2(B+->Dtaunu)"),
+            binning=np.linspace(3.15, bdlnu.q2max, 11.66),
+            normalize=True
+        )
     
         # Start running with maximally 3 cores
         s.run(no_workers=3)
     
         # Write out results
-        s.write("output/scan/global_output")
+        s.write("output/scan", "global_output")
 
     This is example is equivalent to calling
     
@@ -105,10 +120,12 @@ class Scanner(object):
         self.log = get_logger("Scanner")
 
         #: Benchmark points (i.e. Wilson coefficients)
-        #:  Use self.bpoints to access this write only.
+        #:  Use self.bpoints to access this
         self._bpoints = []
 
-        self.bpoint_calculator = None
+        #: Instance of BpointCalculator to perform the claculations of
+        #:  the benchmark points.
+        self.bpoint_calculator = None  # type: BpointCalculator
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -122,7 +139,8 @@ class Scanner(object):
 
     # Write only access
     @property
-    def bpoints(self):
+    def bpoints(self) -> List[wilson.Wilson]:
+        """ Benchmark points (wilson coefficients) """
         return self._bpoints
 
     def set_dfunction(
@@ -350,30 +368,31 @@ class Scanner(object):
     # **************************************************************************
 
     @staticmethod
-    def data_output_path(general_output_path: Union[pathlib.Path, str]) \
+    def data_output_path(directory: Union[pathlib.Path, str], name: str) \
             -> pathlib.Path:
         """ Taking the general output path, return the path to the data file.
         """
-        path = pathlib.Path(general_output_path)
-        # noinspection PyTypeChecker
-        return path.parent / (path.name + "_data.csv")
+        directory = pathlib.Path(directory)
+        return directory / (name + "_data.csv")
 
     @staticmethod
-    def metadata_output_path(general_output_path: Union[pathlib.Path, str]) \
+    def metadata_output_path(directory: Union[pathlib.Path, str], name: str) \
             -> pathlib.Path:
-        """ Taking the general output path, return the path to the metadata file.
+        """ Taking the general output path, return the path to the metadat
+        file.
         """
-        path = pathlib.Path(general_output_path)
-        # noinspection PyTypeChecker
-        return path.parent / (path.name + "_metadata.json")
+        directory = pathlib.Path(directory)
+        return directory / (name + "_metadata.json")
 
-    def write(self, general_output_path: Union[pathlib.Path, str]) -> None:
+    def write(self, directory: Union[pathlib.Path, str], name: str,
+              overwrite="ask") -> None:
         """ Write out all results.
-        IMPORTANT NOTE: All output files will always be overwritten!
 
         Args:
-            general_output_path: Path to the output file without file 
-                extension. We will add suffixes and file extensions to this!
+            directory: Directory to save file in
+            name: Name of output file (no extensions)
+            overwrite: How to proceed if output file already exists:
+                'ask', 'overwrite', 'raise'
         """
         if self.df.empty:
             self.log.error("Data frame is empty yet attempting to write out. "
@@ -382,8 +401,8 @@ class Scanner(object):
 
         # *** 1. Clean files and make sure the folders exist ***
 
-        metadata_path = self.metadata_output_path(general_output_path)
-        data_path = self.data_output_path(general_output_path)
+        metadata_path = self.metadata_output_path(directory, name)
+        data_path = self.data_output_path(directory, name)
 
         self.log.info("Will write metadata to '{}'.".format(metadata_path))
         self.log.info("Will write data to '{}'.".format(data_path))
@@ -393,9 +412,26 @@ class Scanner(object):
             if not path.parent.is_dir():
                 self.log.debug("Creating directory '{}'.".format(path.parent))
                 path.parent.mkdir(parents=True)
-            if path.exists():
-                self.log.debug("Removing file '{}'.".format(path))
-                path.unlink()
+
+        overwrite = overwrite.lower()
+        if any([p.exists() for p in paths]):
+            if overwrite == "ask":
+                prompt = "Some of the output files would be overwritten. " \
+                         "Are you ok with that?"
+                if not yn_prompt(prompt):
+                    self.log.warning("Returning without doing anything.")
+                    return
+            elif overwrite == "overwrite":
+                pass
+            elif overwrite == "raise":
+                msg = "Some of the output files would be overwritten."
+                self.log.critical(msg)
+                raise FileExistsError(msg)
+            else:
+                msg = "Unknown option for 'overwrite' argument."
+                self.log.critical(msg)
+                raise ValueError(msg)
+        # From here on we definitely overwrite
 
         # *** 2. Write out metadata ***
 
@@ -410,8 +446,9 @@ class Scanner(object):
         self.log.debug("Converting data to csv and writing to "
                        "file '{}'.".format(data_path))
         if self.df.empty:
-            self.log.error("Dataframe seems to be empty. Still writing "
-                           "out anyway.")
+            self.log.error(
+                "Dataframe seems to be empty. Still writing out anyway."
+            )
         self.df.index.name = "index"
         with data_path.open("w") as data_file:
             self.df.to_csv(data_file)
@@ -420,16 +457,3 @@ class Scanner(object):
         # *** 4. Done ***
 
         self.log.info("Writing out finished.")
-
-
-# todo: move this check somewhere
-# paths = [s.metadata_output_path(args.output_path),
-#          s.data_output_path(args.output_path)]
-# existing_paths = [path for path in paths if path.exists()]
-# if existing_paths:
-#     agree = yn_prompt(
-#         "Output paths {} already exist(s) and will be overwritten. "
-#         "Proceed?".format(', '.join(map(str, existing_paths))))
-#     if not agree:
-#         s.log.critical("User abort.")
-#         sys.exit(1)

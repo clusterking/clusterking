@@ -30,21 +30,21 @@ class Cluster(object):
     # A:  Setup
     # **************************************************************************
 
-    def __init__(self, input_path):
+    def __init__(self, directory, name):
         """ This class is subclassed to implement specific clustering
         algorithms and defines common functions.
 
         Args:
-            input_path: Input path (without extensions) for metadata and
-                output from 'scan'
+            directory: Input directory
+            name: Name of the input file (without extension or suffixes)
         """
         #: Instance of logging.Logger to write out log messages
         self.log = get_logger("Cluster")
 
-        self.log.info("Input file basename: '{}'.".format(input_path))
-
-        #: The input path
-        self.input_path = pathlib.Path(input_path)
+        #: The input directory
+        self.input_directory = pathlib.Path(directory)
+        #: The input basename
+        self.input_name = name
 
         #: Metadata
         self.metadata = nested_dict()
@@ -64,7 +64,7 @@ class Cluster(object):
 
     def _get_scan_data(self):
         """ Read data from scan.py """
-        path = Scanner.data_output_path(self.input_path)
+        path = Scanner.data_output_path(self.input_directory, self.input_name)
         self.log.debug("Loading scanner data from '{}'.".format(
             path.resolve()))
         with path.open() as data_file:
@@ -74,7 +74,7 @@ class Cluster(object):
 
     def _get_scan_metadata(self):
         """ Read metadata from scan.py """
-        path = Scanner.metadata_output_path(self.input_path)
+        path = Scanner.metadata_output_path(self.input_directory, self.input_name)
         self.log.debug("Loading scanner metadata from '{}'.".format(
             path.resolve()))
         with path.open() as metadata_file:

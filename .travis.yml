@@ -6,6 +6,6 @@ install:
   - "pip3 install git+https://github.com/wilson-eft/wilson.git"
   - "pip3 install ."
   - "pip3 install nose2"
-  - "python3 examples/jupyter_notebooks/test/generate_tests.py"
+  # - "python3 examples/jupyter_notebooks/test/generate_tests.py"
 script: 
   - "nose2"

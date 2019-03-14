@@ -27,16 +27,17 @@ def main():
     )
     s.run()
 
-    directory = "output/scan/bdtaunu/our_implementation/q2"
-    name = "q2_10_wilson_1000"
-    s.write(directory, name, overwrite="ask")
+    scan_directory = "output/scan/our_implementation/q2"
+    cluster_directory = "output/cluster/our_implementation/q2"
+    scan_name = "q2_10_wilson_1000"
+    s.write(scan_directory, scan_name, overwrite="ask")
 
     for max_d in np.linspace(0.01, 1, 20):
-        cluster_name = name + "_max_d_{:.3f}".format(max_d)
-        c = HierarchyCluster("output/scan", "tutorial_basics")
+        cluster_name = scan_name + "_max_d_{:.3f}".format(max_d)
+        c = HierarchyCluster(scan_directory, scan_name)
         c.build_hierarchy()
         c.cluster(max_d=max_d)
-        c.write(directory, cluster_name, overwrite="overwrite")
+        c.write(cluster_directory, cluster_name, overwrite="overwrite")
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import unittest
 # 3rd
 
 # ours
-from maths.metric import *
+from bclustering.maths.metric import *
 
 
 class MyTestCase(unittest.TestCase):

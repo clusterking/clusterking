@@ -385,16 +385,16 @@ class PlotClusterHistos(object):
         self.figure = None
         self.ax = None
 
-    def _select_bpoints(self, cluster,bp_per_cluster=1):
-        """ Return list of benchmark points to be plotted for cluster"""
+    def _select_wpoints(self, cluster, bp_per_cluster=1):
+        """ Return list of wilson points to be plotted for cluster"""
         pass
 
 
     def plot(self, cluster=None, bp_per_cluster=1):
         # cluster: parameter to select only a few clusters from all
-        # bp_per_cluster: How manny benchmark points per cluster
-        # 1. _select_bpoints
-        # 2. call _add_histogram for each bpoint
+        # bp_per_cluster: How many wilson points per cluster
+        # 1. _select_wpoints
+        # 2. call _add_histogram for each wpoint
         pass
 
     def _add_histogram(self, histogram: np.ndarray, cluster):

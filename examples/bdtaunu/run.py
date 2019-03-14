@@ -15,7 +15,7 @@ def main():
         binning=np.linspace(bdlnu.q2min, bdlnu.q2max, 10),
         normalize=True
     )
-    s.set_bpoints_equidist(
+    s.set_wpoints_equidist(
         {
             "CVL_bctaunutau": (-0.3, 0.3, 10),
             "CSL_bctaunutau": (-0.3, 0.3, 10),

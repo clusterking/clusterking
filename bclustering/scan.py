@@ -27,9 +27,9 @@ from bclustering.util.log import get_logger
 from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
 
 
-class BpointCalculator(object):
+class WpointCalculator(object):
     """ A class that holds the function with which we calculate each
-    benchmark point. Note that this has to be a separate class from Scanner
+    point in wilson space. Note that this has to be a separate class from Scanner
     to avoid problems related to multiprocessing's use of the pickle
     library, which are described here:
     https://stackoverflow.com/questions/1412787/
@@ -41,7 +41,7 @@ class BpointCalculator(object):
         self.dfunc_kwargs = kwargs
 
     def calc(self, w: wilson.Wilson) -> np.array:
-        """Calculates one benchmark point.
+        """Calculates one point in wilson space.
 
         Args:
             w: Wilson coefficients
@@ -74,7 +74,7 @@ class Scanner(object):
         s = Scanner()
     
         # Sample 4 points for each of the 5 Wilson coefficients
-        s.set_bpoints_equidist(
+        s.set_wpoints_equidist(
             {
                 "CVL_bctaunutau": (-1, 1, 4),
                 "CSL_bctaunutau": (-1, 1, 4),
@@ -119,13 +119,13 @@ class Scanner(object):
     def __init__(self):
         self.log = get_logger("Scanner")
 
-        #: Benchmark points (i.e. Wilson coefficients)
-        #:  Use self.bpoints to access this
-        self._bpoints = []
+        #: Points in wilson space
+        #:  Use self.wpoints to access this
+        self._wpoints = []
 
-        #: Instance of BpointCalculator to perform the claculations of
-        #:  the benchmark points.
-        self.bpoint_calculator = None  # type: BpointCalculator
+        #: Instance of WpointCalculator to perform the claculations of
+        #:  the wilson space points.
+        self.wpoint_calculator = None  # type: WpointCalculator
 
         #: This will hold all of the results
         self.df = pd.DataFrame()
@@ -139,9 +139,9 @@ class Scanner(object):
 
     # Write only access
     @property
-    def bpoints(self) -> List[wilson.Wilson]:
-        """ Benchmark points (wilson coefficients) """
-        return self._bpoints
+    def wpoints(self) -> List[wilson.Wilson]:
+        """ Points in wilson space that are sampled."""
+        return self._wpoints
 
     def set_dfunction(
             self,
@@ -187,13 +187,13 @@ class Scanner(object):
         if binning is not None:
             md["nbins"] = len(binning) - 1
 
-        # global bpoint_calculator
-        self.bpoint_calculator = BpointCalculator(
+        # global wpoint_calculator
+        self.wpoint_calculator = WpointCalculator(
             func, binning, normalize, kwargs
         )
 
-    def set_bpoints_grid(self, values, scale, eft, basis) -> None:
-        """ Set a grid of benchmark points
+    def set_wpoints_grid(self, values, scale, eft, basis) -> None:
+        """ Set a grid of points in wilson space.
 
         Args:
             values: {
@@ -225,7 +225,7 @@ class Scanner(object):
         cartesians = list(itertools.product(*values_lists))
 
         # And build wilson coefficients from this
-        self._bpoints = [
+        self._wpoints = [
             wilson.Wilson(
                 wcdict={
                     coeffs[icoeff]: cartesian[icoeff]
@@ -238,15 +238,15 @@ class Scanner(object):
             for cartesian in cartesians
         ]
 
-        md = self.metadata["scan"]["bpoints"]
+        md = self.metadata["scan"]["wpoints"]
         md["coeffs"] = list(values.keys())
         md["values"] = values
         md["scale"] = scale
         md["eft"] = eft
         md["basis"] = basis
 
-    def set_bpoints_equidist(self, ranges, scale, eft, basis) -> None:
-        """ Set a list of 'equidistant' benchmark points.
+    def set_wpoints_equidist(self, ranges, scale, eft, basis) -> None:
+        """ Set a list of 'equidistant' points in wilson space.
 
         Args:
             ranges: {
@@ -268,15 +268,15 @@ class Scanner(object):
             coeff: list(np.linspace(*ranges[coeff]))
             for coeff in ranges
         }
-        self.set_bpoints_grid(
+        self.set_wpoints_grid(
             grid_config,
             scale=scale,
             eft=eft,
             basis=basis,
         )
-        # Make sure to do this after set_bpoints_grid, so we overwrite
+        # Make sure to do this after set_wpoints_grid, so we overwrite
         # the relevant parts.
-        md = self.metadata["scan"]["bpoints"]
+        md = self.metadata["scan"]["wpoints"]
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
@@ -285,7 +285,7 @@ class Scanner(object):
     # **************************************************************************
 
     def run(self, no_workers=None) -> None:
-        """Calculate all benchmark points in parallel and saves the result in
+        """Calculate all wilson points in parallel and saves the result in
         self.df.
 
         Args:
@@ -293,13 +293,13 @@ class Scanner(object):
                 cores.
         """
 
-        if not self._bpoints:
+        if not self._wpoints:
             self.log.error(
-                "No benchmark points specified. Returning without doing "
+                "No wilson points specified. Returning without doing "
                 "anything."
             )
             return
-        if not self.bpoint_calculator:
+        if not self.wpoint_calculator:
             self.log.error(
                 "No function specified. Please set it "
                 "using ``Scanner.set_dfunction``. Returning without doing "
@@ -321,31 +321,31 @@ class Scanner(object):
         pool = multiprocessing.Pool(processes=no_workers)
 
         # this is the worker function.
-        worker = self.bpoint_calculator.calc
+        worker = self.wpoint_calculator.calc
 
-        results = pool.imap(worker, self._bpoints)
+        results = pool.imap(worker, self._wpoints)
 
         # close the queue for new jobs
         pool.close()
 
         self.log.info(
             "Started queue with {} job(s) distributed over up to {} "
-            "core(s)/worker(s).".format(len(self._bpoints), no_workers)
+            "core(s)/worker(s).".format(len(self._wpoints), no_workers)
         )
 
         rows = []
         for index, result in tqdm.tqdm(
             enumerate(results),
             desc="Scanning: ",
-            unit=" bpoints",
-            total=len(self._bpoints),
+            unit=" wpoint",
+            total=len(self._wpoints),
             ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
         ):
             md = self.metadata["scan"]["dfunction"]
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
-            coeff_values = list(self._bpoints[index].wc.values.values())
+            coeff_values = list(self._wpoints[index].wc.values.values())
             rows.append([*coeff_values, *result])
 
         # Wait for completion of all jobs here
@@ -353,7 +353,7 @@ class Scanner(object):
 
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
-        cols = self.metadata["scan"]["bpoints"]["coeffs"].copy()
+        cols = self.metadata["scan"]["wpoints"]["coeffs"].copy()
         cols.extend([
             "bin{}".format(no_bin)
             for no_bin in range(self.metadata["scan"]["dfunction"]["nbins"])

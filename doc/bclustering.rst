@@ -15,9 +15,3 @@
   :members:
   :undoc-members:
 
-``Wilson``
-----------
-
-.. autoclass:: bclustering.wilson.Wilson
-  :members:
-  :undoc-members:

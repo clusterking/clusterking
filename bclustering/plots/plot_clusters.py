@@ -61,7 +61,7 @@ class ClusterPlot(object):
         self.figsize = (4, 4)
 
         #: The names of the columns that hold the Wilson coefficients
-        self.index_columns = ['l', 'r', 'sl', 'sr', 't']
+        self.index_columns = ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau']
 
         #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
@@ -81,6 +81,15 @@ class ClusterPlot(object):
 
         self._fig = None
         self._axs = None
+
+    @property
+    def fig(self):
+        return self._fig
+
+    def savefig(self, *args, **kwargs):
+        """ Equivalent to ClusterPlot.fig.savefig(*args, **kwargs): Saves
+        figure to file, e.g. ClusterPlot.savefig("test.pdf"). """
+        self._fig.savefig(*args, **kwargs)
 
     @property
     def _axli(self):
@@ -283,7 +292,7 @@ class ClusterPlot(object):
         Args:
             cols: The names of the columns to be shown on the x, y (and z)
                axis of the plots.
-            clusters: The get_clusters to be plotted (default: all).
+            clusters: The get_clusters to be plotted (default: all)
 
         Returns:
             The figure (unless the 'inline' setting of matplotllib is 
@@ -374,6 +383,8 @@ class ClusterPlot(object):
             )
 
         self._add_legend()
+        if 'inline' not in matplotlib.get_backend():
+            return self._fig
 
 
 # todo: move to own file in subfolder plots

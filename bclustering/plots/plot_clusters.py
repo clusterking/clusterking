@@ -379,7 +379,8 @@ class ClusterPlot(object):
             self._axli[isubplot].imshow(
                 self._set_fill_colors(z_matrix),
                 interpolation='none',
-                extent=[min(x), max(x), min(y), max(y)]
+                extent=[min(x), max(x), min(y), max(y)],
+                aspect='auto'
             )
 
         self._add_legend()
@@ -399,7 +400,6 @@ class PlotClusterHistos(object):
     def _select_wpoints(self, cluster, bp_per_cluster=1):
         """ Return list of wilson points to be plotted for cluster"""
         pass
-
 
     def plot(self, cluster=None, bp_per_cluster=1):
         # cluster: parameter to select only a few clusters from all

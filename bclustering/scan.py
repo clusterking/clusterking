@@ -68,7 +68,9 @@ class Scanner(object):
     Usage example:
 
     .. code-block:: python
+
         import flavio
+        from bclustering.scan import Scanner
 
         # Initialize Scanner object
         s = Scanner()
@@ -98,18 +100,6 @@ class Scanner(object):
         # Write out results
         s.write("output/scan", "global_output")
 
-    This is example is equivalent to calling
-    
-    .. code-block:: sh
-    
-        ./scan.py -n 3 -g 5 -o output/scan/global_output -p 3
-    
-    or
-    
-    .. code-block:: sh
-        
-        ./scan.py --np-grid-subdivision 3 --grid-subdivision 5 \\
-            --output output/scan/global_output --parallel 3
     """
 
     # **************************************************************************
@@ -125,9 +115,9 @@ class Scanner(object):
 
         #: Instance of WpointCalculator to perform the claculations of
         #:  the wilson space points.
-        self.wpoint_calculator = None  # type: WpointCalculator
+        self._wpoint_calculator = None  # type: WpointCalculator
 
-        #: This will hold all of the results
+        #: Pandas dataframe to hold all of the results
         self.df = pd.DataFrame()
 
         #: This will hold all the configuration that we will write out
@@ -188,7 +178,7 @@ class Scanner(object):
             md["nbins"] = len(binning) - 1
 
         # global wpoint_calculator
-        self.wpoint_calculator = WpointCalculator(
+        self._wpoint_calculator = WpointCalculator(
             func, binning, normalize, kwargs
         )
 
@@ -299,7 +289,7 @@ class Scanner(object):
                 "anything."
             )
             return
-        if not self.wpoint_calculator:
+        if not self._wpoint_calculator:
             self.log.error(
                 "No function specified. Please set it "
                 "using ``Scanner.set_dfunction``. Returning without doing "
@@ -321,7 +311,7 @@ class Scanner(object):
         pool = multiprocessing.Pool(processes=no_workers)
 
         # this is the worker function.
-        worker = self.wpoint_calculator.calc
+        worker = self._wpoint_calculator.calc
 
         results = pool.imap(worker, self._wpoints)
 

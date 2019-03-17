@@ -2,7 +2,7 @@
 
 # std
 import scipy.integrate as integrate
-
+from numpy import sqrt, pi, cos
 # ours
 from bclustering.physics.models.bdlnu.amplitude import *
 
@@ -23,6 +23,12 @@ cthetalmax = 1
 
 q2min = inputs['mtau']**2
 q2max = (inputs['mB'] - inputs['mD'])**2
+
+Elmin = 0
+Elmaxval = sqrt(q2max) / 2
+
+cthetalmin = cos(0)
+cthetalmax = cos(pi)
 
 
 def Elmax(q2):
@@ -67,7 +73,7 @@ def I1w1(w: Wilson, q2, El):
 
     Ical0val = Ical0(w, q2, El)
 
-    return (-2*x**4 + x**2 +4*(3*x**4 - 3*x**2 +1)*y**2 
+    return (-2*x**4 + x**2 +4*(3*x**4 - 3*x**2 +1)*y**2
             + (3*x**4 -5*x**2 +2)*x*y)*(x-2*y)**2/(6*x**2*(x**2-1)**3*y**3)*Gammap1val \
             + (2*x**6*y - x**5 - 3*x**4*y +x**3*(2-16*y**4) +x**2*y*(20*y**2-3)  -4*y**3)/(6*x*(x**2-1)**3*y**3)*Gammam1val \
             - ((x-2*y)**2*(2*x**3*y +x**2*(8*y**2-1)  -2*x*y -4*y**2))/(6*x *(x**2-1)**3*y**3)*Ical0val
@@ -291,5 +297,3 @@ def dGnormtot(w: Wilson, q2, El, cthetal):
     """
 
     return dG(w, q2, El , cthetal)/dGtot(w)
-
-

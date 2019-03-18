@@ -299,7 +299,7 @@ class ClusterPlot(object):
             clusters: The get_clusters to be plotted (default: all)
 
         Returns:
-            The figure (unless the 'inline' setting of matplotllib is 
+            The figure (unless the 'inline' setting of matplotllib is
             detected).
         """
         self._setup_all(cols, clusters)
@@ -379,7 +379,8 @@ class ClusterPlot(object):
                                    ascending=[False, True],
                                    inplace=True)
             z = df_subplot[self.cluster_column].values
-            z_matrix = z.reshape(y.shape[0], x.shape[0])
+#           check if this makes sense
+            z_matrix = z.reshape(y.shape[0], int(len(z) / y.shape[0]))
             self._axli[isubplot].imshow(
                 self._set_fill_colors(z_matrix),
                 interpolation='none',

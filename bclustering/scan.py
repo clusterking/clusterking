@@ -10,7 +10,7 @@ import multiprocessing
 import os
 import shutil
 import time
-from typing import  Callable, List, Sized
+from typing import Callable, List, Sized
 
 # 3rd party
 import numpy as np
@@ -26,8 +26,8 @@ from bclustering.util.metadata import git_info, failsafe_serialize
 
 class WpointCalculator(object):
     """ A class that holds the function with which we calculate each
-    point in wilson space. Note that this has to be a separate class from Scanner
-    to avoid problems related to multiprocessing's use of the pickle
+    point in wilson space. Note that this has to be a separate class from
+    Scanner to avoid problems related to multiprocessing's use of the pickle
     library, which are described here:
     https://stackoverflow.com/questions/1412787/
     """

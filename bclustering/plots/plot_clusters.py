@@ -23,7 +23,8 @@ from bclustering.plots.colors import ColorScheme
 
 # fixme: Maybe not take _setup_all?
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
-# todo: add basic command line interface?
+# todo: this should be refactored to take the Cluster object instead
+# todo: option to disable legend
 class ClusterPlot(object):
     """ Plot get_clusters!
 
@@ -60,6 +61,8 @@ class ClusterPlot(object):
         #: figure size of each subplot
         self.figsize = (4, 4)
 
+        # todo: after we initialize this from a Cluster object, we can
+        #  do this automatically
         #: The names of the columns that hold the Wilson coefficients
         self.index_columns = ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau']
 
@@ -224,6 +227,7 @@ class ClusterPlot(object):
             if len(self._axis_columns) == 3:
                 self._axli[isubplot].set_zlim(self._get_lims(2))
 
+    # todo: if scatter: use proper markers!
     def _add_legend(self):
         legend_elements = []
         for cluster in self._clusters:
@@ -388,6 +392,7 @@ class ClusterPlot(object):
             return self._fig
 
 
+# todo: is this still a thing?? I think this is now in plot_histogram
 # todo: move to own file in subfolder plots
 class PlotClusterHistos(object):
     def __init__(self, df: pd.DataFrame):

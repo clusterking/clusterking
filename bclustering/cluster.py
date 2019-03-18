@@ -5,7 +5,6 @@
 
 # standard
 import atexit
-import json
 import pathlib
 import time
 from typing import Union, Any
@@ -13,75 +12,42 @@ from typing import Union, Any
 # 3rd party
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import sklearn.cluster
 import scipy.cluster.hierarchy
 
 # us
-from bclustering.util.cli import yn_prompt
-from bclustering.scan import Scanner
-from bclustering.util.log import get_logger
-from bclustering.util.metadata import nested_dict, git_info
+from bclustering.dfmd import DFMD
+from bclustering.util.metadata import git_info
 from bclustering.maths.metric import condense_distance_matrix
 
 
 # todo: allow initializing from either file or directly the dataframe and the metadata
-class Cluster(object):
+class Cluster(DFMD):
     # **************************************************************************
     # A:  Setup
     # **************************************************************************
 
-    def __init__(self, directory, name):
+    def __init__(self, *args, **kwargs):
         """ This class is subclassed to implement specific clustering
         algorithms and defines common functions.
 
         Args:
-            directory: Input directory
-            name: Name of the input file (without extension or suffixes)
+            # todo: write something here
         """
-        #: Instance of logging.Logger to write out log messages
-        self.log = get_logger("Cluster")
-
-        #: The input directory
-        self.input_directory = pathlib.Path(directory)
-        #: The input basename
-        self.input_name = name
+        if "log" not in kwargs:
+            kwargs["log"] = "Cluster"
+        # todo: write something about DFMD here
+        super().__init__(*args, **kwargs)
 
         #: Metadata
-        self.metadata = nested_dict()
-        self._get_scan_metadata()
-        self.metadata["cluster"]["git"] = git_info(self.log)
-        self.metadata["cluster"]["time"] = time.strftime("%a %_d %b %Y %H:%M",
-                                                         time.gmtime())
-
-        #: Dataframe from scanner
-        self.df = None
-        self._get_scan_data()
+        self.md["cluster"]["git"] = git_info(self.log)
+        self.md["cluster"]["time"] = time.strftime("%a %_d %b %Y %H:%M",
+                                                   time.gmtime())
 
         #: Should we wait for plots to be shown?
         self._wait_plots = False
         # call self.close() when this script exits
         atexit.register(self.close)
-
-    def _get_scan_data(self):
-        """ Read data from scan.py """
-        path = Scanner.data_output_path(self.input_directory, self.input_name)
-        self.log.debug("Loading scanner data from '{}'.".format(
-            path.resolve()))
-        with path.open() as data_file:
-            self.df = pd.read_csv(data_file)
-        self.df.set_index("index", inplace=True)
-        self.log.debug("Done.")
-
-    def _get_scan_metadata(self):
-        """ Read metadata from scan.py """
-        path = Scanner.metadata_output_path(self.input_directory, self.input_name)
-        self.log.debug("Loading scanner metadata from '{}'.".format(
-            path.resolve()))
-        with path.open() as metadata_file:
-            scan_metadata = json.load(metadata_file)
-        self.metadata.update(scan_metadata)
-        self.log.debug("Done.")
 
     # **************************************************************************
     # B:  Cluster
@@ -102,7 +68,7 @@ class Cluster(object):
 
         # Taking the column name as additional key means that we can easily
         # save the configuration values of different clusterings
-        md = self.metadata["cluster"][column]
+        md = self.md["cluster"][column]
 
         for key, value in kwargs.items():
             md[key] = value
@@ -133,7 +99,7 @@ class Cluster(object):
 
     def data_matrix(self):
         # todo: make flexible
-        return self.df[["bin{}".format(i) for i in range(self.metadata["scan"]["dfunction"]["nbins"])]].values
+        return self.df[["bin{}".format(i) for i in range(self.md["scan"]["dfunction"]["nbins"])]].values
 
     def rename_clusters(self, old2new, column="cluster", new_column=None):
         """Renames the get_clusters. This also allows to merge several get_clusters 
@@ -202,96 +168,7 @@ class Cluster(object):
         self.rename_clusters(old2new, column, new_column)
 
     # **************************************************************************
-    # D:  Write out
-    # **************************************************************************
-
-    @staticmethod
-    def data_output_path(directory: Union[pathlib.Path, str], name: str) \
-            -> pathlib.Path:
-        """ Taking the general output path, return the path to the data file.
-        """
-        directory = pathlib.Path(directory)
-        return directory / (name + "_data.csv")
-
-    @staticmethod
-    def metadata_output_path(directory: Union[pathlib.Path, str], name: str) \
-            -> pathlib.Path:
-        """ Taking the general output path, return the path to the 
-        metadata file.
-        """
-        directory = pathlib.Path(directory)
-        return directory / (name + "_metadata.json")
-
-    def write(self, directory, name, overwrite='ask'):
-        """ Write out all results.
-        IMPORTANT NOTE: All output files will always be overwritten!
-
-        Args:
-            directory: Directory to save file in
-            name: Name of output file (no extensions)
-            overwrite: How to proceed if output file already exists:
-                'ask', 'overwrite', 'raise'
-        """
-
-        # *** 1. Clean files and make sure the folders exist ***
-
-        metadata_path = self.metadata_output_path(directory, name)
-        data_path = self.data_output_path(directory, name)
-
-        self.log.info("Will write metadata to '{}'.".format(metadata_path))
-        self.log.info("Will write data to '{}'.".format(data_path))
-
-        paths = [metadata_path, data_path]
-        for path in paths:
-            if not path.parent.is_dir():
-                self.log.debug("Creating directory '{}'.".format(path.parent))
-                path.parent.mkdir(parents=True)
-
-        overwrite = overwrite.lower()
-        if any([p.exists() for p in paths]):
-            if overwrite == "ask":
-                prompt = "Some of the output files would be overwritten. " \
-                         "Are you ok with that?"
-                if not yn_prompt(prompt):
-                    self.log.warning("Returning without doing anything.")
-                    return
-            elif overwrite == "overwrite":
-                pass
-            elif overwrite == "raise":
-                msg = "Some of the output files would be overwritten."
-                self.log.critical(msg)
-                raise FileExistsError(msg)
-            else:
-                msg = "Unknown option for 'overwrite' argument."
-                self.log.critical(msg)
-                raise ValueError(msg)
-        # From here on we definitely overwrite
-
-        # *** 2. Write out metadata ***
-
-        self.log.debug("Converting metadata data to json and writing to file "
-                       "'{}'.".format(metadata_path))
-        with metadata_path.open("w") as metadata_file:
-            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
-        self.log.debug("Done.")
-
-        # *** 3. Write out data ***
-
-        self.log.debug("Converting data to csv and writing to "
-                       "file '{}'.".format(data_path))
-        if self.df.empty:
-            self.log.error("Dataframe seems to be empty. Still writing "
-                           "out anyway.")
-        with data_path.open("w") as data_file:
-            self.df.to_csv(data_file)
-        self.log.debug("Done")
-
-        # *** 4. Done ***
-
-        self.log.info("Writing out finished.")
-
-    # **************************************************************************
-    # E:  MISC
+    # D:  MISC
     # **************************************************************************
 
     def close(self):
@@ -304,6 +181,7 @@ class Cluster(object):
             plt.show()
 
 
+# todo: document
 class HierarchyCluster(Cluster):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -324,7 +202,7 @@ class HierarchyCluster(Cluster):
         """
         self.log.debug("Building hierarchy.")
 
-        md = self.metadata["cluster"]["hierarchy"]
+        md = self.md["cluster"]["hierarchy"]
         if isinstance(metric, str):
             md["metric"] = metric
         else:
@@ -333,7 +211,7 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
         if isinstance(metric, str):
-            nbins = self.metadata["scan"]["dfunction"]["nbins"]
+            nbins = self.md["scan"]["dfunction"]["nbins"]
             # only the q2 bins without any other information in the dataframe
             data = self.df[["bin{}".format(i) for i in range(nbins)]]
 
@@ -391,7 +269,7 @@ class HierarchyCluster(Cluster):
 
     def dendrogram(
             self,
-            output: Union[None, str, pathlib.Path]=None,
+            output: Union[None, str, pathlib.Path] = None,
             ax=None,
             show=False,
             **kwargs
@@ -458,6 +336,7 @@ class HierarchyCluster(Cluster):
         return ax
 
 
+# todo: document!
 class KmeansCluster(Cluster):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

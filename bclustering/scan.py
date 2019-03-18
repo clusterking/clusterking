@@ -6,13 +6,11 @@ normalized q2 distribution. """
 # std
 import functools
 import itertools
-import json
 import multiprocessing
 import os
-import pathlib
 import shutil
 import time
-from typing import Union, Callable, List, Sized
+from typing import  Callable, List, Sized
 
 # 3rd party
 import numpy as np
@@ -21,10 +19,9 @@ import wilson
 import tqdm
 
 # ours
-from bclustering.util.cli import yn_prompt
+from bclustering.dfmd import DFMD
 import bclustering.maths.binning
-from bclustering.util.log import get_logger
-from bclustering.util.metadata import nested_dict, git_info, failsafe_serialize
+from bclustering.util.metadata import git_info, failsafe_serialize
 
 
 class WpointCalculator(object):
@@ -60,10 +57,12 @@ class WpointCalculator(object):
             return self.dfunc(w, **self.dfunc_kwargs)
 
 
-class Scanner(object):
-    # todo: update example in docstring
+class Scanner(DFMD):
     """ Scans the NP parameter space in a grid and also q2, producing the
     normalized q2 distribution.
+
+    See bclustering.dfmd.DFMD for how to initialize this class from output
+    files or existing instances.
 
     Usage example:
 
@@ -98,7 +97,7 @@ class Scanner(object):
         s.run(no_workers=3)
     
         # Write out results
-        s.write("output/scan", "global_output")
+        s.write("output/scan", "test_output")
 
     """
 
@@ -106,8 +105,11 @@ class Scanner(object):
     # A:  Setup
     # **************************************************************************
 
-    def __init__(self):
-        self.log = get_logger("Scanner")
+    def __init__(self, *args, **kwargs):
+        if "log" not in kwargs:
+            kwargs["log"] = "Scanner"
+        # todo: write something about DFMD here
+        super().__init__(*args, **kwargs)
 
         #: Points in wilson space
         #:  Use self.wpoints to access this
@@ -117,13 +119,8 @@ class Scanner(object):
         #:  the wilson space points.
         self._wpoint_calculator = None  # type: WpointCalculator
 
-        #: Pandas dataframe to hold all of the results
-        self.df = pd.DataFrame()
-
-        #: This will hold all the configuration that we will write out
-        self.metadata = nested_dict()
-        self.metadata["scan"]["git"] = git_info(self.log)
-        self.metadata["scan"]["time"] = time.strftime(
+        self.md["scan"]["git"] = git_info(self.log)
+        self.md["scan"]["time"] = time.strftime(
             "%a %_d %b %Y %H:%M", time.gmtime()
         )
 
@@ -159,7 +156,7 @@ class Scanner(object):
             None
 
         """
-        md = self.metadata["scan"]["dfunction"]
+        md = self.md["scan"]["dfunction"]
         try:
             md["name"] = func.__name__
             md["doc"] = func.__doc__
@@ -228,7 +225,7 @@ class Scanner(object):
             for cartesian in cartesians
         ]
 
-        md = self.metadata["scan"]["wpoints"]
+        md = self.md["scan"]["wpoints"]
         md["coeffs"] = list(values.keys())
         md["values"] = values
         md["scale"] = scale
@@ -266,7 +263,7 @@ class Scanner(object):
         )
         # Make sure to do this after set_wpoints_grid, so we overwrite
         # the relevant parts.
-        md = self.metadata["scan"]["wpoints"]
+        md = self.md["scan"]["wpoints"]
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
@@ -331,7 +328,7 @@ class Scanner(object):
             total=len(self._wpoints),
             ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
         ):
-            md = self.metadata["scan"]["dfunction"]
+            md = self.md["scan"]["dfunction"]
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
@@ -343,107 +340,12 @@ class Scanner(object):
 
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
-        cols = self.metadata["scan"]["wpoints"]["coeffs"].copy()
+        cols = self.md["scan"]["wpoints"]["coeffs"].copy()
         cols.extend([
             "bin{}".format(no_bin)
-            for no_bin in range(self.metadata["scan"]["dfunction"]["nbins"])
+            for no_bin in range(self.md["scan"]["dfunction"]["nbins"])
         ])
         self.df = pd.DataFrame(data=rows, columns=cols)
         self.df.index.name = "index"
 
         self.log.info("Integration done.")
-
-    # **************************************************************************
-    # C:  Write out
-    # **************************************************************************
-
-    @staticmethod
-    def data_output_path(directory: Union[pathlib.Path, str], name: str) \
-            -> pathlib.Path:
-        """ Taking the general output path, return the path to the data file.
-        """
-        directory = pathlib.Path(directory)
-        return directory / (name + "_data.csv")
-
-    @staticmethod
-    def metadata_output_path(directory: Union[pathlib.Path, str], name: str) \
-            -> pathlib.Path:
-        """ Taking the general output path, return the path to the metadat
-        file.
-        """
-        directory = pathlib.Path(directory)
-        return directory / (name + "_metadata.json")
-
-    def write(self, directory: Union[pathlib.Path, str], name: str,
-              overwrite="ask") -> None:
-        """ Write out all results.
-
-        Args:
-            directory: Directory to save file in
-            name: Name of output file (no extensions)
-            overwrite: How to proceed if output file already exists:
-                'ask', 'overwrite', 'raise'
-        """
-        if self.df.empty:
-            self.log.error("Data frame is empty yet attempting to write out. "
-                           "Ignore.")
-            return
-
-        # *** 1. Clean files and make sure the folders exist ***
-
-        metadata_path = self.metadata_output_path(directory, name)
-        data_path = self.data_output_path(directory, name)
-
-        self.log.info("Will write metadata to '{}'.".format(metadata_path))
-        self.log.info("Will write data to '{}'.".format(data_path))
-
-        paths = [metadata_path, data_path]
-        for path in paths:
-            if not path.parent.is_dir():
-                self.log.debug("Creating directory '{}'.".format(path.parent))
-                path.parent.mkdir(parents=True)
-
-        overwrite = overwrite.lower()
-        if any([p.exists() for p in paths]):
-            if overwrite == "ask":
-                prompt = "Some of the output files would be overwritten. " \
-                         "Are you ok with that?"
-                if not yn_prompt(prompt):
-                    self.log.warning("Returning without doing anything.")
-                    return
-            elif overwrite == "overwrite":
-                pass
-            elif overwrite == "raise":
-                msg = "Some of the output files would be overwritten."
-                self.log.critical(msg)
-                raise FileExistsError(msg)
-            else:
-                msg = "Unknown option for 'overwrite' argument."
-                self.log.critical(msg)
-                raise ValueError(msg)
-        # From here on we definitely overwrite
-
-        # *** 2. Write out metadata ***
-
-        self.log.debug("Converting metadata data to json and writing to file "
-                       "'{}'.".format(metadata_path))
-        with metadata_path.open("w") as metadata_file:
-            json.dump(self.metadata, metadata_file, sort_keys=True, indent=4)
-        self.log.debug("Done.")
-
-        # *** 3. Write out data ***
-
-        self.log.debug("Converting data to csv and writing to "
-                       "file '{}'.".format(data_path))
-        if self.df.empty:
-            self.log.error(
-                "Dataframe seems to be empty. Still writing out anyway."
-            )
-        self.df.index.name = "index"
-        with data_path.open("w") as data_file:
-            self.df.to_csv(data_file)
-        self.log.debug("Done")
-
-        # *** 4. Done ***
-
-        self.log.info("Writing out finished.")

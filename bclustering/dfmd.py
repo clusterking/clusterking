@@ -13,6 +13,7 @@ from bclustering.util.log import get_logger
 from bclustering.util.cli import handle_overwrite
 
 
+# todo: document attributes
 class DFMD(object):
     def __init__(self, *args, log=None, **kwargs):
         """ This class bundles dataframe together with metadata and options
@@ -43,8 +44,12 @@ class DFMD(object):
             **kwargs: See above
         """
         # These are the three attributes of this class
+
+        #: This will hold all the configuration that we will write out
         self.md = None
+        #: Pandas dataframe to hold all of the results
         self.df = None
+        #: instance of logging.Loggin
         self.log = None
 
         # First check if the user wants to initialize this class using
@@ -122,7 +127,6 @@ class DFMD(object):
         # Now we go through all keyword arguments and try to execute them if
         # they make sense, else we throw mixed_error.
 
-
         if "df" in kwargs:
             if self.df is not None:
                 raise mixed_error
@@ -152,7 +156,9 @@ class DFMD(object):
         )
         with md_path.open() as metadata_file:
             md = json.load(metadata_file)
-        self.md = md
+        # Make sure that we still have nested_dict as type for the metadata:
+        self.md = nested_dict()
+        self.md.update(md)
         self.log.debug("Done.")
 
     def write_md(self, md_path: Union[PurePath, str], overwrite="ask"):
@@ -168,7 +174,7 @@ class DFMD(object):
         """
         md_path = Path(md_path)
 
-        self.log.info("Will write dataframe to '{}'.".format(md_path))
+        self.log.info("Will write metadata to '{}'.".format(md_path))
 
         if not md_path .parent.is_dir():
             self.log.debug("Creating directory '{}'.".format(md_path .parent))

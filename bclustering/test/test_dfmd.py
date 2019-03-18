@@ -8,6 +8,7 @@ from pathlib import Path
 from bclustering.dfmd import DFMD
 
 
+# todo: disable logging output
 class TestDFMD(unittest.TestCase):
     def setUp(self):
         self.data_dir = Path(__file__).parent / "data"

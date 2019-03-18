@@ -1,0 +1,65 @@
+{
+    "scan": {
+        "dfunction": {
+            "doc": " 1D q2 distrubution, integrating El ",
+            "kwargs": {},
+            "name": "dGq2",
+            "nbins": 2
+        },
+        "git": {
+            "branch": "HEAD",
+            "msg": "remove Wilson class from documentation",
+            "sha": "83618b6ae4dade1f017b30b5bc0ed0d0634a47ab",
+            "time": "Fri 15 Mar 2019 10:52"
+        },
+        "time": "Fri 15 Mar 2019 12:58",
+        "wpoints": {
+            "basis": "flavio",
+            "coeffs": [
+                "CVL_bctaunutau",
+                "CT_bctaunutau",
+                "CSL_bctaunutau"
+            ],
+            "eft": "WET",
+            "ranges": {
+                "CSL_bctaunutau": [
+                    -1,
+                    1,
+                    4
+                ],
+                "CT_bctaunutau": [
+                    -1,
+                    1,
+                    4
+                ],
+                "CVL_bctaunutau": [
+                    -1,
+                    1,
+                    4
+                ]
+            },
+            "sampling": "equidistant",
+            "scale": 5,
+            "values": {
+                "CSL_bctaunutau": [
+                    -1.0,
+                    -0.33333333333333337,
+                    0.33333333333333326,
+                    1.0
+                ],
+                "CT_bctaunutau": [
+                    -1.0,
+                    -0.33333333333333337,
+                    0.33333333333333326,
+                    1.0
+                ],
+                "CVL_bctaunutau": [
+                    -1.0,
+                    -0.33333333333333337,
+                    0.33333333333333326,
+                    1.0
+                ]
+            }
+        }
+    }
+}

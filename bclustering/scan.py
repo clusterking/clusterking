@@ -19,7 +19,7 @@ import wilson
 import tqdm
 
 # ours
-from bclustering.dfmd import DFMD
+from bclustering.data.dfmd import DFMD
 import bclustering.maths.binning
 from bclustering.util.metadata import git_info, failsafe_serialize
 

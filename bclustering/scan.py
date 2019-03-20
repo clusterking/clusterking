@@ -19,9 +19,10 @@ import wilson
 import tqdm
 
 # ours
-from bclustering.data.dfmd import DFMD
+from bclustering.data.data import Data
 import bclustering.maths.binning
-from bclustering.util.metadata import git_info, failsafe_serialize
+from bclustering.util.metadata import git_info, failsafe_serialize, nested_dict
+from bclustering.util.log import get_logger
 
 
 class WpointCalculator(object):
@@ -57,7 +58,7 @@ class WpointCalculator(object):
             return self.dfunc(w, **self.dfunc_kwargs)
 
 
-class Scanner(DFMD):
+class Scanner(object):
     """ Scans the NP parameter space in a grid and also q2, producing the
     normalized q2 distribution.
 
@@ -106,10 +107,7 @@ class Scanner(DFMD):
     # **************************************************************************
 
     def __init__(self, *args, **kwargs):
-        if "log" not in kwargs:
-            kwargs["log"] = "Scanner"
-        # todo: write something about DFMD here
-        super().__init__(*args, **kwargs)
+        self.log = get_logger("Scanner")
 
         #: Points in wilson space
         #:  Use self.wpoints to access this
@@ -119,8 +117,9 @@ class Scanner(DFMD):
         #:  the wilson space points.
         self._wpoint_calculator = None  # type: WpointCalculator
 
-        self.md["scan"]["git"] = git_info(self.log)
-        self.md["scan"]["time"] = time.strftime(
+        self.md = nested_dict()
+        self.md["git"] = git_info(self.log)
+        self.md["time"] = time.strftime(
             "%a %_d %b %Y %H:%M", time.gmtime()
         )
 
@@ -156,7 +155,7 @@ class Scanner(DFMD):
             None
 
         """
-        md = self.md["scan"]["dfunction"]
+        md = self.md["dfunction"]
         try:
             md["name"] = func.__name__
             md["doc"] = func.__doc__
@@ -225,7 +224,7 @@ class Scanner(DFMD):
             for cartesian in cartesians
         ]
 
-        md = self.md["scan"]["wpoints"]
+        md = self.md["wpoints"]
         md["coeffs"] = list(values.keys())
         md["values"] = values
         md["scale"] = scale
@@ -263,7 +262,7 @@ class Scanner(DFMD):
         )
         # Make sure to do this after set_wpoints_grid, so we overwrite
         # the relevant parts.
-        md = self.md["scan"]["wpoints"]
+        md = self.md["wpoints"]
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
@@ -271,7 +270,7 @@ class Scanner(DFMD):
     # B:  Run
     # **************************************************************************
 
-    def run(self, no_workers=None) -> None:
+    def run(self, data: Data, no_workers=None) -> None:
         """Calculate all wilson points in parallel and saves the result in
         self.df.
 
@@ -328,7 +327,7 @@ class Scanner(DFMD):
             total=len(self._wpoints),
             ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
         ):
-            md = self.md["scan"]["dfunction"]
+            md = self.md["dfunction"]
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
@@ -340,12 +339,15 @@ class Scanner(DFMD):
 
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
-        cols = self.md["scan"]["wpoints"]["coeffs"].copy()
+        cols = self.md["wpoints"]["coeffs"].copy()
         cols.extend([
             "bin{}".format(no_bin)
-            for no_bin in range(self.md["scan"]["dfunction"]["nbins"])
+            for no_bin in range(self.md["dfunction"]["nbins"])
         ])
-        self.df = pd.DataFrame(data=rows, columns=cols)
-        self.df.index.name = "index"
+
+        # Now we finally write everything to data
+        data.df = pd.DataFrame(data=rows, columns=cols)
+        data.df.index.name = "index"
+        data.md["scan"] = self.md
 
         self.log.info("Integration done.")

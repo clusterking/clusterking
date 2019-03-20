@@ -78,7 +78,6 @@ class BundlePlot(object):
         #: Instance of matplotlib.axes.Axes
         self.ax = None
 
-
     def filter_clusters(self, clusters):
         clusters = list(set(clusters))
         selection = [c for c in clusters if c in self.clusters]

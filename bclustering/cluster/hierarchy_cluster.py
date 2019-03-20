@@ -12,15 +12,16 @@ import matplotlib.pyplot as plt
 from bclustering.maths.metric import condense_distance_matrix
 from bclustering.cluster.cluster import Cluster
 
+
 # todo: document
 class HierarchyCluster(Cluster):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         self.hierarchy = None
 
     # todo: Save hierarchy and give option to load again?
-    def build_hierarchy(self, metric="euclidean",
+    def build_hierarchy(self, data, metric="euclidean",
                         method="complete", optimal_ordering=False) -> None:
         """ Build the hierarchy object.
 
@@ -33,7 +34,7 @@ class HierarchyCluster(Cluster):
         """
         self.log.debug("Building hierarchy.")
 
-        md = self.md["cluster"]["hierarchy"]
+        md = self.md["hierarchy"]
         if isinstance(metric, str):
             md["metric"] = metric
         else:
@@ -44,7 +45,7 @@ class HierarchyCluster(Cluster):
         if isinstance(metric, str):
             nbins = self.md["scan"]["dfunction"]["nbins"]
             # only the q2 bins without any other information in the dataframe
-            data = self.df[["bin{}".format(i) for i in range(nbins)]]
+            data = data.df[["bin{}".format(i) for i in range(nbins)]]
 
             self.hierarchy = scipy.cluster.hierarchy.linkage(
                 data,
@@ -152,9 +153,6 @@ class HierarchyCluster(Cluster):
 
         if show:
             fig.show()
-
-            # Trigger a plt.show() at the end of this script
-            self._wait_plots = True
 
         if output:
             output = pathlib.Path(output)

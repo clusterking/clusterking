@@ -10,12 +10,12 @@ from bclustering.cluster.cluster import Cluster
 
 # todo: document!
 class KmeansCluster(Cluster):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
-    def _cluster(self, **kwargs):
+    def _cluster(self, data, **kwargs):
         kmeans = sklearn.cluster.KMeans(**kwargs)
-        bin_columns = [col for col in self.df.columns if col.startswith("bin")]
-        x_matrix = np.array(self.df[bin_columns].astype(float))
+        bin_columns = [col for col in data.df.columns if col.startswith("bin")]
+        x_matrix = np.array(data.df[bin_columns].astype(float))
         kmeans.fit(x_matrix)
         return kmeans.predict(x_matrix)

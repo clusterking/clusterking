@@ -161,47 +161,6 @@ class DFMD(object):
             self.load(kwargs["directory"], kwargs["name"])
 
     # **************************************************************************
-    # Property shortcuts
-    # **************************************************************************
-
-    @property
-    def was_scanned(self):
-        return "scan" in self.md
-
-    @property
-    def was_clustered(self):
-        return "cluster" in self.md
-
-    @property
-    def bin_cols(self):
-        columns = list(self.df.columns)
-        # todo: more general?
-        return [c for c in columns if c.startswith("bin")]
-
-    @property
-    def par_cols(self):
-        return self.md["scan"]["wpoints"]["coeffs"]
-
-    @property
-    def n(self):
-        return len(self.df)
-
-    @property
-    def nbins(self):
-        return len(self.bin_cols)
-
-    @property
-    def npars(self):
-        return len(self.par_cols)
-
-    # **************************************************************************
-    # Returning things
-    # **************************************************************************
-
-    def data_matrix(self):
-        return self.df[self.bin_cols].values
-
-    # **************************************************************************
     # Paths
     # **************************************************************************
 
@@ -352,3 +311,4 @@ class DFMD(object):
         handle_overwrite([df_path, md_path], behavior=overwrite, log=self.log)
         self.write_df(df_path, overwrite="overwrite")
         self.write_md(md_path, overwrite="overwrite")
+

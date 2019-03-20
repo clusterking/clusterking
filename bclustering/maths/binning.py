@@ -4,7 +4,7 @@ from scipy import integrate as integrate
 import numpy as np
 
 # ours
-from bclustering.maths.metric import ensure_array
+from bclustering.maths.statistics import ensure_array
 
 
 # todo: unittest

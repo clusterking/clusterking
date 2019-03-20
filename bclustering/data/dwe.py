@@ -24,10 +24,8 @@ class DataWithErrors(Data):
         super().__init__(*args, **kwargs)
 
         # Initialize some values to their default
-        if not self.rel_cov:
-            self.rel_cov = np.zeros((self.nbins, self.nbins))
-        if not self.abs_cov:
-            self.abs_cov = np.zeros((self.nbins, self.nbins))
+        self.rel_cov = None
+        self.abs_cov = None
         self.poisson_errors = False
 
     # **************************************************************************
@@ -36,18 +34,36 @@ class DataWithErrors(Data):
 
     @property
     def rel_cov(self):
-        return self.md["errors"]["rel_cov"]
+        value = self.md["errors"]["rel_cov"]
+        if value is None:
+            if self.nbins:
+                return np.zeros((self.nbins, self.nbins))
+            else:
+                return None
+        return np.array(value)
 
     @rel_cov.setter
     def rel_cov(self, value):
+        if isinstance(value, np.ndarray):
+            # convert to list in order to serialize
+            value = value.tolist()
         self.md["errors"]["rel_cov"] = value
 
     @property
     def abs_cov(self):
-        return self.md["errors"]["abs_cov"]
+        value = np.array(self.md["errors"]["abs_cov"])
+        if value is None:
+            if self.nbins:
+                return np.zeros((self.nbins, self.nbins))
+            else:
+                return None
+        return value
 
     @abs_cov.setter
     def abs_cov(self, value):
+        if isinstance(value, np.ndarray):
+            # convert to list in order to serialize
+            value = value.tolist()
         self.md["errors"]["abs_cov"] = value
 
     @property

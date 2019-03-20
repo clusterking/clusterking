@@ -59,7 +59,7 @@ class Cluster(object):
 
         data.df[column] = clusters
         data.md["cluster"] = self.md
-        data.rename_clusters_auto(column)
+        data.rename_clusters(column=column)
 
         self.log.info("Done")
 

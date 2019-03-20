@@ -5,7 +5,7 @@ import pathlib
 from typing import Union
 
 # 3rd
-import scipy
+import scipy.cluster
 import matplotlib.pyplot as plt
 
 # ours
@@ -43,12 +43,9 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
         if isinstance(metric, str):
-            nbins = self.md["scan"]["dfunction"]["nbins"]
             # only the q2 bins without any other information in the dataframe
-            data = data.df[["bin{}".format(i) for i in range(nbins)]]
-
             self.hierarchy = scipy.cluster.hierarchy.linkage(
-                data,
+                data.data(),
                 metric=metric,
                 method=method,
                 optimal_ordering=optimal_ordering
@@ -69,7 +66,7 @@ class HierarchyCluster(Cluster):
 
         self.log.debug("Done")
 
-    def _cluster(self, max_d=0.2, **kwargs):
+    def _cluster(self, data, max_d=0.2, **kwargs):
         """Performs the actual clustering
         Args:
             max_d:

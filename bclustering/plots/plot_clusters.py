@@ -334,14 +334,14 @@ class ClusterPlot(object):
                     label=cluster,
                     s=self.default_marker_size
                 )
-
-                self._axli[isubplot].scatter(
-                    *[df_cluster_bp[col] for col in self._axis_columns],
-                    color=self.color_scheme.get_cluster_color(cluster),
-                    marker=self.markers[cluster-1 % len(self.markers)],
-                    label=cluster,
-                    s=self.bpoint_marker_size
-                )
+                if self._has_bpoints:
+                    self._axli[isubplot].scatter(
+                        *[df_cluster_bp[col] for col in self._axis_columns],
+                        color=self.color_scheme.get_cluster_color(cluster),
+                        marker=self.markers[cluster-1 % len(self.markers)],
+                        label=cluster,
+                        s=self.bpoint_marker_size
+                    )
 
         self._add_legend()
 

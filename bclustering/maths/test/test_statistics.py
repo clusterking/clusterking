@@ -12,12 +12,12 @@ class TestStatistics(MyTestCase):
     """ To test the conversion functions cov2err etc.
     Subclassed for specific test cases """
 
-    def __init__( self, *args, **kwargs ):
+    def __init__(self, *args, **kwargs):
         super(TestStatistics, self).__init__(*args, **kwargs)
         if self.__class__ == TestStatistics:
             # Make sure that unittest doesn't run the tests of this class,
             # only of its subclasses.
-            self.run = lambda self, *args, **kwargs: None
+            self.run = lambda _self, *_args, **_kwargs: None
 
     def setUp(self):
         self.cov = None

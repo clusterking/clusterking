@@ -18,13 +18,6 @@ class TestDataWithErrors(MyTestCase):
         self.dname = "test_scan"
         self.data = [[100, 200], [400, 500]]
 
-    # todo: move
-    def test_norms(self):
-        self.assertAllClose(
-            DataWithErrors(self.ddir, self.dname).norms(),
-            [300, 900]
-        )
-
     def test_data(self):
         dwe = DataWithErrors(self.ddir, self.dname)
         self.assertAllClose(

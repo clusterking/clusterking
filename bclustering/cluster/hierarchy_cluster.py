@@ -77,7 +77,8 @@ class HierarchyCluster(Cluster):
         """
 
         if self.hierarchy is None:
-            msg = "Please run build_hierarchy first to set self.hierarchy!"
+            msg = "Please run build_hierarchy first to set self.hierarchy or" \
+                  "manually set HieararchyCluster.hierachy."
             self.log.critical(msg)
             raise ValueError(msg)
 

@@ -23,7 +23,6 @@ from bclustering.plots.colors import ColorScheme
 
 # fixme: Maybe not take _setup_all?
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
-# todo: this should be refactored to take the Cluster object instead
 # todo: option to disable legend
 class ClusterPlot(object):
     """ Plot get_clusters!
@@ -32,14 +31,14 @@ class ClusterPlot(object):
     See docstrings there for more instructions.
 
     Args:
-        df: Pandas dataframe
+        data:
     """
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, data):
         #: logging.Logger object
         self.log = get_logger("ClusterPlot", sh_level=logging.WARNING)
 
         #: Instance of pandas.DataFrame
-        self.df = df
+        self.data = data
 
         # (Advanced) config values
         # Documented in docstring of this class
@@ -60,11 +59,6 @@ class ClusterPlot(object):
 
         #: figure size of each subplot
         self.figsize = (4, 4)
-
-        # todo: after we initialize this from a Cluster object, we can
-        #  do this automatically
-        #: The names of the columns that hold the Wilson coefficients
-        self.index_columns = ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau']
 
         #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
@@ -101,22 +95,22 @@ class ClusterPlot(object):
         return self._axs.flatten()
 
     def _find_dofs(self):
-        """ find all relevant wilson coefficients that are not axes on
-        the plots (called _dofs) """
+        """ Find all relevant wilson coefficients that are not axes on
+        the plots (called _dofs). """
 
         dofs = []
         # 'Index columns' are by default the columns that hold the wilson
         # coefficients.
-        for col in self.index_columns:
+        for col in self.data.par_cols:
             if col not in self._axis_columns:
-                if len(self.df[col].unique()) >= 2:
+                if len(self.data.df[col].unique()) >= 2:
                     dofs.append(col)
         self.log.debug("dofs = {}".format(dofs))
 
         if not dofs:
             df_dofs = pd.DataFrame([])
         else:
-            df_dofs = self.df[dofs].drop_duplicates().sort_values(dofs)
+            df_dofs = self.data.df[dofs].drop_duplicates().sort_values(dofs)
             df_dofs.reset_index(inplace=True, drop=True)
 
         self.log.debug("number of subplots = {}".format(len(df_dofs)))
@@ -259,8 +253,8 @@ class ClusterPlot(object):
         Returns:
             (minimum of plotrange, maximum of plotrange)
         """
-        mi = min(self.df[self._axis_columns[ax_no]].values)
-        ma = max(self.df[self._axis_columns[ax_no]].values)
+        mi = min(self.data.df[self._axis_columns[ax_no]].values)
+        ma = max(self.data.df[self._axis_columns[ax_no]].values)
         d = ma-mi
         pad = stretch * d
         return mi-pad, ma+pad
@@ -279,7 +273,7 @@ class ClusterPlot(object):
         self._clusters = clusters
         self._axis_columns = cols
         if not self._clusters:
-            self._clusters = list(self.df[self.cluster_column].unique())
+            self._clusters = list(self.data.df[self.cluster_column].unique())
         self.color_scheme = ColorScheme(self._clusters)
         self._find_dofs()
         self._setup_subplots()
@@ -306,7 +300,8 @@ class ClusterPlot(object):
 
         for isubplot in range(self._nsubplots - 1):
             for cluster in self._clusters:
-                df_cluster = self.df[self.df[self.cluster_column] == cluster]
+                df_cluster = \
+                    self.data.df[self.data.df[self.cluster_column] == cluster]
                 for col in self._dofs:
                     df_cluster = df_cluster[df_cluster[col] ==
                                             self._df_dofs.iloc[isubplot][col]]
@@ -368,7 +363,7 @@ class ClusterPlot(object):
         self._setup_all(cols)
 
         for isubplot in range(self._nsubplots - 1):
-            df_subplot = self.df.copy()
+            df_subplot = self.data.df.copy()
             for col in self._dofs:
                 df_subplot = df_subplot[
                     df_subplot[col] == self._df_dofs.iloc[isubplot][col]
@@ -379,7 +374,7 @@ class ClusterPlot(object):
                                    ascending=[False, True],
                                    inplace=True)
             z = df_subplot[self.cluster_column].values
-#           check if this makes sense
+            # check if this makes sense
             z_matrix = z.reshape(y.shape[0], int(len(z) / y.shape[0]))
             self._axli[isubplot].imshow(
                 self._set_fill_colors(z_matrix),
@@ -391,28 +386,3 @@ class ClusterPlot(object):
         self._add_legend()
         if 'inline' not in matplotlib.get_backend():
             return self._fig
-
-
-# todo: is this still a thing?? I think this is now in plot_histogram
-# todo: move to own file in subfolder plots
-class PlotClusterHistos(object):
-    def __init__(self, df: pd.DataFrame):
-        self.df = df
-        # self.colors = ....
-        # todo: should be same colors as above, so maybe make colors a global variable or somethign
-        self.figure = None
-        self.ax = None
-
-    def _select_wpoints(self, cluster, bp_per_cluster=1):
-        """ Return list of wilson points to be plotted for cluster"""
-        pass
-
-    def plot(self, cluster=None, bp_per_cluster=1):
-        # cluster: parameter to select only a few clusters from all
-        # bp_per_cluster: How many wilson points per cluster
-        # 1. _select_wpoints
-        # 2. call _add_histogram for each wpoint
-        pass
-
-    def _add_histogram(self, histogram: np.ndarray, cluster):
-        pass

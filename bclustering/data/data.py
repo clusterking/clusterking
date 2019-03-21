@@ -56,6 +56,9 @@ class Data(DFMD):
     def norms(self):
         return np.sum(self.data(), axis=1)
 
+    def clusters(self, cluster_column="cluster"):
+        return self.df[cluster_column].unique()
+
     # **************************************************************************
     # C:  Manipulating things
     # **************************************************************************

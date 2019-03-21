@@ -14,6 +14,7 @@ import pandas as pd
 from bclustering.util.log import get_logger
 from bclustering.plots.plot_histogram import plot_histogram
 from bclustering.plots.colors import ColorScheme
+from bclustering.data.data import Data
 
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
@@ -43,32 +44,16 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 class BundlePlot(object):
     """ Plotting class to plot distributions by cluster in order to analyse 
     which distributions get assigned to which cluster. """
-    def __init__(self,
-                 df: pd.DataFrame,
-                 bin_column_prefix="bin",
-                 bin_columns: List[str]=None,
-                 cluster_column="cluster"
-                 ):
+    def __init__(self, data: Data):
 
         #: logging.Logger object
         self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
 
         #: pandas dataframe
-        self.df = df  # type: pd.DataFrame
-
-        #: The names of the columns that hold the bin contents
-        self.bin_columns = bin_columns
-        if not self.bin_columns:
-            self.bin_columns = [
-                col for col in self.df.columns
-                if col.startswith(bin_column_prefix)
-            ]
+        self.data = data
 
         #: Name of the column holding the cluster number
-        self.cluster_column = cluster_column
-
-        #: Names of all clusters
-        self.clusters = list(self.df[self.cluster_column].unique())
+        self.cluster_column = "cluster"
 
         #: Color scheme
         self.color_scheme = ColorScheme(self.clusters)
@@ -77,6 +62,10 @@ class BundlePlot(object):
         self.fig = None
         #: Instance of matplotlib.axes.Axes
         self.ax = None
+
+    @property
+    def clusters(self):
+        return self.data.clusters(cluster_column=self.cluster_column)
 
     def filter_clusters(self, clusters):
         clusters = list(set(clusters))
@@ -103,8 +92,8 @@ class BundlePlot(object):
         """
         # to avoid long line:
         cc = self.cluster_column
-        bc = self.bin_columns
-        return self.df[self.df[cc] == cluster][bc]
+        bc = self.data.bin_cols
+        return self.data.df[self.data.df[cc] == cluster][bc]
 
     def _plot_bundles(self, ax, cluster: int, nlines=3) -> None:
         """ Main implementation of self.plot_bundles (private method).
@@ -192,7 +181,7 @@ class BundlePlot(object):
         maxima = list(df_cluster.max().values)
         minima = list(df_cluster.min().values)
 
-        bin_numbers = np.array(range(1, len(self.bin_columns) + 2))
+        bin_numbers = np.array(range(1, len(self.data.bin_cols) + 2))
 
         color = self.color_scheme.get_cluster_color(cluster)
         for i in range(len(maxima)):

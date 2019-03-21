@@ -49,6 +49,7 @@ class AbstractBenchmark(object):
         self.data.md["bpoint"][bpoint_column] = self.md
 
 
+# todo: test this
 class Benchmark(AbstractBenchmark):
     def __init__(self, data):
         super().__init__(data)

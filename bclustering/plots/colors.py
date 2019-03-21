@@ -17,7 +17,7 @@ class ColorScheme(object):
 
         self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
 
-        self.clusters = clusters
+        self.clusters = list(clusters)
 
         self.cluster_colors = [
             "red",

@@ -73,6 +73,7 @@ class Data(DFMD):
     # --------------------------------------------------------------------------
 
     # todo: doc
+    # fixme: perhaps don't allow new_column but rather give copy method
     def rename_clusters(self, arg=None, column="cluster", new_column=None):
         if arg is None:
             self._rename_clusters_auto(column=column, new_column=new_column)

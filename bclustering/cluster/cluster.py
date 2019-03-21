@@ -9,62 +9,72 @@ import time
 # us
 from bclustering.util.metadata import git_info, nested_dict
 from bclustering.util.log import get_logger
+from bclustering.data.data import Data
 
 
-# todo: allow initializing from either file or directly the dataframe and the
-#  metadata
 class Cluster(object):
-    def __init__(self):
+    def __init__(self, data: Data):
         """ This class is subclassed to implement specific clustering
         algorithms and defines common functions.
-
-        Args:
-            # todo: write something here
         """
         self.log = get_logger("Scanner")
 
+        self.data = data
+        self.clusters = None
+        self.bpoints = None
+
         #: Metadata
         self.md = nested_dict()
-        self.md["git"] = git_info(self.log)
-        self.md["time"] = time.strftime("%a %_d %b %Y %H:%M",
-                                                   time.gmtime())
 
-    def cluster(self, data, column="cluster", **kwargs):
-        """ Performs the clustering. 
-        This method is a wrapper around the _cluster implementation in the 
-        subclasses. See there for additional arguments. 
-        
+        self.md["git"] = git_info(self.log)
+        self.md["time"] = time.strftime(
+            "%a %_d %b %Y %H:%M", time.gmtime()
+        )
+
+    def cluster(self, **kwargs):
+        """ Performs the clustering.
+        This method is a wrapper around the _cluster implementation in the
+        subclasses. See there for additional arguments.
+
         Args:
+            data: Data object
             column: Column to which the get_clusters should be appended.
-            
+
         Returns:
             None
         """
         self.log.info("Performing clustering.")
 
-        # Taking the column name as additional key means that we can easily
-        # save the configuration values of different clusterings
-        md = self.md[column]
+        self.md["cluster_args"] = kwargs
 
-        for key, value in kwargs.items():
-            md[key] = value
-
-        clusters = self._cluster(data, **kwargs)
+        clusters = self._cluster(**kwargs)
 
         n_clusters = len(set(clusters))
         self.log.info(
             "Clustering resulted in {} get_clusters.".format(n_clusters)
         )
-        md["n_clusters"] = n_clusters
-
-        data.df[column] = clusters
-        data.md["cluster"] = self.md
-        data.rename_clusters(column=column)
+        self.md["n_clusters"] = n_clusters
 
         self.log.info("Done")
 
-    def _cluster(self, data, **kwargs):
-        """ Implmentation of the clustering. Should return an array-like object
+    def select_bpoints(self, **kwargs):
+        self.bpoints = self._select_bpoints(**kwargs)
+
+    def _cluster(self, **kwargs):
+        """ Implementation of the clustering. Should return an array-like object
         with the cluster number.
         """
         raise NotImplementedError
+
+    def _select_bpoints(self, **kwargs):
+        self.md["select_bpoints_args"] = kwargs
+        raise NotImplementedError
+
+    # todo: overwrite argument?
+    def write(self, name="cluster"):
+        """ Write results back in data object. """
+        self.data.df[name] = self.clusters
+        self.data.md["cluster"][name] = self.md
+        self.data.rename_clusters(column=name)
+        if self.bpoints:
+            self.data.df[name + "_bp"] = self.bpoints

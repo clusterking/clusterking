@@ -2,25 +2,36 @@
 
 # 3rd
 import numpy as np
+import scipy.spatial
 
 # ours
 from bclustering.data.dwe import DataWithErrors
 
 
 # todo: unittest
-def chi2_metric(dwe: DataWithErrors):
+def condense_distance_matrix(matrix):
+    # matrix[np.triu_indices(len(matrix), k=1)]
+    return scipy.spatial.distance.squareform(matrix)
+
+
+def uncondense_distance_matrix(vector):
+    return scipy.spatial.distance.squareform(vector)
+
+# todo: unittest
+def chi2_metric(dwe: DataWithErrors, output='condensed'):
     """
     Returns the chi2/ndf values of the comparison of a datasets.
 
     Args:
         dwe:
+        output: 'condensed' (condensed distance matrix) or 'full' (full distance
+            matrix)
 
     Returns:
+        Condensed distance matrix
 
     """
     # https://root.cern.ch/doc/master/classTH1.html#a6c281eebc0c0a848e7a0d620425090a5
-
-    # todo: in principle this could still be a factor of 2 faster, because we only need the upper triangular matrix
 
     # n vector
     n = dwe.norms()  # todo: this stays untouched by decorrelation, right?
@@ -43,11 +54,11 @@ def chi2_metric(dwe: DataWithErrors):
     summand = nominator / denominator
 
     # n x n
-    chi2 = np.einsum("kli->kl", summand)
+    chi2ndf = np.einsum("kli->kl", summand) / dwe.nbins
 
-    return chi2 / dwe.nbins
-
-
-# todo: unittest
-def condense_distance_matrix(matrix):
-    return matrix[np.triu_indices(len(matrix), k=1)]
+    if output == 'condensed':
+        return condense_distance_matrix(chi2ndf)
+    elif output == 'full':
+        return chi2ndf
+    else:
+        raise ValueError("Unknown argument '{}'.".format(output))

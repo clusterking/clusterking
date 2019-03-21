@@ -2,67 +2,82 @@
 
 # std
 import pathlib
-from typing import Union
+from typing import Union, Callable
+import functools
 
 # 3rd
 import scipy.cluster
 import matplotlib.pyplot as plt
+import scipy.spatial
 
 # ours
-from bclustering.maths.metric import condense_distance_matrix
 from bclustering.cluster.cluster import Cluster
+from bclustering.util.metadata import failsafe_serialize
 
+
+# todo: Function to save/load hierarchy?
 
 # todo: document
 class HierarchyCluster(Cluster):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, data):
+        super().__init__(data)
 
         self.hierarchy = None
+        #: Function that, applied to Data or DWE object returns the metric as
+        #: a condensed distance matrix.
+        self.metric = None  # type: Callable
 
-    # todo: Save hierarchy and give option to load again?
-    def build_hierarchy(self, data, metric="euclidean",
-                        method="complete", optimal_ordering=False) -> None:
+    def set_metric(self, *args, **kwargs) -> None:
+        self.md["metric"]["args"] = failsafe_serialize(args)
+        self.md["metric"]["kwargs"] = failsafe_serialize(kwargs)
+        if len(args) == 0:
+            # default
+            args = ['euclidean']
+        if isinstance(args[0], str):
+            # The user can specify any of the metrics from
+            # scipy.spatial.distance.pdist by name and supply additional
+            # values
+            self.metric = lambda data: scipy.spatial.distance.pdist(
+                data.data(),
+                args[0],
+                *args[1:],
+                **kwargs
+            )
+        elif isinstance(args[0], Callable):
+            # Assume that this is a function that takes DWE or Data as first
+            # argument
+            self.metric = functools.partial(args[0], *args[1:], **kwargs)
+        else:
+            raise ValueError(
+                "Invalid type of first argument: {}".format(type(args[0]))
+            )
+
+    def build_hierarchy(self, method="complete", optimal_ordering=False) -> None:
         """ Build the hierarchy object.
 
         Args:
-            metric: Either any of the keywords described on
-                scipy.cluster.hierarchy.linkage, or a condensed distance
-                matrix as described on scipy.cluster.hierarchy.linkage
             method: See reference on scipy.cluster.hierarchy.linkage
             optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
         """
+        if self.metric is None:
+            self.log.error(
+                "Metric not set. please run self.set_metric or set "
+                "self.metric manually before running this method. "
+                "Returning without doing anything."
+            )
+            return
+
         self.log.debug("Building hierarchy.")
 
         md = self.md["hierarchy"]
-        if isinstance(metric, str):
-            md["metric"] = metric
-        else:
-            md["metric"] = "custom supplied"
         md["method"] = method
         md["optimal_ordering"] = optimal_ordering
 
-        if isinstance(metric, str):
-            # only the q2 bins without any other information in the dataframe
-            self.hierarchy = scipy.cluster.hierarchy.linkage(
-                data.data(),
-                metric=metric,
-                method=method,
-                optimal_ordering=optimal_ordering
-            )
-        else:
-            if len(metric.shape) == 1:
-                pass
-            elif len(metric.shape) == 2:
-                metric = condense_distance_matrix(metric)
-            else:
-                raise ValueError("Strange metric matrix dimensions >= 3")
-
-            self.hierarchy = scipy.cluster.hierarchy.linkage(
-                metric,
-                method=method,
-                optimal_ordering=optimal_ordering
-            )
+        self.hierarchy = scipy.cluster.hierarchy.linkage(
+            self.metric(self.data),
+            method=method,
+            optimal_ordering=optimal_ordering
+        )
 
         self.log.debug("Done")
 
@@ -95,6 +110,16 @@ class HierarchyCluster(Cluster):
         )
 
         return clusters
+
+    def _select_bpoints(self, **kwargs):
+        """ Select one benchmark point for each cluster.
+
+        Args:
+            data: Data object
+            column: Column to write to (True if is benchmark point, False other
+                sise)
+        """
+        raise NotImplementedError
 
     def dendrogram(
             self,

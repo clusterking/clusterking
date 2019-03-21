@@ -280,7 +280,7 @@ class DataWithErrors(Data):
         self.add_rel_err_corr(err, corr)
 
     # -------------------------------------------------------------------------
-    # Other forms of errosr
+    # Other forms of errors
     # -------------------------------------------------------------------------
 
     def add_err_poisson(self):

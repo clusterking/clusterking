@@ -19,14 +19,6 @@ class Data(DFMD):
     # **************************************************************************
 
     @property
-    def was_scanned(self):
-        return "scan" in self.md
-
-    @property
-    def was_clustered(self):
-        return "cluster" in self.md
-
-    @property
     def bin_cols(self):
         columns = list(self.df.columns)
         # todo: more general?

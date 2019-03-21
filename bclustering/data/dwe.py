@@ -115,18 +115,18 @@ class DataWithErrors(Data):
     # **************************************************************************
 
     # Note: Overrides inherited method from data.
-    def data(self, normalize=False, decorrelate=False):
+    def data(self, decorrelate=False, **kwargs):
         """ Return data matrix
 
         Args:
-            normalize: Normalize data before returning it
             decorrelate: Unrotate the correlation matrix to return uncorrelated
                 data entries
+            **kwargs: Any keyword argument to Data.data()
 
         Returns:
             self.n x self.nbins array
         """
-        ret = super().data(normalize)
+        ret = super().data(**kwargs)
 
         if decorrelate:
             inverses = np.linalg.inv(self.corr())

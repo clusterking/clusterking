@@ -17,7 +17,10 @@ class ColorScheme(object):
 
         self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
 
-        self.clusters = list(clusters)
+        if clusters:
+            self.clusters = list(clusters)
+        else:
+            self.clusters = []
 
         self.cluster_colors = [
             "red",
@@ -54,6 +57,7 @@ class ColorScheme(object):
 
         pick_list = getattr(self, listname)
 
+        # fixme: this should only be displayed once!
         if index > len(pick_list):
             self.log.warning(
                 "Not enough elements in self.{}. Some clusters might end up"

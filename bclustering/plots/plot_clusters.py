@@ -63,6 +63,11 @@ class ClusterPlot(object):
         #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
 
+        self.bpoint_column = "bpoint"
+
+        self.default_marker_size = 1/2 * matplotlib.rcParams['lines.markersize'] ** 2
+        self.bpoint_marker_size = 6 * self.default_marker_size
+
         #: Set to true to see debug messages
         self.debug = False
 
@@ -132,6 +137,10 @@ class ClusterPlot(object):
                            "subsampling = {}".format(len(df_dofs)))
 
         self._df_dofs = df_dofs
+
+    @property
+    def _has_bpoints(self):
+        return self.bpoint_column in self.data.df.columns
 
     @property
     def _dofs(self):
@@ -305,11 +314,33 @@ class ClusterPlot(object):
                 for col in self._dofs:
                     df_cluster = df_cluster[df_cluster[col] ==
                                             self._df_dofs.iloc[isubplot][col]]
+
+                if self._has_bpoints:
+                    df_cluster_no_bp = df_cluster[
+                        df_cluster[self.bpoint_column] == False
+                    ]
+                    df_cluster_bp = df_cluster[
+                        df_cluster[self.bpoint_column] == True
+                    ]
+                else:
+                    df_cluster_no_bp = df_cluster
+                    df_cluster_bp = pd.DataFrame()
+                # df_cluster_non_bpoint = df_cluster[]]
+
                 self._axli[isubplot].scatter(
-                    *[df_cluster[col] for col in self._axis_columns],
+                    *[df_cluster_no_bp[col] for col in self._axis_columns],
                     color=self.color_scheme.get_cluster_color(cluster),
                     marker=self.markers[cluster-1 % len(self.markers)],
-                    label=cluster
+                    label=cluster,
+                    s=self.default_marker_size
+                )
+
+                self._axli[isubplot].scatter(
+                    *[df_cluster_bp[col] for col in self._axis_columns],
+                    color=self.color_scheme.get_cluster_color(cluster),
+                    marker=self.markers[cluster-1 % len(self.markers)],
+                    label=cluster,
+                    s=self.bpoint_marker_size
                 )
 
         self._add_legend()

@@ -35,21 +35,14 @@ class Cluster(object):
         """ Performs the clustering.
         This method is a wrapper around the _cluster implementation in the
         subclasses. See there for additional arguments.
-
-        Args:
-            data: Data object
-            column: Column to which the get_clusters should be appended.
-
-        Returns:
-            None
         """
         self.log.info("Performing clustering.")
 
         self.md["cluster_args"] = kwargs
 
-        clusters = self._cluster(**kwargs)
+        self.clusters = self._cluster(**kwargs)
 
-        n_clusters = len(set(clusters))
+        n_clusters = len(set(self.clusters))
         self.log.info(
             "Clustering resulted in {} get_clusters.".format(n_clusters)
         )

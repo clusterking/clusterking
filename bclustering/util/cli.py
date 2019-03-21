@@ -70,6 +70,7 @@ def handle_overwrite(paths, behavior, log):
         return True
     return False
 
+
 if __name__ == "__main__":
     # for testing
     ans = yn_prompt("This is a test.")

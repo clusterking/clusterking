@@ -3,8 +3,6 @@
 # std
 import unittest
 
-# 3rd
-
 # ours
 from bclustering.maths.metric import *
 from bclustering.util.testing import MyTestCase

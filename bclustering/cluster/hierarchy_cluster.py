@@ -9,10 +9,12 @@ import functools
 import scipy.cluster
 import matplotlib.pyplot as plt
 import scipy.spatial
+import numpy as np
 
 # ours
 from bclustering.cluster.cluster import Cluster
 from bclustering.util.metadata import failsafe_serialize
+from bclustering.maths.metric import uncondense_distance_matrix
 
 
 # todo: Function to save/load hierarchy?
@@ -81,7 +83,7 @@ class HierarchyCluster(Cluster):
 
         self.log.debug("Done")
 
-    def _cluster(self, data, max_d=0.2, **kwargs):
+    def _cluster(self, max_d=0.2, **kwargs):
         """Performs the actual clustering
         Args:
             max_d:
@@ -120,7 +122,16 @@ class HierarchyCluster(Cluster):
             column: Column to write to (True if is benchmark point, False other
                 sise)
         """
-        raise NotImplementedError
+        m = np.sum(uncondense_distance_matrix(self.metric(self.data)), axis=1)
+        result = np.full(self.data.n, False)
+        for cluster in set(self.clusters):
+            # The indizes of all wpoints that are in the current cluster
+            indizes = np.argwhere(self.clusters == cluster).squeeze()
+            # The index of the wpoint of the current cluster that has the lowest
+            # sum of distances to all other elements in the same cluster
+            index_minimal = indizes[np.argmin(m[indizes])]
+            result[index_minimal] = True
+        return result
 
     def dendrogram(
             self,

@@ -21,7 +21,7 @@ class Cluster(object):
 
         self.data = data
         self.clusters = None
-        self.bpoints = None
+        # self.bpoints = None
 
         #: Metadata
         self.md = nested_dict()
@@ -50,8 +50,6 @@ class Cluster(object):
 
         self.log.info("Done")
 
-    def select_bpoints(self, **kwargs):
-        self.bpoints = self._select_bpoints(**kwargs)
 
     def _cluster(self, **kwargs):
         """ Implementation of the clustering. Should return an array-like object
@@ -59,15 +57,9 @@ class Cluster(object):
         """
         raise NotImplementedError
 
-    def _select_bpoints(self, **kwargs):
-        self.md["select_bpoints_args"] = kwargs
-        raise NotImplementedError
-
     # todo: overwrite argument?
-    def write(self, name="cluster"):
+    def write(self, cluster_column="cluster"):
         """ Write results back in data object. """
-        self.data.df[name] = self.clusters
-        self.data.md["cluster"][name] = self.md
-        self.data.rename_clusters(column=name)
-        if self.bpoints is not None:
-            self.data.df[name + "_bp"] = self.bpoints
+        self.data.df[cluster_column] = self.clusters
+        self.data.md["cluster"][cluster_column] = self.md
+        self.data.rename_clusters(column=cluster_column)

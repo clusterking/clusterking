@@ -3,6 +3,8 @@
 # 3rd
 import numpy as np
 import scipy.spatial
+import functools
+from typing import Callable
 
 # ours
 from bclustering.data.dwe import DataWithErrors
@@ -30,6 +32,30 @@ def uncondense_distance_matrix(vector):
         n x n symmetric matrix with 0 diagonal
     """
     return scipy.spatial.distance.squareform(vector)
+
+
+def metric_selection(*args, **kwargs):
+    if len(args) == 0:
+        # default
+        args = ['euclidean']
+    if isinstance(args[0], str):
+        # The user can specify any of the metrics from
+        # scipy.spatial.distance.pdist by name and supply additional
+        # values
+        return lambda data: scipy.spatial.distance.pdist(
+            data.data(),
+            args[0],
+            *args[1:],
+            **kwargs
+        )
+    elif isinstance(args[0], Callable):
+        # Assume that this is a function that takes DWE or Data as first
+        # argument
+        return functools.partial(args[0], *args[1:], **kwargs)
+    else:
+        raise ValueError(
+            "Invalid type of first argument: {}".format(type(args[0]))
+        )
 
 
 # todo: unittest

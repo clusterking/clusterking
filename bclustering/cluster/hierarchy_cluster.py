@@ -3,18 +3,16 @@
 # std
 import pathlib
 from typing import Union, Callable
-import functools
 
 # 3rd
 import scipy.cluster
 import matplotlib.pyplot as plt
 import scipy.spatial
-import numpy as np
 
 # ours
 from bclustering.cluster.cluster import Cluster
 from bclustering.util.metadata import failsafe_serialize
-from bclustering.maths.metric import uncondense_distance_matrix
+from bclustering.maths.metric import  metric_selection
 
 
 # todo: Function to save/load hierarchy?
@@ -32,27 +30,7 @@ class HierarchyCluster(Cluster):
     def set_metric(self, *args, **kwargs) -> None:
         self.md["metric"]["args"] = failsafe_serialize(args)
         self.md["metric"]["kwargs"] = failsafe_serialize(kwargs)
-        if len(args) == 0:
-            # default
-            args = ['euclidean']
-        if isinstance(args[0], str):
-            # The user can specify any of the metrics from
-            # scipy.spatial.distance.pdist by name and supply additional
-            # values
-            self.metric = lambda data: scipy.spatial.distance.pdist(
-                data.data(),
-                args[0],
-                *args[1:],
-                **kwargs
-            )
-        elif isinstance(args[0], Callable):
-            # Assume that this is a function that takes DWE or Data as first
-            # argument
-            self.metric = functools.partial(args[0], *args[1:], **kwargs)
-        else:
-            raise ValueError(
-                "Invalid type of first argument: {}".format(type(args[0]))
-            )
+        self.metric = metric_selection(*args, **kwargs)
 
     def build_hierarchy(self, method="complete", optimal_ordering=False) -> None:
         """ Build the hierarchy object.
@@ -113,30 +91,6 @@ class HierarchyCluster(Cluster):
         )
 
         return clusters
-
-    def _select_bpoints(self, **kwargs):
-        """ Select one benchmark point for each cluster.
-
-        Args:
-            data: Data object
-            column: Column to write to (True if is benchmark point, False other
-                sise)
-        """
-        result = np.full(self.data.n, False)
-        for cluster in set(self.clusters):
-            # The indizes of all wpoints that are in the current cluster
-            indizes = np.argwhere(self.clusters == cluster).squeeze()
-            # A data object with only these wpoints
-            d_cut = type(self.data)(
-                df=self.data.df.iloc[indizes],
-                md=self.data.md
-            )
-            m = np.sum(uncondense_distance_matrix(self.metric(d_cut)), axis=1)
-            # The index of the wpoint of the current cluster that has the lowest
-            # sum of distances to all other elements in the same cluster
-            index_minimal = indizes[np.argmin(m)]
-            result[index_minimal] = True
-        return result
 
     def dendrogram(
             self,

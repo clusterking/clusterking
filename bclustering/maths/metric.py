@@ -8,14 +8,29 @@ import scipy.spatial
 from bclustering.data.dwe import DataWithErrors
 
 
-# todo: unittest
 def condense_distance_matrix(matrix):
-    # matrix[np.triu_indices(len(matrix), k=1)]
+    """ Convert a square-form distance matrix  to a vector-form distance vector
+
+    Args:
+        matrix: n x n symmetric matrix with 0 diagonal
+
+    Returns:
+        n choose 2 vector
+    """
     return scipy.spatial.distance.squareform(matrix)
 
 
 def uncondense_distance_matrix(vector):
+    """ Convert a vector-form distance vector to a square-form distance matrix
+
+    Args:
+        vector: n choose 2 vector
+
+    Returns:
+        n x n symmetric matrix with 0 diagonal
+    """
     return scipy.spatial.distance.squareform(vector)
+
 
 # todo: unittest
 def chi2_metric(dwe: DataWithErrors, output='condensed'):

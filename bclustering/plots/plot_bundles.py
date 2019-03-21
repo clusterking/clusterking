@@ -55,6 +55,8 @@ class BundlePlot(object):
         #: Name of the column holding the cluster number
         self.cluster_column = "cluster"
 
+        self.bpoint_column = "bpoint"
+
         #: Color scheme
         self.color_scheme = ColorScheme(self.clusters)
 
@@ -64,10 +66,14 @@ class BundlePlot(object):
         self.ax = None
 
     @property
+    def _has_bpoints(self):
+        return self.bpoint_column in self.data.df.columns
+
+    @property
     def clusters(self):
         return self.data.clusters(cluster_column=self.cluster_column)
 
-    def filter_clusters(self, clusters):
+    def _filter_clusters(self, clusters):
         clusters = list(set(clusters))
         selection = [c for c in clusters if c in self.clusters]
         removed = [c for c in clusters if c not in self.clusters]
@@ -80,7 +86,14 @@ class BundlePlot(object):
             )
         return selection
 
-    def get_df_cluster(self, cluster: int) -> pd.DataFrame:
+    def _interpret_cluster_input(self, clusters):
+        if isinstance(clusters, int):
+            clusters = [clusters]
+        if not clusters:
+            clusters = self.clusters
+        return self._filter_clusters(clusters)
+
+    def _get_df_cluster(self, cluster: int) -> pd.DataFrame:
         """ Return only the rows corresponding to one cluster in the 
         dataframe and only the columns that correspond to the bins. 
         
@@ -111,7 +124,7 @@ class BundlePlot(object):
 
         linestyles = ['-', '--', '-.', ':']
 
-        df_cluster = self.get_df_cluster(cluster)
+        df_cluster = self._get_df_cluster(cluster)
         if len(df_cluster) < nlines:
             self.log.warning(
                 "Not enough rows for cluster {} "
@@ -147,11 +160,7 @@ class BundlePlot(object):
         Returns:
             None
         """
-        if isinstance(clusters, int):
-            clusters = [clusters]
-        if not clusters:
-            clusters = self.clusters
-        clusters = self.filter_clusters(clusters)
+        clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -177,7 +186,7 @@ class BundlePlot(object):
         Returns:
             None
         """
-        df_cluster = self.get_df_cluster(cluster)
+        df_cluster = self._get_df_cluster(cluster)
         maxima = list(df_cluster.max().values)
         minima = list(df_cluster.min().values)
 
@@ -213,11 +222,7 @@ class BundlePlot(object):
         Returns:
             None
         """
-        if not clusters:
-            clusters = self.clusters
-        if isinstance(clusters, int):
-            clusters = [clusters]
-        clusters = self.filter_clusters(clusters)
+        clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(
@@ -246,7 +251,7 @@ class BundlePlot(object):
         Returns:
             None
         """
-        df_cluster = self.get_df_cluster(cluster)
+        df_cluster = self._get_df_cluster(cluster)
         data = df_cluster.values
 
         color = self.color_scheme.get_cluster_color(cluster)
@@ -278,11 +283,7 @@ class BundlePlot(object):
                 (interquartile range, containing 50% of all values). Default 
                 2.5.
         """
-        if not clusters:
-            clusters = self.clusters
-        if isinstance(clusters, int):
-            clusters = [clusters]
-        clusters = self.filter_clusters(clusters)
+        clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
             ax.set_title(

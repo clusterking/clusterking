@@ -17,7 +17,7 @@ class ColorScheme(object):
 
         self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
 
-        if clusters:
+        if clusters is not None:
             self.clusters = list(clusters)
         else:
             self.clusters = []

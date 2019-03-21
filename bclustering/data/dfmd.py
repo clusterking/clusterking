@@ -311,4 +311,3 @@ class DFMD(object):
         handle_overwrite([df_path, md_path], behavior=overwrite, log=self.log)
         self.write_df(df_path, overwrite="overwrite")
         self.write_md(md_path, overwrite="overwrite")
-

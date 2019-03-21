@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 # ours
-from bclustering.dfmd import DFMD
+from bclustering.data.dfmd import DFMD
 
 
 # todo: disable logging output

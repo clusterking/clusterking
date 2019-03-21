@@ -3,10 +3,12 @@
 # std
 import os
 import pathlib
+import unittest
 
 # 3rd party
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
+import numpy as np
 
 ENV_VAR_TESTING_MODE = "B_decays_clustering_TESTMODE"
 
@@ -54,3 +56,17 @@ def test_jupyter_notebook(path) -> None:
     except Exception as e:
         set_testing_mode(False)
         raise e
+
+
+class MyTestCase(unittest.TestCase):
+    """ Implements an additional general testing methods. """
+
+    def assertAllClose(self, a, b):
+        """ Compares two numpy arrays """
+        if not isinstance(a, np.ndarray):
+            a = np.array(a)
+        if not isinstance(b, np.ndarray):
+            b = np.array(b)
+        self.assertTrue(np.allclose(
+            a, b
+        ))

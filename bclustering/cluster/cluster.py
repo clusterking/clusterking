@@ -69,5 +69,5 @@ class Cluster(object):
         self.data.df[name] = self.clusters
         self.data.md["cluster"][name] = self.md
         self.data.rename_clusters(column=name)
-        if self.bpoints:
+        if self.bpoints is not None:
             self.data.df[name + "_bp"] = self.bpoints

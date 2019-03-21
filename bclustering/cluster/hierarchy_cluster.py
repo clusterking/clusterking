@@ -122,14 +122,19 @@ class HierarchyCluster(Cluster):
             column: Column to write to (True if is benchmark point, False other
                 sise)
         """
-        m = np.sum(uncondense_distance_matrix(self.metric(self.data)), axis=1)
         result = np.full(self.data.n, False)
         for cluster in set(self.clusters):
             # The indizes of all wpoints that are in the current cluster
             indizes = np.argwhere(self.clusters == cluster).squeeze()
+            # A data object with only these wpoints
+            d_cut = type(self.data)(
+                df=self.data.df.iloc[indizes],
+                md=self.data.md
+            )
+            m = np.sum(uncondense_distance_matrix(self.metric(d_cut)), axis=1)
             # The index of the wpoint of the current cluster that has the lowest
             # sum of distances to all other elements in the same cluster
-            index_minimal = indizes[np.argmin(m[indizes])]
+            index_minimal = indizes[np.argmin(m)]
             result[index_minimal] = True
         return result
 

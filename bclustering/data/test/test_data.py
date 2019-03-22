@@ -26,6 +26,8 @@ class TestData(MyTestCase):
             Data(self.ddir, self.dname).data(),
             self.data
         )
+
+    def test_data_normed(self):
         self.assertAllClose(
             Data(self.ddir, self.dname).data(normalize=True),
             [[1/3, 2/3], [4/9, 5/9]]

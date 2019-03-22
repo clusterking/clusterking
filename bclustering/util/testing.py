@@ -67,6 +67,8 @@ class MyTestCase(unittest.TestCase):
             a = np.array(a)
         if not isinstance(b, np.ndarray):
             b = np.array(b)
-        self.assertTrue(np.allclose(
+        almost_same = (np.allclose(
             a, b
         ))
+        if not almost_same:
+            self.assertTrue(False, "Not the same: {} and {}.".format(a, b))

@@ -48,7 +48,8 @@ class Data(DFMD):
     def data(self, normalize=False):
         data = self.df[self.bin_cols].values
         if normalize:
-            return data / np.sum(data, axis=1)
+            # Reshaping here is important!
+            return data / np.sum(data, axis=1).reshape((self.n, 1))
         else:
             return data
 

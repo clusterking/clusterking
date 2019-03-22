@@ -16,7 +16,19 @@ class TestDataWithErrors(MyTestCase):
     def setUp(self):
         self.ddir = Path(__file__).parent / "data"
         self.dname = "test_scan"
-        self.data = [[100, 200], [400, 500]]
+        self.data = [[100., 200.], [400., 500.]]
+
+    def test_empty(self):
+        dwe = DataWithErrors(self.ddir, self.dname)
+        self.assertEqual(
+            dwe.abs_cov.shape,
+            (2, 2)
+        )
+        self.assertAllClose(
+            dwe.rel_cov,
+            np.zeros((2, 2))
+        )
+        self.assertFalse(dwe.poisson_errors)
 
     def test_data(self):
         dwe = DataWithErrors(self.ddir, self.dname)
@@ -42,7 +54,7 @@ class TestDataWithErrors(MyTestCase):
     def test_add_err_cov(self):
         dwe = DataWithErrors(self.ddir, self.dname)
         # Equal for all data points
-        cov = [[4, 4], [4, 16]]
+        cov = [[4., 4.], [4., 16.]]
         dwe.add_err_cov(cov)
         self.assertAllClose(
             dwe.cov(),
@@ -50,32 +62,11 @@ class TestDataWithErrors(MyTestCase):
         )
         self.assertAllClose(
             dwe.corr(),
-            [[1, 1/2], [1/2, 1]]
+            [[1., 1/2], [1/2, 1.]]
         )
         self.assertAllClose(
             dwe.err(),
-            [2, 4]
-        )
-        # Different
-        cov = [
-            [[4, 4], [4, 16]],
-            [[9, 0], [0, 1]]
-        ]
-        dwe = DataWithErrors(self.ddir, self.dname)
-        dwe.add_err_cov(cov)
-        self.assertAllClose(
-            dwe.corr(),
-            [
-                [[1, 1/2], [1/2, 1]],
-                [[1, 0], [0, 1]]
-            ]
-        )
-        self.assertAllClose(
-            dwe.err(),
-            [
-                [2, 4],
-                [3, 1]
-            ]
+            [2., 4.]
         )
 
     def test_add_err_corr(self):
@@ -87,8 +78,8 @@ class TestDataWithErrors(MyTestCase):
         )
 
         corr = [
-            [[1, 0.32], [0.4, 1]],
-            [[1, 0.1], [0.5, 1]]
+            [1., 0.32],
+            [0.4, 1.],
         ]
         dwe = DataWithErrors(self.ddir, self.dname)
         dwe.add_err_corr(1., corr)
@@ -102,7 +93,7 @@ class TestDataWithErrors(MyTestCase):
         )
 
         dwe = DataWithErrors(self.ddir, self.dname)
-        err = [[1.52, 2.34], [3.87, 4.56]]
+        err = [1.52, 2.34]
         dwe.add_err_corr(err, corr)
         self.assertAllClose(
             dwe.err(),

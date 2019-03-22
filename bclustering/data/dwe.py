@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+
 # 3rd
 import numpy as np
 
@@ -51,13 +53,13 @@ class DataWithErrors(Data):
 
     @property
     def abs_cov(self):
-        value = np.array(self.md["errors"]["abs_cov"])
+        value = self.md["errors"]["abs_cov"]
         if value is None:
             if self.nbins:
                 return np.zeros((self.nbins, self.nbins))
             else:
                 return None
-        return value
+        return np.array(value)
 
     @abs_cov.setter
     def abs_cov(self, value):
@@ -145,8 +147,7 @@ class DataWithErrors(Data):
         """
 
         data = self.data()
-        cov = np.array((self.n, self.nbins, self.nbins))
-        cov += np.tile(self.abs_cov, (self.n, 1, 1))
+        cov = np.tile(self.abs_cov, (self.n, 1, 1))
         cov += np.tile(self.rel_cov, (self.n, 1, 1)) * data
 
         if not relative:

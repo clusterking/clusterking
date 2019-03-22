@@ -31,7 +31,7 @@ class ColorScheme(object):
             "pink"
         ]
 
-    def _get_index(self, cluster, listname):
+    def _get_cluster_color(self, cluster, listname):
         """ Try to pick a unique element of a list corresponding to cluster.
         
         Args:
@@ -76,4 +76,4 @@ class ColorScheme(object):
         Returns:
             Color as something that matplotlib understands.
         """
-        return self._get_index(cluster, "cluster_colors")
+        return self._get_cluster_color(cluster, "cluster_colors")

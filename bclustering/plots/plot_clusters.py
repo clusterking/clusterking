@@ -283,7 +283,9 @@ class ClusterPlot(object):
         self._axis_columns = cols
         if not self._clusters:
             self._clusters = list(self.data.df[self.cluster_column].unique())
-        self.color_scheme = ColorScheme(self._clusters)
+        # Careful: Use the real number of clusters when initializing the
+        # color scheme!
+        self.color_scheme = ColorScheme(self.data.clusters(self.cluster_column))
         self._find_dofs()
         self._setup_subplots()
 

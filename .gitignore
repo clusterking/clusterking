@@ -2,6 +2,7 @@
 # ===================
 
 doc/_build/**
+doc/_themes
 
 # python cache files
 # ==================

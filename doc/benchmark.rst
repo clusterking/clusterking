@@ -9,7 +9,7 @@
   :undoc-members:
 
 ``Benchmark``
------------
+-------------
 
 .. autoclass:: bclustering.bpoints.Benchmark
   :members:

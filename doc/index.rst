@@ -24,6 +24,8 @@ Documentation of modules
   cluster
   benchmark
   plots
+  maths
+  util
 
 Indices and tables
 ==================

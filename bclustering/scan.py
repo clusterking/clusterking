@@ -89,7 +89,7 @@ class Scanner(object):
     
         # Set function and binning
         s.set_dfunction(
-           functools.partial(flavio.np_prediction, "dBR/dq2(B+->Dtaunu)"),
+            functools.partial(flavio.np_prediction, "dBR/dq2(B+->Dtaunu)"),
             binning=np.linspace(3.15, bdlnu.q2max, 11.66),
             normalize=True
         )

@@ -1,4 +1,4 @@
-``bclustering.plots``
+``Plots``
 =====================
 
 ``ClusterPlot``

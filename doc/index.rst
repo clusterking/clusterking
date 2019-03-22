@@ -19,8 +19,11 @@ Documentation of modules
 .. toctree::
   :maxdepth: 2
 
-  bclustering
-  bclustering.plots
+  data
+  scanner
+  cluster
+  benchmark
+  plots
 
 Indices and tables
 ==================

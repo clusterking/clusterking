@@ -125,8 +125,12 @@ todo_include_todos = True
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["_themes"]
 
-if "sphinx_rtd_theme" in os.listdir(html_theme_path[0]):
-    html_theme = "sphinx_rtd_theme"
+for path in html_theme_path:
+    if not os.path.exists(path):
+        continue
+    if "sphinx_rtd_theme" in os.listdir(path):
+        html_theme = "sphinx_rtd_theme"
+        break
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

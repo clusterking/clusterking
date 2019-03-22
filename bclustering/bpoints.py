@@ -16,6 +16,13 @@ from bclustering.maths.metric import uncondense_distance_matrix, metric_selectio
 
 class AbstractBenchmark(object):
     def __init__(self, data: Data):
+        """Subclass this class to implement algorithms to choose benchmark
+        points from all the points (in parameter space) that correspond to one
+        cluster.
+
+        Args:
+            data: Data object
+        """
         self.data = data
         self.bpoints = None
         self.md = nested_dict()
@@ -23,6 +30,8 @@ class AbstractBenchmark(object):
 
     @property
     def cluster_column(self):
+        """ The column from which we read the cluster information.
+        Defaults to 'cluster'. """
         value = self.md["cluster_column"]
         if not value:
             value = "cluster"
@@ -36,42 +45,76 @@ class AbstractBenchmark(object):
     def _clusters(self):
         return self.data.df[self.cluster_column]
 
-    def select_bpoints(self, *args, **kwargs):
-        self.md["select_bpoints_args"] = failsafe_serialize(args)
-        self.md["select_bpoints_kwargs"] = failsafe_serialize(kwargs)
-        self.bpoints = self._select_bpoints(*args, **kwargs)
+    def select_bpoints(self) -> None:
+        """ Select one benchmark point for each cluster.
+        """
+        self.bpoints = self._select_bpoints()
 
-    def _select_bpoints(self, *args, **kwargs):
+    def _select_bpoints(self, *args, **kwargs) -> np.ndarray:
         raise NotImplementedError
 
-    def write(self, bpoint_column="bpoint"):
+    def write(self, bpoint_column="bpoint") -> None:
+        """ Write benchmark points to a column in the dataframe of the data
+        object.
+
+        Args:
+            bpoint_column: Column to write to
+
+        Returns:
+            None
+        """
         self.data.df[bpoint_column] = self.bpoints
         self.data.md["bpoint"][bpoint_column] = self.md
 
 
 # todo: test this
 class Benchmark(AbstractBenchmark):
+    """ Selecting benchmarks based on a figure of merit that is calculated
+    with the metric. You have to use ``Benchmark.set_metric`` to specify
+    the metric (as for the ``HierarchyCluster`` class).
+    The default case for the figure of merit ("sum") chooses the point as
+    benchmark point that minimizes the sum of all distances to all other
+    points in the same cluster (where "distance" of course is with respect
+    to the metric).
+    """
     def __init__(self, data):
+        """
+        Args:
+            data: Data object
+        """
         super().__init__(data)
         self.metric = None
         self.fom = lambda x: np.sum(x, axis=1)
 
+    # Docstring set below
     def set_metric(self, *args, **kwargs) -> None:
         self.md["metric"]["args"] = failsafe_serialize(args)
         self.md["metric"]["kwargs"] = failsafe_serialize(kwargs)
         self.metric = metric_selection(*args, **kwargs)
 
-    def set_fom(self, fct: Callable, *args, **kwargs):
-        self.fom = functools.partial(fct, *args, **kwargs)
+    set_metric.__doc__ = metric_selection.__doc__
 
-    def _select_bpoints(self, **kwargs):
-        """ Select one benchmark point for each cluster.
+    def set_fom(self, fct: Callable, *args, **kwargs) -> None:
+        """ Set a figure of merit. The default case for the figure of merit (
+        "sum") chooses the point as benchmark point that minimizes the sum of
+        all distances to all other points in the same cluster (where
+        "distance" of course is with respect to the metric). In general we
+        choose the point that minimizes ``self.fom(<metric>)``, i.e. the default
+        case corresponds to ``self.fom = lambda x: np.sum(x, axis=1)``, which
+        you could have also set by calling ``self.set_com(np.sum, axis=1)``.
 
         Args:
-            data: Data object
-            column: Column to write to (True if is benchmark point, False other
-                sise)
+            fct: Function that takes the metric as first argument
+            *args: Positional arguments that are added to the positional
+                arguments of ``fct`` after the metric
+            **kwargs: Keyword arguments for the function
+
+        Returns:
+            None
         """
+        self.fom = lambda metric: fct(metric, *args, **kwargs)
+
+    def _select_bpoints(self):
         if self.metric is None:
             self.log.error(
                 "Metric not set. please run self.set_metric or set "

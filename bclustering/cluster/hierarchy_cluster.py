@@ -27,10 +27,13 @@ class HierarchyCluster(Cluster):
         #: a condensed distance matrix.
         self.metric = None  # type: Callable
 
+    # Docstring set below
     def set_metric(self, *args, **kwargs) -> None:
         self.md["metric"]["args"] = failsafe_serialize(args)
         self.md["metric"]["kwargs"] = failsafe_serialize(kwargs)
         self.metric = metric_selection(*args, **kwargs)
+
+    set_metric.__doc__ = metric_selection.__doc__
 
     def build_hierarchy(self, method="complete", optimal_ordering=False) -> None:
         """ Build the hierarchy object.

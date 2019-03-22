@@ -25,13 +25,15 @@ from bclustering.plots.colors import ColorScheme
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: option to disable legend
 class ClusterPlot(object):
-    """ Plot get_clusters!
+    """ Plot clusters in parameter space.
 
     After initialization, use the 'scatter' or 'fill' method for plotting.
-    See docstrings there for more instructions.
+
+    You can modify the attributes of this class to tweak some properties
+    of the plots.
 
     Args:
-        data:
+        data: Data object
     """
     def __init__(self, data):
         #: logging.Logger object
@@ -63,6 +65,7 @@ class ClusterPlot(object):
         #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
 
+        #: The name of the column that holds the benchmark yes/no information
         self.bpoint_column = "bpoint"
 
         #: Default marker size
@@ -94,7 +97,7 @@ class ClusterPlot(object):
 
     @property
     def fig(self):
-        """ The figure """
+        """ The figure. """
         return self._fig
 
     # ==========================================================================

@@ -20,32 +20,51 @@ class Data(DFMD):
 
     @property
     def bin_cols(self):
+        """ All columns that correspond to the bins of the
+        distribution. This is automatically read from the
+        metadata as set in e.g. the Scan.run. """
         columns = list(self.df.columns)
         # todo: more general?
         return [c for c in columns if c.startswith("bin")]
 
     @property
     def par_cols(self):
+        """ All columns that correspond to the parameters (e.g. Wilso
+        parameters). This is automatically read from the
+        metadata as set in e.g. the Scan.run.
+        """
         return self.md["scan"]["wpoints"]["coeffs"]
 
     @property
     def n(self):
+        """ Number of points in parameter space that were sampled. """
         return len(self.df)
 
     @property
     def nbins(self):
+        """ Number of bins of the distribution. """
         return len(self.bin_cols)
 
     @property
     def npars(self):
+        """ Number of parameters that were sampled (i.e. number of dimensions
+        of the sampled parameter space.
+        """
         return len(self.par_cols)
 
     # **************************************************************************
     # Returning things
     # **************************************************************************
 
-    # todo: doc
-    def data(self, normalize=False):
+    def data(self, normalize=False) -> np.ndarray:
+        """ Returns all histograms as a large matrix.
+
+        Args:
+            normalize: Normalize all histograms
+
+        Returns:
+            numpy.ndarray of shape self.n x self.nbins
+        """
         data = self.df[self.bin_cols].values
         if normalize:
             # Reshaping here is important!
@@ -53,8 +72,13 @@ class Data(DFMD):
         else:
             return data
 
-    # todo: doc
     def norms(self):
+        """ Returns a vector of all normalizations of all histograms (where
+        each histogram corresponds to one sampled point in parameter space).
+
+        Returns:
+            numpy.ndarray of shape self.n
+        """
         return np.sum(self.data(), axis=1)
 
     def clusters(self, cluster_column="cluster"):

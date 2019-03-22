@@ -70,7 +70,7 @@ class Scanner(object):
     .. code-block:: python
 
         import flavio
-        from bclustering.scan import Scanner
+        from bclustering import Scanner, Data
 
         # Initialize Scanner object
         s = Scanner()
@@ -93,12 +93,12 @@ class Scanner(object):
             binning=np.linspace(3.15, bdlnu.q2max, 11.66),
             normalize=True
         )
-    
-        # Start running with maximally 3 cores
-        s.run(no_workers=3)
-    
-        # Write out results
-        s.write("output/scan", "test_output")
+
+        # Initialize a Data objects to write to
+        d = Data()
+
+        # Start running with maximally 3 cores and write the results to Data
+        s.run(d)
 
     """
 
@@ -106,7 +106,7 @@ class Scanner(object):
     # A:  Setup
     # **************************************************************************
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.log = get_logger("Scanner")
 
         #: Points in wilson space
@@ -182,16 +182,21 @@ class Scanner(object):
         """ Set a grid of points in wilson space.
 
         Args:
-            values: {
-                    <wilson coeff name>: [
-                        value1,
-                        value2,
-                        ...
-                    ]
-                }
-            scale: <Wilson coeff input scale in GeV>
-            eft: <Wilson coeff input eft>
-            basis: <Wilson coeff input basis>
+            values: A dictionary of the following form:
+
+                .. code-block:: python
+
+                    {
+                        <wilson coeff name>: [
+                            value1,
+                            value2,
+                            ...
+                        ]
+                    }
+
+            scale: Wilson coeff input scale in GeV
+            eft: Wilson coeff input eft
+            basis: Wilson coeff input basis
         """
 
         # Important to remember the order now, because of what we do next.
@@ -235,13 +240,18 @@ class Scanner(object):
         """ Set a list of 'equidistant' points in wilson space.
 
         Args:
-            ranges: {
-                <wilson coeff name>: (
-                    <Minimum of wilson coeff>,
-                    <Maximum of wilson coeff>,
-                    <Number of bins between min and max>,
-                )
-            }
+            ranges: A dictionary of the following form:
+
+                .. code-block:: python
+
+                    {
+                        <wilson coeff name>: (
+                            <Minimum of wilson coeff>,
+                            <Maximum of wilson coeff>,
+                            <Number of bins between min and max>,
+                        )
+                    }
+
             scale: <Wilson coeff input scale in GeV>,
             eft: <Wilson coeff input eft>,
             basis: <Wilson coeff input basis>
@@ -275,6 +285,7 @@ class Scanner(object):
         self.df.
 
         Args:
+            data: Data object.
             no_workers: Number of worker nodes/cores. Default: Total number of
                 cores.
         """

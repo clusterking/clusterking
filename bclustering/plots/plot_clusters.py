@@ -65,15 +65,17 @@ class ClusterPlot(object):
 
         self.bpoint_column = "bpoint"
 
-        self.default_marker_size = 1/2 * matplotlib.rcParams['lines.markersize'] ** 2
+        #: Default marker size
+        self.default_marker_size = \
+            1/2 * matplotlib.rcParams['lines.markersize'] ** 2
+        #: Marker size of benchmark points
         self.bpoint_marker_size = 6 * self.default_marker_size
 
+        #: If true, a legend is drawn
         self.draw_legend = True
 
-        #: Set to true to see debug messages
-        self.debug = False
-
-        # internal values: Do not modify
+        # Internal values: Do not modify
+        # ----------------------------------------------------------------------
 
         # Names of the columns to be on the axes of
         # the plot.
@@ -86,20 +88,57 @@ class ClusterPlot(object):
         self._fig = None
         self._axs = None
 
+    # ==========================================================================
+    # User access via property
+    # ==========================================================================
+
     @property
     def fig(self):
+        """ The figure """
         return self._fig
 
-    def savefig(self, *args, **kwargs):
-        """ Equivalent to ClusterPlot.fig.savefig(*args, **kwargs): Saves
-        figure to file, e.g. ClusterPlot.savefig("test.pdf"). """
-        self._fig.savefig(*args, **kwargs)
+    # ==========================================================================
+    # Quick access of simple logic
+    # ==========================================================================
 
     @property
     def _axli(self):
         """Note: axs contains all axes (subplots) as a 2D grid, axsli contains
         the same objects but as a simple list (easier to iterate over)"""
         return self._axs.flatten()
+
+    @property
+    def _has_bpoints(self):
+        """ True if we have benchmark points. """
+        return self.bpoint_column in self.data.df.columns
+
+    @property
+    def _dofs(self):
+        """ Column names of the degrees of freedom. """
+        return list(self._df_dofs.columns)
+
+    @property
+    def _nsubplots(self):
+        """ Number of subplots. """
+        # +1 to have space for legend!
+        return max(1, len(self._df_dofs)) + int(self.draw_legend)
+
+    @property
+    def _ncols(self):
+        """ Number of columns of the subplot grid. """
+        return min(self.max_cols, self._nsubplots)
+
+    @property
+    def _nrows(self):
+        """ Number of rows of the subplot grid. """
+        # the ``int`` technically does not make a difference, but pycharm
+        # thinks that ``ceil`` returns floats and therefore complains
+        # otherwise
+        return int(ceil(self._nsubplots / self._ncols))
+
+    # ==========================================================================
+    # Helper functions
+    # ==========================================================================
 
     def _find_dofs(self):
         """ Find all relevant wilson coefficients that are not axes on
@@ -139,33 +178,6 @@ class ClusterPlot(object):
                            "subsampling = {}".format(len(df_dofs)))
 
         self._df_dofs = df_dofs
-
-    @property
-    def _has_bpoints(self):
-        return self.bpoint_column in self.data.df.columns
-
-    @property
-    def _dofs(self):
-        return list(self._df_dofs.columns)
-
-    @property
-    def _nsubplots(self):
-        """ Number of subplots. """
-        # +1 to have space for legend!
-        return max(1, len(self._df_dofs)) + int(self.draw_legend)
-
-    @property
-    def _ncols(self):
-        """ Number of columns of the subplot grid. """
-        return min(self.max_cols, self._nsubplots)
-
-    @property
-    def _nrows(self):
-        """ Number of rows of the subplot grid. """
-        # the ``int`` technically does not make a difference, but pycharm
-        # thinks that ``ceil`` returns floats and therefore complains
-        # otherwise
-        return int(ceil(self._nsubplots / self._ncols))
 
     def _setup_subplots(self):
         """ Set up the subplot grid"""
@@ -293,6 +305,37 @@ class ClusterPlot(object):
         self._find_dofs()
         self._setup_subplots()
 
+    def _set_fill_colors(self, matrix: np.ndarray) \
+            -> np.ndarray:
+        """ A helper function for the fill method. Given a n x m matrix of
+        cluster numbers, this returns a n x m x 3 matrix, where the last 3
+        dimensions contain the rgb value of the color that this cluster
+        should be colored with.
+
+        Args:
+            matrix: m x n matrix containing cluster numbers
+
+        Returns:
+            n x m x 3 matrix with last 3 dimensions containing RGB codes
+        """
+        rows, cols = matrix.shape
+        matrix_colored = np.zeros((rows, cols, 3))
+        for irow in range(rows):
+            for icol in range(cols):
+                cluster = int(matrix[irow, icol])
+                color = self.color_scheme.get_cluster_color(cluster)
+                # pycharm doesn't find ``colors`` in matplotlib:
+                # noinspection PyUnresolvedReferences
+                rgb = matplotlib.colors.hex2color(
+                    matplotlib.colors.cnames[color]
+                )
+                matrix_colored[irow, icol] = rgb
+        return matrix_colored
+
+    # ==========================================================================
+    # Plotting methods
+    # ==========================================================================
+
     # todo: **kwargs
     # todo: factor out the common part of scatter and fill into its own method?
     def scatter(self, cols: List[str], clusters=None):
@@ -355,33 +398,6 @@ class ClusterPlot(object):
         if 'inline' not in matplotlib.get_backend():
             return self._fig
 
-    def _set_fill_colors(self, matrix: np.ndarray) \
-            -> np.ndarray:
-        """ A helper function for the fill method. Given a n x m matrix of
-        cluster numbers, this returns a n x m x 3 matrix, where the last 3
-        dimensions contain the rgb value of the color that this cluster
-        should be colored with.
-
-        Args:
-            matrix: m x n matrix containing cluster numbers
-
-        Returns:
-            n x m x 3 matrix with last 3 dimensions containing RGB codes
-        """
-        rows, cols = matrix.shape
-        matrix_colored = np.zeros((rows, cols, 3))
-        for irow in range(rows):
-            for icol in range(cols):
-                cluster = int(matrix[irow, icol])
-                color = self.color_scheme.get_cluster_color(cluster)
-                # pycharm doesn't find ``colors`` in matplotlib:
-                # noinspection PyUnresolvedReferences
-                rgb = matplotlib.colors.hex2color(
-                    matplotlib.colors.cnames[color]
-                )
-                matrix_colored[irow, icol] = rgb
-        return matrix_colored
-
     # todo: implement interpolation
     # todo: **kwargs
     def fill(self, cols: List[str]):
@@ -424,3 +440,12 @@ class ClusterPlot(object):
         self._add_legend()
         if 'inline' not in matplotlib.get_backend():
             return self._fig
+
+    # ==========================================================================
+    # Shortcuts for user
+    # ==========================================================================
+
+    def savefig(self, *args, **kwargs):
+        """ Equivalent to ClusterPlot.fig.savefig(*args, **kwargs): Saves
+        figure to file, e.g. ClusterPlot.savefig("test.pdf"). """
+        self._fig.savefig(*args, **kwargs)

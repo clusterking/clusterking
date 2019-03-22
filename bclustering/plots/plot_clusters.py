@@ -68,6 +68,8 @@ class ClusterPlot(object):
         self.default_marker_size = 1/2 * matplotlib.rcParams['lines.markersize'] ** 2
         self.bpoint_marker_size = 6 * self.default_marker_size
 
+        self.draw_legend = True
+
         #: Set to true to see debug messages
         self.debug = False
 
@@ -150,7 +152,7 @@ class ClusterPlot(object):
     def _nsubplots(self):
         """ Number of subplots. """
         # +1 to have space for legend!
-        return max(1, len(self._df_dofs)) + 1
+        return max(1, len(self._df_dofs)) + int(self.draw_legend)
 
     @property
     def _ncols(self):
@@ -232,6 +234,8 @@ class ClusterPlot(object):
 
     # todo: if scatter: use proper markers!
     def _add_legend(self):
+        if not self.draw_legend:
+            return
         legend_elements = []
         for cluster in self._clusters:
             color = self.color_scheme.get_cluster_color(cluster)
@@ -309,13 +313,14 @@ class ClusterPlot(object):
         """
         self._setup_all(cols, clusters)
 
-        for isubplot in range(self._nsubplots - 1):
+        for isubplot in range(self._nsubplots - int(self.draw_legend)):
             for cluster in self._clusters:
                 df_cluster = \
                     self.data.df[self.data.df[self.cluster_column] == cluster]
                 for col in self._dofs:
-                    df_cluster = df_cluster[df_cluster[col] ==
-                                            self._df_dofs.iloc[isubplot][col]]
+                    df_cluster = df_cluster[
+                        df_cluster[col] == self._df_dofs.iloc[isubplot][col]
+                    ]
 
                 if self._has_bpoints:
                     df_cluster_no_bp = df_cluster[
@@ -395,7 +400,7 @@ class ClusterPlot(object):
         assert(len(cols) == 2)
         self._setup_all(cols)
 
-        for isubplot in range(self._nsubplots - 1):
+        for isubplot in range(self._nsubplots - int(self.draw_legend)):
             df_subplot = self.data.df.copy()
             for col in self._dofs:
                 df_subplot = df_subplot[

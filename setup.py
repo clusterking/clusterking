@@ -6,7 +6,6 @@ from distutils.core import setup
 import setuptools  # see below (1)
 import pathlib
 
-
 # (1) see https://stackoverflow.com/questions/8295644/
 # Without this import, install_requires won't work.
 
@@ -45,8 +44,8 @@ setup(
     }
 )
 
-
-# Can only do this after installation of course
-
-import bclustering.util.metadata
-bclustering.util.metadata.save_git_info()
+#
+# # Can only do this after installation of course
+# print("Will this really be run in the end?")
+# import bclustering.util.metadata
+# bclustering.util.metadata.save_git_info()

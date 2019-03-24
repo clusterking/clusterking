@@ -6,14 +6,9 @@ from distutils.core import setup
 import setuptools  # see below (1)
 import pathlib
 
-# ours
-import bclustering.util.metadata
 
 # (1) see https://stackoverflow.com/questions/8295644/
 # Without this import, install_requires won't work.
-
-bclustering.util.metadata.save_git_info()
-
 
 # todo: perhaps read from requirements.txt
 # todo: perhaps split up in install_requires and extras_require
@@ -49,3 +44,9 @@ setup(
         'bclustering': ['git_info.json'],
     }
 )
+
+
+# Can only do this after installation of course
+
+import bclustering.util.metadata
+bclustering.util.metadata.save_git_info()

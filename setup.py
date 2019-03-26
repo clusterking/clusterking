@@ -49,12 +49,15 @@ this_dir = pathlib.Path(__file__).resolve().parent
 
 packages = setuptools.find_packages()
 
-with open("README.rst") as fh:
+with (this_dir / "README.rst").open() as fh:
     long_description = fh.read()
+
+with (this_dir / "clusterking" / "version.txt") as vf:
+    version = vf.read()
 
 setup(
     name='clusterking',
-    version='0.9.dev2',
+    version=version,
     packages=packages,
     install_requires=install_requires,
     url="https://github.com/clusterking/clusterking",
@@ -64,7 +67,7 @@ setup(
         "Source Code": "https://github.com/clusterking/clusterking/",
     },
     package_data={
-        'clusterking': ['git_info.json'],
+        'clusterking': ['git_info.json', 'version.txt'],
     },
     license="MIT",
     keywords=keywords,

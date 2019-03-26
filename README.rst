@@ -110,19 +110,42 @@ Plotting
 
 .. code:: python
 
-    cp = ClusterPlot(df)
+    cp = ClusterPlot(d)
     cp.scatter(
         ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau'],
-        clusters=[1,2]
+        clusters=[1,2]  # Only plot 2 clusters for better visibility
     )
 
-Insert plot here
+.. image:: readme_assets/scatter_3d_02.png
+ 
+.. code:: python
+
+    cp.fill(['CVL_bctaunutau', 'CSL_bctaunutau'])
+
+.. image:: readme_assets/fill_2d.png
+
+Plotting all benchmark points:
 
 .. code:: python
 
-    p.scatter(['CVL_bctaunutau', 'CSL_bctaunutau'])
+    bp = BundlePlot(d)
+    bp.plot_bundles()
 
-Insert plot here
+.. image:: readme_assets/all_bcurves.png
+
+Plotting minima and maxima of bin contents for all histograms in a cluster (+benchmark histogram):
+
+.. code:: python
+    bp.plot_minmax(clusters=[0, 2])
+
+.. image:: readme_assets/minmax_02.png
+
+Similarly with box plots:
+
+.. code:: python
+   bp.box_plot()
+
+.. image:: readme_assets/box_plot.png
 
 License & Contributing
 ----------------------

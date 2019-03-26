@@ -36,11 +36,21 @@ By clustering the NP parameter space based on a metric that quantifies the simil
 Installation
 ------------
 
+``clusterking`` can be installed with the python package installer:
+
 .. code:: sh
 
-    pip3 install --user git+https://github.com/wilson-eft/wilson.git
-    git clone git@github.com:RD-clustering/B_decays_clustering.git
-    cd B_decays_clustering
+    pip3 install clusterking
+
+For a local installation, you might want to use the ``--user`` switch of ``pip``.
+You can also update your current installation with ``pip3 install --upgrade clusterking``.  
+
+For the latest development version of:
+
+.. code:: sh
+
+    git clone https://github.com/clusterking/clusterking/
+    cd clusterking
     pip3 install --user .
 
 Usage and Documentation

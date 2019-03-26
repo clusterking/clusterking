@@ -1,5 +1,8 @@
-Clustering of B to D tau nu kinematical shapes
-==============================================
+.. image:: readme_assets/logo/logo.png
+    :align: right
+
+Clustering of Kinematic Graphs
+==============================
 
 |Build Status| |Doc Status|
 

@@ -7,7 +7,7 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Doc Status| |Pypi status| |License|
+|Build Status| |Doc Status| |Pypi status| |Binder| |License|
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
@@ -19,6 +19,10 @@ Clustering of Kinematic Graphs
 .. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
     :target: https://badge.fury.io/py/clusterking
     :alt: Pypi status
+
+.. |Binder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
+   :alt: Binder
 
 .. |License| image:: https://img.shields.io/github/license/clusterking/clusterking.svg
    :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
@@ -64,7 +68,12 @@ For the latest development version type:
 Usage and Documentation
 -----------------------
 
-Good starting point: Jupyter notebooks in the ``examples/jupyter_notebook`` directory.
+Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory (|binder|_).
+
+.. |binder| replace:: **run online using binder**
+.. _binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
+
+.. _run online using binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
 
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 

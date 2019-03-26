@@ -54,7 +54,7 @@ with open("README.rst") as fh:
 
 setup(
     name='clusterking',
-    version='0.9.dev',
+    version='0.9.dev1',
     packages=packages,
     install_requires=install_requires,
     url="https://github.com/clusterking/clusterking",

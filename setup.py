@@ -34,18 +34,18 @@ packages = setuptools.find_packages()
 print(packages)
 
 setup(
-    name='bclustering',
+    name='clusterking',
     version='dev',
     packages=packages,
     install_requires=install_requires,
-    url="https://github.com/RD-clustering/B_decays_clustering",
+    url="https://github.com/clusterking/clusterking",
     package_data={
-        'bclustering': ['git_info.json'],
+        'clusterking': ['git_info.json'],
     }
 )
 
 #
 # # Can only do this after installation of course
 # print("Will this really be run in the end?")
-# import bclustering.util.metadata
-# bclustering.util.metadata.save_git_info()
+# import clusterking.util.metadata
+# clusterking.util.metadata.save_git_info()

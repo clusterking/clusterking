@@ -12,6 +12,21 @@ Clustering of B to D tau nu kinematical shapes
 
 .. start-body
 
+Description
+-----------
+
+This package provides a flexible yet easy to use framework to cluster sets of histograms (or other higher dimensional data) and to select benchmark points representing each cluster. The package particularly focuses on use cases in high energy physics.
+
+Physics Case
+------------
+
+While most of this package is very general can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
+
+Though very successful, the Standard Model of Particle Physics is believed to be uncomplete, prompting the search for New Physics (NP).
+The phenomenology of NP models typically depends on a number of free parameters, sometimes strongly influencing the shape of distributions of kinematic variables. Besides being an obvious challenge when presenting exclusion limits on such models, this also is an issue for experimental analyses that need to make assumptions on kinematic distributions in order to extract features of interest, but still want to publish their results in a very general way.
+
+By clustering the NP parameter space based on a metric that quantifies the similarity of the resulting kinematic distributions, a small number of NP benchmark points can be chosen in such a way that they can together represent the whole parameter space. Experiments (and theorists) can then report exclusion limits and measurements for these benchmark points without sacrificing generality.  
+
 Installation
 ------------
 
@@ -22,68 +37,103 @@ Installation
     cd B_decays_clustering
     pip3 install --user .
 
-Usage
------
+Usage and Documentation
+-----------------------
 
-Good starting point: Jupyter notebooks in the ``jupyter`` directory.
+Good starting point: Jupyter notebooks in the ``examples/jupyter_notebook`` directory.
 
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 
 .. |readthedocs.io| replace:: **readthedocs.io**
 .. _readthedocs.io: http://bclustering.readthedocs.io/en/latest/
 
-Command Line Interface
+Example
+-------
+
+Sample and cluster
+~~~~~~~~~~~~~~~~~~
+
+A condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B->D* ell nu`` in the space of Wilson coefficients:
+
+.. code:: python
+
+   s = bclustering.Scanner()
+   d = bclustering.DataWithErrors()
+
+   # Set up kinematic function
+
+   def dBrdq2(w, q):
+     return flavio.sm_prediction("dBR/dq2(B+->Dtaunu)", q) + \
+         flavio.np_prediction("dBR/dq2(B+->Dtaunu)", w, q)
+
+   s.set_dfunction(
+     dBrdq2,
+     binning=np.linspace(3.2, 11.6, 10),
+     normalize=True
+   )
+
+   # Set sampling points in Wilson space
+
+   s.set_wpoints_equidist(
+     {
+         "CVL_bctaunutau": (-1, 1, 10),
+         "CSL_bctaunutau": (-1, 1, 10),
+         "CT_bctaunutau": (-1, 1, 10)
+     },
+     scale=5,
+     eft='WET',
+     basis='flavio'
+   )
+
+   s.run(d)
+
+   # Use hierarchical clustering
+
+   c = bclustering.cluster.HierarchyCluster(d)
+   c.set_metric()
+   c.build_hierarchy()
+   c.cluster(max_d=0.04)
+   c.write()
+
+Benchmark points
+~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+   b = bclustering.Benchmark(d)
+   b.set_metric()
+   b.select_bpoints()
+   b.write()
+
+Plotting
+~~~~~~~~
+
+.. code:: python
+
+    cp = ClusterPlot(df)
+    cp.scatter([
+        'CVL_bctaunutau',
+        'CSL_bctaunutau',
+        'CT_bctaunutau'
+    ])
+ 
+Insert plot here
+
+.. code:: python
+
+    p.scatter(['CVL_bctaunutau', 'CSL_bctaunutau'])
+
+Insert plot here
+
+License & Contributing
 ----------------------
 
-Step 1: Build histograms
-~~~~~~~~~~~~~~~~~~~~~~~~
+This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome.  We are also working on a paper, so please make sure to cite us once we publish.
 
-Build q2 histograms for the different NP benchmark points.
-This can be done with the command line interface:
+.. _questions: https://github.com/RD-clustering/B_decays_clustering/issues
+.. _bug reports: https://github.com/RD-clustering/B_decays_clustering/issues
+.. _pull requests: https://github.com/RD-clustering/B_decays_clustering/pulls
 
-.. code:: sh
+This software is lienced under the `MIT license`_.
 
-    bclustering/bin/scan --np-grid-subdivision 3 --grid-subdivision 5 --output output/scan/quick
-
-More information on the command line options can be found by running
-``scan.py --help``.
-
-This produces two output files:
-
-- ``output/scan/quick_data.csv`` holds the data as a CSV file with the 
-  columns ``index`` (number of the benchmark point), 
-  ``l``, ``r``, ``sr``, ``sl``, ``t`` (the five Wilson coefficients),
-  ``bin0``, ``bin1``, ..., ``bin4`` (the five bins of the q2 
-  distribution). 
-    
-- ``output/scan/quick_metadata.json`` holds metadata (e.g. how many
-  bins have we used, which software version etc.).
-  It's a prettified json file, so it's pretty human readable.
-
-
-Step 2: Clustering
-~~~~~~~~~~~~~~~~~~
-    
-This can be done with the command line interface as well: 
-
-.. code::bash
-
-    bclustering/bin/cluster --input output/scan/quick.out --output output/cluster/quick
-
-This again produces two output files:
-
-- ``output/scan/quick_data.csv`` containing the same columns as 
-  ``output/scan/quick_data.csv`` plus an additional column ``cluster``
-  that contains the number of the cluster
-    
-- ``output/scan/quick_metadata.json`` combined metadata of step 1 and
-  this step.
-    
-Furthermore, a dendrogram is produced automatically and saved at
-``output/cluster/quick_dend.pdf``. Our example: 
-
-.. figure:: https://raw.githubusercontent.com/celis/B_decays_clustering/master/readme_assets/quick_dend.png?raw=true)
-    :alt: Dendrogram
-    :align: center
-
-.. end-body
+.. _MIT  license: https://github.com/RD-clustering/B_decays_clustering/blob/master/LICENSE.txt

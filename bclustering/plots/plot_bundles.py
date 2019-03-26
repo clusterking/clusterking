@@ -7,6 +7,7 @@ from typing import List, Iterable, Union
 
 # 3rd party
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import pandas as pd
 
@@ -59,6 +60,9 @@ class BundlePlot(object):
 
         #: Color scheme
         self.color_scheme = ColorScheme(self._clusters)
+
+        #: Draw legend?
+        self.draw_legend = True
 
         #: Instance of matplotlib.pyplot.figure
         self.fig = None
@@ -127,6 +131,30 @@ class BundlePlot(object):
                 return pd.DataFrame()
         else:
             raise ValueError("Invalid argument bpoint=={}".format(bpoint))
+
+    def _draw_legend(self, clusters=None):
+        if not self.draw_legend:
+            return
+        clusters = self._interpret_cluster_input(clusters)
+        if len(clusters) <= 1:
+            return
+        legend_elements = []
+        for cluster in clusters:
+            color = self.color_scheme.get_cluster_color(cluster)
+            # pycharm can't seem to find patches:
+            # noinspection PyUnresolvedReferences
+            p = matplotlib.patches.Patch(
+                facecolor=color,
+                edgecolor=color,
+                label=cluster,
+            )
+            legend_elements.append(p)
+        self.ax.legend(
+            handles=legend_elements,
+            loc='best',
+            title="Clusters",
+            frameon=False
+        )
 
     def _plot_bundles(self, ax, cluster: int, nlines=0) -> None:
         """ Main implementation of self.plot_bundles (private method).
@@ -202,6 +230,8 @@ class BundlePlot(object):
         for cluster in clusters:
             self._plot_bundles(ax, cluster, nlines=nlines)
 
+        self._draw_legend(clusters)
+
     def _plot_minmax(self, ax, cluster: int, reference=True) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
@@ -269,6 +299,8 @@ class BundlePlot(object):
         for cluster in clusters:
             self._plot_minmax(ax, cluster, reference=reference)
 
+        self._draw_legend(clusters)
+
     def _box_plot(self, ax, cluster, whiskers=1.5, reference=True) -> None:
         """ Main implementation of self.box_plot. 
         Gets called for every cluster specified in self.box_plot.
@@ -330,7 +362,11 @@ class BundlePlot(object):
                     whiskers
                 )
             )
+            self.fig = fig
+            self.ax = ax
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
             self._box_plot(ax, cluster, whiskers=whiskers, reference=reference)
+
+        self._draw_legend(clusters)

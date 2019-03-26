@@ -3,9 +3,9 @@
 import sys
 sys.path = ["../../"] + sys.path
 import numpy as np
-import bclustering.physics.models.bdlnu.distribution as bdlnu
-from bclustering.scan import Scanner
-from bclustering.cluster import HierarchyCluster
+import clusterking.physics.models.bdlnu.distribution as bdlnu
+from clusterking.scan import Scanner
+from clusterking.cluster import HierarchyCluster
 
 
 def main():

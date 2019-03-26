@@ -3,8 +3,8 @@ Clustering of B to D tau nu kinematical shapes
 
 |Build Status| |Doc Status|
 
-.. |Build Status| image:: https://travis-ci.org/RD-clustering/B_decays_clustering.svg?branch=master
-   :target: https://travis-ci.org/RD-clustering/B_decays_clustering
+.. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
+   :target: https://travis-ci.org/clusterking/clusterking
 
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
    :target: https://clusterking.readthedocs.io/en/latest/

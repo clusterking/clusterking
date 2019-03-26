@@ -48,11 +48,13 @@ description = "Cluster sets of histograms/curves, in particular kinematic" \
 this_dir = pathlib.Path(__file__).resolve().parent
 
 packages = setuptools.find_packages()
-print(packages)
+
+with open("README.rst") as fh:
+    long_description = fh.read()
 
 setup(
     name='clusterking',
-    version='1.0.dev',
+    version='0.9.dev',
     packages=packages,
     install_requires=install_requires,
     url="https://github.com/clusterking/clusterking",
@@ -66,7 +68,16 @@ setup(
     },
     license="MIT",
     keywords=keywords,
-    description=description
+    description=description,
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Visualization"
+    ],
 )
 
 #

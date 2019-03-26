@@ -220,7 +220,7 @@ class BundlePlot(object):
             fig, ax = plt.subplots()
             ax.set_title(
                 "{} example(s) of distributions for cluster(s) {}".format(
-                    nlines if nlines > 0 else 1, ", ".join(map(str, sorted(clusters)))
+                    nlines + int(self._has_bpoints), ", ".join(map(str, sorted(clusters)))
                 )
             )
             self.fig = fig

@@ -136,6 +136,7 @@ Plotting all benchmark points:
 Plotting minima and maxima of bin contents for all histograms in a cluster (+benchmark histogram):
 
 .. code:: python
+
     bp.plot_minmax(clusters=[0, 2])
 
 .. image:: readme_assets/minmax_02.png
@@ -143,6 +144,7 @@ Plotting minima and maxima of bin contents for all histograms in a cluster (+ben
 Similarly with box plots:
 
 .. code:: python
+
    bp.box_plot()
 
 .. image:: readme_assets/box_plot.png

@@ -53,7 +53,7 @@ Installation
 For a local installation, you might want to use the ``--user`` switch of ``pip``.
 You can also update your current installation with ``pip3 install --upgrade clusterking``.  
 
-For the latest development version of:
+For the latest development version type:
 
 .. code:: sh
 

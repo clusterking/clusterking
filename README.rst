@@ -111,12 +111,11 @@ Plotting
 .. code:: python
 
     cp = ClusterPlot(df)
-    cp.scatter([
-        'CVL_bctaunutau',
-        'CSL_bctaunutau',
-        'CT_bctaunutau'
-    ])
- 
+    cp.scatter(
+        ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau'],
+        clusters=[1,2]
+    )
+
 Insert plot here
 
 .. code:: python

@@ -77,7 +77,7 @@ Example
 Sample and cluster
 ~~~~~~~~~~~~~~~~~~
 
-A condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B->D* ell nu`` in the space of Wilson coefficients:
+Being a condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu`` in the space of Wilson coefficients:
 
 .. code:: python
 

@@ -264,7 +264,7 @@ class ClusterPlot(object):
             legend_elements.append(p)
         self._axli[self._nsubplots - 1].legend(
             handles=legend_elements,
-            loc='center',
+            loc='lower left',
             title="Clusters",
             frameon=False
         )

@@ -1,4 +1,9 @@
-.. image:: readme_assets/logo/logo.png
+..
+
+    note: Always use full path to image, because it won't render on
+    pypi and others otherwise
+
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/logo/logo.png
     :align: right
 
 Clustering of Kinematic Graphs
@@ -119,13 +124,13 @@ Plotting
         clusters=[1,2]  # Only plot 2 clusters for better visibility
     )
 
-.. image:: readme_assets/plots/scatter_3d_02.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/scatter_3d_02.png
  
 .. code:: python
 
     cp.fill(['CVL_bctaunutau', 'CSL_bctaunutau'])
 
-.. image:: readme_assets/plots/fill_2d.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/fill_2d.png
 
 Plotting all benchmark points:
 
@@ -134,7 +139,7 @@ Plotting all benchmark points:
     bp = BundlePlot(d)
     bp.plot_bundles()
 
-.. image:: readme_assets/plots/all_bcurves.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png
 
 Plotting minima and maxima of bin contents for all histograms in a cluster (+benchmark histogram):
 
@@ -142,7 +147,7 @@ Plotting minima and maxima of bin contents for all histograms in a cluster (+ben
 
     bp.plot_minmax(clusters=[0, 2])
 
-.. image:: readme_assets/plots/minmax_02.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/minmax_02.png
 
 Similarly with box plots:
 
@@ -150,7 +155,7 @@ Similarly with box plots:
 
    bp.box_plot()
 
-.. image:: readme_assets/plots/box_plot.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/box_plot.png
 
 License & Contributing
 ----------------------

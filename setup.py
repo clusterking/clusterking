@@ -4,7 +4,7 @@
 from distutils.core import setup
 # noinspection PyUnresolvedReferences
 import setuptools  # see below (1)
-import pathlib
+from pathlib import Path
 
 # (1) see https://stackoverflow.com/questions/8295644/
 # Without this import, install_requires won't work.
@@ -45,14 +45,14 @@ keywords = [
 description = "Cluster sets of histograms/curves, in particular kinematic" \
               "distributions in high energy physics."
 
-this_dir = pathlib.Path(__file__).resolve().parent
+this_dir = Path(__file__).resolve().parent
 
 packages = setuptools.find_packages()
 
 with (this_dir / "README.rst").open() as fh:
     long_description = fh.read()
 
-with (this_dir / "clusterking" / "version.txt") as vf:
+with (this_dir / "clusterking" / "version.txt").open() as vf:
     version = vf.read()
 
 setup(

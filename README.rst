@@ -1,7 +1,5 @@
-..
-
-    note: Always use full path to image, because it won't render on
-    pypi and others otherwise
+.. note: Always use full path to image, because it won't render on
+   pypi and others otherwise
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/logo/logo.png
     :align: right

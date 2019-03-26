@@ -34,7 +34,7 @@ This package provides a flexible yet easy to use framework to cluster sets of hi
 Physics Case
 ------------
 
-While most of this package is very general can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
+While most of this package is very general and can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
 
 Though very successful, the Standard Model of Particle Physics is believed to be uncomplete, prompting the search for New Physics (NP).
 The phenomenology of NP models typically depends on a number of free parameters, sometimes strongly influencing the shape of distributions of kinematic variables. Besides being an obvious challenge when presenting exclusion limits on such models, this also is an issue for experimental analyses that need to make assumptions on kinematic distributions in order to extract features of interest, but still want to publish their results in a very general way.

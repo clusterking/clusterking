@@ -155,7 +155,7 @@ Plotting all benchmark points:
     bp = BundlePlot(d)
     bp.plot_bundles()
 
-.. image:: http://localhost:8888/view/readme_assets/plots/all_bcurves.png
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png
 
 Plotting minima and maxima of bin contents for all histograms in a cluster (+benchmark histogram):
 

@@ -6,8 +6,8 @@ Clustering of B to D tau nu kinematical shapes
 .. |Build Status| image:: https://travis-ci.org/RD-clustering/B_decays_clustering.svg?branch=master
    :target: https://travis-ci.org/RD-clustering/B_decays_clustering
 
-.. |Doc Status| image:: https://readthedocs.org/projects/bclustering/badge/?version=latest
-   :target: https://bclustering.readthedocs.io/en/latest/
+.. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
+   :target: https://clusterking.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 .. start-body
@@ -45,7 +45,7 @@ Good starting point: Jupyter notebooks in the ``examples/jupyter_notebook`` dire
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 
 .. |readthedocs.io| replace:: **readthedocs.io**
-.. _readthedocs.io: http://bclustering.readthedocs.io/en/latest/
+.. _readthedocs.io: http://clusterking.readthedocs.io/en/latest/
 
 Example
 -------

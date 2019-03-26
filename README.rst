@@ -7,7 +7,7 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Doc Status|
+|Build Status| |Doc Status| |Pypi status| |Binder| |License|
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
@@ -15,6 +15,18 @@ Clustering of Kinematic Graphs
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
    :target: https://clusterking.readthedocs.io/en/latest/
    :alt: Documentation Status
+
+.. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
+    :target: https://badge.fury.io/py/clusterking
+    :alt: Pypi status
+
+.. |Binder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
+   :alt: Binder
+
+.. |License| image:: https://img.shields.io/github/license/clusterking/clusterking.svg
+   :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
+   :alt: License
 
 .. start-body
 
@@ -26,7 +38,7 @@ This package provides a flexible yet easy to use framework to cluster sets of hi
 Physics Case
 ------------
 
-While most of this package is very general can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
+While most of this package is very general and can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
 
 Though very successful, the Standard Model of Particle Physics is believed to be uncomplete, prompting the search for New Physics (NP).
 The phenomenology of NP models typically depends on a number of free parameters, sometimes strongly influencing the shape of distributions of kinematic variables. Besides being an obvious challenge when presenting exclusion limits on such models, this also is an issue for experimental analyses that need to make assumptions on kinematic distributions in order to extract features of interest, but still want to publish their results in a very general way.
@@ -45,7 +57,7 @@ Installation
 For a local installation, you might want to use the ``--user`` switch of ``pip``.
 You can also update your current installation with ``pip3 install --upgrade clusterking``.  
 
-For the latest development version of:
+For the latest development version type:
 
 .. code:: sh
 
@@ -56,7 +68,12 @@ For the latest development version of:
 Usage and Documentation
 -----------------------
 
-Good starting point: Jupyter notebooks in the ``examples/jupyter_notebook`` directory.
+Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory (|binder|_).
+
+.. |binder| replace:: **run online using binder**
+.. _binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
+
+.. _run online using binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
 
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 
@@ -69,7 +86,7 @@ Example
 Sample and cluster
 ~~~~~~~~~~~~~~~~~~
 
-A condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B->D* ell nu`` in the space of Wilson coefficients:
+Being a condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu`` in the space of Wilson coefficients:
 
 .. code:: python
 

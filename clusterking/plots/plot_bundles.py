@@ -43,7 +43,7 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 
 
 class BundlePlot(object):
-    """ Plotting class to plot distributions by cluster in order to analyse 
+    """ Plotting class to plot distributions by cluster in order to analyse
     which distributions get assigned to which cluster. """
     def __init__(self, data: Data):
 
@@ -98,14 +98,14 @@ class BundlePlot(object):
         return self._filter_clusters(clusters)
 
     def _get_df_cluster(self, cluster: int, bpoint=None) -> pd.DataFrame:
-        """ Return only the rows corresponding to one cluster in the 
-        dataframe and only the columns that correspond to the bins. 
-        
+        """ Return only the rows corresponding to one cluster in the
+        dataframe and only the columns that correspond to the bins.
+
         Args:
             cluster: Name of the cluster
             bpoint: If True, return benchmark point, if False, return all non-
                 benchmark points, if None, return everything.
-        
+
         Returns:
             pandas.DataFrame as described above
         """
@@ -159,13 +159,13 @@ class BundlePlot(object):
     def _plot_bundles(self, ax, cluster: int, nlines=0) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
-         
+
         Args:
             ax: Instance of matplotlib.axes.Axes to plot on
             cluster: Number of cluster to be plotted
-            nlines: Number of example distributions of the cluster to be 
+            nlines: Number of example distributions of the cluster to be
                 plotted
-        
+
         Returns:
             None
         """
@@ -201,17 +201,17 @@ class BundlePlot(object):
 
     def plot_bundles(self, clusters: Union[int, Iterable[int]]=None, nlines=0,
                      ax=None) -> None:
-        """ Plot several examples of distributions for each cluster specified 
-        
+        """ Plot several examples of distributions for each cluster specified
+
         Args:
             clusters: List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
-            nlines: Number of example distributions of each cluster to be 
+            nlines: Number of example distributions of each cluster to be
                 plotted
             ax: Instance of matplotlib.axes.Axes to be plotted on. If None
-                (default), a new axes object and figure is initialized and 
+                (default), a new axes object and figure is initialized and
                 saved as self.ax and self.fig.
-        
+
         Returns:
             None
         """
@@ -220,7 +220,7 @@ class BundlePlot(object):
             fig, ax = plt.subplots()
             ax.set_title(
                 "{} example(s) of distributions for cluster(s) {}".format(
-                    nlines, ", ".join(map(str, sorted(clusters)))
+                    nlines + int(self._has_bpoints), ", ".join(map(str, sorted(clusters)))
                 )
             )
             self.fig = fig
@@ -235,13 +235,13 @@ class BundlePlot(object):
     def _plot_minmax(self, ax, cluster: int, reference=True) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
-        
+
         Args:
             ax: Instance of matplotlib.axes.Axes to plot on
             cluster: Name of cluster to be plotted
             reference: Plot reference
 
-        
+
         Returns:
             None
         """
@@ -271,16 +271,16 @@ class BundlePlot(object):
 
     def plot_minmax(self, clusters: Union[int, Iterable[int]]=None,
                     ax=None, reference=True) -> None:
-        """ Plot the minimum and maximum of each bin for the specified 
-        clusters. 
-        
+        """ Plot the minimum and maximum of each bin for the specified
+        clusters.
+
         Args:
             clusters:  List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
             ax: Instance of matplotlib.axes.Axes to plot on. If None, a new
                 one is instantiated.
             reference: Plot reference
-        
+
         Returns:
             None
         """
@@ -302,16 +302,16 @@ class BundlePlot(object):
         self._draw_legend(clusters)
 
     def _box_plot(self, ax, cluster, whiskers=1.5, reference=True) -> None:
-        """ Main implementation of self.box_plot. 
+        """ Main implementation of self.box_plot.
         Gets called for every cluster specified in self.box_plot.
-        
+
         Args:
             ax: Instance of matplotlib.axes.Axes to plot on
             cluster: Name of cluster to be plotted
-            whiskers: Length of the whiskers of the box plot. 
+            whiskers: Length of the whiskers of the box plot.
                 See self.box_plot for more information.
                 Default: 1.5 (matplotlib default)
-        
+
         Returns:
             None
         """
@@ -342,14 +342,14 @@ class BundlePlot(object):
                  whiskers: float=2.5, reference=True) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
-        
+
         Args:
             clusters:  List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
             ax: Instance of matplotlib.axes.Axes to plot on. If None, a new
                 one is instantiated.
             whiskers: Length of the whiskers of the box plot in units of IQR
-                (interquartile range, containing 50% of all values). Default 
+                (interquartile range, containing 50% of all values). Default
                 2.5.
         """
         clusters = self._interpret_cluster_input(clusters)

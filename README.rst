@@ -157,10 +157,10 @@ License & Contributing
 
 This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome.  We are also working on a paper, so please make sure to cite us once we publish.
 
-.. _questions: https://github.com/RD-clustering/B_decays_clustering/issues
-.. _bug reports: https://github.com/RD-clustering/B_decays_clustering/issues
-.. _pull requests: https://github.com/RD-clustering/B_decays_clustering/pulls
+.. _questions: https://github.com/clusterking/clusterking/issues
+.. _bug reports: https://github.com/clusterking/clusterking/issues
+.. _pull requests: https://github.com/clusterking/clusterking/pulls
 
 This software is lienced under the `MIT license`_.
 
-.. _MIT  license: https://github.com/RD-clustering/B_decays_clustering/blob/master/LICENSE.txt
+.. _MIT  license: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt

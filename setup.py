@@ -28,6 +28,23 @@ install_requires = [
     'tqdm'
 ]
 
+keywords = [
+    "clustering",
+    "cluster",
+    "kinematics",
+    "cluster-analysis",
+    "machine-learning",
+    "ml",
+    "hep",
+    "hep-ml",
+    "hep-ex",
+    "hep-ph",
+    "wilson",
+]
+
+description = "Cluster sets of histograms/curves, in particular kinematic" \
+              "distributions in high energy physics."
+
 this_dir = pathlib.Path(__file__).resolve().parent
 
 packages = setuptools.find_packages()
@@ -35,17 +52,26 @@ print(packages)
 
 setup(
     name='clusterking',
-    version='dev',
+    version='1.0.dev',
     packages=packages,
     install_requires=install_requires,
     url="https://github.com/clusterking/clusterking",
+    project_urls={
+        "Bug Tracker": "https://github.com/clusterking/clusterking/issues",
+        "Documentation": "https://clusterking.readthedocs.io/",
+        "Source Code": "https://github.com/clusterking/clusterking/",
+    },
     package_data={
         'clusterking': ['git_info.json'],
-    }
+    },
+    license="MIT",
+    keywords=keywords,
+    description=description
 )
 
 #
 # # Can only do this after installation of course
+# todo: can actually do that with setup_requires
 # print("Will this really be run in the end?")
 # import clusterking.util.metadata
 # clusterking.util.metadata.save_git_info()

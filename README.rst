@@ -90,8 +90,8 @@ Being a condensed version of the basic tutorial, the following code is all that 
 
 .. code:: python
 
-   s = bclustering.Scanner()
-   d = bclustering.DataWithErrors()
+   s = clusterking.Scanner()
+   d = clusterking.DataWithErrors()
 
    # Set up kinematic function
 
@@ -122,7 +122,7 @@ Being a condensed version of the basic tutorial, the following code is all that 
 
    # Use hierarchical clustering
 
-   c = bclustering.cluster.HierarchyCluster(d)
+   c = clusterking.cluster.HierarchyCluster(d)
    c.set_metric()
    c.build_hierarchy()
    c.cluster(max_d=0.04)
@@ -133,7 +133,7 @@ Benchmark points
 
 .. code:: python
 
-   b = bclustering.Benchmark(d)
+   b = clusterking.Benchmark(d)
    b.set_metric()
    b.select_bpoints()
    b.write()

@@ -130,16 +130,15 @@ todo_include_todos = True
 # html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ["_themes"]
+# html_theme_path = ["_themes"]
 
-for path in html_theme_path:
-    if not os.path.exists(path):
-        continue
-    if "sphinx_rtd_theme" in os.listdir(path):
-        html_theme = "sphinx_rtd_theme"
-        break
-else:
-    html_theme = "alabaster"
+try:
+    import importlib
+    theme = importlib.import_module('sphinx_rtd_theme')
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [theme.get_html_theme_path()]
+except:
+    html_theme = "default"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

@@ -13,7 +13,7 @@ Clustering of Kinematic Graphs
    :target: https://travis-ci.org/clusterking/clusterking
 
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
-   :target: https://clusterking.readthedocs.io/en/latest/
+   :target: https://clusterking.readthedocs.io/en/master
    :alt: Documentation Status
 
 .. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
@@ -78,7 +78,7 @@ Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` 
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 
 .. |readthedocs.io| replace:: **readthedocs.io**
-.. _readthedocs.io: http://clusterking.readthedocs.io/en/latest/
+.. _readthedocs.io: https://clusterking.readthedocs.io/en/master
 
 Example
 -------

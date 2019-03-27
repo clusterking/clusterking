@@ -2,5 +2,5 @@
 
 from clusterking.data import Data, DataWithErrors
 from clusterking.cluster.hierarchy_cluster import HierarchyCluster
-from clusterking.scan import Scanner
+from clusterking.scan.scanner import Scanner
 from clusterking.bpoints import Benchmark

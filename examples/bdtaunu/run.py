@@ -4,18 +4,20 @@ import sys
 sys.path = ["../../"] + sys.path
 import numpy as np
 import clusterking.physics.models.bdlnu.distribution as bdlnu
-from clusterking.scan import Scanner
+from clusterking.scan import WilsonScanner
 from clusterking.cluster import HierarchyCluster
+from clusterking import Data
 
 
 def main():
-    s = Scanner()
+    d = Data()
+    s = WilsonScanner()
     s.set_dfunction(
         bdlnu.dGq2,
         binning=np.linspace(bdlnu.q2min, bdlnu.q2max, 10),
         normalize=True
     )
-    s.set_wpoints_equidist(
+    s.set_spoints_equidist(
         {
             "CVL_bctaunutau": (-0.3, 0.3, 10),
             "CSL_bctaunutau": (-0.3, 0.3, 10),
@@ -25,19 +27,14 @@ def main():
         eft='WET',
         basis='flavio'
     )
-    s.run()
-
-    scan_directory = "output/scan/our_implementation/q2"
-    cluster_directory = "output/cluster/our_implementation/q2"
-    scan_name = "q2_10_wilson_1000"
-    s.write(scan_directory, scan_name, overwrite="ask")
+    s.run(d)
 
     for max_d in np.linspace(0.01, 1, 20):
-        cluster_name = scan_name + "_max_d_{:.3f}".format(max_d)
-        c = HierarchyCluster(scan_directory, scan_name)
+        cluster_name = "q2_10_wilson_1000_max_d_{:.3f}".format(max_d)
+        c = HierarchyCluster(d)
         c.build_hierarchy()
         c.cluster(max_d=max_d)
-        c.write(cluster_directory, cluster_name, overwrite="overwrite")
+        d.write("output/cluster/bdtaunu", cluster_name, overwrite="overwrite")
 
 
 if __name__ == "__main__":

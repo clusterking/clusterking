@@ -107,7 +107,7 @@ Being a condensed version of the basic tutorial, the following code is all that 
 
    # Set sampling points in Wilson space
 
-   s.set_wpoints_equidist(
+   s.set_spoints_equidist(
      {
          "CVL_bctaunutau": (-1, 1, 10),
          "CSL_bctaunutau": (-1, 1, 10),

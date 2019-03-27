@@ -7,13 +7,13 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Doc Status| |Pypi status| |Binder| |License|
+|Build Status| |Doc Status| |Pypi status| |Binder| |Chat| |License|
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
 
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
-   :target: https://clusterking.readthedocs.io/en/master
+   :target: https://clusterking.readthedocs.io/
    :alt: Documentation Status
 
 .. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
@@ -23,6 +23,10 @@ Clustering of Kinematic Graphs
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
    :alt: Binder
+
+.. |Chat| image:: https://img.shields.io/gitter/room/clusterking/community.svg   
+   :target: https://gitter.im/clusterking/community
+   :alt: Gitter
 
 .. |License| image:: https://img.shields.io/github/license/clusterking/clusterking.svg
    :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
@@ -78,7 +82,7 @@ Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` 
 For a documentation of the classes and functions in this package, **read the docs on** |readthedocs.io|_.
 
 .. |readthedocs.io| replace:: **readthedocs.io**
-.. _readthedocs.io: https://clusterking.readthedocs.io/en/master
+.. _readthedocs.io: https://clusterking.readthedocs.io/
 
 Example
 -------
@@ -185,8 +189,10 @@ Similarly with box plots:
 License & Contributing
 ----------------------
 
-This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome.  We are also working on a paper, so please make sure to cite us once we publish.
+This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome. You can also use the chat room on gitter_ or contact us via email_.  We are also working on a paper, so please make sure to cite us once we publish.
 
+.. _email: mailto:clusterkinematics@gmail.com
+.. _gitter: https://gitter.im/clusterking/community
 .. _questions: https://github.com/clusterking/clusterking/issues
 .. _bug reports: https://github.com/clusterking/clusterking/issues
 .. _pull requests: https://github.com/clusterking/clusterking/pulls

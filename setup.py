@@ -43,7 +43,7 @@ keywords = [
 ]
 
 description = "Cluster sets of histograms/curves, in particular kinematic" \
-              "distributions in high energy physics."
+              " distributions in high energy physics."
 
 this_dir = Path(__file__).resolve().parent
 

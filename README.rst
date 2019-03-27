@@ -190,7 +190,7 @@ Similarly with box plots:
 License & Contributing
 ----------------------
 
-This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome. You can contact us through the chat romm on gitter (https://gitter.im/clusterking/community) or via email [clusterkinematics@gmail.com](mailto:clusterkinematics@gmail.com)  We are also working on a paper, so please make sure to cite us once we publish.
+This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome. You can contact us through the chat romm on gitter (https://gitter.im/clusterking/community) or via email <clusterkinematics@gmail.com>.  We are also working on a paper, so please make sure to cite us once we publish.
 
 .. _questions: https://github.com/clusterking/clusterking/issues
 .. _bug reports: https://github.com/clusterking/clusterking/issues

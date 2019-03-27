@@ -143,7 +143,7 @@ Plotting
 
 .. code:: python
 
-    cp = ClusterPlot(d)
+    cp = clusterking.ClusterPlot(d)
     cp.scatter(
         ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau'],
         clusters=[1,2]  # Only plot 2 clusters for better visibility
@@ -161,7 +161,7 @@ Plotting all benchmark points:
 
 .. code:: python
 
-    bp = BundlePlot(d)
+    bp = clusterking.BundlePlot(d)
     bp.plot_bundles()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png

@@ -4,7 +4,6 @@
 
 # 3rd
 import numpy as np
-import functools
 from typing import Callable
 
 # ours
@@ -27,15 +26,13 @@ class AbstractBenchmark(object):
         self.bpoints = None
         self.md = nested_dict()
         self.log = get_logger("Benchmark")
+        self.cluster_column = "cluster"
 
     @property
     def cluster_column(self):
         """ The column from which we read the cluster information.
         Defaults to 'cluster'. """
-        value = self.md["cluster_column"]
-        if not value:
-            value = "cluster"
-        return value
+        return self.md["cluster_column"]
 
     @cluster_column.setter
     def cluster_column(self, value):

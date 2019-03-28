@@ -69,15 +69,22 @@ class BundlePlot(object):
         #: Instance of matplotlib.axes.Axes
         self.ax = None
 
+    # **************************************************************************
+    # Internal helpers
+    # **************************************************************************
+
     @property
     def _has_bpoints(self):
+        """ Do we have benchmark points? """
         return self.bpoint_column in self.data.df.columns
 
     @property
     def _clusters(self):
+        """ Return array of all distinct clusters. """
         return self.data.clusters(cluster_column=self.cluster_column)
 
-    def _filter_clusters(self, clusters):
+    def _filter_clusters(self, clusters: Iterable[int]) -> List[int]:
+        """ Return list of existing clusters only. """
         clusters = list(set(clusters))
         selection = [c for c in clusters if c in self._clusters]
         removed = [c for c in clusters if c not in self._clusters]
@@ -90,7 +97,16 @@ class BundlePlot(object):
             )
         return selection
 
-    def _interpret_cluster_input(self, clusters):
+    def _interpret_cluster_input(self, clusters=None) -> List[int]:
+        """ Flexible handling of user specifications for clusters.
+
+        Args:
+            clusters: Either None (all clusters) a single int (just that
+                cluster or a list of clusters).
+
+        Returns:
+            list of selected clusters
+        """
         if isinstance(clusters, int):
             clusters = [clusters]
         if not clusters:
@@ -132,6 +148,14 @@ class BundlePlot(object):
         else:
             raise ValueError("Invalid argument bpoint=={}".format(bpoint))
 
+    # **************************************************************************
+    # Plots
+    # **************************************************************************
+
+    # --------------------------------------------------------------------------
+    # Legend
+    # --------------------------------------------------------------------------
+
     def _draw_legend(self, clusters=None):
         if not self.draw_legend:
             return
@@ -155,6 +179,10 @@ class BundlePlot(object):
             title="Clusters",
             frameon=False
         )
+
+    # --------------------------------------------------------------------------
+    # Benchmark points + more lines
+    # --------------------------------------------------------------------------
 
     def _plot_bundles(self, ax, cluster: int, nlines=0) -> None:
         """ Main implementation of self.plot_bundles (private method).
@@ -199,7 +227,7 @@ class BundlePlot(object):
                 linestyle='-'
             )
 
-    def plot_bundles(self, clusters: Union[int, Iterable[int]]=None, nlines=0,
+    def plot_bundles(self, clusters: Union[int, Iterable[int]] = None, nlines=0,
                      ax=None) -> None:
         """ Plot several examples of distributions for each cluster specified
 
@@ -231,6 +259,10 @@ class BundlePlot(object):
             self._plot_bundles(ax, cluster, nlines=nlines)
 
         self._draw_legend(clusters)
+
+    # --------------------------------------------------------------------------
+    # Minima/Maxima of bin content for each cluster
+    # --------------------------------------------------------------------------
 
     def _plot_minmax(self, ax, cluster: int, reference=True) -> None:
         """ Main implementation of self.plot_minmax.
@@ -269,7 +301,7 @@ class BundlePlot(object):
         if reference:
             self._plot_bundles(ax, cluster, nlines=0)
 
-    def plot_minmax(self, clusters: Union[int, Iterable[int]]=None,
+    def plot_minmax(self, clusters: Union[int, Iterable[int]] = None,
                     ax=None, reference=True) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -300,6 +332,10 @@ class BundlePlot(object):
             self._plot_minmax(ax, cluster, reference=reference)
 
         self._draw_legend(clusters)
+
+    # --------------------------------------------------------------------------
+    # Box plots
+    # --------------------------------------------------------------------------
 
     def _box_plot(self, ax, cluster, whiskers=1.5, reference=True) -> None:
         """ Main implementation of self.box_plot.
@@ -338,8 +374,8 @@ class BundlePlot(object):
         if reference:
             self._plot_bundles(ax, cluster, nlines=0)
 
-    def box_plot(self, clusters: Union[int, Iterable[int]]=None, ax=None,
-                 whiskers: float=2.5, reference=True) -> None:
+    def box_plot(self, clusters: Union[int, Iterable[int]] = None, ax=None,
+                 whiskers=2.5, reference=True) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
 
@@ -351,6 +387,7 @@ class BundlePlot(object):
             whiskers: Length of the whiskers of the box plot in units of IQR
                 (interquartile range, containing 50% of all values). Default
                 2.5.
+            reference: Draw benchmarks?
         """
         clusters = self._interpret_cluster_input(clusters)
         if not ax:

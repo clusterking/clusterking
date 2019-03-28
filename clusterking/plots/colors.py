@@ -4,23 +4,25 @@
 import logging
 
 # 3rd party
+import matplotlib.colors
+import matplotlib.pyplot as plt
+import numpy as np
 
 # ours
 from clusterking.util.log import get_logger
 
 
 class ColorScheme(object):
-    """ Class holding color scheme. Subclass and overwrite color lists
-    to implement different schemes.
+    """ Class holding color scheme. We want to assign a unique color to every
+    cluster and keep it consistent accross different plots.
+    Subclass and overwrite color lists to implement different schemes.
     """
-    def __init__(self, clusters=None):
+    def __init__(self, clusters, colors=None):
+        self.log = get_logger("Colors", sh_level=logging.WARNING)
 
-        self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
+        self.clusters = list(clusters)
 
-        if clusters is not None:
-            self.clusters = list(clusters)
-        else:
-            self.clusters = []
+        self._cluster_colors = None
 
         self.cluster_colors = [
             "red",
@@ -30,50 +32,57 @@ class ColorScheme(object):
             "orange",
             "pink"
         ]
+        if colors:
+            self.cluster_colors = colors
 
-    def _get_cluster_color(self, cluster, listname):
+        if len(clusters) > len(self.cluster_colors):
+            self.log.warning(
+                "Not enough colors for all clusters. Some clusters might end up"
+                " with identical colors."
+            )
+
+    @property
+    def cluster_colors(self):
+        return self._cluster_colors
+
+    @cluster_colors.setter
+    def cluster_colors(self, value):
+        self._cluster_colors = list(map(
+            matplotlib.colors.to_rgba,
+            value
+        ))
+
+    def get_cluster_color(self, cluster):
         """ Try to pick a unique element of a list corresponding to cluster.
         
         Args:
-            cluster: Name of cluster (or index)
-            listname: Name of a list which is attribute of this class
-                to pick from
-        
+            cluster: Name of cluster
+
         Returns:
             Element of that list
         """
-        if self.clusters:
-            if cluster in self.clusters:
-                index = self.clusters.index(cluster)
-            else:
-                self.log.error(
-                    "Cluster {} is not in the list of clusters. ".format(
-                        cluster
-                    ))
-                index = 0
+        if cluster in self.clusters:
+            index = self.clusters.index(cluster)
         else:
-            assert(isinstance(cluster, int))
-            index = cluster
+            self.log.error(
+                "Cluster {} is not in the list of clusters. ".format(
+                    cluster
+                ))
+            index = 0
 
-        pick_list = getattr(self, listname)
+        return self.cluster_colors[index % len(self.cluster_colors)]
 
-        # fixme: this should only be displayed once!
-        if index > len(pick_list):
-            self.log.warning(
-                "Not enough elements in self.{}. Some clusters might end up"
-                "with identical elements."
-            )
+    def to_colormap(self, name="MyColorMap"):
+        return matplotlib.colors.LinearSegmentedColormap.from_list(
+            name,
+            list(map(self.get_cluster_color, self.clusters))
+        )
 
-        return pick_list[index % len(pick_list)]
+    def demo(self):
+        z = np.array(self.clusters).reshape((1, 3))
+        plt.imshow(z, cmap=self.to_colormap())
 
-    def get_cluster_color(self, cluster):
-        """
-        Get color for cluster
+    def get_cluster_colors_faded(self, cluster, nlines):
+        base_color = self.get_cluster_color(cluster)
         
-        Args:
-            cluster: Name of cluster.
 
-        Returns:
-            Color as something that matplotlib understands.
-        """
-        return self._get_cluster_color(cluster, "cluster_colors")

@@ -64,6 +64,10 @@ class BundlePlot(object):
         #: Draw legend?
         self.draw_legend = True
 
+        #: Override default titles with this title. If None, the default title
+        #:  is used.
+        self.title = None
+
         #: Instance of matplotlib.pyplot.figure
         self.fig = None
         #: Instance of matplotlib.axes.Axes
@@ -246,11 +250,17 @@ class BundlePlot(object):
         clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
-            ax.set_title(
-                "{} example(s) of distributions for cluster(s) {}".format(
-                    nlines + int(self._has_bpoints), ", ".join(map(str, sorted(clusters)))
-                )
+            title = ""
+            if self._has_bpoints:
+                title = "benchmark point(s) "
+            if clusters:
+                title += "+ {} sample point(s) ".format(nlines)
+            title += "for cluster(s) {}".format(
+                ", ".join(map(str, sorted(clusters)))
             )
+            if self.title is not None:
+                title = self.title
+            ax.set_title(title)
             self.fig = fig
             self.ax = ax
         # pycharm might be confused about the type of `clusters`:
@@ -319,10 +329,11 @@ class BundlePlot(object):
         clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
-            ax.set_title(
-                "Minima and maxima of the bin contents for "
-                "cluster(s) {}".format(', '.join(map(str, sorted(clusters))))
-            )
+            title = "Minima and maxima of the bin contents for cluster(s)" \
+                    " {}".format(', '.join(map(str, sorted(clusters))))
+            if self.title is not None:
+                title = self.title
+            ax.set_title(title)
             self.fig = fig
             self.ax = ax
 
@@ -392,13 +403,14 @@ class BundlePlot(object):
         clusters = self._interpret_cluster_input(clusters)
         if not ax:
             fig, ax = plt.subplots()
-            ax.set_title(
-                "Box plot of the bin contents for cluster(s) {}\n"
-                "Whisker length set to {}*IQR".format(
-                    ", ".join(map(str, sorted(clusters))),
-                    whiskers
-                )
+            title = "Box plot of the bin contents for cluster(s) {}\n" \
+                    "Whisker length set to {}*IQR".format(
+                        ", ".join(map(str, sorted(clusters))),
+                        whiskers
             )
+            if self.title is not None:
+                title = self.title
+            ax.set_title(title)
             self.fig = fig
             self.ax = ax
         # pycharm might be confused about the type of `clusters`:

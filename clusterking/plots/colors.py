@@ -78,11 +78,27 @@ class ColorScheme(object):
             list(map(self.get_cluster_color, self.clusters))
         )
 
+    def faded_colormap(self, cluster, nlines, name="MyFadedColorMap", **kwargs):
+        colors = self.get_cluster_colors_faded(cluster, nlines, **kwargs)
+        return matplotlib.colors.LinearSegmentedColormap.from_list(
+            name,
+            colors
+        )
+
     def demo(self):
-        z = np.array(self.clusters).reshape((1, 3))
+        z = np.array(self.clusters).reshape((1, len(self.clusters)))
         plt.imshow(z, cmap=self.to_colormap())
 
-    def get_cluster_colors_faded(self, cluster, nlines):
-        base_color = self.get_cluster_color(cluster)
-        
+    def demo_faded(self, cluster, nlines, **kwargs):
+        z = np.array(range(nlines)).reshape((1, nlines))
+        plt.imshow(z, cmap=self.faded_colormap(cluster, nlines, **kwargs))
 
+    def get_cluster_colors_faded(self, cluster, nlines, max_alpha=0.7,
+                                 min_alpha=0.3):
+        base_color = self.get_cluster_color(cluster)
+        alphas = np.linspace(min_alpha, max_alpha, nlines)
+        colors = [
+            matplotlib.colors.to_rgba(base_color, alpha)
+            for alpha in alphas
+        ]
+        return colors

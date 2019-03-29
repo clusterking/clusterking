@@ -11,6 +11,8 @@ import matplotlib
 import numpy as np
 import pandas as pd
 
+import matplotlib.animation as animation
+
 # ours
 from clusterking.util.log import get_logger
 from clusterking.plots.plot_histogram import plot_histogram
@@ -200,7 +202,7 @@ class BundlePlot(object):
     # Benchmark points + more lines
     # --------------------------------------------------------------------------
 
-    def _plot_bundles(self, cluster: int, nlines=0) -> None:
+    def _plot_bundles(self, cluster: int, nlines=0, benchmark=True) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
 
@@ -224,26 +226,29 @@ class BundlePlot(object):
 
         indizes = get_random_indizes(0, len(df_cluster_no_bp), nlines)
         color = self.color_scheme.get_cluster_color(cluster)
-        for index in indizes:
+        colors = self.color_scheme.get_cluster_colors_faded(cluster, nlines)
+        if nlines == 1 and not benchmark:
+            # Do not use faded out color if we just plot one line
+            colors = [color]
+        for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
             plot_histogram(
                 self.ax,
                 None,
                 data,
-                color=color,
-                linestyle='--'
+                color=colors[i],
+                linestyle="-"
             )
-        if self._has_bpoints:
+        if self._has_bpoints and benchmark:
             plot_histogram(
                 self.ax,
                 None,
                 df_cluster_bp.values,
                 color=color,
-                linestyle='-'
             )
 
     def plot_bundles(self, clusters: Union[int, Iterable[int]] = None, nlines=0,
-                     ax=None) -> None:
+                     ax=None, benchmark=True) -> None:
         """ Plot several examples of distributions for each cluster specified
 
         Args:
@@ -254,6 +259,7 @@ class BundlePlot(object):
             ax: Instance of matplotlib.axes.Axes to be plotted on. If None
                 (default), a new axes object and figure is initialized and
                 saved as self.ax and self.fig.
+            benchmark: Draw benchmark curve
 
         Returns:
             None
@@ -273,9 +279,48 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._plot_bundles(cluster, nlines=nlines)
+            self._plot_bundles(cluster, nlines=nlines, benchmark=benchmark)
 
         self._draw_legend(clusters)
+
+    def animate_bundle(self, cluster, n, benchmark=True):
+        # There seems to be some underlying magic here with fig
+        fig = plt.figure()
+        ax = fig.gca()
+        self.ax = ax
+        linestyle = "-"
+        if benchmark:
+            self._plot_bundles(cluster, 0, benchmark=True)
+            linestyle = "--"
+        ims = []
+        df_cluster_no_bp = self._get_df_cluster(cluster, bpoint=False)
+        color = self.color_scheme.get_cluster_color(cluster)
+        for i in range(n):
+            index = random.randrange(0, len(df_cluster_no_bp))
+            contents = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
+            contents = np.append(contents, contents[-1])
+            edges = np.arange(len(contents))
+
+            ims.append(plt.step(
+                edges,
+                contents,
+                where="post",
+                color=color,
+                linestyle=linestyle
+            ))
+
+        # self._set_ax(None, "Animated sample points")
+        anim = animation.ArtistAnimation(
+            fig,
+            ims,
+            interval=500,
+            repeat_delay=3000,
+            blit=True
+        )
+        # In order to display this in the notebook, use
+        # from IPython.display import HTML
+        # HTML(anim.to_html5_video())
+        return anim
 
     # --------------------------------------------------------------------------
     # Minima/Maxima of bin content for each cluster

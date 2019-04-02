@@ -6,14 +6,14 @@ This module bundles mostly technical utilities that might not be all this intere
 ``Interface``
 -------------
 
-.. automodule:: bclustering.util.cli
+.. automodule:: clusterking.util.cli
   :members:
   :undoc-members:
 
 ``Log``
 -------------
 
-.. automodule:: bclustering.util.log
+.. automodule:: clusterking.util.log
   :members:
   :undoc-members:
 
@@ -21,7 +21,7 @@ This module bundles mostly technical utilities that might not be all this intere
 ``Metadata``
 -------------
 
-.. automodule:: bclustering.util.metadata
+.. automodule:: clusterking.util.metadata
   :members:
   :undoc-members:
 
@@ -29,6 +29,6 @@ This module bundles mostly technical utilities that might not be all this intere
 ``Testing``
 -------------
 
-.. automodule:: bclustering.util.testing
+.. automodule:: clusterking.util.testing
   :members:
   :undoc-members:

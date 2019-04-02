@@ -4,21 +4,21 @@
 ``Cluster``
 -----------
 
-.. autoclass:: bclustering.cluster.cluster.Cluster
+.. autoclass:: clusterking.cluster.cluster.Cluster
   :members:
   :undoc-members:
 
 ``HierarchyCluster``
 --------------------
 
-.. autoclass:: bclustering.cluster.HierarchyCluster
+.. autoclass:: clusterking.cluster.HierarchyCluster
   :members:
   :undoc-members:
 
 ``KmeansCluster``
 -----------------
 
-.. autoclass:: bclustering.cluster.KmeansCluster
+.. autoclass:: clusterking.cluster.KmeansCluster
   :members:
   :undoc-members:
 

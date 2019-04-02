@@ -6,21 +6,21 @@ Mathematics.
 ``Binning``
 -----------
 
-.. automodule:: bclustering.maths.binning
+.. automodule:: clusterking.maths.binning
   :members:
   :undoc-members:
 
 ``Metric``
 ----------
 
-.. automodule:: bclustering.maths.metric
+.. automodule:: clusterking.maths.metric
   :members:
   :undoc-members:
 
 ``Statistics``
 --------------
 
-.. automodule:: bclustering.maths.statistics
+.. automodule:: clusterking.maths.statistics
   :members:
   :undoc-members:
 

@@ -4,17 +4,17 @@
 ``DFMD``
 ---------------
 
-.. autoclass:: bclustering.data.dfmd.DFMD
+.. autoclass:: clusterking.data.dfmd.DFMD
   :members:
 
 ``Data``
 ---------------
 
-.. autoclass:: bclustering.data.data.Data
+.. autoclass:: clusterking.data.data.Data
   :members:
 
 ``DataWithErrors``
 ------------------
 
-.. autoclass:: bclustering.data.dwe.DataWithErrors
+.. autoclass:: clusterking.data.dwe.DataWithErrors
   :members:

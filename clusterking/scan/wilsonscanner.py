@@ -21,10 +21,12 @@ class WilsonScanner(Scanner):
     .. code-block:: python
 
         import flavio
-        from bclustering import Scanner, Data
+        import functools
+        import numpy as np
+        import clusterking as ck
 
         # Initialize Scanner object
-        s = Scanner()
+        s = ck.scan.WilsonScanner()
 
         # Sample 4 points for each of the 5 Wilson coefficients
         s.set_spoints_equidist(
@@ -41,12 +43,12 @@ class WilsonScanner(Scanner):
         # Set function and binning
         s.set_dfunction(
             functools.partial(flavio.np_prediction, "dBR/dq2(B+->Dtaunu)"),
-            binning=np.linspace(3.15, bdlnu.q2max, 11.66),
+            binning=np.linspace(3.15, 11.66, 10),
             normalize=True
         )
 
         # Initialize a Data objects to write to
-        d = Data()
+        d = ck.Data()
 
         # Start running with maximally 3 cores and write the results to Data
         s.run(d)

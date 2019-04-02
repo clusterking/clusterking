@@ -94,8 +94,12 @@ Being a condensed version of the basic tutorial, the following code is all that 
 
 .. code:: python
 
-   s = clusterking.Scanner()
-   d = clusterking.DataWithErrors()
+   import flavio
+   import numpy as np
+   import clusterking as ck
+
+   s = ck.scan.WilsonScanner()
+   d = ck.DataWithErrors()
 
    # Set up kinematic function
 
@@ -126,28 +130,28 @@ Being a condensed version of the basic tutorial, the following code is all that 
 
    # Use hierarchical clustering
 
-   c = clusterking.cluster.HierarchyCluster(d)
-   c.set_metric()
-   c.build_hierarchy()
-   c.cluster(max_d=0.04)
-   c.write()
+   c = ck.cluster.HierarchyCluster(d)
+   c.set_metric()         # Use default metric (Euclidean)
+   c.build_hierarchy()    # Build up clustering hierarchy
+   c.cluster(max_d=0.04)  # "Cut off" hierarchy
+   c.write()              # Write results to d
 
 Benchmark points
 ~~~~~~~~~~~~~~~~
 
 .. code:: python
 
-   b = clusterking.Benchmark(d)
-   b.set_metric()
-   b.select_bpoints()
-   b.write()
+   b = ck.Benchmark(d)
+   b.set_metric()      # Use default metric (Euclidean)
+   b.select_bpoints()  # Select benchmark points based on metric
+   b.write()           # Write results to d
 
 Plotting
 ~~~~~~~~
 
 .. code:: python
 
-    cp = clusterking.ClusterPlot(d)
+    cp = ck.plots.ClusterPlot(d)
     cp.scatter(
         ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau'],
         clusters=[1,2]  # Only plot 2 clusters for better visibility
@@ -165,7 +169,7 @@ Plotting all benchmark points:
 
 .. code:: python
 
-    bp = clusterking.BundlePlot(d)
+    bp = ck.plots.BundlePlot(d)
     bp.plot_bundles()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png

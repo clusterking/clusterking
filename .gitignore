@@ -28,7 +28,7 @@ __pycache__/
 build/**
 dist/**
 *.egg-info/**
-bclustering/git_info.json
+clusterking/git_info.json
 
 # MISC
 # ====

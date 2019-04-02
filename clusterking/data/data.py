@@ -33,7 +33,7 @@ class Data(DFMD):
         parameters). This is automatically read from the
         metadata as set in e.g. the Scan.run.
         """
-        return self.md["scan"]["wpoints"]["coeffs"]
+        return self.md["scan"]["spoints"]["coeffs"]
 
     @property
     def n(self):
@@ -81,8 +81,33 @@ class Data(DFMD):
         """
         return np.sum(self.data(), axis=1)
 
+    # todo: sorting
     def clusters(self, cluster_column="cluster"):
+        """ Return numpy array of all cluster names (unique)
+
+        Args:
+            cluster_column: Column that contains the cluster names
+        """
         return self.df[cluster_column].unique()
+
+    # def _sample(self, spoints):
+    #
+    # def sample(self, linspaces=None, values=None, bpoints=True):
+    #     """ Return a Data object that contains a subset of the sample points
+    #     (points in parameter space).
+    #
+    #     Args:
+    #         linspaces: Dictionary of the following form:
+    #
+    #             .. code-block:: python
+    #
+    #                 {
+    #                     <coeff name>: (min, max, npoints)
+    #                 }
+    #
+    #             Will
+    #     """
+    #     pass
 
     # **************************************************************************
     # C:  Manipulating things

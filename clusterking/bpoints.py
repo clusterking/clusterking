@@ -122,9 +122,9 @@ class Benchmark(AbstractBenchmark):
 
         result = np.full(self.data.n, False)
         for cluster in set(self._clusters):
-            # The indizes of all wpoints that are in the current cluster
+            # The indizes of all spoints that are in the current cluster
             indizes = np.argwhere(self._clusters == cluster).squeeze()
-            # A data object with only these wpoints
+            # A data object with only these spoints
             d_cut = type(self.data)(
                 df=self.data.df.iloc[indizes],
                 md=self.data.md

@@ -204,3 +204,5 @@ This project is ongoing work and questions_, comments, `bug reports`_ or `pull r
 This software is lienced under the `MIT license`_.
 
 .. _MIT  license: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
+
+.. end-body

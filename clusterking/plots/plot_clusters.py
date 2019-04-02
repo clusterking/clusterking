@@ -341,7 +341,7 @@ class ClusterPlot(object):
 
     # todo: **kwargs
     # todo: factor out the common part of scatter and fill into its own method?
-    def scatter(self, cols: List[str], clusters=None):
+    def scatter(self, cols: List[str], clusters=None, **kwargs):
         """ Create scatter plot, specifying the columns to be on the axes of the
         plot. If 3 column are specified, 3D scatter plots
         are presented, else 2D plots. If the dataframe contains more columns,
@@ -352,6 +352,7 @@ class ClusterPlot(object):
             cols: The names of the columns to be shown on the x, y (and z)
                axis of the plots.
             clusters: The get_clusters to be plotted (default: all)
+            **kwargs: Kwargs for ax.scatter
 
         Returns:
             The figure (unless the 'inline' setting of matplotllib is
@@ -385,7 +386,8 @@ class ClusterPlot(object):
                     color=self.color_scheme.get_cluster_color(cluster),
                     marker=self.markers[cluster-1 % len(self.markers)],
                     label=cluster,
-                    s=self.default_marker_size
+                    s=self.default_marker_size,
+                    **kwargs
                 )
                 if self._has_bpoints:
                     self._axli[isubplot].scatter(
@@ -393,7 +395,8 @@ class ClusterPlot(object):
                         color=self.color_scheme.get_cluster_color(cluster),
                         marker=self.markers[cluster-1 % len(self.markers)],
                         label=cluster,
-                        s=self.bpoint_marker_size
+                        s=self.bpoint_marker_size,
+                        **kwargs
                     )
 
         self._add_legend()
@@ -402,8 +405,7 @@ class ClusterPlot(object):
             return self._fig
 
     # todo: implement interpolation
-    # todo: **kwargs
-    def fill(self, cols: List[str]):
+    def fill(self, cols: List[str], kwargs_imshow=None):
         """ Call this method with two column names, x and y. The results are
         similar to those of 2D scatter plots as created by the scatter
         method, except that the coloring is expanded to the whole xy plane.
@@ -411,11 +413,15 @@ class ClusterPlot(object):
 
         Args:
             cols: List of name of column to be plotted on x-axis and on y-axis
+            kwargs_imshow: Additional keyword arguments to be passed to imshow
 
         Returns:
             The figure (unless the 'inline' setting of matplotllib is
             detected).
         """
+        if not kwargs_imshow:
+            kwargs_imshow = {}
+
         assert(len(cols) == 2)
         self._setup_all(cols)
 
@@ -433,11 +439,17 @@ class ClusterPlot(object):
             z = df_subplot[self.cluster_column].values
             # check if this makes sense
             z_matrix = z.reshape(y.shape[0], int(len(z) / y.shape[0]))
+
+            imshow_config = {
+                "interpolation": "none",
+                "aspect": "auto"
+            }
+            imshow_config.update(kwargs_imshow)
+
             self._axli[isubplot].imshow(
                 self._set_fill_colors(z_matrix),
-                interpolation='none',
                 extent=[min(x), max(x), min(y), max(y)],
-                aspect='auto'
+                **imshow_config
             )
 
         self._add_legend()

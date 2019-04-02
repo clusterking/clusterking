@@ -21,6 +21,11 @@ trap atExit EXIT
 cd "${sourceDir}"
 
 rm -rf "dist/"
+
+version=$(cat clusterking/version.txt)
+echo "Version is: " $version
+
 python3 setup.py sdist bdist_wheel
 python3 -m twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*
-
+git tag -l "${version}"
+git push origin "${version}"

@@ -27,5 +27,5 @@ echo "Version is: " $version
 
 python3 setup.py sdist bdist_wheel
 python3 -m twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*
-git tag -a "${version}" -m "Release version ${version}"
+git tag -a "v${version}" -m "Release version ${version}"
 git push origin "${version}"

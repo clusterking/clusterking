@@ -120,7 +120,7 @@ class Benchmark(AbstractBenchmark):
             )
             return
 
-        result = np.full(self.data.n, False)
+        result = np.full(self.data.n, False).astype(bool)
         for cluster in set(self._clusters):
             # The indizes of all spoints that are in the current cluster
             indizes = np.argwhere(self._clusters == cluster).squeeze()

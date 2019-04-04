@@ -6,7 +6,7 @@ import copy
 # 3d
 import numpy as np
 import pandas as pd
-from typing import Callable, Union
+from typing import Callable, Union, Iterable
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -130,13 +130,29 @@ class Data(DFMD):
             new_obj.only_bpoints(inplace=True)
             return new_obj
 
+    # todo: test me
     def fix_param(self, inplace=False, bpoints=False, bpoint_column="bpoint",
                   **kwargs):
-        """ Either <param name>=value or <param name>=selection of values
+        """ Fix some parameter values to get a subset of sample points.
+
+        Examples:
+
+        .. code-block:: python
+
+            d = Data("/path/to/tutorial/csv/folder", "tutorial_basics")
+
+            # Return a new Data object, keeping the two values CT_bctaunutau
+            # closest to -0.75 or 0.5
+            d.fix_param(CT_bctaunutau=[-.75, 0.5])
+
+            # Return a new Data object, where we also fix CSL_bctaunutau to the
+            # value closest to -1.0
+            d.fix_param(CT_bctaunutau=[-.75, 0.5], CSL_bctaunutau=-1.0)
 
         Args:
             inplace: Modify this Data object instead of returning a new one
-            bpoints: Force keep bpoints
+            bpoints: Keep bpoints (no matter if they are selected by the other
+                selection or not)
             bpoint_column: Column with benchmark points (default 'bpoints')
                 (for use with the ``bpoints`` option)
             **kwargs: Specify parameter values:
@@ -146,25 +162,31 @@ class Data(DFMD):
         Returns:
             If inplace == True: Return new Data with subset of sample points.
         """
-        if inplace:
-            # Save bpoints if we want to have them
-            df_bpoints = pd.DataFrame()
-            if bpoints:
-                df_bpoints = self.df[self.df[bpoint_column]]
-            for param, value in kwargs.items():
-                values = self.df[param].values
-                idx = (np.abs(values - value)).argmin()
-                nearest_value = values[idx]
-                self.df = self.df[
-                    np.isclose(self.df[param].values, nearest_value)
-                ]
-            if bpoints:
-                self.df = pd.concat([self.df, df_bpoints])
-
-        else:
+        if not inplace:
             new_obj = copy.deepcopy(self)
             new_obj.fix_param(inplace=True, bpoints=bpoints, **kwargs)
             return new_obj
+
+        # Inplace:
+
+        selector = np.full(self.n, True, bool)
+
+        for param, values in kwargs.items():
+            if not isinstance(values, Iterable):
+                values = [values]
+            param_selector = np.full(self.n, False, bool)
+            for value in values:
+                available_values = self.df[param].values
+                idx = (np.abs(available_values - value)).argmin()
+                nearest_value = available_values[idx]
+                param_selector |= \
+                    np.isclose(self.df[param].values, nearest_value)
+            selector &= param_selector
+
+        if bpoints:
+            selector |= self.df[bpoint_column].astype(bool)
+
+        self.df = self.df[selector]
 
     # todo: this probably doesn't work as easy as this, because linspaces will
     #  then have to be ordered to be reproducible. Unless we first translate the

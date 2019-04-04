@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
+# std
+import copy
+
 # 3d
 import numpy as np
+import pandas as pd
 from typing import Callable
 
 # ours
@@ -90,9 +94,63 @@ class Data(DFMD):
         """
         return self.df[cluster_column].unique()
 
-    # def _sample(self, spoints):
-    #
-    # def sample(self, linspaces=None, values=None, bpoints=True):
+    def get_param_values(self, param):
+        """ Return all unique values of this parameter
+
+        Args:
+            param:
+
+        Returns:
+
+        """
+        return self.df[param].unique()
+
+    def only_bpoints(self, column="bpoints", inplace=False):
+        if inplace:
+            self.df = self.df[self.df[column]]
+        else:
+            new_obj = copy.deepcopy(self)
+            new_obj.only_bpoints(inplace=True)
+            return new_obj
+
+    def fix_param(self, inplace=False, bpoints=True, bpoint_column="bpoints",
+                  **kwargs):
+        """ Either <param name>=value or <param name>=selection of values
+
+        Args:
+            inplace: Modify this Data object instead of returning a new one
+            bpoints: Force keep bpoints
+            **kwargs: Use ``<parameter name>=<value>`` or
+                ``<parameter name>=[<value1>, ..., <valuen>]``.
+
+        Returns:
+            If inplace == True: Return new Data with subset of sample points.
+        """
+        if inplace:
+            # Save bpoints if we want to have them
+            df_bpoints = pd.DataFrame()
+            if bpoints:
+                df_bpoints = self.df[self.df[bpoint_column]]
+            for param, value in kwargs.items():
+                values = self.df[param].values
+                idx = (np.abs(values - value)).argmin()
+                nearest_value = values[idx]
+                self.df = self.df[
+                    np.isclose(self.df[param].values, nearest_value)
+                ]
+            if bpoints:
+                self.df = pd.concat([self.df, df_bpoints])
+
+        else:
+            new_obj = copy.deepcopy(self)
+            new_obj.fix_param(inplace=True, bpoints=bpoints, **kwargs)
+            return new_obj
+
+    # todo: this probably doesn't work as easy as this, because linspaces will
+    #  then have to be ordered to be reproducible. Unless we first translate the
+    #  sample specification to actual values (without making any cuts yet) and
+    #  then applying these (which will then be independent of the order).
+    # def sample_param(self, bpoints=True, inplace=False, **kwargs):
     #     """ Return a Data object that contains a subset of the sample points
     #     (points in parameter space).
     #
@@ -105,9 +163,31 @@ class Data(DFMD):
     #                     <coeff name>: (min, max, npoints)
     #                 }
     #
-    #             Will
+    #             For each coeff (identified by <coeff name>), select (at most)
+    #             npoints points between min and max (a warning is displayed if
+    #             fewer than desired points are selected).
+    #             In total this will therefore result in npoints_{coeff_1} x ...
+    #             x npoints_{coeff_npar} sample points.
+    #             If a coefficient isn't contained in the dictionary, this
+    #             dimension of the sample remains untouched.
+    #
+    #         values: Dictionary of the following form:
+    #
+    #         .. code-block:: python
+    #
+    #             {
+    #                 <coeff name>: [value_1, ..., value_n]
+    #             }
     #     """
-    #     pass
+    #     raise NotImplementedError
+    #
+    # def _sample(self, spoints):
+    #     """ Returns Data object that contains a subset of the sample
+    #     points. """
+    #     raise NotImplementedError
+    #
+    # def _filter_spoints(self, linspaces=None, values=None, bpoints=True):
+    #     raise NotImplementedError
 
     # **************************************************************************
     # C:  Manipulating things

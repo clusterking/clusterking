@@ -112,8 +112,17 @@ class Data(DFMD):
             }
         return self.df[param].unique()
 
-    # todo: test me
-    def only_bpoints(self, column="bpoints", inplace=False):
+    def only_bpoints(self, column="bpoint", inplace=False):
+        """ Data object with only benchmark points.
+
+        Args:
+            column: benchmark point column (boolean)
+            inplace: If True, the current Data object is modified, if False,
+                a new copy of the Data object is returned.
+
+        Returns:
+            None or Data
+        """
         if inplace:
             self.df = self.df[self.df[column]]
         else:
@@ -121,7 +130,7 @@ class Data(DFMD):
             new_obj.only_bpoints(inplace=True)
             return new_obj
 
-    def fix_param(self, inplace=False, bpoints=True, bpoint_column="bpoints",
+    def fix_param(self, inplace=False, bpoints=False, bpoint_column="bpoint",
                   **kwargs):
         """ Either <param name>=value or <param name>=selection of values
 

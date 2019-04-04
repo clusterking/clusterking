@@ -33,6 +33,14 @@ class TestData(MyTestCase):
             [[1/3, 2/3], [4/9, 5/9]]
         )
 
+    def test_only_bpoints(self):
+        d = Data(self.ddir, self.dname)
+        e = d.only_bpoints()
+        self.assertAllClose(e.data(), [[400, 500]])
+        d.only_bpoints(inplace=True)
+        self.assertAllClose(d.data(), [[400, 500]])
+
+
 
 if __name__ == "__main__":
     unittest.main()

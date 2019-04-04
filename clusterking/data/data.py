@@ -131,6 +131,7 @@ class Data(DFMD):
             return new_obj
 
     # todo: test me
+    # todo: order dict to avoid changing results
     def fix_param(self, inplace=False, bpoints=False, bpoint_column="bpoint",
                   **kwargs):
         """ Fix some parameter values to get a subset of sample points.
@@ -188,48 +189,43 @@ class Data(DFMD):
 
         self.df = self.df[selector]
 
-    # todo: this probably doesn't work as easy as this, because linspaces will
-    #  then have to be ordered to be reproducible. Unless we first translate the
-    #  sample specification to actual values (without making any cuts yet) and
-    #  then applying these (which will then be independent of the order).
-    # def sample_param(self, bpoints=True, inplace=False, **kwargs):
-    #     """ Return a Data object that contains a subset of the sample points
-    #     (points in parameter space).
-    #
-    #     Args:
-    #         linspaces: Dictionary of the following form:
-    #
-    #             .. code-block:: python
-    #
-    #                 {
-    #                     <coeff name>: (min, max, npoints)
-    #                 }
-    #
-    #             For each coeff (identified by <coeff name>), select (at most)
-    #             npoints points between min and max (a warning is displayed if
-    #             fewer than desired points are selected).
-    #             In total this will therefore result in npoints_{coeff_1} x ...
-    #             x npoints_{coeff_npar} sample points.
-    #             If a coefficient isn't contained in the dictionary, this
-    #             dimension of the sample remains untouched.
-    #
-    #         values: Dictionary of the following form:
-    #
-    #         .. code-block:: python
-    #
-    #             {
-    #                 <coeff name>: [value_1, ..., value_n]
-    #             }
-    #     """
-    #     raise NotImplementedError
-    #
-    # def _sample(self, spoints):
-    #     """ Returns Data object that contains a subset of the sample
-    #     points. """
-    #     raise NotImplementedError
-    #
-    # def _filter_spoints(self, linspaces=None, values=None, bpoints=True):
-    #     raise NotImplementedError
+    # todo: test
+    # todo: add usage example to docstring
+    def sample_param(self, bpoints=True, inplace=False, **kwargs):
+        """ Return a Data object that contains a subset of the sample points
+        (points in parameter space). Similar to Data.fix_param.
+
+        Args:
+            inplace: Modify this Data object instead of returning a new one
+            bpoints: Keep bpoints (no matter if they are selected by the other
+                selection or not)
+            **kwargs: Specify parameter ranges:
+                ``<coeff name>=(min, max, npoints)`` or
+                ``<coeff name>=npoints``
+                For each coeff (identified by <coeff name>), select (at most)
+                npoints points between min and max.
+                In total this will therefore result in npoints_{coeff_1} x ...
+                x npoints_{coeff_npar} sample points (provided that there are
+                enough sample points available).
+                If a coefficient isn't contained in the dictionary, this
+                dimension of the sample remains untouched.
+
+        """
+        fix_kwargs = {}
+        for param, value in kwargs.items():
+            if isinstance(value, Iterable):
+                param_min, param_max, param_npoints = value
+            elif isinstance(value, (int, float)):
+                param_min = self.df[param].min()
+                param_max = self.df[param].max()
+                param_npoints = value
+            else:
+                raise ValueError(
+                    "Incompatible type {} of {}".format(type(value), value)
+                )
+            fix_kwargs[param] = np.linspace(param_min, param_max, param_npoints)
+
+        return self.fix_param(inplace=inplace, bpoints=bpoints, **fix_kwargs)
 
     # **************************************************************************
     # C:  Manipulating things

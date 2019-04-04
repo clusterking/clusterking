@@ -68,6 +68,7 @@ author = 'Jason Aebischer, Alejandro Celis, Kilian Lieret'
 this_dir = pathlib.Path(__file__).resolve().parent
 with (this_dir / ".."/ "clusterking" / "version.txt").open() as vf:
     version = vf.read()
+print("Version as read from version.txt: '{}'".format(version))
 
 # The short X.Y version.
 # version = 'dev'
@@ -124,11 +125,6 @@ todo_include_todos = True
 # a list of builtin themes.
 # html_theme = 'alabaster'
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-# html_theme_options = {}
-
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = ["_themes"]
 
@@ -139,6 +135,20 @@ try:
     html_theme_path = [theme.get_html_theme_path()]
 except:
     html_theme = "default"
+print("html_theme='{}'".format(html_theme))
+    
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+# html_theme_options = {}
+
+if html_theme == "sphinx_rtd_theme":
+    html_theme_options = {
+        'logo_only': True
+    }
+else:
+    html_theme_options = {}
+print("html_theme_options={}".format(html_theme_options))
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -225,7 +235,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ClusterKingDoc'
+htmlhelp_basename = 'ClusterKinGDoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 

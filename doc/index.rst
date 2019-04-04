@@ -6,18 +6,20 @@
 ClusterKinG
 ===========
 
-Frist you might want to check out the readme
+The ClusterKinG package provides a flexible yet easy to use framework to 
+cluster sets of histograms (or similar datasets) and to select 
+benchmark points representing each cluster. 
+The package particularly focuses on use cases in high energy physics.
 
 .. toctree::
   :maxdepth: 2
+  :caption: First steps
 
   readme
 
-Documentation of modules
-========================
-
 .. toctree::
   :maxdepth: 2
+  :caption: Module documentation
 
   data
   scanner

@@ -6,7 +6,7 @@ import copy
 # 3d
 import numpy as np
 import pandas as pd
-from typing import Callable
+from typing import Callable, Union
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -94,17 +94,25 @@ class Data(DFMD):
         """
         return self.df[cluster_column].unique()
 
-    def get_param_values(self, param):
+    # todo: test me
+    def get_param_values(self, param: Union[None, str] = None):
         """ Return all unique values of this parameter
 
         Args:
-            param:
+            param: Name of parameter. If none is given, instead return a
+                dictionary mapping of parameters to their values.
 
         Returns:
 
         """
+        if param is None:
+            return {
+                param: self.get_param_values(param)
+                for param in self.par_cols
+            }
         return self.df[param].unique()
 
+    # todo: test me
     def only_bpoints(self, column="bpoints", inplace=False):
         if inplace:
             self.df = self.df[self.df[column]]
@@ -120,7 +128,10 @@ class Data(DFMD):
         Args:
             inplace: Modify this Data object instead of returning a new one
             bpoints: Force keep bpoints
-            **kwargs: Use ``<parameter name>=<value>`` or
+            bpoint_column: Column with benchmark points (default 'bpoints')
+                (for use with the ``bpoints`` option)
+            **kwargs: Specify parameter values:
+                Use ``<parameter name>=<value>`` or
                 ``<parameter name>=[<value1>, ..., <valuen>]``.
 
         Returns:

@@ -47,7 +47,7 @@ class ClusterPlot(object):
         # Documented in docstring of this class
 
         #: Color scheme
-        self.color_scheme = ColorScheme()
+        self.color_scheme = None
 
         #: List of markers of the get_clusters (scatter plot only).
         self.markers = None
@@ -328,11 +328,7 @@ class ClusterPlot(object):
             for icol in range(cols):
                 cluster = int(matrix[irow, icol])
                 color = self.color_scheme.get_cluster_color(cluster)
-                # pycharm doesn't find ``colors`` in matplotlib:
-                # noinspection PyUnresolvedReferences
-                rgb = matplotlib.colors.hex2color(
-                    matplotlib.colors.cnames[color]
-                )
+                rgb = color[:3]
                 matrix_colored[irow, icol] = rgb
         return matrix_colored
 
@@ -348,6 +344,7 @@ class ClusterPlot(object):
         are presented, else 2D plots. If the dataframe contains more columns,
         such that each row is not only specified by the columns on the axes,
         a selection of subplots is created, showing 'cuts'.
+        Benchmark points are marked by enlarged plot markers.
 
         Args:
             cols: The names of the columns to be shown on the x, y (and z)

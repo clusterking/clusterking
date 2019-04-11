@@ -10,7 +10,7 @@ from typing import Callable, Union, Iterable
 # ours
 from clusterking.data.dfmd import DFMD
 from clusterking.plots.plot_bundles import BundlePlot
-from clusterking.util.misc import check_matplot_inline
+from clusterking.plots.plot_clusters import ClusterPlot
 
 
 # todo: docstrings
@@ -447,6 +447,11 @@ class Data(DFMD):
             legend: Draw legend? (default True)
             return_figure:
 
+        Note: To customize these kind of plots further, check the
+        :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
+        :py:meth:`~clusterking.plots.plot_bundles.BundlePlot.plot_bundles`
+        method thereof.
+
         Returns:
             Figure
         """
@@ -469,7 +474,8 @@ class Data(DFMD):
                          clusters=None,
                          bpoints=True,
                          legend=True):
-        """
+        """ Plot the minimum and maximum of each bin for the specified
+        clusters.
 
         Args:
             cluster_column: Column with the cluster names (default 'cluster')
@@ -479,6 +485,11 @@ class Data(DFMD):
                 If None (default), all clusters are chosen.
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
+
+        Note: To customize these kind of plots further, check the
+        :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
+        :py:meth:`~clusterking.plots.plot_bundles.BundlePlot.plot_minmax`
+        method thereof.
 
         Returns:
             Figure
@@ -518,6 +529,11 @@ class Data(DFMD):
                 2.5.
             legend: Draw legend? (default True)
 
+        Note: To customize these kind of plots further, check the
+        :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
+        :py:meth:`~clusterking.plots.plot_bundles.BundlePlot.box_plot`
+        method thereof.
+
         Returns:
             Figure
 
@@ -533,3 +549,85 @@ class Data(DFMD):
             whiskers=whiskers
         )
         return bp.fig
+
+    def plot_clusters_scatter(self,
+                              params,
+                              clusters=None,
+                              cluster_column="cluster",
+                              bpoint_column="bpoint",
+                              legend=True,
+                              max_subplots=16,
+                              max_cols=4,
+                              figsize=(4, 4),
+                              markers=("o", "v", "^", "v", "<", ">"),
+                              ):
+        """
+        Create scatter plot, specifying the columns to be on the axes of the
+        plot. If 3 column are specified, 3D scatter plots
+        are presented, else 2D plots. If the dataframe contains more columns,
+        such that each row is not only specified by the columns on the axes,
+        a selection of subplots is created, showing 'cuts'.
+        Benchmark points are marked by enlarged plot markers.
+
+        Args:
+            params: The names of the columns to be shown on the x, y (and z)
+               axis of the plots.
+            clusters: The get_clusters to be plotted (default: all)
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            legend: Draw legend? (default True)
+            max_subplots: Maximal number of subplots
+            max_cols: Maximal number of columns of the subplot grid
+            figsize: Figure size of each subplot
+            markers: List of markers of the get_clusters
+
+        Returns:
+            Figure
+        """
+        cp = ClusterPlot(self)
+        cp.cluster_column = cluster_column
+        cp.bpoint_column = bpoint_column
+        cp.draw_legend = legend
+        cp.max_subplots = max_subplots
+        cp.max_cols = max_cols
+        cp.figsize = figsize
+        cp.markers = markers
+        cp.scatter(params, clusters=clusters)
+        return cp.fig
+
+    def plot_clusters_fill(self,
+                           params,
+                           cluster_column="cluster",
+                           bpoint_column="bpoint",
+                           legend=True,
+                           max_subplots=16,
+                           max_cols=4,
+                           figsize=(4, 4)):
+        """
+        Call this method with two column names, x and y. The results are
+        similar to those of 2D scatter plots as created by the scatter
+        method, except that the coloring is expanded to the whole xy plane.
+        Note: This method only works with uniformly sampled NP!
+
+        Args:
+            params: The names of the columns to be shown on the x, y (and z)
+               axis of the plots.
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            legend: Draw legend? (default True)
+            max_subplots: Maximal number of subplots
+            max_cols: Maximal number of columns of the subplot grid
+            figsize: Figure size of each subplot
+
+        Returns:
+
+        """
+        cp = ClusterPlot(self)
+        cp.cluster_column = cluster_column
+        cp.bpoint_column = bpoint_column
+        cp.draw_legend = legend
+        cp.max_subplots = max_subplots
+        cp.max_cols = max_cols
+        cp.figsize = figsize
+        cp.fill(params)
+        return cp.fig

@@ -154,7 +154,9 @@ class Data(DFMD):
 
     # todo: test me
     # todo: order dict to avoid changing results
-    def fix_param(self, inplace=False, bpoints=False,
+    def fix_param(self,
+                  inplace=False,
+                  bpoints=False,
                   bpoint_slices=False,
                   bpoint_column="bpoint",
                   **kwargs):
@@ -193,7 +195,13 @@ class Data(DFMD):
         """
         if not inplace:
             new_obj = copy.deepcopy(self)
-            new_obj.fix_param(inplace=True, bpoints=bpoints, **kwargs)
+            new_obj.fix_param(
+                inplace=True,
+                bpoints=bpoints,
+                bpoint_slices=bpoint_slices,
+                bpoint_column=bpoint_column,
+                **kwargs
+            )
             return new_obj
 
         # From here on, we apply everything in place.

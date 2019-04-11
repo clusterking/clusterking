@@ -28,6 +28,34 @@ sys.path.insert(0, os.path.abspath('../'))
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 
+autodoc_mock_imports = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "tqdm",
+    "wilson",
+    "sklearn",
+    "mpl_toolkits",
+    "nbformat",
+    "nbconvert"
+]
+
+autodoc_default_options = {
+    'special-members': '__init__',
+    'undoc-members': True,
+    'show-inheritance': True,
+    'inherited-members': False
+}
+
+autodoc_inherit_docstrings = False
+
+autoclass_content = "class"
+
+# https://stackoverflow.com/questions/12772927/
+# Will only work for sphinx > 1.4 onward
+suppress_warnings = ['image.nonlocal_uri']
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.

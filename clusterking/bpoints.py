@@ -14,13 +14,15 @@ from clusterking.maths.metric import uncondense_distance_matrix, metric_selectio
 
 
 class AbstractBenchmark(object):
+    """Subclass this class to implement algorithms to choose benchmark
+    points from all the points (in parameter space) that correspond to one
+    cluster.
+    """
     def __init__(self, data: Data):
-        """Subclass this class to implement algorithms to choose benchmark
-        points from all the points (in parameter space) that correspond to one
-        cluster.
+        """
 
         Args:
-            data: Data object
+            data: :py:class:`~clusterking.data.data.Data` object
         """
         self.data = data
         self.bpoints = None
@@ -67,8 +69,10 @@ class AbstractBenchmark(object):
 # todo: test this
 class Benchmark(AbstractBenchmark):
     """ Selecting benchmarks based on a figure of merit that is calculated
-    with the metric. You have to use ``Benchmark.set_metric`` to specify
-    the metric (as for the ``HierarchyCluster`` class).
+    with the metric. You have to use
+    :py:meth:`~clusterking.bpoints.Benchmark.set_metric` to specify
+    the metric (as for the :py:class:`~clusterking.cluster.HierarchyCluster`
+    class).
     The default case for the figure of merit ("sum") chooses the point as
     benchmark point that minimizes the sum of all distances to all other
     points in the same cluster (where "distance" of course is with respect
@@ -77,7 +81,7 @@ class Benchmark(AbstractBenchmark):
     def __init__(self, data):
         """
         Args:
-            data: Data object
+            data: :py:class:`~clusterking.data.data.Data` object
         """
         super().__init__(data)
         self.metric = None

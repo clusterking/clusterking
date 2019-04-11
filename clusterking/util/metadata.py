@@ -23,6 +23,9 @@ def nested_dict():
     Use it to initialize a dictionary-like object which automatically adds
     levels.
     E.g.
+
+    .. code-block:: python
+
         a = nested_dict()
         a['test']['this']['is']['working'] = "yaaay"
     """

@@ -31,11 +31,12 @@ class ClusterPlot(object):
 
     You can modify the attributes of this class to tweak some properties
     of the plots.
-
-    Args:
-        data: Data object
     """
     def __init__(self, data):
+        """
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
         #: logging.Logger object
         self.log = get_logger("ClusterPlot", sh_level=logging.WARNING)
 
@@ -461,6 +462,6 @@ class ClusterPlot(object):
     # ==========================================================================
 
     def savefig(self, *args, **kwargs):
-        """ Equivalent to ClusterPlot.fig.savefig(*args, **kwargs): Saves
-        figure to file, e.g. ClusterPlot.savefig("test.pdf"). """
+        """ Equivalent to ``ClusterPlot.fig.savefig(*args, **kwargs)``: Saves
+        figure to file, e.g. ``ClusterPlot.savefig("test.pdf")``. """
         self._fig.savefig(*args, **kwargs)

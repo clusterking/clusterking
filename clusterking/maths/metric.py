@@ -36,12 +36,11 @@ def uncondense_distance_matrix(vector):
 
 def metric_selection(*args, **kwargs) -> Callable:
     """ Select a metric in one of the following ways:
+
     1. If no positional arguments are given, we choose the euclidean metric.
-
     2. If the first positional argument is string, we pick one of the metrics
-    that are defined in ``scipy.spatical.distance.pdist`` by that name (all
-    additional arguments will be past to this function).
-
+      that are defined in ``scipy.spatical.distance.pdist`` by that name (all
+      additional arguments will be past to this function).
     3. If the first positional argument is a function, we take this function
     (and add all additional arguments to it).
 

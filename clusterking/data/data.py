@@ -151,28 +151,6 @@ class Data(DFMD):
             for param in self.par_cols
         }
 
-    def only_bpoint_slices(self, bpoint_column="bpoint", inplace=False):
-        """ For each sampled parameter, keep only those values that are attained
-        by at least one benchmark point.
-
-        For example, if you sample two parameters
-        ``a`` and ``b`` as 10 values between 0 and 1 and you have 3 benchmark
-        points ``(0, 0)``, ``(0.5, 0.5)`` and ``(0.5, 1)``, we only keep the
-        set of sample points :math:`(a,b)\\in \{0, 0.5\}\\times \{0, 0.5, 1\}`.
-
-
-        Args:
-            bpoint_column: Column with benchmark points (default 'bpoints')
-            inplace: Modify this Data object instead of returning a new one
-
-        Returns:
-            New data object if inplace==False, else None.
-        """
-        return self.fix_param(
-            inplace=inplace,
-            bpoints=False,
-            **self._bpoint_slices(bpoint_column=bpoint_column)
-        )
 
     # todo: test me
     # todo: order dict to avoid changing results
@@ -230,12 +208,14 @@ class Data(DFMD):
         for param, values in kwargs.items():
             if not isinstance(values, Iterable):
                 values_dict[param] = [values]
+            else:
+                values_dict[param] = list(values)
             if bpoint_slices:
                 values_dict[param].extend(bpoint_slices[param])
 
         # Get selector
         selector = np.full(self.n, True, bool)
-        for param, values in values_dict:
+        for param, values in values_dict.items():
             param_selector = np.full(self.n, False, bool)
             for value in values:
                 available_values = self.df[param].values

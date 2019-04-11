@@ -17,7 +17,9 @@ class DataWithErrors(Data):
     data structure itself.
 
     There are three basic ways to add errors:
-    1. Add relative errors (with correlation) relative to the bin content of each bin in the distribution: ``add_rel_err_...``
+
+    1. Add relative errors (with correlation) relative to the bin content of
+       each bin in the distribution: ``add_rel_err_...``
     2. Add absolute errors (with correlation): ``add_err_...``
     3. Add poisson errors: ``add_err_poisson``
 

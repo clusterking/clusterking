@@ -162,27 +162,12 @@ class Data(DFMD):
                   **kwargs):
         """ Fix some parameter values to get a subset of sample points.
 
-        Examples:
-
-        .. code-block:: python
-
-            d = Data("/path/to/tutorial/csv/folder", "tutorial_basics")
-
-            # Return a new Data object, keeping the two values CT_bctaunutau
-            # closest to -0.75 or 0.5
-            d.fix_param(CT_bctaunutau=[-.75, 0.5])
-
-            # Return a new Data object, where we also fix CSL_bctaunutau to the
-            # value closest to -1.0
-            d.fix_param(CT_bctaunutau=[-.75, 0.5], CSL_bctaunutau=-1.0)
-
         Args:
             inplace: Modify this Data object instead of returning a new one
             bpoints: Keep bpoints (no matter if they are selected by the other
                 selection or not)
-            bpoint_slices: Keep all parameter values that are 'used' by
-                benchmark points (see
-                :py:meth:`~clusterking.data.data.Data.only_bpoint_slices`).
+            bpoint_slices: Keep all parameter values that are attained by
+                benchmark points.
             bpoint_column: Column with benchmark points (default 'bpoints')
                 (for use with the ``bpoints`` option)
             **kwargs: Specify parameter values:
@@ -192,6 +177,50 @@ class Data(DFMD):
         Returns:
             If ``inplace == True``, return new Data with subset of sample
             points.
+
+        Examples:
+
+        .. code-block:: python
+
+            d = Data("/path/to/tutorial/csv/folder", "tutorial_basics")
+
+        Return a new Data object, keeping the two values ``CT_bctaunutau``
+        closest to -0.75 or 0.5
+
+        .. code-block:: python
+
+            d.fix_param(CT_bctaunutau=[-.75, 0.5])
+
+        Return a new Data object, where we also fix ``CSL_bctaunutau`` to the
+        value closest to -1.0:
+
+        .. code-block:: python
+
+            d.fix_param(CT_bctaunutau=[-.75, 0.5], CSL_bctaunutau=-1.0)
+
+        Return a new Data object, keeping the two values ``CT_bctaunutau``
+        closest to -0.75 or 0.5, but make sure we do not discard any
+        benchmark points in that process:
+
+        .. code-block:: python
+
+            d.fix_param(CT_bctaunutau=[-.75, 0.5], bpoints=True)
+
+        Return a new Data object, keeping the two values ``CT_bctaunutau``
+        closest to -0.75 or 0.5, but keep all values of ``CT_bctaunutau``
+        that are attained by at least one benchmark point:
+
+        .. code-block:: python
+
+            d.fix_param(CT_bctaunutau=[-.75, 0.5], bpoint_slices=True)
+
+        Return a new Data object, keeping only those values of
+        ``CT_bctaunutau``, that are attained by at least one benchmark point:
+
+        .. code-block:: python
+
+            d.fix_param(CT_bctaunutau=[], bpoint_slice=True)
+
         """
         if not inplace:
             new_obj = copy.deepcopy(self)
@@ -239,7 +268,6 @@ class Data(DFMD):
         self.df = self.df[selector]
 
     # todo: test
-    # todo: add usage example to docstring
     def sample_param(self,
                      bpoints=False,
                      bpoint_slices=False,
@@ -253,9 +281,8 @@ class Data(DFMD):
             inplace: Modify this Data object instead of returning a new one
             bpoints: Keep bpoints (no matter if they are selected by the other
                 selection or not)
-            bpoint_slices: Keep all parameter values that are 'used' by
-                benchmark points (see
-                :py:meth:`~clusterking.data.data.Data.only_bpoint_slices`).
+            bpoint_slices: Keep all parameter values that are attained by
+                benchmark points
             bpoint_column: Column with benchmark points (default 'bpoints')
                 (for use with the ``bpoints`` option)
             **kwargs: Specify parameter ranges:
@@ -269,11 +296,42 @@ class Data(DFMD):
                 If a coefficient isn't contained in the dictionary, this
                 dimension of the sample remains untouched.
 
+        Returns:
+            If ``inplace == True``, return new Data with subset of sample
+            points.
+
+        Examples:
+
+        .. code-block:: python
+
+            d = Data("/path/to/tutorial/csv/folder", "tutorial_basics")
+
+        Return a new Data object, keeping subsampling ``CT_bctaunutau``
+        closest to 5 values between -1 and 1:
+
+        .. code-block:: python
+
+            d.sample_param(CT_bctaunutau=(-1, 1, 10))
+
+        The same in shorter syntax
+        (because -1 and 1 are the minimum and maximum of the parameter)
+
+        .. code-block:: python
+
+            d.sample_param(CT_bctaunutau=10)
+
+        For the ``bpoints`` and ``bpoint_slices`` syntax, see the documenation
+        of :py:meth:`clusterking.data.data.Data.fix_param`.
         """
         fix_kwargs = {}
         for param, value in kwargs.items():
             if isinstance(value, Iterable):
-                param_min, param_max, param_npoints = value
+                try:
+                    param_min, param_max, param_npoints = value
+                except:
+                    raise ValueError(
+                        "Please specify minimum, maximum and number of points."
+                    )
             elif isinstance(value, (int, float)):
                 param_min = self.df[param].min()
                 param_max = self.df[param].max()

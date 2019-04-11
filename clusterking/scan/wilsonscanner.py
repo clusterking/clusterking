@@ -10,11 +10,8 @@ from clusterking.scan.scanner import Scanner
 
 
 class WilsonScanner(Scanner):
-    """ Scans the NP parameter space in a grid and also q2, producing the
-    normalized q2 distribution.
-
-    See bclustering.dfmd.DFMD for how to initialize this class from output
-    files or existing instances.
+    """ Scans the NP parameter space in a grid and also in the kinematic
+    variable.
 
     Usage example:
 

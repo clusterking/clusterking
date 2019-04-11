@@ -44,10 +44,13 @@ autodoc_mock_imports = [
 autodoc_default_options = {
     'special-members': '__init__',
     'undoc-members': True,
+    'show-inheritance': True,
+    'inherited-members': False
 }
 
+autodoc_inherit_docstrings = False
 
-# autoclass_content = "class"
+autoclass_content = "class"
 
 # https://stackoverflow.com/questions/12772927/
 # Will only work for sphinx > 1.4 onward

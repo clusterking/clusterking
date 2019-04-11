@@ -19,6 +19,11 @@ class AbstractBenchmark(object):
     cluster.
     """
     def __init__(self, data: Data):
+        """
+
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
         self.data = data
         self.bpoints = None
         self.md = nested_dict()
@@ -64,8 +69,10 @@ class AbstractBenchmark(object):
 # todo: test this
 class Benchmark(AbstractBenchmark):
     """ Selecting benchmarks based on a figure of merit that is calculated
-    with the metric. You have to use ``Benchmark.set_metric`` to specify
-    the metric (as for the ``HierarchyCluster`` class).
+    with the metric. You have to use
+    :py:meth:`~clusterking.bpoints.Benchmark.set_metric` to specify
+    the metric (as for the :py:class:`~clusterking.cluster.HierarchyCluster`
+    class).
     The default case for the figure of merit ("sum") chooses the point as
     benchmark point that minimizes the sum of all distances to all other
     points in the same cluster (where "distance" of course is with respect
@@ -74,7 +81,7 @@ class Benchmark(AbstractBenchmark):
     def __init__(self, data):
         """
         Args:
-            data: Data object
+            data: :py:class:`~clusterking.data.data.Data` object
         """
         super().__init__(data)
         self.metric = None

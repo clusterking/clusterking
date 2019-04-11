@@ -18,35 +18,36 @@ from clusterking.util.cli import handle_overwrite
 class DFMD(object):
     """ This class bundles a pandas dataframe together with metadata and
     provides methods to load from and write these two to files.
-
-    There are five different ways to initialize this class:
-
-    1. Initialize it empty: ``DFMD()``.
-    2. From another DFMD object ``my_dfmd``: ``DFMD(my_dfmd)`` or
-       ``DFMD(dfmd=my_dfmd)``.
-    3. From a directory path and a project name:
-       ``DFMD("path/to/io", "my_name")`` or
-       ``DFMD(directory="path/to/io", name="my_name"``
-    4. From a dataframe and a metadata object (a nested dictionary like
-       object) or paths to corresponding files:
-       ``DFMD(df=my_df, md=my_metadata)`` or ``DFMD(df="/path/to/df.csv",
-       md=my_metadata)`` etc.
-
-    .. warning::
-        If you use ``df=<pd.DataFrame>`` or ``md=<dict like>``,
-        please be aware that this will not copy these objects, i.e. any
-        changes that are done to these objects subsequently will affect both
-        the original DataFrame/metadata and self.df or self.md.
-        To avoid this, use ``pd.DataFrame.copy()`` or ``dict.copy()`` to create
-        a deepcopy.
-
-    Args:
-        log: instance of ``logging.Logger`` or name of logger to be created
-        *args: See above
-        **kwargs: See above
     """
     # todo: Use @classmethod instead of so much logic?
     def __init__(self, *args, log=None, **kwargs):
+        """
+        There are five different ways to initialize this class:
+
+        1. Initialize it empty: ``DFMD()``.
+        2. From another DFMD object ``my_dfmd``: ``DFMD(my_dfmd)`` or
+           ``DFMD(dfmd=my_dfmd)``.
+        3. From a directory path and a project name:
+           ``DFMD("path/to/io", "my_name")`` or
+           ``DFMD(directory="path/to/io", name="my_name"``
+        4. From a dataframe and a metadata object (a nested dictionary like
+           object) or paths to corresponding files:
+           ``DFMD(df=my_df, md=my_metadata)`` or ``DFMD(df="/path/to/df.csv",
+           md=my_metadata)`` etc.
+
+        .. warning::
+            If you use ``df=<pd.DataFrame>`` or ``md=<dict like>``,
+            please be aware that this will not copy these objects, i.e. any
+            changes that are done to these objects subsequently will affect
+            both the original DataFrame/metadata and self.df or self.md.
+            To avoid this, use ``pd.DataFrame.copy()`` or ``dict.copy()`` to
+            create a deepcopy.
+
+        Args:
+            log: instance of ``logging.Logger`` or name of logger to be created
+            *args: See above
+            **kwargs: See above
+        """
         # These are the three attributes of this class
         #: This will hold all the configuration that we will write out
         self.md = None

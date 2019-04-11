@@ -31,11 +31,12 @@ class ClusterPlot(object):
 
     You can modify the attributes of this class to tweak some properties
     of the plots.
-
-    Args:
-        data: Data object
     """
     def __init__(self, data):
+        """
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
         #: logging.Logger object
         self.log = get_logger("ClusterPlot", sh_level=logging.WARNING)
 

@@ -48,6 +48,11 @@ class BundlePlot(object):
     """ Plotting class to plot distributions by cluster in order to analyse
     which distributions get assigned to which cluster. """
     def __init__(self, data: Data):
+        """
+
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
 
         #: logging.Logger object
         self.log = get_logger("BundlePlot", sh_level=logging.WARNING)
@@ -370,7 +375,7 @@ class BundlePlot(object):
         Args:
             clusters:  List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
-            ax: Instance of matplotlib.axes.Axes to plot on. If None, a new
+            ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
                 one is instantiated.
             reference: Plot reference
 
@@ -399,7 +404,7 @@ class BundlePlot(object):
         Gets called for every cluster specified in self.box_plot.
 
         Args:
-            ax: Instance of matplotlib.axes.Axes to plot on
+            ax: Instance of ``matplotlib.axes.Axes`` to plot on
             cluster: Name of cluster to be plotted
             whiskers: Length of the whiskers of the box plot.
                 See self.box_plot for more information.

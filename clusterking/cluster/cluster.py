@@ -59,7 +59,8 @@ class Cluster(object):
 
     # todo: overwrite argument?
     def write(self, cluster_column="cluster"):
-        """ Write results back in data object. """
+        """ Write results back in the :py:class:`~clusterking.data.data.Data`
+        object. """
         self.data.df[cluster_column] = self.clusters
         self.data.md["cluster"][cluster_column] = self.md
         self.data.rename_clusters(column=cluster_column)

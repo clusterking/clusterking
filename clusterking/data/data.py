@@ -9,6 +9,8 @@ from typing import Callable, Union, Iterable
 
 # ours
 from clusterking.data.dfmd import DFMD
+from clusterking.plots.plot_bundles import BundlePlot
+from clusterking.util.misc import check_matplot_inline
 
 
 # todo: docstrings
@@ -303,7 +305,7 @@ class Data(DFMD):
         )
 
     # **************************************************************************
-    # C:  Manipulating things
+    # Manipulating things
     # **************************************************************************
 
     # --------------------------------------------------------------------------
@@ -415,3 +417,119 @@ class Data(DFMD):
         new_cluster_names = range(len(old_cluster_names))
         old2new = dict(zip(old_cluster_names, new_cluster_names))
         self.rename_clusters(old2new, column, new_column)
+
+    # **************************************************************************
+    # Quick plots
+    # **************************************************************************
+
+    # todo: ideally, we could just copy the docstrings from plot_bundles etc,
+    #  but that doesn't work here, because some of the arguments are attributes
+    #  currently
+    def plot_dist(self,
+                  cluster_column="cluster",
+                  bpoint_column="bpoint",
+                  title=None,
+                  clusters=None,
+                  nlines=0,
+                  bpoints=True,
+                  legend=True):
+        """Plot several examples of distributions for each cluster specified.
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            title: Plot title (``None``: automatic)
+            clusters: List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            nlines: Number of example distributions of each cluster to be
+                plotted (default 0)
+            bpoints: Draw benchmark points (default True)
+            legend: Draw legend? (default True)
+            return_figure:
+
+        Returns:
+            Figure
+        """
+        bp = BundlePlot(self)
+        bp.cluster_column = cluster_column
+        bp.bpoint_column = bpoint_column
+        bp.title = title
+        bp.draw_legend = legend
+        bp.plot_bundles(
+            clusters=clusters,
+            nlines=nlines,
+            bpoints=bpoints
+        )
+        return bp.fig
+
+    def plot_dist_minmax(self,
+                         cluster_column="cluster",
+                         bpoint_column="bpoint",
+                         title=None,
+                         clusters=None,
+                         bpoints=True,
+                         legend=True):
+        """
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            title: Plot title (``None``: automatic)
+            clusters: List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            bpoints: Draw benchmark points (default True)
+            legend: Draw legend? (default True)
+
+        Returns:
+            Figure
+        """
+        bp = BundlePlot(self)
+        bp.cluster_column = cluster_column
+        bp.bpoint_column = bpoint_column
+        bp.title = title
+        bp.draw_legend = legend
+        bp.plot_minmax(
+            clusters=clusters,
+            bpoints=bpoints
+        )
+        return bp.fig
+
+    def plot_dist_box(self,
+                      cluster_column="cluster",
+                      bpoint_column="bpoint",
+                      title=None,
+                      clusters=None,
+                      bpoints=True,
+                      whiskers=2.5,
+                      legend=True):
+        """
+        Box plot of the bin contents of the distributions corresponding
+        to selected clusters.
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            title: Plot title (``None``: automatic)
+            clusters: List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            bpoints: Draw benchmark points (default True)
+            whiskers: Length of the whiskers of the box plot in units of IQR
+                (interquartile range, containing 50% of all values). Default
+                2.5.
+            legend: Draw legend? (default True)
+
+        Returns:
+            Figure
+
+        """
+        bp = BundlePlot(self)
+        bp.cluster_column = cluster_column
+        bp.bpoint_column = bpoint_column
+        bp.title = title
+        bp.draw_legend = legend
+        bp.box_plot(
+            clusters=clusters,
+            bpoints=bpoints,
+            whiskers=whiskers
+        )
+        return bp.fig

@@ -17,7 +17,6 @@ import matplotlib.animation as animation
 from clusterking.util.log import get_logger
 from clusterking.plots.plot_histogram import plot_histogram
 from clusterking.plots.colors import ColorScheme
-from clusterking.data.data import Data
 
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
@@ -47,7 +46,7 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 class BundlePlot(object):
     """ Plotting class to plot distributions by cluster in order to analyse
     which distributions get assigned to which cluster. """
-    def __init__(self, data: Data):
+    def __init__(self, data):
         """
 
         Args:
@@ -253,7 +252,7 @@ class BundlePlot(object):
             )
 
     def plot_bundles(self, clusters: Union[int, Iterable[int]] = None, nlines=0,
-                     ax=None, benchmark=True) -> None:
+                     ax=None, bpoints=True) -> None:
         """ Plot several examples of distributions for each cluster specified
 
         Args:
@@ -264,7 +263,7 @@ class BundlePlot(object):
             ax: Instance of matplotlib.axes.Axes to be plotted on. If None
                 (default), a new axes object and figure is initialized and
                 saved as self.ax and self.fig.
-            benchmark: Draw benchmark curve
+            bpoints: Draw benchmark curve
 
         Returns:
             None
@@ -284,7 +283,7 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._plot_bundles(cluster, nlines=nlines, benchmark=benchmark)
+            self._plot_bundles(cluster, nlines=nlines, benchmark=bpoints)
 
         self._draw_legend(clusters)
 
@@ -331,13 +330,13 @@ class BundlePlot(object):
     # Minima/Maxima of bin content for each cluster
     # --------------------------------------------------------------------------
 
-    def _plot_minmax(self, cluster: int, reference=True) -> None:
+    def _plot_minmax(self, cluster: int, bpoints=True) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
 
         Args:
             cluster: Name of cluster to be plotted
-            reference: Plot reference
+            bpoints: Plot reference
 
 
         Returns:
@@ -364,11 +363,11 @@ class BundlePlot(object):
                 hatch="////",
                 color=color
             )
-        if reference:
+        if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
     def plot_minmax(self, clusters: Union[int, Iterable[int]] = None,
-                    ax=None, reference=True) -> None:
+                    ax=None, bpoints=True) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
 
@@ -377,7 +376,7 @@ class BundlePlot(object):
                 If None (default), all clusters are chosen.
             ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
                 one is instantiated.
-            reference: Plot reference
+            bpoints: Plot reference
 
         Returns:
             None
@@ -391,7 +390,7 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._plot_minmax(cluster, reference=reference)
+            self._plot_minmax(cluster, bpoints=bpoints)
 
         self._draw_legend(clusters)
 
@@ -399,7 +398,7 @@ class BundlePlot(object):
     # Box plots
     # --------------------------------------------------------------------------
 
-    def _box_plot(self, cluster, whiskers=1.5, reference=True) -> None:
+    def _box_plot(self, cluster, whiskers=1.5, bpoints=True) -> None:
         """ Main implementation of self.box_plot.
         Gets called for every cluster specified in self.box_plot.
 
@@ -433,11 +432,11 @@ class BundlePlot(object):
             medianprops=dict(color=color),
             whis=whiskers  # extend the range of the whiskers
         )
-        if reference:
+        if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
     def box_plot(self, clusters: Union[int, Iterable[int]] = None, ax=None,
-                 whiskers=2.5, reference=True) -> None:
+                 whiskers=2.5, bpoints=True) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
 
@@ -449,7 +448,7 @@ class BundlePlot(object):
             whiskers: Length of the whiskers of the box plot in units of IQR
                 (interquartile range, containing 50% of all values). Default
                 2.5.
-            reference: Draw benchmarks?
+            bpoints: Draw benchmarks?
         """
         clusters = self._interpret_cluster_input(clusters)
         title = "Box plot of the bin contents for cluster(s) {}\n" \
@@ -461,6 +460,6 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._box_plot(cluster, whiskers=whiskers, reference=reference)
+            self._box_plot(cluster, whiskers=whiskers, bpoints=bpoints)
 
         self._draw_legend(clusters)

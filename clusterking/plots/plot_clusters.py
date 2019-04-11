@@ -461,6 +461,6 @@ class ClusterPlot(object):
     # ==========================================================================
 
     def savefig(self, *args, **kwargs):
-        """ Equivalent to ClusterPlot.fig.savefig(*args, **kwargs): Saves
-        figure to file, e.g. ClusterPlot.savefig("test.pdf"). """
+        """ Equivalent to ``ClusterPlot.fig.savefig(*args, **kwargs)``: Saves
+        figure to file, e.g. ``ClusterPlot.savefig("test.pdf")``. """
         self._fig.savefig(*args, **kwargs)

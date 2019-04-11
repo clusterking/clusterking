@@ -10,8 +10,9 @@ from clusterking.data.dfmd import DFMD
 
 # todo: docstrings
 class Data(DFMD):
-    """ This class inherits from the ``DFMD`` class and adds additional
-    methods to it. It is the basic container, that contains the
+    """ This class inherits from the :py:class:`~clusterking.data.dfmd.DFMD`
+    class and adds additional methods to it. It is the basic container,
+    that contains the
 
     * The distributions to cluster
     * The cluster numbers after clustering
@@ -35,9 +36,10 @@ class Data(DFMD):
 
     @property
     def par_cols(self):
-        """ All columns that correspond to the parameters (e.g. Wilso
+        """ All columns that correspond to the parameters (e.g. Wilson
         parameters). This is automatically read from the
-        metadata as set in e.g. the Scan.run.
+        metadata as set in e.g. the
+        :py:meth:`clusterking.scan.scanner.Scanner.run`.
         """
         return self.md["scan"]["spoints"]["coeffs"]
 

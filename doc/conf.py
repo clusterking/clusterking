@@ -41,6 +41,14 @@ autodoc_mock_imports = [
     "nbconvert"
 ]
 
+autodoc_default_options = {
+    'special-members': '__init__',
+    'undoc-members': True,
+}
+
+
+# autoclass_content = "class"
+
 # https://stackoverflow.com/questions/12772927/
 # Will only work for sphinx > 1.4 onward
 suppress_warnings = ['image.nonlocal_uri']

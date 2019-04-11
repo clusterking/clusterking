@@ -17,9 +17,6 @@ class AbstractBenchmark(object):
     """Subclass this class to implement algorithms to choose benchmark
     points from all the points (in parameter space) that correspond to one
     cluster.
-
-    Args:
-        data: Data object
     """
     def __init__(self, data: Data):
         self.data = data

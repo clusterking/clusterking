@@ -1,6 +1,0 @@
-{
-    "branch": "HEAD",
-    "msg": "Allow configuration of plotting methods with kwargs",
-    "sha": "0e7c3287584e1848921ecb07b16982ecb77e1660",
-    "time": "Tue  2 Apr 2019 13:06"
-}

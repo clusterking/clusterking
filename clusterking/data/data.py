@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+# std
+import copy
+
 # 3d
 import numpy as np
-from typing import Callable
+from typing import Callable, Union, Iterable
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -98,24 +101,206 @@ class Data(DFMD):
         """
         return self.df[cluster_column].unique()
 
-    # def _sample(self, spoints):
-    #
-    # def sample(self, linspaces=None, values=None, bpoints=True):
-    #     """ Return a Data object that contains a subset of the sample points
-    #     (points in parameter space).
-    #
-    #     Args:
-    #         linspaces: Dictionary of the following form:
-    #
-    #             .. code-block:: python
-    #
-    #                 {
-    #                     <coeff name>: (min, max, npoints)
-    #                 }
-    #
-    #             Will
-    #     """
-    #     pass
+    # todo: test me
+    def get_param_values(self, param: Union[None, str] = None):
+        """ Return all unique values of this parameter
+
+        Args:
+            param: Name of parameter. If none is given, instead return a
+                dictionary mapping of parameters to their values.
+
+        Returns:
+
+        """
+        if param is None:
+            return {
+                param: self.get_param_values(param)
+                for param in self.par_cols
+            }
+        return self.df[param].unique()
+
+    # **************************************************************************
+    # Subsample
+    # **************************************************************************
+
+    def only_bpoints(self, column="bpoint", inplace=False):
+        """ Keep only the benchmark points as sample points.
+
+        Args:
+            column: benchmark point column (boolean)
+            inplace: If True, the current Data object is modified, if False,
+                a new copy of the Data object is returned.
+
+        Returns:
+            None or Data
+        """
+        if inplace:
+            self.df = self.df[self.df[column]]
+        else:
+            new_obj = copy.deepcopy(self)
+            new_obj.only_bpoints(inplace=True)
+            return new_obj
+
+    def _bpoint_slices(self, bpoint_column="bpoint"):
+        """ See docstring of only_bpoint_slices. """
+        bpoint_df = self.only_bpoints(column=bpoint_column)
+        return {
+            param: bpoint_df.df[param].unique()
+            for param in self.par_cols
+        }
+
+    def only_bpoint_slices(self, bpoint_column="bpoint", inplace=False):
+        """ For each sampled parameter, keep only those values that are attained
+        by at least one benchmark point.
+
+        For example, if you sample two parameters
+        ``a`` and ``b`` as 10 values between 0 and 1 and you have 3 benchmark
+        points ``(0, 0)``, ``(0.5, 0.5)`` and ``(0.5, 1)``, we only keep the
+        set of sample points :math:`(a,b)\\in \{0, 0.5\}\\times \{0, 0.5, 1\}`.
+
+
+        Args:
+            bpoint_column: Column with benchmark points (default 'bpoints')
+            inplace: Modify this Data object instead of returning a new one
+
+        Returns:
+            New data object if inplace==False, else None.
+        """
+        return self.fix_param(
+            inplace=inplace,
+            bpoints=False,
+            **self._bpoint_slices(bpoint_column=bpoint_column)
+        )
+
+    # todo: test me
+    # todo: order dict to avoid changing results
+    def fix_param(self, inplace=False, bpoints=False,
+                  bpoint_slices=False,
+                  bpoint_column="bpoint",
+                  **kwargs):
+        """ Fix some parameter values to get a subset of sample points.
+
+        Examples:
+
+        .. code-block:: python
+
+            d = Data("/path/to/tutorial/csv/folder", "tutorial_basics")
+
+            # Return a new Data object, keeping the two values CT_bctaunutau
+            # closest to -0.75 or 0.5
+            d.fix_param(CT_bctaunutau=[-.75, 0.5])
+
+            # Return a new Data object, where we also fix CSL_bctaunutau to the
+            # value closest to -1.0
+            d.fix_param(CT_bctaunutau=[-.75, 0.5], CSL_bctaunutau=-1.0)
+
+        Args:
+            inplace: Modify this Data object instead of returning a new one
+            bpoints: Keep bpoints (no matter if they are selected by the other
+                selection or not)
+            bpoint_slices: Keep all parameter values that are 'used' by
+                benchmark points (see
+                :py:meth:`~clusterking.data.data.Data.only_bpoint_slices`).
+            bpoint_column: Column with benchmark points (default 'bpoints')
+                (for use with the ``bpoints`` option)
+            **kwargs: Specify parameter values:
+                Use ``<parameter name>=<value>`` or
+                ``<parameter name>=[<value1>, ..., <valuen>]``.
+
+        Returns:
+            If ``inplace == True``, return new Data with subset of sample
+            points.
+        """
+        if not inplace:
+            new_obj = copy.deepcopy(self)
+            new_obj.fix_param(inplace=True, bpoints=bpoints, **kwargs)
+            return new_obj
+
+        # From here on, we apply everything in place.
+
+        if bpoint_slices:
+            bpoint_slices = self._bpoint_slices(bpoint_column=bpoint_column)
+        else:
+            bpoint_slices = {param: [] for param in self.par_cols}
+
+        # Prepare values
+        values_dict = {}
+        for param, values in kwargs.items():
+            if not isinstance(values, Iterable):
+                values_dict[param] = [values]
+            if bpoint_slices:
+                values_dict[param].extend(bpoint_slices[param])
+
+        # Get selector
+        selector = np.full(self.n, True, bool)
+        for param, values in values_dict:
+            param_selector = np.full(self.n, False, bool)
+            for value in values:
+                available_values = self.df[param].values
+                idx = (np.abs(available_values - value)).argmin()
+                nearest_value = available_values[idx]
+                param_selector |= \
+                    np.isclose(self.df[param].values, nearest_value)
+            selector &= param_selector
+        if bpoints:
+            selector |= self.df[bpoint_column].astype(bool)
+
+        # Apply selector to dataframe
+        self.df = self.df[selector]
+
+    # todo: test
+    # todo: add usage example to docstring
+    def sample_param(self,
+                     bpoints=False,
+                     bpoint_slices=False,
+                     bpoint_column="bpoints",
+                     inplace=False,
+                     **kwargs):
+        """ Return a Data object that contains a subset of the sample points
+        (points in parameter space). Similar to Data.fix_param.
+
+        Args:
+            inplace: Modify this Data object instead of returning a new one
+            bpoints: Keep bpoints (no matter if they are selected by the other
+                selection or not)
+            bpoint_slices: Keep all parameter values that are 'used' by
+                benchmark points (see
+                :py:meth:`~clusterking.data.data.Data.only_bpoint_slices`).
+            bpoint_column: Column with benchmark points (default 'bpoints')
+                (for use with the ``bpoints`` option)
+            **kwargs: Specify parameter ranges:
+                ``<coeff name>=(min, max, npoints)`` or
+                ``<coeff name>=npoints``
+                For each coeff (identified by <coeff name>), select (at most)
+                npoints points between min and max.
+                In total this will therefore result in npoints_{coeff_1} x ...
+                x npoints_{coeff_npar} sample points (provided that there are
+                enough sample points available).
+                If a coefficient isn't contained in the dictionary, this
+                dimension of the sample remains untouched.
+
+        """
+        fix_kwargs = {}
+        for param, value in kwargs.items():
+            if isinstance(value, Iterable):
+                param_min, param_max, param_npoints = value
+            elif isinstance(value, (int, float)):
+                param_min = self.df[param].min()
+                param_max = self.df[param].max()
+                param_npoints = value
+            else:
+                raise ValueError(
+                    "Incompatible type {} of {}".format(type(value), value)
+                )
+            fix_kwargs[param] = np.linspace(param_min, param_max, param_npoints)
+
+        return self.fix_param(
+            inplace=inplace,
+            bpoints=bpoints,
+            bpoint_slices=bpoint_slices,
+            bpoint_column=bpoint_column,
+            **fix_kwargs
+        )
 
     # **************************************************************************
     # C:  Manipulating things

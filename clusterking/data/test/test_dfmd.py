@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # std
+import copy
 import unittest
 from pathlib import Path
 
@@ -12,7 +13,6 @@ from clusterking.data.dfmd import DFMD
 class TestDFMD(unittest.TestCase):
     def setUp(self):
         self.data_dir = Path(__file__).parent / "data"
-        pass
 
     def test_init_empty(self):
         DFMD()
@@ -53,7 +53,8 @@ class TestDFMD(unittest.TestCase):
                 "CT_bctaunutau",
                 "CSL_bctaunutau",
                 "bin0",
-                "bin1"
+                "bin1",
+                "bpoint"
             ]
         )
         self.assertEqual(
@@ -100,6 +101,27 @@ class TestDFMD(unittest.TestCase):
             md=self.data_dir / "test_scan_metadata.json"
         )
         self._compare_dfs(_dfmd, dfmd)
+
+    # todo: implement working tests for copying
+    # def test_shallow_copy(self):
+    #     dfmd1 = DFMD(self.data_dir, "test_scan")
+    #     dfmd2 = dfmd1.copy(False)
+    #     dfmd3 = copy.copy(dfmd1)
+    #     self.assertEqual(id(dfmd1.df), id(dfmd2.df))
+    #     self.assertEqual(id(dfmd1.md), id(dfmd2.md))
+    #     self.assertEqual(id(dfmd1.df), id(dfmd3.df))
+    #     self.assertEqual(id(dfmd1.md), id(dfmd3.md))
+    #
+    # def test_deep_copy(self):
+    #     # Note: hash(str(df.values)) only corresponds to comparing some of the
+    #     # entries.
+    #     dfmd1 = DFMD(self.data_dir, "test_scan")
+    #     dfmd2 = dfmd1.copy()
+    #     dfmd3 = copy.deepcopy(dfmd1)
+    #     self.assertNotEqual(id(dfmd1.df), id(dfmd2.df))
+    #     self.assertNotEqual(id(dfmd1.md), id(dfmd2.md))
+    #     self.assertNotEqual(id(dfmd1.df), id(dfmd3.df))
+    #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
 
 
 if __name__ == "__main__":

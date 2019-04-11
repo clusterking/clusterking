@@ -45,7 +45,6 @@ autodoc_default_options = {
     'special-members': '__init__',
     'undoc-members': True,
     'show-inheritance': True,
-    'inherited-members': False
 }
 
 autodoc_inherit_docstrings = False

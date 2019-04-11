@@ -13,10 +13,10 @@ from clusterking.data.data import Data
 
 
 class Cluster(object):
+    """ Abstract baseclass of the Cluster classes. This class is subclassed to
+    implement specific clustering algorithms and defines common functions.
+    """
     def __init__(self, data: Data):
-        """ This class is subclassed to implement specific clustering
-        algorithms and defines common functions.
-        """
         self.log = get_logger("Scanner")
 
         self.data = data

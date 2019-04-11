@@ -10,17 +10,36 @@ from clusterking.maths.statistics import cov2err, cov2corr, abs2rel_cov, \
 
 
 class DataWithErrors(Data):
+    """
+    This class extends the ``Data`` class by convenient and performant ways to
+    add errors to the distributions.
+
+    See the description of the ``Data`` class for more information about the
+    data structure itself.
+
+    There are three basic ways to add errors:
+    1. Add relative errors (with correlation) relative to the bin content of
+        each bin in the distribution: ``add_rel_err_...``
+    2. Add absolute errors (with correlation): ``add_err_...``
+    3. Add poisson errors: ``add_err_poisson``
+
+    .. note::
+        All of these methods, add the errors in a consistent way for all sample
+        points/distributions, i.e. it is impossible to add a certain error
+        specifically to one sample point only!
+
+    Afterwards, you can get errors, correlation and covariance matrices for
+    every data point by using one of the methods such as
+    ``cov``, ``corr``, ``err``.
+
+    .. note::
+        When saving your dataset, your error configuration is saved as well,
+        so you can reload it like any other ``Data`` object.
+
+    Args:
+        data: n x nbins matrix
+    """
     def __init__(self, *args, **kwargs):
-        """
-        This class gets initialized with an array of n x nbins data points,
-        corresponding to n histograms with nbins bins.
-
-        Methods offer convenient and performant ways to add errors to this
-        dataset.
-
-        Args:
-            data: n x nbins matrix
-        """
         super().__init__(*args, **kwargs)
 
         # Initialize some values to their default
@@ -121,7 +140,7 @@ class DataWithErrors(Data):
         Args:
             decorrelate: Unrotate the correlation matrix to return uncorrelated
                 data entries
-            **kwargs: Any keyword argument to Data.data()
+            **kwargs: Any keyword argument to ``Data.data()``
 
         Returns:
             self.n x self.nbins array
@@ -138,7 +157,8 @@ class DataWithErrors(Data):
         """ Return covariance matrix
 
         Args:
-            relative: "Relative to data", i.e. Cov_ij / (data_i * data_j)
+            relative: "Relative to data", i.e.
+                :math:`\\mathrm{Cov}_{ij} / (\\mathrm{data}_i \cdot \\mathrm{data}_j)`
 
         Returns:
             self.n x self.nbins x self.nbins array

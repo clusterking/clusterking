@@ -13,41 +13,41 @@ from clusterking.util.log import get_logger
 from clusterking.util.cli import handle_overwrite
 
 
+# fixme @caveat below: perhaps we should simply do that ourselves then?
+#   Unused objects should be garbage collected anyhow
 class DFMD(object):
-    # todo: Use @classmethod instead of so much logic?
-    def __init__(self, *args, log=None, **kwargs):
-        """ This class bundles dataframe together with metadata and options
-        to load from and write these two to files.
+    """ This class bundles a pandas dataframe together with metadata and
+    provides methods to load from and write these two to files.
 
-        There are five different ways to initialize this class:
+    There are five different ways to initialize this class:
 
-        1. Initialize it empty: ``DFMD()``.
-        2. From another DFMD object ``my_dfmd``: ``DFMD(my_dfmd)`` or
-            ``DFMD(dfmd=my_dfmd)``.
-        3. From a directory path and a project name:
-            ``DFMD("path/to/io", "my_name")`` or
-            ``DFMD(directory="path/to/io", name="my_name"``
-        4. From a dataframe and a metadata object (a nested dictionary like
-            object) or paths to corresponding files:
-            ``DFMD(df=my_df, md=my_metadata)`` or ``DFMD(df="/path/to/df.csv",
-            md=my_metadata)`` etc.
+    1. Initialize it empty: ``DFMD()``.
+    2. From another DFMD object ``my_dfmd``: ``DFMD(my_dfmd)`` or
+       ``DFMD(dfmd=my_dfmd)``.
+    3. From a directory path and a project name:
+       ``DFMD("path/to/io", "my_name")`` or
+       ``DFMD(directory="path/to/io", name="my_name"``
+    4. From a dataframe and a metadata object (a nested dictionary like
+       object) or paths to corresponding files:
+       ``DFMD(df=my_df, md=my_metadata)`` or ``DFMD(df="/path/to/df.csv",
+       md=my_metadata)`` etc.
 
-        # fixme: perhaps we should simply do that ourselves then?
-        #   Unused objects should be garbage collected anyhow
-        IMPORTANT CAVEAT: If you use df=<pd.DataFrame> or md=<dict like>,
+    .. warning::
+        If you use ``df=<pd.DataFrame>`` or ``md=<dict like>``,
         please be aware that this will not copy these objects, i.e. any
         changes that are done to these objects subsequently will affect both
         the original DataFrame/metadata and self.df or self.md.
-        To avoid this, use pd.DataFrame.copy() or dict.copy() to create a
-        deepcopy.
+        To avoid this, use ``pd.DataFrame.copy()`` or ``dict.copy()`` to create
+        a deepcopy.
 
-        Args:
-            log: instance of logging.Logger or name of logger to be created
-            *args: See above
-            **kwargs: See above
-        """
+    Args:
+        log: instance of logging.Logger or name of logger to be created
+        *args: See above
+        **kwargs: See above
+    """
+    # todo: Use @classmethod instead of so much logic?
+    def __init__(self, *args, log=None, **kwargs):
         # These are the three attributes of this class
-
         #: This will hold all the configuration that we will write out
         self.md = None
         #: Pandas dataframe to hold all of the results

@@ -14,14 +14,14 @@ from clusterking.maths.metric import uncondense_distance_matrix, metric_selectio
 
 
 class AbstractBenchmark(object):
-    def __init__(self, data: Data):
-        """Subclass this class to implement algorithms to choose benchmark
-        points from all the points (in parameter space) that correspond to one
-        cluster.
+    """Subclass this class to implement algorithms to choose benchmark
+    points from all the points (in parameter space) that correspond to one
+    cluster.
 
-        Args:
-            data: Data object
-        """
+    Args:
+        data: Data object
+    """
+    def __init__(self, data: Data):
         self.data = data
         self.bpoints = None
         self.md = nested_dict()

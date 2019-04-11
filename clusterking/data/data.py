@@ -10,7 +10,13 @@ from clusterking.data.dfmd import DFMD
 
 # todo: docstrings
 class Data(DFMD):
-    """ A class which adds more convenience methods to DFMD. """
+    """ This class inherits from the ``DFMD`` class and adds additional
+    methods to it. It is the basic container, that contains the
+
+    * The distributions to cluster
+    * The cluster numbers after clustering
+    * The benchmark points after they are selected.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -120,6 +126,28 @@ class Data(DFMD):
     # todo: doc
     # fixme: perhaps don't allow new_column but rather give copy method
     def rename_clusters(self, arg=None, column="cluster", new_column=None):
+        """ Rename clusters based on either
+
+        1. A dictionary of the form ``{<old cluster name>: <new cluster name>}``
+        2. A function that maps the old cluster name to the new cluster name
+
+        Example for 2: Say our ``Data`` object ``d`` contains clusters 1 to 10
+        in the default column ``cluster``. The following method call
+        will instead use the numbers 0 to 9:
+
+        .. code-block:: python
+
+            d.rename_clusters(lambda x: x-1)
+
+        Args:
+            arg: Dictionary or function as described above.
+            column: Column that contains the cluster names
+            new_column: New column to write to (default None, i.e. rename in
+                place)
+
+        Returns:
+            None
+        """
         if arg is None:
             self._rename_clusters_auto(column=column, new_column=new_column)
         elif isinstance(arg, dict):

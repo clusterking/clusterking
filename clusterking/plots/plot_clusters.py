@@ -297,7 +297,7 @@ class ClusterPlot(object):
 
         Returns:
             None
-            """
+        """
         assert(2 <= len(cols) <= 3)
         self._clusters = clusters
         self._axis_columns = cols

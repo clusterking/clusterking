@@ -151,7 +151,6 @@ class Data(DFMD):
             for param in self.par_cols
         }
 
-
     # todo: test me
     # todo: order dict to avoid changing results
     def fix_param(self,
@@ -328,7 +327,7 @@ class Data(DFMD):
             if isinstance(value, Iterable):
                 try:
                     param_min, param_max, param_npoints = value
-                except:
+                except ValueError:
                     raise ValueError(
                         "Please specify minimum, maximum and number of points."
                     )
@@ -491,7 +490,6 @@ class Data(DFMD):
                 plotted (default 0)
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
-            return_figure:
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the

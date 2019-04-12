@@ -38,7 +38,15 @@ autodoc_mock_imports = [
     "sklearn",
     "mpl_toolkits",
     "nbformat",
-    "nbconvert"
+    "nbconvert",
+    "scipy.cluster",
+    "matplotlib.pyplot",
+    "scipy.spatial",
+    "nbconvert.preprocessors",
+    "matplotlib.animation",
+    "matplotlib.ticker",
+    "matplotlib.colors",
+    "mpl_toolkits.mplot3d"
 ]
 
 autodoc_default_options = {

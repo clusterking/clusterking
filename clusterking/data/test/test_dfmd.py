@@ -9,7 +9,6 @@ from clusterking.util.log import silence_all_logs
 from clusterking.data.dfmd import DFMD
 
 
-# todo: disable logging output
 class TestDFMD(unittest.TestCase):
     def setUp(self):
         silence_all_logs()

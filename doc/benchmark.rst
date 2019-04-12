@@ -4,14 +4,14 @@
 ``AbstractBenchmark``
 ---------------------
 
-.. autoclass:: clusterking.bpoints.AbstractBenchmark
+.. autoclass:: clusterking.benchmark.abstract_benchmark.AbstractBenchmark
   :members:
   :undoc-members:
 
 ``Benchmark``
 -------------
 
-.. autoclass:: clusterking.bpoints.Benchmark
+.. autoclass:: clusterking.benchmark.benchmark.Benchmark
   :members:
   :undoc-members:
 

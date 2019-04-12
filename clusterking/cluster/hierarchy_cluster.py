@@ -44,12 +44,11 @@ class HierarchyCluster(Cluster):
             optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
         """
         if self.metric is None:
-            self.log.error(
-                "Metric not set. please run self.set_metric or set "
-                "self.metric manually before running this method. "
-                "Returning without doing anything."
-            )
-            return
+            msg = "Metric not set. please run self.set_metric or set " \
+                  " self.metric manually before running this method. " \
+                  "Returning without doing anything."
+            self.log.critical(msg)
+            raise ValueError(msg)
 
         self.log.debug("Building hierarchy.")
 

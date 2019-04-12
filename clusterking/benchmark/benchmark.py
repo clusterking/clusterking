@@ -25,12 +25,13 @@ class Benchmark(AbstractBenchmark):
     points in the same cluster (where "distance" of course is with respect
     to the metric).
     """
-    def __init__(self, data):
+    def __init__(self, data, cluster_column="cluster"):
         """
         Args:
             data: :py:class:`~clusterking.data.data.Data` object
+            cluster_column: Column name of the clusters
         """
-        super().__init__(data)
+        super().__init__(data=data, cluster_column=cluster_column)
         self.metric = None
         self.fom = lambda x: np.sum(x, axis=1)
 

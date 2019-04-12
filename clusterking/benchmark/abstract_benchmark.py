@@ -21,6 +21,7 @@ class AbstractBenchmark(object):
 
         Args:
             data: :py:class:`~clusterking.data.data.Data` object
+            cluster_column: Column name of the clusters
         """
         self.data = data
         self.bpoints = None

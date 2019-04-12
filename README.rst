@@ -7,10 +7,13 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Doc Status| |Pypi status| |Binder| |Chat| |License|
+|Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License|
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
+
+.. |Coveralls| image:: https://coveralls.io/repos/github/clusterking/clusterking/badge.svg?branch=master
+   :target: https://coveralls.io/github/clusterking/clusterking?branch=master
 
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
    :target: https://clusterking.readthedocs.io/

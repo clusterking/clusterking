@@ -160,6 +160,8 @@ class TestDataWithErrors(MyTestCase):
             err
         )
 
+    # todo: test rel_err
+
 
 if __name__ == "__main__":
     unittest.main()

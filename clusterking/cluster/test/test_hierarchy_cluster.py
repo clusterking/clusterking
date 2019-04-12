@@ -35,6 +35,13 @@ class TestHierarchyCluster(MyTestCase):
         # , which clusters develop) but this is what happened so far:
         self.assertEqual(len(self.d.clusters(cluster_column="cluster15")), 6)
 
+    def test_dendrogram_plot(self):
+        c = HierarchyCluster(self.d)
+        silence_all_logs()
+        c.set_metric()
+        c.build_hierarchy()
+        c.dendrogram()
+
 
 if __name__ == "__main__":
     unittest.main()

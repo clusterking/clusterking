@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 
 # std
-import unittest
 from pathlib import Path
+import unittest
 
 # ours
+from clusterking.util.log import silence_all_logs
 from clusterking.data.dfmd import DFMD
 
 
 # todo: disable logging output
 class TestDFMD(unittest.TestCase):
     def setUp(self):
+        silence_all_logs()
         self.data_dir = Path(__file__).parent / "data"
 
     def test_init_empty(self):

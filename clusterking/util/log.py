@@ -3,11 +3,14 @@
 """Defines an easy function to set up a logger. """
 
 import logging
+import os
 
 try:
     import colorlog
 except ImportError:
     colorlog = None
+
+clusterking_silence = "CLUSTERKING_SILENCE_ALL_LOGS"
 
 
 def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
@@ -38,6 +41,8 @@ def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
         return _logger
 
     _logger.setLevel(level)
+    if os.environ.get("SILENCE_ALL_LOGS", False):
+        _logger.setLevel(int(os.environ.get(clusterking_silence)))
     if colorlog is not None:
         sh = colorlog.StreamHandler()
         log_colors = {'DEBUG':    'cyan',
@@ -60,6 +65,17 @@ def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
         _logger.debug("Module colorlog not available. Log will be b/w.")
 
     return _logger
+
+
+def silence_all_logs(level=logging.WARNING):
+    names = list(logging.root.manager.loggerDict.keys())
+    names.append("DFMD")
+    loggers = [
+        logging.getLogger(name) for name in names
+    ]
+    for logger in loggers:
+        logger.setLevel(level)
+    os.environ[clusterking_silence] = str(logging.WARNING)
 
 
 if __name__ == "__main__":

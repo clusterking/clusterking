@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
 # std
-import unittest
 from pathlib import Path
+import unittest
 
 # 3rd
 import numpy as np
 
 # ours
+from clusterking.util.log import silence_all_logs
 from clusterking.util.testing import MyTestCase
 from clusterking.data.dwe import DataWithErrors
 
 
 class TestDataWithErrors(MyTestCase):
     def setUp(self):
+        silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
         self.dname = "test_scan"
         self.data = [[100., 200.], [400., 500.]]

@@ -18,7 +18,7 @@ class AbstractBenchmark(object):
     points from all the points (in parameter space) that correspond to one
     cluster.
     """
-    def __init__(self, data: Data):
+    def __init__(self, data: Data, cluster_column="cluster"):
         """
 
         Args:
@@ -28,17 +28,13 @@ class AbstractBenchmark(object):
         self.bpoints = None
         self.md = nested_dict()
         self.log = get_logger("Benchmark")
-        self.cluster_column = "cluster"
+        self.md["cluster_column"] = cluster_column
 
     @property
     def cluster_column(self):
         """ The column from which we read the cluster information.
         Defaults to 'cluster'. """
         return self.md["cluster_column"]
-
-    @cluster_column.setter
-    def cluster_column(self, value):
-        self.md["cluster_column"] = value
 
     @property
     def _clusters(self):

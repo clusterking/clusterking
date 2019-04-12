@@ -7,7 +7,7 @@ import numpy as np
 
 # ours
 from clusterking.data.data import Data
-from clusterking.util.metadata import nested_dict, failsafe_serialize
+from clusterking.util.metadata import nested_dict
 from clusterking.util.log import get_logger
 
 

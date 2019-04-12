@@ -41,6 +41,5 @@ class TestData(MyTestCase):
         self.assertAllClose(d.data(), [[400, 500]])
 
 
-
 if __name__ == "__main__":
     unittest.main()

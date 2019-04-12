@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # std
-import copy
 import unittest
 from pathlib import Path
 

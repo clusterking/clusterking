@@ -64,9 +64,9 @@ def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
 
 if __name__ == "__main__":
     # Test the color scheme for the logger.
-    l = get_logger("test")
-    l.debug("Test debug message")
-    l.info("Test info message")
-    l.warning("Test warning message")
-    l.error("Test error message")
-    l.critical("Test critical message")
+    lg = get_logger("test")
+    lg.debug("Test debug message")
+    lg.info("Test info message")
+    lg.warning("Test warning message")
+    lg.error("Test error message")
+    lg.critical("Test critical message")

@@ -93,7 +93,7 @@ author = 'Jason Aebischer, Alejandro Celis, Kilian Lieret'
 #
 
 this_dir = pathlib.Path(__file__).resolve().parent
-with (this_dir / ".."/ "clusterking" / "version.txt").open() as vf:
+with (this_dir / ".." / "clusterking" / "version.txt").open() as vf:
     version = vf.read()
 print("Version as read from version.txt: '{}'".format(version))
 
@@ -160,7 +160,7 @@ try:
     theme = importlib.import_module('sphinx_rtd_theme')
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [theme.get_html_theme_path()]
-except:
+except ImportError:
     html_theme = "default"
 print("html_theme='{}'".format(html_theme))
     

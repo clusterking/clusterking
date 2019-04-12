@@ -14,33 +14,111 @@ class TestData(MyTestCase):
     def setUp(self):
         silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
-        self.dname = "test_scan"
+        self.dname = "test"
         self.data = [[100, 200], [400, 500]]
+        self.d = Data(self.ddir, self.dname)
 
-    def test_norms(self):
-        self.assertAllClose(
-            Data(self.ddir, self.dname).norms(),
-            [300, 900]
+    # **************************************************************************
+    # Property shortcuts
+    # **************************************************************************
+
+    def test_bin_cols(self):
+        self.assertEqual(self.d.bin_cols, ["bin0", "bin1"])
+
+    def test_par_cols(self):
+        self.assertEqual(
+            self.d.par_cols,
+            ["CVL_bctaunutau", "CT_bctaunutau", "CSL_bctaunutau"]
         )
+
+    def test_n(self):
+        self.assertEqual(self.d.n, 2)
+
+    def test_nbins(self):
+        self.assertEqual(self.d.nbins, 2)
+
+    def test_npars(self):
+        self.assertEqual(self.d.npars, 3)
+
+    # **************************************************************************
+    # Returning things
+    # **************************************************************************
 
     def test_data(self):
         self.assertAllClose(
-            Data(self.ddir, self.dname).data(),
+            self.d.data(),
             self.data
+        )
+
+    def test_norms(self):
+        self.assertAllClose(
+            self.d.norms(),
+            [300, 900]
+        )
+
+    def test_clusters(self):
+        self.assertEqual(
+            self.d.clusters(),
+            [0]
+        )
+        self.assertEqual(
+            self.d.clusters(cluster_column="other_cluster"),
+            [0, 1]
+        )
+
+    def test_get_param_values(self):
+        self.assertEqual(
+            sorted(list(self.d.get_param_values().keys())),
+            sorted(["CVL_bctaunutau", "CT_bctaunutau", "CSL_bctaunutau"])
+        )
+        self.assertAlmostEqual(
+            self.d.get_param_values("CVL_bctaunutau")[0],
+            -1.
+        )
+        self.assertAlmostEqual(
+            self.d.get_param_values("CT_bctaunutau")[1],
+            0.
         )
 
     def test_data_normed(self):
         self.assertAllClose(
-            Data(self.ddir, self.dname).data(normalize=True),
+            self.d.data(normalize=True),
             [[1/3, 2/3], [4/9, 5/9]]
         )
 
+    # **************************************************************************
+    # Subsample
+    # **************************************************************************
+
     def test_only_bpoints(self):
-        d = Data(self.ddir, self.dname)
-        e = d.only_bpoints()
+        e = self.d.only_bpoints()
         self.assertAllClose(e.data(), [[400, 500]])
-        d.only_bpoints(inplace=True)
-        self.assertAllClose(d.data(), [[400, 500]])
+
+    def test_fix_param(self):
+        e = self.d.fix_param(CVL_bctaunutau=-1.0)
+        self.assertEqual(e.n, 2)
+        e = self.d.fix_param(CVL_bctaunutau=0.0)
+        # (Because we take the closest value, it doesn't matter)
+        self.assertEqual(e.n, 2)
+        e = self.d.fix_param(CT_bctaunutau=0.0)
+        self.assertEqual(e.n, 1)
+        e = self.d.fix_param(CT_bctaunutau=[-1.0, 0.])
+        self.assertEqual(e.n, 2)
+        e = self.d.fix_param(CT_bctaunutau=[])
+        self.assertEqual(e.n, 0)
+
+    # todo: we should have a larger dataset to test this properly
+    def test_fix_param_bpoints(self):
+        e = self.d.fix_param(CT_bctaunutau=[], bpoints=True)
+        self.assertEqual(e.n, 1)
+        e = self.d.fix_param(CT_bctaunutau=[], bpoint_slices=True)
+        self.assertEqual(e.n, 1)
+        e = self.d.fix_param(
+            CT_bctaunutau=[],
+            bpoints=True,
+            bpoint_column="other_bpoint"
+        )
+        self.assertEqual(e.n, 2)
 
 
 if __name__ == "__main__":

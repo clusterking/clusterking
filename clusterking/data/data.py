@@ -93,14 +93,13 @@ class Data(DFMD):
         """
         return np.sum(self.data(), axis=1)
 
-    # todo: sorting
     def clusters(self, cluster_column="cluster"):
-        """ Return numpy array of all cluster names (unique)
+        """ Return list of all cluster names (unique)
 
         Args:
             cluster_column: Column that contains the cluster names
         """
-        return self.df[cluster_column].unique()
+        return sorted(list(self.df[cluster_column].unique()))
 
     # todo: test me
     def get_param_values(self, param: Union[None, str] = None):
@@ -245,8 +244,7 @@ class Data(DFMD):
                 values_dict[param] = [values]
             else:
                 values_dict[param] = list(values)
-            if bpoint_slices:
-                values_dict[param].extend(bpoint_slices[param])
+            values_dict[param].extend(bpoint_slices[param])
 
         # Get selector
         selector = np.full(self.n, True, bool)

@@ -54,7 +54,10 @@ class TestDFMD(unittest.TestCase):
                 "CSL_bctaunutau",
                 "bin0",
                 "bin1",
-                "bpoint"
+                "cluster",
+                "other_cluster",
+                "bpoint",
+                "other_bpoint"
             ]
         )
         self.assertEqual(
@@ -72,33 +75,33 @@ class TestDFMD(unittest.TestCase):
         )
 
     def test_init_dir_name(self):
-        dfmd = DFMD(self.data_dir, "test_scan")
+        dfmd = DFMD(self.data_dir, "test")
         self._test_dfmd_vs_cached(dfmd)
-        dfmd = DFMD(directory=self.data_dir, name="test_scan")
+        dfmd = DFMD(directory=self.data_dir, name="test")
         self._test_dfmd_vs_cached(dfmd)
 
     def test_init_df_md(self):
-        _dfmd = DFMD(self.data_dir, "test_scan")
+        _dfmd = DFMD(self.data_dir, "test")
         dfmd = DFMD(df=_dfmd.df, md=_dfmd.md)
         self._compare_dfs(_dfmd, dfmd)
 
     def test_init_df_path_md_path(self):
         dfmd = DFMD(
-            df=self.data_dir / "test_scan_data.csv",
-            md=self.data_dir / "test_scan_metadata.json"
+            df=self.data_dir / "test_data.csv",
+            md=self.data_dir / "test_metadata.json"
         )
         self._test_dfmd_vs_cached(dfmd)
 
     def test_init_mixed(self):
-        _dfmd = DFMD(self.data_dir, "test_scan")
+        _dfmd = DFMD(self.data_dir, "test")
         dfmd = DFMD(
-            df=self.data_dir / "test_scan_data.csv",
+            df=self.data_dir / "test_data.csv",
             md=_dfmd.md
         )
         self._compare_dfs(_dfmd, dfmd)
         dfmd = DFMD(
             df=_dfmd.df,
-            md=self.data_dir / "test_scan_metadata.json"
+            md=self.data_dir / "test_metadata.json"
         )
         self._compare_dfs(_dfmd, dfmd)
 

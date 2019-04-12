@@ -17,7 +17,7 @@ class TestDataWithErrors(MyTestCase):
     def setUp(self):
         silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
-        self.dname = "test_scan"
+        self.dname = "test"
         self.data = [[100., 200.], [400., 500.]]
 
     def test_empty(self):

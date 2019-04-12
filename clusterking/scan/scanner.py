@@ -111,6 +111,13 @@ class Scanner(object):
         Returns:
             None
 
+        .. warning::
+
+            The function ``func`` has to be a globally defined function, else
+            you will probably run into the error
+            ``Can't pickle local object ...`` that is issued by the python
+            multiprocessing module.
+
         """
         md = self.md["dfunction"]
         try:

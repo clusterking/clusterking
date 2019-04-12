@@ -2,6 +2,7 @@
 
 # std
 from pathlib import Path
+import tempfile
 import unittest
 
 # ours
@@ -127,8 +128,12 @@ class TestDFMD(unittest.TestCase):
     #     self.assertNotEqual(id(dfmd1.df), id(dfmd3.df))
     #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
 
-    # def test_write_read(self):
-#
+    def test_write_read(self):
+        dfmd = DFMD(self.data_dir, self.test_fname)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dfmd.write(tmpdir, "tmp_test")
+            dfmd_loaded = DFMD(tmpdir, "tmp_test")
+            self._compare_dfs(dfmd, dfmd_loaded)
 
 
 if __name__ == "__main__":

@@ -90,35 +90,46 @@ class TestData(MyTestCase):
     # Subsample
     # **************************************************************************
 
+    # see next class
+
+
+class TestSubSample(MyTestCase):
+    def setUp(self):
+        silence_all_logs()
+        self.ddir = Path(__file__).parent / "data"
+        self.dname = "test_longer"
+        self.d = Data(self.ddir, self.dname)
+
     def test_only_bpoints(self):
-        e = self.d.only_bpoints()
-        self.assertAllClose(e.data(), [[400, 500]])
+        self.assertEqual(self.d.only_bpoints().n, 1)
+        self.assertEqual(
+            self.d.only_bpoints(bpoint_column="bpoint1").n,
+            2
+        )
+        self.assertEqual(
+            self.d.only_bpoints(bpoint_column="bpoint2").n,
+            3
+        )
 
     def test_fix_param(self):
-        e = self.d.fix_param(CVL_bctaunutau=-1.0)
-        self.assertEqual(e.n, 2)
-        e = self.d.fix_param(CVL_bctaunutau=0.0)
-        # (Because we take the closest value, it doesn't matter)
-        self.assertEqual(e.n, 2)
-        e = self.d.fix_param(CT_bctaunutau=0.0)
-        self.assertEqual(e.n, 1)
-        e = self.d.fix_param(CT_bctaunutau=[-1.0, 0.])
-        self.assertEqual(e.n, 2)
-        e = self.d.fix_param(CT_bctaunutau=[])
-        self.assertEqual(e.n, 0)
+        e = self.d.fix_param(a=0)
+        self.assertEqual(e.n, 16)
+        self.assertAllClose(e.get_param_values("a"), [0.])
+        e = self.d.fix_param(a=-100)
+        self.assertEqual(e.n, 16)
+        self.assertAllClose(e.get_param_values("a"), [0.])
 
-    # todo: we should have a larger dataset to test this properly
-    def test_fix_param_bpoints(self):
-        e = self.d.fix_param(CT_bctaunutau=[], bpoints=True)
-        self.assertEqual(e.n, 1)
-        e = self.d.fix_param(CT_bctaunutau=[], bpoint_slices=True)
-        self.assertEqual(e.n, 1)
-        e = self.d.fix_param(
-            CT_bctaunutau=[],
-            bpoints=True,
-            bpoint_column="other_bpoint"
-        )
-        self.assertEqual(e.n, 2)
+    # def test_fix_param_bpoints(self):
+    #     e = self.d.fix_param(CT_bctaunutau=[], bpoints=True)
+    #     self.assertEqual(e.n, 1)
+    #     e = self.d.fix_param(CT_bctaunutau=[], bpoint_slices=True)
+    #     self.assertEqual(e.n, 1)
+    #     e = self.d.fix_param(
+    #         CT_bctaunutau=[],
+    #         bpoints=True,
+    #         bpoint_column="other_bpoint"
+    #     )
+    #     self.assertEqual(e.n, 2)
 
 
 if __name__ == "__main__":

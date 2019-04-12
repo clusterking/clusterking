@@ -123,11 +123,11 @@ class Data(DFMD):
     # Subsample
     # **************************************************************************
 
-    def only_bpoints(self, column="bpoint", inplace=False):
+    def only_bpoints(self, bpoint_column="bpoint", inplace=False):
         """ Keep only the benchmark points as sample points.
 
         Args:
-            column: benchmark point column (boolean)
+            bpoint_column: benchmark point column (boolean)
             inplace: If True, the current Data object is modified, if False,
                 a new copy of the Data object is returned.
 
@@ -135,15 +135,15 @@ class Data(DFMD):
             None or Data
         """
         if inplace:
-            self.df = self.df[self.df[column]]
+            self.df = self.df[self.df[bpoint_column]]
         else:
             new_obj = copy.deepcopy(self)
-            new_obj.only_bpoints(inplace=True)
+            new_obj.only_bpoints(inplace=True, bpoint_column=bpoint_column)
             return new_obj
 
     def _bpoint_slices(self, bpoint_column="bpoint"):
         """ See docstring of only_bpoint_slices. """
-        bpoint_df = self.only_bpoints(column=bpoint_column)
+        bpoint_df = self.only_bpoints(bpoint_column=bpoint_column)
         return {
             param: bpoint_df.df[param].unique()
             for param in self.par_cols

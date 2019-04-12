@@ -1,2 +1,2 @@
-[report]
-omit = clusterking/physics
+[run]
+omit = clusterking/physics/*

@@ -13,6 +13,7 @@ class TestDFMD(unittest.TestCase):
     def setUp(self):
         silence_all_logs()
         self.data_dir = Path(__file__).parent / "data"
+        self.test_fname = "test"
 
     def test_init_empty(self):
         DFMD()
@@ -75,33 +76,33 @@ class TestDFMD(unittest.TestCase):
         )
 
     def test_init_dir_name(self):
-        dfmd = DFMD(self.data_dir, "test")
+        dfmd = DFMD(self.data_dir, self.test_fname)
         self._test_dfmd_vs_cached(dfmd)
-        dfmd = DFMD(directory=self.data_dir, name="test")
+        dfmd = DFMD(directory=self.data_dir, name=self.test_fname)
         self._test_dfmd_vs_cached(dfmd)
 
     def test_init_df_md(self):
-        _dfmd = DFMD(self.data_dir, "test")
+        _dfmd = DFMD(self.data_dir, self.test_fname)
         dfmd = DFMD(df=_dfmd.df, md=_dfmd.md)
         self._compare_dfs(_dfmd, dfmd)
 
     def test_init_df_path_md_path(self):
         dfmd = DFMD(
-            df=self.data_dir / "test_data.csv",
-            md=self.data_dir / "test_metadata.json"
+            df=DFMD.get_df_path(self.data_dir, self.test_fname),
+            md=DFMD.get_md_path(self.data_dir, self.test_fname)
         )
         self._test_dfmd_vs_cached(dfmd)
 
     def test_init_mixed(self):
-        _dfmd = DFMD(self.data_dir, "test")
+        _dfmd = DFMD(self.data_dir, self.test_fname)
         dfmd = DFMD(
-            df=self.data_dir / "test_data.csv",
+            df=DFMD.get_df_path(self.data_dir, self.test_fname),
             md=_dfmd.md
         )
         self._compare_dfs(_dfmd, dfmd)
         dfmd = DFMD(
             df=_dfmd.df,
-            md=self.data_dir / "test_metadata.json"
+            md=DFMD.get_md_path(self.data_dir, self.test_fname)
         )
         self._compare_dfs(_dfmd, dfmd)
 
@@ -125,6 +126,9 @@ class TestDFMD(unittest.TestCase):
     #     self.assertNotEqual(id(dfmd1.md), id(dfmd2.md))
     #     self.assertNotEqual(id(dfmd1.df), id(dfmd3.df))
     #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
+
+    # def test_write_read(self):
+#
 
 
 if __name__ == "__main__":

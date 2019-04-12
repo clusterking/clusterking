@@ -354,7 +354,7 @@ class Data(DFMD):
     # Renaming clusters
     # --------------------------------------------------------------------------
 
-    # todo: doc
+    # todo: Test this
     # fixme: perhaps don't allow new_column but rather give copy method
     def rename_clusters(self, arg=None, column="cluster", new_column=None):
         """ Rename clusters based on either

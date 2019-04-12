@@ -41,7 +41,8 @@ class TestGenerator(object):
         self.generated_test_dir = self.this_dir / "test_auto_generated_tests"
         self.generated_test_dir.mkdir(parents=True, exist_ok=True)
 
-    def notebook_path_to_test_name(self, notebook_path: pathlib.Path) -> str:
+    @staticmethod
+    def notebook_path_to_test_name(notebook_path: pathlib.Path) -> str:
         name = underscore_string(notebook_path.name)
         if not name.startswith("test_"):
             name = "test_" + name
@@ -54,10 +55,12 @@ class TestGenerator(object):
         return self.generated_test_dir / name
 
     def generate_test(self, notebook_path):
-        with self.notebook_path_to_test_path(notebook_path).open("w") as outfile:
+        p = self.notebook_path_to_test_path(notebook_path)
+        name = self.notebook_path_to_test_path(notebook_path)
+        with p.open("w") as outfile:
             outfile.write(
                 file_stub.format(
-                    function_name=self.notebook_path_to_test_name(notebook_path),
+                    function_name=name,
                     notebook_path=notebook_path.resolve()
                 )
             )
@@ -75,5 +78,5 @@ def test():
 
 
 if __name__ == "__main__":
-    tg = TestGenerator()
-    tg.generate_all()
+    my_tg = TestGenerator()
+    my_tg.generate_all()

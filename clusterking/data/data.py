@@ -13,7 +13,6 @@ from clusterking.plots.plot_bundles import BundlePlot
 from clusterking.plots.plot_clusters import ClusterPlot
 
 
-# todo: docstrings
 class Data(DFMD):
     """ This class inherits from the :py:class:`~clusterking.data.dfmd.DFMD`
     class and adds additional methods to it. It is the basic container,

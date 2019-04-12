@@ -3,11 +3,14 @@
 """Defines an easy function to set up a logger. """
 
 import logging
+import os
 
 try:
     import colorlog
 except ImportError:
     colorlog = None
+
+clusterking_silence = "CLUSTERKING_SILENCE_ALL_LOGS"
 
 
 def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
@@ -38,6 +41,8 @@ def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
         return _logger
 
     _logger.setLevel(level)
+    if os.environ.get("SILENCE_ALL_LOGS", False):
+        _logger.setLevel(int(os.environ.get(clusterking_silence)))
     if colorlog is not None:
         sh = colorlog.StreamHandler()
         log_colors = {'DEBUG':    'cyan',
@@ -62,11 +67,22 @@ def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
     return _logger
 
 
+def silence_all_logs(level=logging.WARNING):
+    names = list(logging.root.manager.loggerDict.keys())
+    names.append("DFMD")
+    loggers = [
+        logging.getLogger(name) for name in names
+    ]
+    for logger in loggers:
+        logger.setLevel(level)
+    os.environ[clusterking_silence] = str(logging.WARNING)
+
+
 if __name__ == "__main__":
     # Test the color scheme for the logger.
-    l = get_logger("test")
-    l.debug("Test debug message")
-    l.info("Test info message")
-    l.warning("Test warning message")
-    l.error("Test error message")
-    l.critical("Test critical message")
+    lg = get_logger("test")
+    lg.debug("Test debug message")
+    lg.info("Test info message")
+    lg.warning("Test warning message")
+    lg.error("Test error message")
+    lg.critical("Test critical message")

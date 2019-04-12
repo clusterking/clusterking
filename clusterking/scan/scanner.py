@@ -5,12 +5,11 @@ normalized q2 distribution. """
 
 # std
 import functools
-import itertools
 import multiprocessing
 import os
 import shutil
 import time
-from typing import Callable, List, Sized
+from typing import Callable, Sized
 
 # 3rd party
 import numpy as np

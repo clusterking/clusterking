@@ -72,10 +72,10 @@ For the latest development version type:
 Usage and Documentation
 -----------------------
 
-Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory (|binder|_).
+Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory (|binder2|_).
 
-.. |binder| replace:: **run online using binder**
-.. _binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
+.. |binder2| replace:: **run online using binder**
+.. _binder2: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
 
 .. _run online using binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
 

@@ -403,7 +403,6 @@ class BundlePlot(object):
         Gets called for every cluster specified in self.box_plot.
 
         Args:
-            ax: Instance of ``matplotlib.axes.Axes`` to plot on
             cluster: Name of cluster to be plotted
             whiskers: Length of the whiskers of the box plot.
                 See self.box_plot for more information.
@@ -455,7 +454,7 @@ class BundlePlot(object):
                 "Whisker length set to {}*IQR".format(
                     ", ".join(map(str, sorted(clusters))),
                     whiskers
-        )
+                )
         self._set_ax(ax, title)
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker

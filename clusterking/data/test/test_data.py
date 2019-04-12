@@ -92,6 +92,33 @@ class TestData(MyTestCase):
 
     # see next class
 
+    # **************************************************************************
+    # Quick plots
+    # **************************************************************************
+    # We just check that they run without throwing.
+
+    def test_plot_dist(self):
+        self.d.plot_dist()
+
+    def test_plot_dist_minmax(self):
+        self.d.plot_dist_minmax()
+
+    def test_plot_dist_box(self):
+        self.d.plot_dist_box()
+
+    def test_plot_clusters_scatter(self):
+        self.d.plot_clusters_scatter(
+            ["CVL_bctaunutau", "CT_bctaunutau", "CSL_bctaunutau"]
+        )
+        self.d.plot_clusters_scatter(
+            ["CVL_bctaunutau", "CT_bctaunutau"]
+        )
+
+    def test_plot_clusters_fill(self):
+        self.d.plot_clusters_fill(
+            ["CVL_bctaunutau", "CT_bctaunutau"]
+        )
+
 
 class TestSubSample(MyTestCase):
     def setUp(self):
@@ -115,21 +142,99 @@ class TestSubSample(MyTestCase):
         e = self.d.fix_param(a=0)
         self.assertEqual(e.n, 16)
         self.assertAllClose(e.get_param_values("a"), [0.])
+
         e = self.d.fix_param(a=-100)
         self.assertEqual(e.n, 16)
         self.assertAllClose(e.get_param_values("a"), [0.])
 
-    # def test_fix_param_bpoints(self):
-    #     e = self.d.fix_param(CT_bctaunutau=[], bpoints=True)
-    #     self.assertEqual(e.n, 1)
-    #     e = self.d.fix_param(CT_bctaunutau=[], bpoint_slices=True)
-    #     self.assertEqual(e.n, 1)
-    #     e = self.d.fix_param(
-    #         CT_bctaunutau=[],
-    #         bpoints=True,
-    #         bpoint_column="other_bpoint"
-    #     )
-    #     self.assertEqual(e.n, 2)
+        e = self.d.fix_param(a=2.3)
+        self.assertEqual(e.n, 16)
+        self.assertAllClose(e.get_param_values("a"), [2.])
+
+        e = self.d.fix_param(a=[0, 2.3])
+        self.assertEqual(e.n, 32)
+        self.assertAllClose(e.get_param_values("a"), [0., 2.])
+
+        e = self.d.fix_param(a=[0, 2.3], b=0)
+        self.assertEqual(e.n, 8)
+        self.assertAllClose(e.get_param_values("a"), [0., 2.])
+        self.assertAllClose(e.get_param_values("b"), [0.])
+
+        e = self.d.fix_param(a=[0, 2.3], b=0, c=0.)
+        self.assertEqual(e.n, 2)
+        self.assertAllClose(e.get_param_values("a"), [0., 2.])
+        self.assertAllClose(e.get_param_values("b"), [0.])
+        self.assertAllClose(e.get_param_values("c"), [0.])
+
+    def test_fix_param_bpoints(self):
+        e = self.d.fix_param(a=[], bpoints=True)
+        self.assertEqual(e.n, 1)
+
+        e = self.d.fix_param(a=[], bpoints=True, bpoint_column="bpoint1")
+        self.assertEqual(e.n, 2)
+
+        e = self.d.fix_param(a=0., bpoints=True, bpoint_column="bpoint1")
+        self.assertEqual(e.n, 16)
+
+        e = self.d.fix_param(c=0., bpoints=True, bpoint_column="bpoint1")
+        self.assertEqual(e.n, 17)
+
+        e = self.d.fix_param(a=0., b=0., c=0., bpoints=True, bpoint_column="bpoint1")
+        self.assertEqual(e.n, 2)
+
+    def test_fix_param_bpoint_slices(self):
+        e = self.d.fix_param(a=[], bpoint_slices=True)
+        self.assertEqual(e.n, 16)
+
+        e = self.d.fix_param(c=[], bpoint_slices=True,
+                             bpoint_column="bpoint2")
+        self.assertEqual(e.n, 3*16)
+
+        e = self.d.fix_param(a=[], b=[], c=[], bpoint_slices=True,
+                             bpoint_column="bpoint2")
+        self.assertEqual(e.n, 3)
+
+    def test_sample_param(self):
+        e = self.d.sample_param(a=0)
+        self.assertEqual(e.n, 0)
+
+        e = self.d.sample_param(a=3)
+        self.assertEqual(e.n, 3*4*4)
+
+        e = self.d.sample_param(a=4)
+        self.assertEqual(e.n, 4*4*4)
+
+        e = self.d.sample_param(a=10)
+        self.assertEqual(e.n, 4*4*4)
+
+        e = self.d.sample_param(a=3, b=3, c=3)
+        self.assertEqual(e.n, 3*3*3)
+
+        e = self.d.sample_param(a=(0, 0.4, 3))
+        self.assertEqual(e.n, 1*4*4)
+
+        e = self.d.sample_param(a=(0, 1, 3))
+        self.assertEqual(e.n, 2*4*4)
+
+        e = self.d.sample_param(a=(0, 1, 3), b=2, c=2)
+        self.assertEqual(e.n, 2*2*2)
+
+        e = self.d.sample_param(a=(0, 1, 3), b=(0, 1, 3), c=2)
+        self.assertEqual(e.n, 2*2*2)
+
+    def test_sample_param_bpoints(self):
+        e = self.d.sample_param(a=0, bpoints=True)
+        self.assertEqual(e.n, 1)
+
+        e = self.d.sample_param(a=0, bpoints=True, bpoint_column="bpoint2")
+        self.assertEqual(e.n, 3)
+
+    def test_sample_param_bpoint_slices(self):
+        e = self.d.sample_param(a=0, bpoint_slices=True)
+        self.assertEqual(e.n, 16)
+
+        e = self.d.sample_param(a=0, bpoint_slices=True, bpoint_column="bpoint2")
+        self.assertEqual(e.n, 16)
 
 
 if __name__ == "__main__":

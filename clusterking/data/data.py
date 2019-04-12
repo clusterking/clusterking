@@ -267,7 +267,7 @@ class Data(DFMD):
     def sample_param(self,
                      bpoints=False,
                      bpoint_slices=False,
-                     bpoint_column="bpoints",
+                     bpoint_column="bpoint",
                      inplace=False,
                      **kwargs):
         """ Return a Data object that contains a subset of the sample points

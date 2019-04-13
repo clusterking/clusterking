@@ -106,6 +106,10 @@ class ClusterPlot(object):
     # ==========================================================================
 
     @property
+    def _ndim(self):
+        return len(self._axis_columns)
+
+    @property
     def _axli(self):
         """Note: axs contains all axes (subplots) as a 2D grid, axsli contains
         the same objects but as a simple list (easier to iterate over)"""
@@ -115,11 +119,6 @@ class ClusterPlot(object):
     def _has_bpoints(self):
         """ True if we have benchmark points. """
         return self.bpoint_column in self.data.df.columns
-
-    @property
-    def _dofs(self):
-        """ Column names of the degrees of freedom. """
-        return list(self._df_dofs.columns)
 
     @property
     def _nsubplots(self):
@@ -145,22 +144,26 @@ class ClusterPlot(object):
     # ==========================================================================
 
     def _find_dofs(self):
-        """ Find all relevant wilson coefficients that are not axes on
-        the plots (called _dofs). """
+        """ Find all parameters that are not axes on
+        the plots and attain at least two different values.
+        These parameters are called the degrees of freedom (dofs). """
 
         dofs = []
-        # 'Index columns' are by default the columns that hold the wilson
-        # coefficients.
         for col in self.data.par_cols:
             if col not in self._axis_columns:
                 if len(self.data.df[col].unique()) >= 2:
                     dofs.append(col)
         self.log.debug("dofs = {}".format(dofs))
+        self._dofs = dofs
 
-        if not dofs:
+    def _sample_dofs(self):
+        """ For every dof, select values to be shown on it.
+        Save this as the dataframe self._df_dofs"""
+
+        if not self._dofs:
             df_dofs = pd.DataFrame([])
         else:
-            df_dofs = self.data.df[dofs].drop_duplicates().sort_values(dofs)
+            df_dofs = self.data.df[self._dofs].drop_duplicates().sort_values(self._dofs)
             df_dofs.reset_index(inplace=True, drop=True)
 
         self.log.debug("number of subplots = {}".format(len(df_dofs)))
@@ -170,9 +173,9 @@ class ClusterPlot(object):
 
         if len(df_dofs) > self.max_subplots:
             steps_per_dof = int(self.max_subplots **
-                                (1 / len(dofs)))
+                                (1 / len(self._dofs)))
             self.log.debug("number of steps per dof", steps_per_dof)
-            for col in dofs:
+            for col in self._dofs:
                 allowed_values = df_dofs[col].unique()
                 indizes = list(set(np.linspace(0, len(allowed_values)-1,
                                                steps_per_dof).astype(int)))
@@ -186,6 +189,9 @@ class ClusterPlot(object):
     def _setup_subplots(self):
         """ Set up the subplot grid"""
 
+        # 1. Initialize subplots
+        # ----------------------
+
         # squeeze keyword: https://stackoverflow.com/questions/44598708/
         # do not share axes, that makes problems if the grid is incomplete
         subplots_args = {
@@ -195,24 +201,44 @@ class ClusterPlot(object):
                         self._nrows * self.figsize[1]),
             "squeeze": False,
         }
-        if len(self._axis_columns) == 3:
+        if self._ndim == 3:
             subplots_args["subplot_kw"] = {'projection': '3d'}
-        self._fig, self._axs = plt.subplots(**subplots_args)
-        # this also sets self._axli
 
+        self._fig, self._axs = plt.subplots(**subplots_args)
+
+        # 2. Hide plots
+        # -------------
+
+        # Since we initialize a grid of subplots, but might have less
+        # subplots to actually show, we hide some of them here.
+
+        # Number of hidden plots
         ihidden = self._nrows * self._ncols - self._nsubplots + 1
+
+        # Column number from which we have to start hiding plots
+        # (note that all hidden plots are in the last row)
         icol_hidden = self._ncols - ihidden
+
         self.log.debug("ihidden = {}".format(ihidden))
         self.log.debug("icol_hidden = {}".format(icol_hidden))
 
-        if len(self._axis_columns) == 2:
+        for isubplot in range(self._nrows * self._ncols):
+            irow = isubplot // self._ncols
+            icol = isubplot % self._ncols
+
+            if isubplot >= self._nsubplots:
+                self.log.debug("Hiding", irow, icol)
+                self._axli[isubplot].set_visible(False)
+
+        # 3. Setup labels
+        # ---------------
+
+        if self._ndim == 2:
             for isubplot in range(self._nrows * self._ncols):
-                irow = isubplot//self._ncols
+                irow = isubplot // self._ncols
                 icol = isubplot % self._ncols
 
-                if isubplot >= self._nsubplots:
-                    self.log.debug("hiding", irow, icol)
-                    self._axli[isubplot].set_visible(False)
+                # Set labels and ticks:
 
                 if icol == 0:
                     self._axli[isubplot].set_ylabel(self._axis_columns[1])
@@ -226,11 +252,14 @@ class ClusterPlot(object):
                 else:
                     self._axli[isubplot].set_xticklabels([])
 
-        else:
+        elif self._ndim == 3:
             for isubplot in range(self._nsubplots):
                 self._axli[isubplot].set_xlabel(self._axis_columns[0])
                 self._axli[isubplot].set_ylabel(self._axis_columns[1])
                 self._axli[isubplot].set_zlabel(self._axis_columns[2])
+
+        # 3. Add title to subplots
+        # ------------------------
 
         for isubplot in range(self._nsubplots - 1):
             title = " ".join(
@@ -239,13 +268,18 @@ class ClusterPlot(object):
             )
             self._axli[isubplot].set_title(title)
 
-        # set the xrange explicitly in order to not depend
+        # 4. Set xranges
+        # --------------
+
+        # Set the xrange explicitly in order to not depend
         # on which get_clusters are shown etc.
 
         for isubplot in range(self._nsubplots):
-            self._axli[isubplot].set_xlim(self._get_lims(0))
-            self._axli[isubplot].set_ylim(self._get_lims(1))
-            if len(self._axis_columns) == 3:
+            if self._ndim >= 1:
+                self._axli[isubplot].set_xlim(self._get_lims(0))
+            if self._ndim >= 2:
+                self._axli[isubplot].set_ylim(self._get_lims(1))
+            if self._ndim >= 3:
                 self._axli[isubplot].set_zlim(self._get_lims(2))
 
     # todo: if scatter: use proper markers!
@@ -298,15 +332,18 @@ class ClusterPlot(object):
         Returns:
             None
         """
-        assert(2 <= len(cols) <= 3)
+        assert(1 <= len(cols) <= 3)
         self._clusters = clusters
         self._axis_columns = cols
         if not self._clusters:
+            # todo: use d.clusters
             self._clusters = list(self.data.df[self.cluster_column].unique())
         # Careful: Use the real number of clusters when initializing the
         # color scheme!
+        # todo: do we really need to reinitialize this?
         self.color_scheme = ColorScheme(self.data.clusters(self.cluster_column))
         self._find_dofs()
+        self._sample_dofs()
         self._setup_subplots()
 
     def _set_fill_colors(self, matrix: np.ndarray) \
@@ -379,8 +416,13 @@ class ClusterPlot(object):
                     df_cluster_bp = pd.DataFrame()
                 # df_cluster_non_bpoint = df_cluster[]]
 
+                data = [df_cluster_no_bp[col].values for col in self._axis_columns]
+                if self._ndim == 1:
+                    # Insert trivial y value
+                    data.append(np.zeros(len(data[0])))
+
                 self._axli[isubplot].scatter(
-                    *[df_cluster_no_bp[col] for col in self._axis_columns],
+                    *data,
                     color=self.color_scheme.get_cluster_color(cluster),
                     marker=self.markers[(cluster-1) % len(self.markers)],
                     label=cluster,
@@ -388,8 +430,12 @@ class ClusterPlot(object):
                     **kwargs
                 )
                 if self._has_bpoints:
+                    bp_data = [df_cluster_bp[col].values for col in self._axis_columns]
+                    if self._ndim == 1:
+                        # Insert trivial y value
+                        bp_data.append(np.zeros(len(bp_data[0])))
                     self._axli[isubplot].scatter(
-                        *[df_cluster_bp[col] for col in self._axis_columns],
+                        *bp_data,
                         color=self.color_scheme.get_cluster_color(cluster),
                         marker=self.markers[(cluster-1) % len(self.markers)],
                         label=cluster,

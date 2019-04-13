@@ -206,11 +206,27 @@ class ClusterPlot(object):
 
         self._fig, self._axs = plt.subplots(**subplots_args)
 
-        # 2. Hide plots
+
+        # 2. Setup frames
+        # ---------------
+
+        for isubplot in range(self._nrows * self._ncols):
+            if self._ndim == 1:
+                for loc in ["top", "left", "right"]:
+                    self._axli[isubplot].spines[loc].set_visible(False)
+                self._axli[isubplot].spines['bottom'].set_position('center')
+
+        # 3. Hide plots
         # -------------
 
         # Since we initialize a grid of subplots, but might have less
         # subplots to actually show, we hide some of them here.
+
+        for isubplot in range(self._nsubplots, self._nrows * self._ncols):
+            self._axli[isubplot].set_visible(False)
+
+        # 4. Setup labels
+        # ---------------
 
         # Number of hidden plots
         ihidden = self._nrows * self._ncols - self._nsubplots + 1
@@ -222,16 +238,9 @@ class ClusterPlot(object):
         self.log.debug("ihidden = {}".format(ihidden))
         self.log.debug("icol_hidden = {}".format(icol_hidden))
 
-        for isubplot in range(self._nrows * self._ncols):
-            irow = isubplot // self._ncols
-            icol = isubplot % self._ncols
-
-            if isubplot >= self._nsubplots:
-                self.log.debug("Hiding", irow, icol)
-                self._axli[isubplot].set_visible(False)
-
-        # 3. Setup labels
-        # ---------------
+        if self._ndim == 1:
+            for isubplot in range(self._nrows * self._ncols):
+                self._axli[isubplot].set_yticks([])
 
         if self._ndim == 2:
             for isubplot in range(self._nrows * self._ncols):
@@ -268,13 +277,15 @@ class ClusterPlot(object):
             )
             self._axli[isubplot].set_title(title)
 
-        # 4. Set xranges
+        # 4. Set ranges
         # --------------
 
         # Set the xrange explicitly in order to not depend
         # on which get_clusters are shown etc.
 
         for isubplot in range(self._nsubplots):
+            if self._ndim == 1:
+                self._axli[isubplot].set_ylim([-1, 1])
             if self._ndim >= 1:
                 self._axli[isubplot].set_xlim(self._get_lims(0))
             if self._ndim >= 2:
@@ -419,7 +430,7 @@ class ClusterPlot(object):
                 data = [df_cluster_no_bp[col].values for col in self._axis_columns]
                 if self._ndim == 1:
                     # Insert trivial y value
-                    data.append(np.zeros(len(data[0])))
+                    data.append(0.1 + np.zeros(len(data[0])))
 
                 self._axli[isubplot].scatter(
                     *data,
@@ -433,7 +444,7 @@ class ClusterPlot(object):
                     bp_data = [df_cluster_bp[col].values for col in self._axis_columns]
                     if self._ndim == 1:
                         # Insert trivial y value
-                        bp_data.append(np.zeros(len(bp_data[0])))
+                        bp_data.append(0.1 + np.zeros(len(bp_data[0])))
                     self._axli[isubplot].scatter(
                         *bp_data,
                         color=self.color_scheme.get_cluster_color(cluster),

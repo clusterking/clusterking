@@ -60,6 +60,9 @@ class ClusterPlot(object):
         #: Maximal number of columns of the subplot grid
         self.max_cols = 4
 
+        #: Formatting of key-value pairs in title of plots
+        self.kv_formatter = "{}={:.2f}"
+
         #: figure size of each subplot
         self.figsize = (4, 4)
 
@@ -163,7 +166,8 @@ class ClusterPlot(object):
         if not self._dofs:
             df_dofs = pd.DataFrame([])
         else:
-            df_dofs = self.data.df[self._dofs].drop_duplicates().sort_values(self._dofs)
+            df_dofs = self.data.df[self._dofs].drop_duplicates()
+            df_dofs.sort_values(self._dofs, inplace=True)
             df_dofs.reset_index(inplace=True, drop=True)
 
         self.log.debug("number of subplots = {}".format(len(df_dofs)))
@@ -177,8 +181,14 @@ class ClusterPlot(object):
             self.log.debug("number of steps per dof", steps_per_dof)
             for col in self._dofs:
                 allowed_values = df_dofs[col].unique()
-                indizes = list(set(np.linspace(0, len(allowed_values)-1,
-                                               steps_per_dof).astype(int)))
+                indizes = list(set(
+                    np.linspace(
+                        0,
+                        len(allowed_values)-1,
+                        steps_per_dof,
+                        dtype=int
+                    )
+                ))
                 allowed_values = allowed_values[indizes]
                 df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
             self.log.debug("number of subplots left after "
@@ -205,7 +215,6 @@ class ClusterPlot(object):
             subplots_args["subplot_kw"] = {'projection': '3d'}
 
         self._fig, self._axs = plt.subplots(**subplots_args)
-
 
         # 2. Setup frames
         # ---------------
@@ -270,12 +279,8 @@ class ClusterPlot(object):
         # 3. Add title to subplots
         # ------------------------
 
-        for isubplot in range(self._nsubplots - 1):
-            title = " ".join(
-                "{}={:.2f}".format(key, self._df_dofs.iloc[isubplot][key])
-                for key in self._dofs
-            )
-            self._axli[isubplot].set_title(title)
+        for isubplot in range(self._nsubplots - int(self.draw_legend)):
+            self._axli[isubplot].set_title(self._plot_title(isubplot))
 
         # 4. Set ranges
         # --------------
@@ -292,6 +297,37 @@ class ClusterPlot(object):
                 self._axli[isubplot].set_ylim(self._get_lims(1))
             if self._ndim >= 3:
                 self._axli[isubplot].set_zlim(self._get_lims(2))
+
+    def _plot_title(self, isubplot):
+        """ Return title for subplot
+
+        Args:
+            isubplot: Index of subplot
+
+        Returns: Title as string
+        """
+        kv = {
+            key: self._df_dofs.iloc[isubplot][key]
+            for key in self._dofs
+        }
+        strings = [
+            self.kv_formatter.format(key, value) for key, value in kv.items()
+        ]
+        max_line_length = 15
+        title = ""
+        current_line_length = 0
+        for string in strings:
+            if current_line_length == 0:
+                title += string
+                current_line_length = len(string)
+            elif current_line_length + len(string) < max_line_length:
+                title += " " + string
+                current_line_length += len(string) + 1
+            else:
+                title += "\n" + string
+                current_line_length = len(string)
+
+        return title
 
     # todo: if scatter: use proper markers!
     def _add_legend(self):
@@ -329,9 +365,9 @@ class ClusterPlot(object):
         """
         mi = min(self.data.df[self._axis_columns[ax_no]].values)
         ma = max(self.data.df[self._axis_columns[ax_no]].values)
-        d = ma-mi
+        d = ma - mi
         pad = stretch * d
-        return mi-pad, ma+pad
+        return mi - pad, ma + pad
 
     def _setup_all(self, cols: List[str], clusters=None) -> None:
         """ Performs all setups.
@@ -343,7 +379,13 @@ class ClusterPlot(object):
         Returns:
             None
         """
-        assert(1 <= len(cols) <= 3)
+        if not 1 <= len(cols) <= 3:
+            raise ValueError(
+                "Plot dimension has to be between 1 and 3, but it is {}. "
+                "Did you specify enough columns/parameters as axes?".format(
+                    len(cols)
+                )
+            )
         self._clusters = clusters
         self._axis_columns = cols
         if not self._clusters:
@@ -417,17 +459,19 @@ class ClusterPlot(object):
 
                 if self._has_bpoints:
                     df_cluster_no_bp = df_cluster[
-                        df_cluster[self.bpoint_column] == False
+                        ~df_cluster[self.bpoint_column]
                     ]
                     df_cluster_bp = df_cluster[
-                        df_cluster[self.bpoint_column] == True
+                        df_cluster[self.bpoint_column]
                     ]
                 else:
                     df_cluster_no_bp = df_cluster
                     df_cluster_bp = pd.DataFrame()
                 # df_cluster_non_bpoint = df_cluster[]]
 
-                data = [df_cluster_no_bp[col].values for col in self._axis_columns]
+                data = [
+                    df_cluster_no_bp[col].values for col in self._axis_columns
+                ]
                 if self._ndim == 1:
                     # Insert trivial y value
                     data.append(0.1 + np.zeros(len(data[0])))
@@ -441,7 +485,9 @@ class ClusterPlot(object):
                     **kwargs
                 )
                 if self._has_bpoints:
-                    bp_data = [df_cluster_bp[col].values for col in self._axis_columns]
+                    bp_data = [
+                        df_cluster_bp[col].values for col in self._axis_columns
+                    ]
                     if self._ndim == 1:
                         # Insert trivial y value
                         bp_data.append(0.1 + np.zeros(len(bp_data[0])))

@@ -104,8 +104,7 @@ Being a condensed version of the basic tutorial, the following code is all that 
    # Set up kinematic function
 
    def dBrdq2(w, q):
-     return flavio.sm_prediction("dBR/dq2(B+->Dtaunu)", q) + \
-         flavio.np_prediction("dBR/dq2(B+->Dtaunu)", w, q)
+     return flavio.np_prediction("dBR/dq2(B+->Dtaunu)", w, q)
 
    s.set_dfunction(
      dBrdq2,

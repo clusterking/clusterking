@@ -45,7 +45,7 @@ class DataWithErrors(Data):
         # Initialize some values to their default
         self.rel_cov = None
         self.abs_cov = None
-        self.poisson_errors = False
+        self.poisson_errors = 0
 
     # **************************************************************************
     # A: Additional shortcuts
@@ -166,7 +166,12 @@ class DataWithErrors(Data):
 
         data = self.data()
         cov = np.tile(self.abs_cov, (self.n, 1, 1))
-        cov += np.tile(self.rel_cov, (self.n, 1, 1)) * data
+        cov += np.einsum("ij,ki,kj->kij", self.rel_cov, data, data)
+        if self.poisson_errors:
+            cov += corr2cov(
+                np.tile(np.eye(self.nbins), (self.n, 1, 1)),
+                np.sqrt(self.poisson_errors) * np.sqrt(data)
+            )
 
         if not relative:
             return cov
@@ -309,5 +314,15 @@ class DataWithErrors(Data):
     # Other forms of errors
     # -------------------------------------------------------------------------
 
-    def add_err_poisson(self):
-        self.poisson_errors = True
+    def add_err_poisson(self, scale=1):
+        """
+        Add poisson errors/statistical errors.
+
+        Args:
+            scale: Scale poisson errors by this float (for example by your data
+                normalization if your data itself is not normalized).
+
+        Returns:
+            None
+        """
+        self.poisson_errors = scale

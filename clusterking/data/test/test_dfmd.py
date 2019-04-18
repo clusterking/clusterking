@@ -69,7 +69,7 @@ class TestDFMD(unittest.TestCase):
 
     def _compare_dfs(self, dfmd1, dfmd2):
         self.assertEqual(
-            list(dfmd1.md.keys()), list(dfmd2.md.keys())
+            sorted(list(dfmd1.md.keys())), sorted(list(dfmd2.md.keys()))
         )
         self.assertEqual(
             list(dfmd1.df.columns),

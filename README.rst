@@ -153,8 +153,7 @@ Plotting
 
 .. code:: python
 
-    cp = ck.plots.ClusterPlot(d)
-    cp.scatter(
+    d.plot_clusters_scatter(
         ['CVL_bctaunutau', 'CSL_bctaunutau', 'CT_bctaunutau'],
         clusters=[1,2]  # Only plot 2 clusters for better visibility
     )
@@ -163,7 +162,7 @@ Plotting
  
 .. code:: python
 
-    cp.fill(['CVL_bctaunutau', 'CSL_bctaunutau'])
+    d.plot_clusters_fill(['CVL_bctaunutau', 'CSL_bctaunutau'])
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/fill_2d.png
 
@@ -171,8 +170,7 @@ Plotting all benchmark points:
 
 .. code:: python
 
-    bp = ck.plots.BundlePlot(d)
-    bp.plot_bundles()
+    bp.plot_dist()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png
 
@@ -180,7 +178,7 @@ Plotting minima and maxima of bin contents for all histograms in a cluster (+ben
 
 .. code:: python
 
-    bp.plot_minmax(clusters=[0, 2])
+    bp.plot_dist_minmax(clusters=[0, 2])
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/minmax_02.png
 
@@ -188,7 +186,7 @@ Similarly with box plots:
 
 .. code:: python
 
-   bp.box_plot()
+   bp.plot_dist_box()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/box_plot.png
 

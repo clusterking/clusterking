@@ -314,15 +314,19 @@ class DataWithErrors(Data):
     # Other forms of errors
     # -------------------------------------------------------------------------
 
-    def add_err_poisson(self, scale=1):
+    def add_err_poisson(self, normalization_scale=1):
         """
         Add poisson errors/statistical errors.
 
         Args:
-            scale: Scale poisson errors by this float (for example by your data
-                normalization if your data itself is not normalized).
+            normalization_scale: Apply poisson errors corresponding to data
+                normalization scaled up by this factor. For example, if your
+                data is normalized to 1 and you still want to apply Poisson
+                errors that correspond to a yield of 200, you can call
+                ``add_err_poisson(200)``. Your data will stay normalized, but
+                the poisson errors are appropriate for a total yield of 200.
 
         Returns:
             None
         """
-        self.poisson_errors = scale
+        self.poisson_errors = normalization_scale

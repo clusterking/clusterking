@@ -4,7 +4,7 @@
 ``Cluster``
 -----------
 
-.. autoclass:: clusterking.cluster.cluster.Cluster
+.. autoclass:: clusterking.cluster.Cluster
   :members:
   :undoc-members:
 

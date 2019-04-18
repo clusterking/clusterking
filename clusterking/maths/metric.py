@@ -42,7 +42,7 @@ def metric_selection(*args, **kwargs) -> Callable:
       that are defined in ``scipy.spatical.distance.pdist`` by that name (all
       additional arguments will be past to this function).
     3. If the first positional argument is a function, we take this function
-    (and add all additional arguments to it).
+      (and add all additional arguments to it).
 
     Examples:
 

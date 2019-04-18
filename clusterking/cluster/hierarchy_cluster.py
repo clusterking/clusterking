@@ -42,6 +42,7 @@ class HierarchyCluster(Cluster):
         Args:
             method: See reference on scipy.cluster.hierarchy.linkage
             optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
+
         """
         if self.metric is None:
             msg = "Metric not set. please run self.set_metric or set " \

@@ -4,11 +4,11 @@
 ``ClusterPlot``
 ---------------
 
-.. autoclass:: clusterking.plots.plot_clusters.ClusterPlot
+.. autoclass:: clusterking.plots.ClusterPlot
   :members:
 
 ``BundlePlot``
 ---------------
 
-.. autoclass:: clusterking.plots.plot_bundles.BundlePlot
+.. autoclass:: clusterking.plots.BundlePlot
   :members:

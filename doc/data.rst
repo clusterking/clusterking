@@ -15,17 +15,17 @@ methods.
 ``DFMD``
 --------
 
-.. autoclass:: clusterking.data.dfmd.DFMD
+.. autoclass:: clusterking.data.DFMD
   :members:
 
 ``Data``
 --------
 
-.. autoclass:: clusterking.data.data.Data
+.. autoclass:: clusterking.data.Data
   :members:
 
 ``DataWithErrors``
 ------------------
 
-.. autoclass:: clusterking.data.dwe.DataWithErrors
+.. autoclass:: clusterking.data.DataWithErrors
   :members:

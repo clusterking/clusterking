@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""strip outputs from an IPython Notebook
-Opens a notebook, strips its output, and writes the outputless version to the original file.
-Useful mainly as a git filter or pre-commit hook for users who don't want to track output in VCS.
-This does mostly the same thing as the `Clear All Output` command in the notebook UI.
-LICENSE: Public Domain
-"""
+"""strip outputs from an IPython Notebook Opens a notebook, strips its
+output, and writes the outputless version to the original file. Useful mainly
+as a git filter or pre-commit hook for users who don't want to track output
+in VCS. This does mostly the same thing as the `Clear All Output` command in
+the notebook UI. LICENSE: Public Domain """
 
 import io
 import sys

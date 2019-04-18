@@ -50,7 +50,6 @@ class Cluster(object):
 
         self.log.info("Done")
 
-
     def _cluster(self, **kwargs):
         """ Implementation of the clustering. Should return an array-like object
         with the cluster number.

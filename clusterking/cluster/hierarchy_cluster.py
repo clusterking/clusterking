@@ -12,7 +12,7 @@ import scipy.spatial
 # ours
 from clusterking.cluster.cluster import Cluster
 from clusterking.util.metadata import failsafe_serialize
-from clusterking.maths.metric import  metric_selection
+from clusterking.maths.metric import metric_selection
 
 
 # todo: Function to save/load hierarchy?
@@ -35,7 +35,8 @@ class HierarchyCluster(Cluster):
 
     set_metric.__doc__ = metric_selection.__doc__
 
-    def build_hierarchy(self, method="complete", optimal_ordering=False) -> None:
+    def build_hierarchy(self, method="complete", optimal_ordering=False) \
+            -> None:
         """ Build the hierarchy object.
 
         Args:
@@ -43,12 +44,11 @@ class HierarchyCluster(Cluster):
             optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
         """
         if self.metric is None:
-            self.log.error(
-                "Metric not set. please run self.set_metric or set "
-                "self.metric manually before running this method. "
-                "Returning without doing anything."
-            )
-            return
+            msg = "Metric not set. please run self.set_metric or set " \
+                  " self.metric manually before running this method. " \
+                  "Returning without doing anything."
+            self.log.critical(msg)
+            raise ValueError(msg)
 
         self.log.debug("Building hierarchy.")
 

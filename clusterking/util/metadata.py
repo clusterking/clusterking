@@ -136,15 +136,15 @@ def load_git_info(input_path=None) -> Dict[str, str]:
 
 
 # todo: docstring
-def failsafe_serialize(object):
-    if isinstance(object, dict):
-        return {key: failsafe_serialize(v) for key, v in object.items()}
-    elif isinstance(object, Iterable) and not isinstance(object, str):
-        return [failsafe_serialize(v) for v in object]
-    elif isinstance(object, (int, float)):
-        return object
+def failsafe_serialize(obj):
+    if isinstance(obj, dict):
+        return {key: failsafe_serialize(v) for key, v in obj.items()}
+    elif isinstance(obj, Iterable) and not isinstance(obj, str):
+        return [failsafe_serialize(v) for v in obj]
+    elif isinstance(obj, (int, float)):
+        return obj
     else:
-        return str(object)
+        return str(obj)
 
 
 if __name__ == "__main__":

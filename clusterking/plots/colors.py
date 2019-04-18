@@ -25,12 +25,12 @@ class ColorScheme(object):
         self._cluster_colors = None
 
         self.cluster_colors = [
-            "red",
-            "green",
-            "blue",
-            "black",
-            "orange",
-            "pink"
+            "xkcd:light red",
+            "xkcd:apple green",
+            "xkcd:bright blue",
+            "xkcd:charcoal grey",
+            "xkcd:orange",
+            "xkcd:hot pink"
         ]
         if colors:
             self.cluster_colors = colors

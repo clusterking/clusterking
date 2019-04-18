@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
+import clusterking.cluster
+import clusterking.data
+import clusterking.maths
+import clusterking.plots
+import clusterking.scan
+import clusterking.util
 from clusterking.data import Data, DataWithErrors
-from clusterking.cluster.hierarchy_cluster import HierarchyCluster
-from clusterking.scan.scanner import Scanner
-from clusterking.bpoints import Benchmark
+from clusterking.benchmark.benchmark import Benchmark

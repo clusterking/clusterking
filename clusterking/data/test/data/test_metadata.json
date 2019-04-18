@@ -61,5 +61,28 @@
                 ]
             }
         }
+    },
+    "cluster": {
+        "cluster": {
+            "cluster_args": {
+                "max_d": 0.04
+            },
+            "git": {
+                "branch": "HEAD",
+                "msg": "[plots] Add simple interface for plotting to Data class",
+                "sha": "6f0208a21c5c2d2a74ccff75822e51928fb97c77",
+                "time": "Thu 11 Apr 2019 13:52"
+            },
+            "hierarchy": {
+                "method": "complete",
+                "optimal_ordering": false
+            },
+            "metric": {
+                "args": [],
+                "kwargs": {}
+            },
+            "n_clusters": 4,
+            "time": "Thu 11 Apr 2019 16:13"
+        }
     }
 }

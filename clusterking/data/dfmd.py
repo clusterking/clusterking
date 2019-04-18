@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # std
+import copy
 import json
 import logging
 import pandas as pd
@@ -321,3 +322,33 @@ class DFMD(object):
         handle_overwrite([df_path, md_path], behavior=overwrite, log=self.log)
         self.write_df(df_path, overwrite="overwrite")
         self.write_md(md_path, overwrite="overwrite")
+
+    def copy(self, deep=True):
+        """ Make a copy of this object.
+
+        Args:
+            deep: Make a deep copy (default True). If this is disabled, any
+                change to the copy will also affect the original.
+
+        Returns:
+            New object.
+        """
+        if deep:
+            return copy.deepcopy(self)
+        else:
+            return copy.copy(self)
+
+    # **************************************************************************
+    # Magic methods
+    # **************************************************************************
+
+    def __copy__(self):
+        return type(self)(df=copy.copy(self.df), md=copy.copy(self.md))
+
+    def __deepcopy__(self, memo):
+        new = type(self)(
+            df=copy.deepcopy(self.df, memo),
+            md=copy.deepcopy(self.md, memo)
+        )
+        memo[id(self)] = new
+        return new

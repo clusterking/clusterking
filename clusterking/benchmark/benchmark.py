@@ -7,63 +7,10 @@ import numpy as np
 from typing import Callable
 
 # ours
-from clusterking.data.data import Data
-from clusterking.util.metadata import nested_dict, failsafe_serialize
-from clusterking.util.log import get_logger
-from clusterking.maths.metric import uncondense_distance_matrix, metric_selection
-
-
-class AbstractBenchmark(object):
-    """Subclass this class to implement algorithms to choose benchmark
-    points from all the points (in parameter space) that correspond to one
-    cluster.
-    """
-    def __init__(self, data: Data):
-        """
-
-        Args:
-            data: :py:class:`~clusterking.data.data.Data` object
-        """
-        self.data = data
-        self.bpoints = None
-        self.md = nested_dict()
-        self.log = get_logger("Benchmark")
-        self.cluster_column = "cluster"
-
-    @property
-    def cluster_column(self):
-        """ The column from which we read the cluster information.
-        Defaults to 'cluster'. """
-        return self.md["cluster_column"]
-
-    @cluster_column.setter
-    def cluster_column(self, value):
-        self.md["cluster_column"] = value
-
-    @property
-    def _clusters(self):
-        return self.data.df[self.cluster_column]
-
-    def select_bpoints(self) -> None:
-        """ Select one benchmark point for each cluster.
-        """
-        self.bpoints = self._select_bpoints()
-
-    def _select_bpoints(self, *args, **kwargs) -> np.ndarray:
-        raise NotImplementedError
-
-    def write(self, bpoint_column="bpoint") -> None:
-        """ Write benchmark points to a column in the dataframe of the data
-        object.
-
-        Args:
-            bpoint_column: Column to write to
-
-        Returns:
-            None
-        """
-        self.data.df[bpoint_column] = self.bpoints
-        self.data.md["bpoint"][bpoint_column] = self.md
+from clusterking.benchmark.abstract_benchmark import AbstractBenchmark
+from clusterking.util.metadata import failsafe_serialize
+from clusterking.maths.metric import uncondense_distance_matrix, \
+    metric_selection
 
 
 # todo: test this
@@ -78,12 +25,13 @@ class Benchmark(AbstractBenchmark):
     points in the same cluster (where "distance" of course is with respect
     to the metric).
     """
-    def __init__(self, data):
+    def __init__(self, data, cluster_column="cluster"):
         """
         Args:
             data: :py:class:`~clusterking.data.data.Data` object
+            cluster_column: Column name of the clusters
         """
-        super().__init__(data)
+        super().__init__(data=data, cluster_column=cluster_column)
         self.metric = None
         self.fom = lambda x: np.sum(x, axis=1)
 
@@ -124,10 +72,10 @@ class Benchmark(AbstractBenchmark):
             )
             return
 
-        result = np.full(self.data.n, False).astype(bool)
+        result = np.full(self.data.n, False, bool)
         for cluster in set(self._clusters):
             # The indizes of all spoints that are in the current cluster
-            indizes = np.argwhere(self._clusters == cluster).squeeze()
+            indizes = np.squeeze(np.argwhere(self._clusters == cluster), axis=1)
             # A data object with only these spoints
             d_cut = type(self.data)(
                 df=self.data.df.iloc[indizes],

@@ -29,24 +29,9 @@ sys.path.insert(0, os.path.abspath('../'))
 # needs_sphinx = '1.0'
 
 autodoc_mock_imports = [
-    "numpy",
-    "pandas",
-    "scipy",
+    '_tkinter',
     "matplotlib",
-    "tqdm",
-    "wilson",
-    "sklearn",
-    "mpl_toolkits",
-    "nbformat",
-    "nbconvert",
-    "scipy.cluster",
-    "matplotlib.pyplot",
-    "scipy.spatial",
-    "nbconvert.preprocessors",
-    "matplotlib.animation",
-    "matplotlib.ticker",
-    "matplotlib.colors",
-    "mpl_toolkits.mplot3d"
+    "pandas"
 ]
 
 autodoc_default_options = {

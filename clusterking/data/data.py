@@ -99,6 +99,14 @@ class Data(DFMD):
         Args:
             cluster_column: Column that contains the cluster names
         """
+        if cluster_column not in self.df.columns:
+            raise ValueError(
+                "The column '{}', which should contain the cluster names"
+                " does not exist in the dataframe. Perhaps your data isn't "
+                "clustered yet? Or you used a different name for the column "
+                "(in this case, you can usually specify it with a "
+                "'cluster_column' parameter).".format(cluster_column)
+            )
         return sorted(list(self.df[cluster_column].unique()))
 
     # todo: test me

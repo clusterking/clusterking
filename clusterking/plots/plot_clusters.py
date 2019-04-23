@@ -126,7 +126,10 @@ class ClusterPlot(object):
             elif len(self._axis_columns) == 2:
                 y_width = self._get_lims(1)[1] - self._get_lims(1)[0]
                 x_width = self._get_lims(0)[1] - self._get_lims(0)[0]
-                aspect_ratio = y_width / x_width
+                if x_width == 0:
+                    aspect_ratio = 1
+                else:
+                    aspect_ratio = y_width / x_width
             else:
                 aspect_ratio = 1
         return (self.fig_base_size, aspect_ratio * self.fig_base_size)

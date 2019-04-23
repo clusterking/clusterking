@@ -386,6 +386,11 @@ class ClusterPlot(object):
                     len(cols)
                 )
             )
+        if len(self.data.df) == 0:
+            raise ValueError(
+                "No data to plot. Please check if your dataframe contains "
+                "any row."
+            )
         self._clusters = clusters
         self._axis_columns = cols
         if not self._clusters:

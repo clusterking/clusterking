@@ -188,6 +188,11 @@ class BundlePlot(object):
 
     def _set_ax(self, ax, title):
         """ Set up axes. """
+        if len(self.data.df) == 0:
+            raise ValueError(
+                "No data to plot. Please check if your dataframe contains "
+                "any row."
+            )
         if self.title is not None:
             title = self.title
         if not ax:

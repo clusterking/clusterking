@@ -18,12 +18,12 @@ class ColorScheme(object):
     cluster and keep it consistent accross different plots.
     Subclass and overwrite color lists to implement different schemes.
     """
-    def __init__(self, clusters, colors=None):
+    def __init__(self, clusters=None, colors=None):
         self.log = get_logger("Colors", sh_level=logging.WARNING)
 
-        self.clusters = list(clusters)
-
         self._cluster_colors = None
+
+        # todo: perhaps use this: https://personal.sron.nl/~pault/
 
         self.cluster_colors = [
             "xkcd:light red",
@@ -31,12 +31,24 @@ class ColorScheme(object):
             "xkcd:bright blue",
             "xkcd:charcoal grey",
             "xkcd:orange",
-            "xkcd:hot pink"
+            "xkcd:purple",
+            "xkcd:brick red",
+            "xkcd:hunter green",
+            "xkcd:marigold",
+            "xkcd:darkish blue",
+            "xkcd:dirt brown",
+            "xkcd:vivid green",
+            "xkcd:periwinkle"
         ]
         if colors:
             self.cluster_colors = colors
 
-        if len(clusters) > len(self.cluster_colors):
+        if not clusters:
+            self.clusters = range(len(self.cluster_colors))
+        else:
+            self.clusters = list(clusters)
+
+        if len(self.clusters) > len(self.cluster_colors):
             self.log.warning(
                 "Not enough colors for all clusters. Some clusters might end up"
                 " with identical colors."
@@ -90,10 +102,13 @@ class ColorScheme(object):
         z = np.array(self.clusters).reshape((1, len(self.clusters)))
         plt.imshow(z, cmap=self.to_colormap())
 
-    def demo_faded(self, cluster, nlines, **kwargs):
+    def demo_faded(self, cluster=None, nlines=10, **kwargs):
         z = np.array(range(nlines)).reshape((1, nlines))
         plt.imshow(z, cmap=self.faded_colormap(cluster, nlines, **kwargs))
 
+    # todo: perhaps this should just be done in a different way, the faded
+    #   colors add little value as far as distinguishability is concerned
+    #   and make picking color schemes much harder...
     def get_cluster_colors_faded(self, cluster, nlines, max_alpha=0.7,
                                  min_alpha=0.3):
         base_color = self.get_cluster_color(cluster)

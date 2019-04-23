@@ -1,16 +1,18 @@
 ``Scanner``
 ==========================
 
+.. automodule:: clusterking.scan
+
 ``Scanner``
 -----------
 
-.. autoclass:: clusterking.scan.Scanner
-  :members:
-  :undoc-members:
+    .. autoclass:: Scanner
+        :members:
+        :undoc-members:
 
 ``WilsonScanner``
 -----------------
 
-.. autoclass:: clusterking.scan.WilsonScanner
-  :members:
-  :undoc-members:
+    .. autoclass:: WilsonScanner
+        :members:
+        :undoc-members:

@@ -1,24 +1,26 @@
 ``Cluster``
 ==========================
 
+.. automodule:: clusterking.cluster
+
 ``Cluster``
 -----------
 
-.. autoclass:: clusterking.cluster.Cluster
-  :members:
-  :undoc-members:
+    .. autoclass:: Cluster
+      :members:
+      :undoc-members:
 
 ``HierarchyCluster``
 --------------------
 
-.. autoclass:: clusterking.cluster.HierarchyCluster
-  :members:
-  :undoc-members:
+    .. autoclass:: HierarchyCluster
+      :members:
+      :undoc-members:
 
 ``KmeansCluster``
 -----------------
 
-.. autoclass:: clusterking.cluster.KmeansCluster
-  :members:
-  :undoc-members:
+    .. autoclass:: KmeansCluster
+      :members:
+      :undoc-members:
 

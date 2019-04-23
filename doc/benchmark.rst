@@ -1,17 +1,19 @@
 ``Benchmark``
 ==========================
 
+.. automodule:: clusterking.benchmark
+
 ``AbstractBenchmark``
 ---------------------
 
-.. autoclass:: clusterking.benchmark.abstract_benchmark.AbstractBenchmark
-  :members:
-  :undoc-members:
+    .. autoclass:: AbstractBenchmark
+        :members:
+        :undoc-members:
 
 ``Benchmark``
 -------------
 
-.. autoclass:: clusterking.benchmark.benchmark.Benchmark
-  :members:
-  :undoc-members:
+    .. autoclass:: Benchmark
+        :members:
+        :undoc-members:
 

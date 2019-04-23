@@ -1,14 +1,31 @@
 ``Plots``
 =====================
 
+.. automodule:: clusterking.plots
+
 ``ClusterPlot``
 ---------------
 
-.. autoclass:: clusterking.plots.ClusterPlot
-  :members:
+    .. autoclass:: ClusterPlot
+        :members:
+        :undoc-members:
 
 ``BundlePlot``
 ---------------
 
-.. autoclass:: clusterking.plots.BundlePlot
-  :members:
+    .. autoclass:: BundlePlot
+        :members:
+        :undoc-members:
+
+``plot_histogram``
+------------------
+
+    .. autofunction:: plot_histogram
+
+
+``Colors``
+----------
+
+    .. autoclass:: ColorScheme
+        :members:
+        :undoc-members:

@@ -45,16 +45,17 @@ class DFMD(object):
             create a deepcopy.
 
         Args:
-            log: instance of ``logging.Logger`` or name of logger to be created
+            log: instance of :py:class:`logging.Logger` or name of logger to be
+                created
             *args: See above
             **kwargs: See above
         """
         # These are the three attributes of this class
         #: This will hold all the configuration that we will write out
         self.md = None
-        #: Pandas dataframe to hold all of the results
+        #: :py:class:`pandas.DataFrame` to hold all of the results
         self.df = None  # type: pd.DataFrame
-        #: instance of ``logging.Logger``
+        #: instance of :py:class:`logging.Logger`
         self.log = None
 
         # First check if the user wants to initialize this class using

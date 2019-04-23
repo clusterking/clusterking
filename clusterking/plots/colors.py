@@ -12,6 +12,7 @@ import numpy as np
 from clusterking.util.log import get_logger
 
 
+# todo: docs
 class ColorScheme(object):
     """ Class holding color scheme. We want to assign a unique color to every
     cluster and keep it consistent accross different plots.

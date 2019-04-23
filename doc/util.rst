@@ -1,34 +1,34 @@
 ``Utility``
 =====================
 
-This module bundles mostly technical utilities that might not be all this interesting for users.
+.. automodule:: clusterking.util
 
 ``Interface``
 -------------
 
-.. automodule:: clusterking.util.cli
-  :members:
-  :undoc-members:
+    .. automodule:: clusterking.util.cli
+      :members:
+      :undoc-members:
 
 ``Log``
 -------------
 
-.. automodule:: clusterking.util.log
-  :members:
-  :undoc-members:
+    .. automodule:: clusterking.util.log
+      :members:
+      :undoc-members:
 
 
 ``Metadata``
 -------------
 
-.. automodule:: clusterking.util.metadata
-  :members:
-  :undoc-members:
+    .. automodule:: clusterking.util.metadata
+      :members:
+      :undoc-members:
 
 
 ``Testing``
 -------------
 
-.. automodule:: clusterking.util.testing
-  :members:
-  :undoc-members:
+    .. automodule:: clusterking.util.testing
+      :members:
+      :undoc-members:

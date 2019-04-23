@@ -64,7 +64,10 @@ class ClusterPlot(object):
         self.kv_formatter = "{}={:.2f}"
 
         #: figure size of each subplot
-        self.figsize = (4, 4)
+        self.fig_base_size = 4
+
+        #: Ratio of height/width. None: Automatically inferred
+        self.aspect_ratio = None
 
         #: The name of the column that holds the cluster index
         self.cluster_column = "cluster"
@@ -111,6 +114,22 @@ class ClusterPlot(object):
     @property
     def _ndim(self):
         return len(self._axis_columns)
+
+    @property
+    def figsize(self):
+        """ Figure size per subplot (width, height) """
+        if self.aspect_ratio is not None:
+            aspect_ratio = self.aspect_ratio
+        else:
+            if len(self._axis_columns) == 1:
+                aspect_ratio = 2/self.fig_base_size
+            elif len(self._axis_columns) == 2:
+                y_width = self._get_lims(1)[1] - self._get_lims(1)[0]
+                x_width = self._get_lims(0)[1] - self._get_lims(0)[0]
+                aspect_ratio = y_width / x_width
+            else:
+                aspect_ratio = 1
+        return (self.fig_base_size, aspect_ratio * self.fig_base_size)
 
     @property
     def _axli(self):
@@ -207,6 +226,8 @@ class ClusterPlot(object):
         subplots_args = {
             "nrows": self._nrows,
             "ncols": self._ncols,
+            # todo: this is somewhat problematic, because this won't add space
+            #   for titles etc. Please do this differently
             "figsize": (self._ncols * self.figsize[0],
                         self._nrows * self.figsize[1]),
             "squeeze": False,

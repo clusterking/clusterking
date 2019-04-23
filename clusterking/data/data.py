@@ -608,8 +608,9 @@ class Data(DFMD):
                               legend=True,
                               max_subplots=16,
                               max_cols=4,
-                              figsize=(4, 4),
                               markers=("o", "v", "^", "v", "<", ">"),
+                              figsize=4,
+                              aspect_ratio=None,
                               ):
         """
         Create scatter plot, specifying the columns to be on the axes of the
@@ -628,8 +629,10 @@ class Data(DFMD):
             legend: Draw legend? (default True)
             max_subplots: Maximal number of subplots
             max_cols: Maximal number of columns of the subplot grid
-            figsize: Figure size of each subplot
             markers: List of markers of the get_clusters
+            figsize: Base size of each subplot
+            aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
+                automatically based on data ranges.
 
         Returns:
             Figure
@@ -640,8 +643,9 @@ class Data(DFMD):
         cp.draw_legend = legend
         cp.max_subplots = max_subplots
         cp.max_cols = max_cols
-        cp.figsize = figsize
         cp.markers = markers
+        cp.fig_base_size = figsize
+        cp.aspect_ratio = aspect_ratio
         cp.scatter(params, clusters=clusters)
         return cp.fig
 
@@ -652,7 +656,8 @@ class Data(DFMD):
                            legend=True,
                            max_subplots=16,
                            max_cols=4,
-                           figsize=(4, 4)):
+                           figsize=4,
+                           aspect_ratio=None):
         """
         Call this method with two column names, x and y. The results are
         similar to those of 2D scatter plots as created by the scatter
@@ -667,7 +672,9 @@ class Data(DFMD):
             legend: Draw legend? (default True)
             max_subplots: Maximal number of subplots
             max_cols: Maximal number of columns of the subplot grid
-            figsize: Figure size of each subplot
+            figsize: Base size of each subplot
+            aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
+                automatically based on data ranges.
 
         Returns:
 
@@ -678,6 +685,7 @@ class Data(DFMD):
         cp.draw_legend = legend
         cp.max_subplots = max_subplots
         cp.max_cols = max_cols
-        cp.figsize = figsize
+        cp.fig_base_size = figsize
+        cp.aspect_ratio = aspect_ratio
         cp.fill(params)
         return cp.fig

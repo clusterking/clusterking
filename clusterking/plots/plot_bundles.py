@@ -209,6 +209,7 @@ class BundlePlot(object):
     # --------------------------------------------------------------------------
 
     def _draw_legend(self, clusters=None):
+        # todo: Should be multi column legend if we have too many patches...
         if not self._has_clusters:
             return
         if not self.draw_legend:
@@ -438,9 +439,12 @@ class BundlePlot(object):
         """
         clusters = self._interpret_cluster_input(clusters)
 
-        title = "Minima and maxima of the bin contents for cluster(s)" \
-                " {}".format(', '.join(map(str, sorted(clusters))))
-        self._set_ax(ax, title)
+        _title = ["Minima and maxima of the bin contents"]
+        if self._has_clusters:
+            _title.append("for cluster(s) {}".format(
+                ', '.join(map(str, sorted(clusters))))
+            )
+        self._set_ax(ax, " ".join(_title))
 
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
@@ -510,12 +514,13 @@ class BundlePlot(object):
             bpoints: Draw benchmarks?
         """
         clusters = self._interpret_cluster_input(clusters)
-        title = "Box plot of the bin contents for cluster(s) {}\n" \
-                "Whisker length set to {}*IQR".format(
-                    ", ".join(map(str, sorted(clusters))),
-                    whiskers
-                )
-        self._set_ax(ax, title)
+        _title = ["Box plot of the bin contents"]
+        if self._has_clusters:
+            _title.append("for cluster(s) {}".format(
+                ", ".join(map(str, sorted(clusters)))
+            ))
+        _title.append("\nWhisker length set to {}*IQR".format(whiskers))
+        self._set_ax(ax, " ".join(_title))
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:

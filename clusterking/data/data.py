@@ -473,7 +473,7 @@ class Data(DFMD):
                   bpoint_column="bpoint",
                   title=None,
                   clusters=None,
-                  nlines=0,
+                  nlines=None,
                   bpoints=True,
                   legend=True):
         """Plot several examples of distributions for each cluster specified.

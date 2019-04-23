@@ -65,7 +65,11 @@ class BundlePlot(object):
         self.bpoint_column = "bpoint"
 
         #: Color scheme
-        self.color_scheme = ColorScheme(self._clusters)
+        # fixme: this will be problematic if I reinitialize this
+        if self._has_clusters:
+            self.color_scheme = ColorScheme(self._clusters)
+        else:
+            self.color_scheme = ColorScheme([0])
 
         #: Draw legend?
         self.draw_legend = True
@@ -90,6 +94,11 @@ class BundlePlot(object):
     def _has_bpoints(self):
         """ Do we have benchmark points? """
         return self.bpoint_column in self.data.df.columns
+
+    @property
+    def _has_clusters(self):
+        """ Do we have clustered data? """
+        return self.cluster_column in self.data.df.columns
 
     @property
     def _clusters(self):
@@ -118,20 +127,33 @@ class BundlePlot(object):
                 cluster or a list of clusters).
 
         Returns:
-            list of selected clusters
+            List of selected clusters. If no clusters are available at all, an
+            empty list is returned.
+
+        Raises:
+            If clusters are requested but None are available, a ValueError is
+            raised
         """
+        if not self._has_clusters:
+            if clusters is None:
+                return []
+            else:
+                raise ValueError(
+                    "No cluster information available, but individual clusters"
+                    " were requested.")
         if isinstance(clusters, int):
             clusters = [clusters]
         if not clusters:
             clusters = self._clusters
         return self._filter_clusters(clusters)
 
-    def _get_df_cluster(self, cluster: int, bpoint=None) -> pd.DataFrame:
+    def _get_df_cluster(self, cluster: Union[None, int], bpoint=None) -> pd.DataFrame:
         """ Return only the rows corresponding to one cluster in the
         dataframe and only the columns that correspond to the bins.
 
         Args:
-            cluster: Name of the cluster
+            cluster: Name of the cluster. If ``None``, no cluster selection
+                will be done.
             bpoint: If True, return benchmark point, if False, return all non-
                 benchmark points, if None, return everything.
 
@@ -141,7 +163,10 @@ class BundlePlot(object):
         # to avoid long line:
         cc = self.cluster_column
         bc = self.data.bin_cols
-        df = self.data.df[self.data.df[cc] == cluster]
+        if cluster is not None:
+            df = self.data.df[self.data.df[cc] == cluster]
+        else:
+            df = self.data.df
         if bpoint is None:
             return df[bc]
         elif bpoint is False:
@@ -179,6 +204,8 @@ class BundlePlot(object):
     # --------------------------------------------------------------------------
 
     def _draw_legend(self, clusters=None):
+        if not self._has_clusters:
+            return
         if not self.draw_legend:
             return
         clusters = self._interpret_cluster_input(clusters)
@@ -206,7 +233,8 @@ class BundlePlot(object):
     # Benchmark points + more lines
     # --------------------------------------------------------------------------
 
-    def _plot_bundles(self, cluster: int, nlines=0, benchmark=True) -> None:
+    def _plot_bundles(self, cluster: Union[None, int], nlines=0,
+                      benchmark=True) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
 
@@ -229,8 +257,13 @@ class BundlePlot(object):
         df_cluster_bp = self._get_df_cluster(cluster, bpoint=True)
 
         indizes = get_random_indizes(0, len(df_cluster_no_bp), nlines)
-        color = self.color_scheme.get_cluster_color(cluster)
-        colors = self.color_scheme.get_cluster_colors_faded(cluster, nlines)
+        if cluster is None:
+            # todo: get more distinct colors here
+            color = self.color_scheme.get_cluster_color(0)
+            colors = self.color_scheme.get_cluster_colors_faded(0, nlines)
+        else:
+            color = self.color_scheme.get_cluster_color(cluster)
+            colors = self.color_scheme.get_cluster_colors_faded(cluster, nlines)
         if nlines == 1 and not benchmark:
             # Do not use faded out color if we just plot one line
             colors = [color]
@@ -251,15 +284,16 @@ class BundlePlot(object):
                 color=color,
             )
 
-    def plot_bundles(self, clusters: Union[int, Iterable[int]] = None, nlines=0,
-                     ax=None, bpoints=True) -> None:
+    def plot_bundles(self, clusters: Union[None, int, Iterable[int]] = None,
+                     nlines=None, ax=None, bpoints=True) -> None:
         """ Plot several examples of distributions for each cluster specified
 
         Args:
             clusters: List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
             nlines: Number of example distributions of each cluster to be
-                plotted
+                plotted. Defaults to 0 if we plot benchmark points and 3
+                otherwise.
             ax: Instance of matplotlib.axes.Axes to be plotted on. If None
                 (default), a new axes object and figure is initialized and
                 saved as self.ax and self.fig.
@@ -270,23 +304,35 @@ class BundlePlot(object):
         """
         clusters = self._interpret_cluster_input(clusters)
 
-        title = ""
+        if nlines is None:
+            if self._has_bpoints and bpoints:
+                nlines = 0
+            else:
+                nlines = 3
+
+        _title = []
         if self._has_bpoints:
-            title = "benchmark point(s) "
+            _title.append("benchmark point(s)")
+        if nlines:
+            if self._has_bpoints:
+                _title.append("+")
+            _title.append("{} sample point(s) ".format(nlines))
         if clusters:
-            title += "+ {} sample point(s) ".format(nlines)
-        title += "for cluster(s) {}".format(
-            ", ".join(map(str, sorted(clusters)))
-        )
-        self._set_ax(ax, title)
+            _title.append("for cluster(s) {}".format(
+                ", ".join(map(str, sorted(clusters)))
+            ))
+        self._set_ax(ax, " ".join(_title))
 
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
             self._plot_bundles(cluster, nlines=nlines, benchmark=bpoints)
+        if not clusters:
+            self._plot_bundles(cluster=None, nlines=nlines, benchmark=False)
 
         self._draw_legend(clusters)
 
+    # todo: doc
     def animate_bundle(self, cluster, n, benchmark=True):
         # There seems to be some underlying magic here with fig
         fig = plt.figure()
@@ -330,12 +376,13 @@ class BundlePlot(object):
     # Minima/Maxima of bin content for each cluster
     # --------------------------------------------------------------------------
 
-    def _plot_minmax(self, cluster: int, bpoints=True) -> None:
+    def _plot_minmax(self, cluster: Union[None, int], bpoints=True) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
 
         Args:
-            cluster: Name of cluster to be plotted
+            cluster: Name of cluster to be plotted or None if there are no
+                clusters
             bpoints: Plot reference
 
 
@@ -348,7 +395,10 @@ class BundlePlot(object):
 
         bin_numbers = np.array(range(0, len(self.data.bin_cols) + 1))
 
-        color = self.color_scheme.get_cluster_color(cluster)
+        if cluster is not None:
+            color = self.color_scheme.get_cluster_color(cluster)
+        else:
+            color = self.color_scheme.get_cluster_color(0)
         for i in range(len(maxima)):
             x = bin_numbers[i:i+2]
             y1 = [minima[i], minima[i]]
@@ -391,6 +441,8 @@ class BundlePlot(object):
         # noinspection PyTypeChecker
         for cluster in clusters:
             self._plot_minmax(cluster, bpoints=bpoints)
+        if not clusters:
+            self._plot_minmax(None, bpoints=bpoints)
 
         self._draw_legend(clusters)
 
@@ -414,7 +466,10 @@ class BundlePlot(object):
         df_cluster = self._get_df_cluster(cluster)
         data = df_cluster.values
 
-        color = self.color_scheme.get_cluster_color(cluster)
+        if cluster is not None:
+            color = self.color_scheme.get_cluster_color(cluster)
+        else:
+            color = self.color_scheme.get_cluster_color(0)
 
         # print(len(data.T))
 
@@ -460,5 +515,7 @@ class BundlePlot(object):
         # noinspection PyTypeChecker
         for cluster in clusters:
             self._box_plot(cluster, whiskers=whiskers, bpoints=bpoints)
+        if not clusters:
+            self._box_plot(None, whiskers=whiskers, bpoints=bpoints)
 
         self._draw_legend(clusters)

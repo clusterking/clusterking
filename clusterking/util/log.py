@@ -13,7 +13,7 @@ except ImportError:
 clusterking_silence = "CLUSTERKING_SILENCE_ALL_LOGS"
 
 
-def get_logger(name="Logger", level=logging.DEBUG, sh_level=logging.DEBUG):
+def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
     """Sets up a logging.Logger.
 
     If the colorlog module is available, the logger will use colors,

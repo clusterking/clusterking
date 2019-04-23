@@ -15,11 +15,13 @@ from clusterking.util.metadata import failsafe_serialize
 from clusterking.maths.metric import metric_selection
 
 
-# todo: Function to save/load hierarchy?
-
 # todo: document
 class HierarchyCluster(Cluster):
     def __init__(self, data):
+        """
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
         super().__init__(data)
 
         self.hierarchy = None

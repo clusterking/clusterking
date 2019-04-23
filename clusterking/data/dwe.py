@@ -6,22 +6,23 @@ import numpy as np
 # ours
 from clusterking.data.data import Data
 from clusterking.maths.statistics import cov2err, cov2corr, abs2rel_cov, \
-     ensure_array, corr2cov
+    corr2cov
 
 
 class DataWithErrors(Data):
-    """ This class extends the ``Data`` class by convenient and performant ways
-    to add errors to the distributions.
+    """ This class extends the :py:class:`~clusterking.data.Data` class by
+    convenient and performant ways to add errors to the distributions.
 
-    See the description of the ``Data`` class for more information about the
-    data structure itself.
+    See the description of the :py:class:`~clusterking.data.Data` class for more
+    information about the data structure itself.
 
     There are three basic ways to add errors:
 
     1. Add relative errors (with correlation) relative to the bin content of
        each bin in the distribution: ``add_rel_err_...``
     2. Add absolute errors (with correlation): ``add_err_...``
-    3. Add poisson errors: ``add_err_poisson``
+    3. Add poisson errors:
+       :py:meth:`~clusterking.data.DataWithErrors.add_err_poisson`
 
     .. note::
         All of these methods, add the errors in a consistent way for all sample
@@ -107,7 +108,7 @@ class DataWithErrors(Data):
         Returns:
             correctly shaped numpy array
         """
-        inpt = ensure_array(inpt)
+        inpt = np.array(inpt, float)
         if what.lower() in ["err"]:
             if inpt.ndim == 0:
                 return np.tile(inpt, self.nbins)
@@ -134,7 +135,7 @@ class DataWithErrors(Data):
     # **************************************************************************
 
     # Note: Overrides inherited method from data.
-    def data(self, decorrelate=False, **kwargs):
+    def data(self, decorrelate=False, **kwargs) -> np.ndarray:
         """ Return data matrix
 
         Args:
@@ -153,7 +154,7 @@ class DataWithErrors(Data):
 
         return ret
 
-    def cov(self, relative=False):
+    def cov(self, relative=False) -> np.ndarray:
         """ Return covariance matrix
 
         Args:
@@ -178,7 +179,7 @@ class DataWithErrors(Data):
         else:
             return abs2rel_cov(cov, data)
 
-    def corr(self):
+    def corr(self) -> np.ndarray:
         """ Return correlation matrix
 
         Returns:
@@ -186,7 +187,7 @@ class DataWithErrors(Data):
         """
         return cov2corr(self.cov())
 
-    def err(self, relative=False):
+    def err(self, relative=False) -> np.ndarray:
         """ Return errors per bin
 
         Args:
@@ -239,7 +240,7 @@ class DataWithErrors(Data):
 
         Args:
             err: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
         """
         err = self._interpret_input(err, "err")
         corr = np.identity(self.nbins)
@@ -251,7 +252,7 @@ class DataWithErrors(Data):
 
         Args:
             err: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
         """
         err = self._interpret_input(err, "err")
         corr = np.ones((self.nbins, self.nbins))
@@ -261,13 +262,13 @@ class DataWithErrors(Data):
     # Add relative errors
     # -------------------------------------------------------------------------
 
-    def add_rel_err_cov(self, cov: np.array) -> None:
+    def add_rel_err_cov(self, cov) -> None:
         """
         Add error from "relative" covariance matrix
 
         Args:
             cov: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_cov`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_cov`
         """
         cov = self._interpret_input(cov, "cov")
         self.rel_cov += cov
@@ -278,33 +279,33 @@ class DataWithErrors(Data):
 
         Args:
             err: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
             corr: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
         """
         err = self._interpret_input(err, "err")
         corr = self._interpret_input(corr, "corr")
         self.add_rel_err_cov(corr2cov(corr, err))
 
-    def add_rel_err_uncorr(self, err: np.array) -> None:
+    def add_rel_err_uncorr(self, err) -> None:
         """
         Add uncorrelated relative error.
 
         Args:
             err: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
         """
         err = self._interpret_input(err, "err")
         corr = np.identity(self.nbins)
         self.add_rel_err_corr(err, corr)
 
-    def add_rel_err_maxcorr(self, err: np.array) -> None:
+    def add_rel_err_maxcorr(self, err) -> None:
         """
         Add maximally correlated relative error.
 
         Args:
             err: see argument of
-                :py:meth:`~clusterking.data.dwe.DataWithErrors.add_err_corr`
+                :py:meth:`~clusterking.data.DataWithErrors.add_err_corr`
         """
         err = self._interpret_input(err, "err")
         corr = np.ones((self.nbins, self.nbins))
@@ -314,7 +315,7 @@ class DataWithErrors(Data):
     # Other forms of errors
     # -------------------------------------------------------------------------
 
-    def add_err_poisson(self, normalization_scale=1):
+    def add_err_poisson(self, normalization_scale=1) -> None:
         """
         Add poisson errors/statistical errors.
 

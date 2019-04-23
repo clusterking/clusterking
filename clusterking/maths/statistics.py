@@ -4,14 +4,6 @@
 import numpy as np
 
 
-# todo: docstring
-def ensure_array(x):
-    if not isinstance(x, np.ndarray):
-        return np.array(x)
-    else:
-        return x
-
-
 def cov2err(cov):
     """ Convert covariance matrix (or array of covariance matrices of equal
     shape) to error array (or array thereof).
@@ -22,7 +14,7 @@ def cov2err(cov):
     Returns
         [n x ] nbins array
     """
-    cov = ensure_array(cov)
+    cov = np.array(cov)
     if cov.ndim == 2:
         return np.sqrt(cov.diagonal())
     elif cov.ndim == 3:
@@ -41,7 +33,7 @@ def cov2corr(cov):
     Returns
         [n x ] nbins x nbins array
     """
-    cov = ensure_array(cov)
+    cov = np.array(cov)
     err = cov2err(cov)
     if cov.ndim == 2:
         return cov / np.einsum("i,j->ij", err, err)
@@ -63,8 +55,8 @@ def corr2cov(corr, err):
     Returns
         [n x ] nbins x nbins array
     """
-    corr = ensure_array(corr)
-    err = ensure_array(err)
+    corr = np.array(corr)
+    err = np.array(err)
     if corr.ndim == 2:
         return np.einsum("ij,i,j->ij", corr, err, err)
     elif corr.ndim == 3:
@@ -83,8 +75,8 @@ def rel2abs_cov(cov, data):
     Returns:
         n x nbins x nbins array
     """
-    cov = ensure_array(cov)
-    data = ensure_array(data)
+    cov = np.array(cov)
+    data = np.array(data)
     assert cov.ndim == data.ndim + 1
     if data.ndim == 1:
         return np.einsum("ij,i,j->ij", cov, data, data)
@@ -104,8 +96,8 @@ def abs2rel_cov(cov, data):
     Returns:
         n x nbins x nbins array
     """
-    cov = ensure_array(cov)
-    data = ensure_array(data)
+    cov = np.array(cov)
+    data = np.array(data)
     assert cov.ndim == data.ndim + 1
     if data.ndim == 1:
         nbins = len(data)

@@ -17,6 +17,10 @@ class Cluster(object):
     implement specific clustering algorithms and defines common functions.
     """
     def __init__(self, data: Data):
+        """
+        Args:
+            data: :py:class:`~clusterking.data.data.Data` object
+        """
         self.log = get_logger("Scanner")
 
         self.data = data

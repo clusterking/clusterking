@@ -3,9 +3,6 @@
 from scipy import integrate as integrate
 import numpy as np
 
-# ours
-from clusterking.maths.statistics import ensure_array
-
 
 # todo: unittest
 def bin_function(fct, binning: np.array, normalize=False) -> np.array:
@@ -20,7 +17,7 @@ def bin_function(fct, binning: np.array, normalize=False) -> np.array:
     Returns:
         Array of bin contents
     """
-    binning = ensure_array(binning)
+    binning = np.array(binning)
     assert len(binning.shape) == 1
     assert binning.shape[0] >= 2
     binning = np.sort(binning)

@@ -39,8 +39,8 @@ def metric_selection(*args, **kwargs) -> Callable:
 
     1. If no positional arguments are given, we choose the euclidean metric.
     2. If the first positional argument is string, we pick one of the metrics
-      that are defined in ``scipy.spatical.distance.pdist`` by that name (all
-      additional arguments will be past to this function).
+       that are defined in ``scipy.spatical.distance.pdist`` by that name (all
+       additional arguments will be past to this function).
     3. If the first positional argument is a function, we take this function
       (and add all additional arguments to it).
 
@@ -57,8 +57,8 @@ def metric_selection(*args, **kwargs) -> Callable:
     for more information.
 
     Args:
-        *args:
-        **kwargs:
+        *args: see description above
+        **kwargs:  see description above
 
     Returns:
         Function that takes Data object as only parameter and returns a
@@ -93,7 +93,7 @@ def chi2_metric(dwe: DataWithErrors, output='condensed'):
     Returns the chi2/ndf values of the comparison of a datasets.
 
     Args:
-        dwe:
+        dwe: :py:class:`clusterking.data.dwe.DataWithErrors` object
         output: 'condensed' (condensed distance matrix) or 'full' (full distance
             matrix)
 

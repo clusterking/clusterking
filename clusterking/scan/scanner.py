@@ -277,17 +277,22 @@ class Scanner(object):
             # imaginary part
             res = [0.]
             ims = [0.]
+            is_complex = False
             if real_part(coeff) in ranges:
                 res = list(np.linspace(*ranges[real_part(coeff)]))
             if imaginary_part(coeff) in ranges:
                 ims = list(np.linspace(*ranges[imaginary_part(coeff)]))
+                is_complex = True
             # And basically take their cartesian product, alias initialize
             # the complex number.
-            grid_config[coeff] = [
-                complex(x, y)
-                for x in res
-                for y in ims
-            ]
+            if is_complex:
+                grid_config[coeff] = [
+                    complex(x, y)
+                    for x in res
+                    for y in ims
+                ]
+            else:
+                grid_config[coeff] = res
 
         self.set_spoints_grid(grid_config)
         # Make sure to do this after set_spoints_grid, so we overwrite

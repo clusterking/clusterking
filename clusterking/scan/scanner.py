@@ -80,6 +80,18 @@ class Scanner(object):
             "%a %_d %b %Y %H:%M", time.gmtime()
         )
 
+        self.imaginary_prefix = "im_"
+
+    @property
+    def imaginary_prefix(self) -> str:
+        """ Prefix for the name of imaginary parts of coefficients.
+        """
+        return self.md["imaginary_prefix"]
+
+    @imaginary_prefix.setter
+    def imaginary_prefix(self, value: str) -> None:
+        self.md["imaginary_prefix"] = value
+
     # Write only access
     @property
     def spoints(self):

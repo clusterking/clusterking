@@ -57,18 +57,6 @@ class WilsonScanner(Scanner):
     def __init__(self):
         """ Initializes the :class:`clusterking.scan.WilsonScanner` class. """
         super().__init__()
-        self.imaginary_prefix = "im_"
-
-    @property
-    def imaginary_prefix(self) -> str:
-        """ Prefix for the name of imaginary parts of coefficients.
-        Also see the documentation of :meth:`.set_spoints_equidistant`.
-        """
-        return self.md["imaginary_prefix"]
-
-    @imaginary_prefix.setter
-    def imaginary_prefix(self, value: str) -> None:
-        self.md["imaginary_prefix"] = value
 
     def set_spoints_grid(self, values, scale, eft, basis) -> None:
         """ Set a grid of points in wilson space.

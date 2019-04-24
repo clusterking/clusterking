@@ -37,27 +37,27 @@ def kvec(q2):
 ##  23
 
 def H0(w: Wilson, q2, El):
-    return (1 + w.match_run(inputs["mb"], "WET", "flavio").wc["CVL_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio").wc["CVR_bctaunutau"]) * 2 * inputs['mB'] * kvec(q2) / np.sqrt(q2) * fplus(q2)
+    return (1 + w.match_run(inputs["mb"], "WET", "flavio")["CVL_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio")["CVR_bctaunutau"]) * 2 * inputs['mB'] * kvec(q2) / np.sqrt(q2) * fplus(q2)
 
 
 def Ht(w: Wilson, q2, El):
-    return (1 + w.match_run(inputs["mb"], "WET", "flavio").wc["CVL_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio").wc["CVR_bctaunutau"]) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (np.sqrt(q2)) * fzero(q2)
+    return (1 + w.match_run(inputs["mb"], "WET", "flavio")["CVL_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio")["CVR_bctaunutau"]) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (np.sqrt(q2)) * fzero(q2)
 
 
 def HS(w: Wilson, q2, El):
-    return (w.match_run(inputs["mb"], "WET", "flavio").wc["CSR_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio").wc["CSL_bctaunutau"]) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (inputs['mb'] - inputs['mc']) * fzero(q2)
+    return (w.match_run(inputs["mb"], "WET", "flavio")["CSR_bctaunutau"] + w.match_run(inputs["mb"], "WET", "flavio")["CSL_bctaunutau"]) * (inputs['mB'] ** 2 - inputs['mD'] ** 2) / (inputs['mb'] - inputs['mc']) * fzero(q2)
 
 
 ##
 
 def Hpm(w: Wilson, q2, El):
-    return w.match_run(inputs["mb"], "WET", "flavio").wc["CT_bctaunutau"] * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
+    return w.match_run(inputs["mb"], "WET", "flavio")["CT_bctaunutau"] * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
 
 
-##  
+##
 
 def H0t(w: Wilson, q2, El):
-    return w.match_run(inputs["mb"], "WET", "flavio").wc["CT_bctaunutau"] * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
+    return w.match_run(inputs["mb"], "WET", "flavio")["CT_bctaunutau"] * (2j * inputs['mB'] * kvec(q2)) / (inputs['mB'] + inputs['mD']) * fT(q2)
 
 
 #    32

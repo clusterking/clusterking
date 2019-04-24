@@ -3,6 +3,9 @@
 # std
 import unittest
 
+# 3rd
+import numpy as np
+
 # ours
 from clusterking.util.testing import MyTestCase
 from clusterking.scan.wilsonscanner import WilsonScanner
@@ -56,13 +59,23 @@ class TestWilsonScanner(MyTestCase):
         s = WilsonScanner(scale=5, eft='WET', basis='flavio')
         s.set_spoints_equidist(
             {
-                "CVL_bctaunutau": (-1, 1, 2),
-                "im_CVL_bctaunutau": (-1, 1, 2),
+                "CVL_bctaunutau": (0, 1, 2),
+                "im_CVL_bctaunutau": (0, 1, 2),
             },
         )
         self.assertEqual(
             len(s.spoints), 2*2
         )
+        self.assertAllClose(
+            s.spoints,
+            np.array([[0.], [1.j], [1.], [1.+1.j]])
+        )
+
+    def test_properties(self):
+        s = WilsonScanner(scale=5, eft='WET', basis='flavio')
+        self.assertEqual(s.scale, 5)
+        self.assertEqual(s.eft, "WET")
+        self.assertEqual(s.basis, "flavio")
 
 
 if __name__ == "__main__":

@@ -1,15 +1,34 @@
 #!/usr/bin/env python3
 
-# std
-from typing import Dict
-import itertools
-
 # 3rd
 import wilson
-import numpy as np
 
 # ours
-from clusterking.scan.scanner import Scanner
+from clusterking.scan.scanner import Scanner, SpointCalculator
+
+
+class WpointCalculator(SpointCalculator):
+    """ A class that holds the function with which we calculate each
+    point in wilson space.
+    """
+    def __init__(self):
+        super().__init__()
+        # All of these have to be set to work!
+        self.coeffs = None
+        self.scale = None
+        self.eft = None
+        self.basis = None
+
+    def _prepare_spoint(self, spoint):
+        return wilson.Wilson(
+            wcdict={
+                self.coeffs[icoeff]: spoint[icoeff]
+                for icoeff in range(len(self.coeffs))
+            },
+            scale=self.scale,
+            eft=self.eft,
+            basis=self.basis
+        )
 
 
 class WilsonScanner(Scanner):
@@ -26,7 +45,7 @@ class WilsonScanner(Scanner):
         import clusterking as ck
 
         # Initialize Scanner object
-        s = ck.scan.WilsonScanner()
+        s = ck.scan.WilsonScanner(scale=5, eft='WET', basis='flavio')
 
         # Sample 4 points for each of the 5 Wilson coefficients
         s.set_spoints_equidist(
@@ -34,10 +53,7 @@ class WilsonScanner(Scanner):
                 "CVL_bctaunutau": (-1, 1, 4),
                 "CSL_bctaunutau": (-1, 1, 4),
                 "CT_bctaunutau": (-1, 1, 4)
-            },
-            scale=5,
-            eft='WET',
-            basis='flavio'
+            }
         )
 
         # Set function and binning
@@ -54,164 +70,48 @@ class WilsonScanner(Scanner):
         s.run(d)
 
     """
-    def __init__(self):
-        """ Initializes the :class:`clusterking.scan.WilsonScanner` class. """
-        super().__init__()
-
-    def set_spoints_grid(self, values, scale, eft, basis) -> None:
-        """ Set a grid of points in wilson space.
+    def __init__(self, scale, eft, basis):
+        """ Initializes the :class:`clusterking.scan.WilsonScanner` class.
 
         Args:
-            values: A dictionary of the following form:
-
-                .. code-block:: python
-
-                    {
-                        <wilson coeff name>: [
-                            value_1,
-                            ...,
-                            value_n
-                        ]
-                    }
-
-                where ``value_1``, ..., ``value_n`` can be complex numbers in
-                general.
-
             scale: Wilson coeff input scale in GeV
             eft: Wilson coeff input eft
             basis: Wilson coeff input basis
         """
+        super().__init__()
+        self._set_wilson_format(scale, eft, basis)
+        self._spoint_calculator = WpointCalculator()
 
-        # Important to remember the order now, because of what we do next.
-        # Dicts are NOT ordered
-        coeffs = list(values.keys())
-        # It's very important to sort the coefficient names here, because when
-        # calling wilson.Wilson(...).wc.values() later, these will also
-        # be alphabetically ordered.
-        coeffs.sort()
-        # Nowe we collect all lists of values.
-        values_lists = [
-            values[coeff] for coeff in coeffs
-        ]
-        # Now we build the cartesian product, i.e.
-        # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
-        # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
-        cartesians = list(itertools.product(*values_lists))
-
-        # And build wilson coefficients from this
-        self._spoints = [
-            wilson.Wilson(
-                wcdict={
-                    coeffs[icoeff]: cartesian[icoeff]
-                    for icoeff in range(len(coeffs))
-                },
-                scale=scale,
-                eft=eft,
-                basis=basis
-            )
-            for cartesian in cartesians
-        ]
-
-        # fixme: why is this flagged by pycharm as defined outside of __init__?
-        self.coeffs = list(values.keys())
-        md = self.md["spoints"]
-        md["values"] = values
-        md["scale"] = scale
-        md["eft"] = eft
-        md["basis"] = basis
-
-    def set_spoints_equidist(self, ranges: Dict[str, tuple], scale: float,
-                             eft: str, basis: str) -> None:
-        """ Set a list of 'equidistant' points in wilson space.
+    def _set_wilson_format(self, scale, eft, basis):
+        """ Set scale, eft and basis of input wilson coefficients
 
         Args:
-            ranges: A dictionary of the following form:
-
-                .. code-block:: python
-
-                    {
-                        <wilson coeff name>: (
-                            <Minimum of wilson coeff>,
-                            <Maximum of wilson coeff>,
-                            <Number of bins between min and max>,
-                        )
-                    }
-
-            scale: <Wilson coeff input scale in GeV>,
-            eft: <Wilson coeff input eft>,
-            basis: <Wilson coeff input basis>
-
-        .. note::
-
-            In order to add imaginary parts to your wilson coefficients,
-            prepend their name with ``im_`` (you can customize this prefix by
-            setting the :attr:`.imaginary_prefix` attribute to a custom value.)
-
-            Example:
-
-            .. code-block:: python
-
-                ws = WilsonScanner()
-                ws.set_spoints_equidist(
-                    {
-                        "a": (-2, 2, 4),
-                        "img_a": (-1, 1, 10),
-                    },
-                    ...
-                )
-
-            Will sample the real part of ``a`` in 4 points between -2 and 2 and
-            the imaginary part of ``a`` in 10 points between -1 and 1.
-
-        Returns:
-            None
+            scale: Wilson coeff input scale in GeV
+            eft: Wilson coeff input eft
+            basis: Wilson coeff input basis
         """
-        # Because of our hack with the imaginary prefix, let's first see which
-        # coefficients we really have
+        self.md["spoints"]["scale"] = scale
+        self.md["spoints"]["eft"] = eft
+        self.md["spoints"]["basis"] = basis
 
-        def is_imaginary(name: str) -> bool:
-            return name.startswith(self.imaginary_prefix)
+    def set_dfunction(self, *args, **kwargs):
+        super().set_dfunction(*args, **kwargs)
+        self._spoint_calculator.coeffs = self.coeffs
+        self._spoint_calculator.scale = self.scale
+        self._spoint_calculator.eft = self.eft
+        self._spoint_calculator.basis = self.basis
 
-        def real_part(name: str) -> str:
-            if is_imaginary(name):
-                return name.replace(self.imaginary_prefix, "", 1)
-            else:
-                return name
+    @property
+    def scale(self):
+        """ Scale of the input wilson coefficients in GeV. """
+        return self.md["spoints"]["scale"]
 
-        def imaginary_part(name: str) -> str:
-            if not is_imaginary(name):
-                return self.imaginary_prefix + name
-            else:
-                return name
+    @property
+    def eft(self):
+        """  Wilson coeff input eft """
+        return self.md["spoints"]["eft"]
 
-        coeffs = list(set(map(real_part, ranges.keys())))
-
-        grid_config = {}
-        for coeff in coeffs:
-            # Now let's always collect the values of the real part and of the
-            # imaginary part
-            res = [0.]
-            ims = [0.]
-            if real_part(coeff) in ranges:
-                res = list(np.linspace(*ranges[real_part(coeff)]))
-            if imaginary_part(coeff) in ranges:
-                ims = list(np.linspace(*ranges[imaginary_part(coeff)]))
-            # And basically take their cartesian product, alias initialize
-            # the complex number.
-            grid_config[coeff] = [
-                complex(x, y)
-                for x in res
-                for y in ims
-            ]
-
-        self.set_spoints_grid(
-            grid_config,
-            scale=scale,
-            eft=eft,
-            basis=basis,
-        )
-        # Make sure to do this after set_spoints_grid, so we overwrite
-        # the relevant parts.
-        md = self.md["spoints"]
-        md["sampling"] = "equidistant"
-        md["ranges"] = ranges
+    @property
+    def basis(self):
+        """ Wilson coeff input basis """
+        return self.md["spoints"]["basis"]

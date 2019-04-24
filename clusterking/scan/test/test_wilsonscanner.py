@@ -15,16 +15,13 @@ def test_func(w, q):
 
 class TestWilsonScannerRun(MyTestCase):
     def setUp(self):
-        self.s = WilsonScanner()
+        self.s = WilsonScanner(scale=5, eft='WET', basis='flavio')
         self.s.set_spoints_equidist(
             {
                 "CVL_bctaunutau": (-1, 1, 2),
                 "CSL_bctaunutau": (-1, 1, 2),
                 "CT_bctaunutau": (-1, 1, 2)
             },
-            scale=5,
-            eft='WET',
-            basis='flavio'
         )
         self.s.set_dfunction(
             test_func,
@@ -43,31 +40,25 @@ class TestWilsonScannerRun(MyTestCase):
 class TestWilsonScanner(MyTestCase):
 
     def test_spoints_equidist(self):
-        s = WilsonScanner()
+        s = WilsonScanner(scale=5, eft='WET', basis='flavio')
         s.set_spoints_equidist(
             {
                 "CVL_bctaunutau": (-1, 1, 2),
                 "CSL_bctaunutau": (-1, 1, 3),
                 "CT_bctaunutau": (-1, 1, 4)
             },
-            scale=5,
-            eft='WET',
-            basis='flavio'
         )
         self.assertEqual(
             len(s.spoints), 2*3*4
         )
 
     def test_spoints_equidist_complex(self):
-        s = WilsonScanner()
+        s = WilsonScanner(scale=5, eft='WET', basis='flavio')
         s.set_spoints_equidist(
             {
                 "CVL_bctaunutau": (-1, 1, 2),
                 "im_CVL_bctaunutau": (-1, 1, 2),
             },
-            scale=5,
-            eft='WET',
-            basis='flavio'
         )
         self.assertEqual(
             len(s.spoints), 2*2

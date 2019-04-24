@@ -9,7 +9,8 @@ import multiprocessing
 import os
 import shutil
 import time
-from typing import Callable, Sized
+from typing import Callable, Sized, Dict
+import itertools
 
 # 3rd party
 import numpy as np
@@ -25,16 +26,22 @@ from clusterking.util.log import get_logger
 
 class SpointCalculator(object):
     """ A class that holds the function with which we calculate each
-    point in wilson space. Note that this has to be a separate class from
+    point in sample space. Note that this has to be a separate class from
     Scanner to avoid problems related to multiprocessing's use of the pickle
     library, which are described here:
     https://stackoverflow.com/questions/1412787/
     """
-    def __init__(self, func: Callable, binning: Sized, normalize, kwargs):
-        self.dfunc = func
-        self.dfunc_binning = binning
-        self.dfunc_normalize = normalize
-        self.dfunc_kwargs = kwargs
+    def __init__(self):
+        # All of these have to be set!
+        self.func = None
+        self.binning = None
+        self.normalize = False
+        self.kwargs = {}
+
+    # todo: doc
+    # todo: ignore static warning
+    def _prepare_spoint(self, spoint):
+        return spoint
 
     def calc(self, spoint) -> np.array:
         """Calculates one point in wilson space.
@@ -45,17 +52,18 @@ class SpointCalculator(object):
         Returns:
             np.array of the integration results
         """
-
-        if self.dfunc_binning is not None:
+        spoint = self._prepare_spoint(spoint)
+        if self.binning is not None:
             return clusterking.maths.binning.bin_function(
-                functools.partial(self.dfunc, spoint, **self.dfunc_kwargs),
-                self.dfunc_binning,
-                normalize=self.dfunc_normalize
+                functools.partial(self.func, spoint, **self.kwargs),
+                self.binning,
+                normalize=self.normalize
             )
         else:
-            return self.dfunc(spoint, **self.dfunc_kwargs)
+            return self.func(spoint, **self.kwargs)
 
 
+# todo: also allow to disable multiprocessing if there are problems.
 class Scanner(object):
 
     # **************************************************************************
@@ -72,7 +80,7 @@ class Scanner(object):
 
         #: Instance of SpointCalculator to perform the claculations of
         #:  the wilson space points.
-        self._spoint_calculator = None  # type: SpointCalculator
+        self._spoint_calculator = SpointCalculator()
 
         self.md = nested_dict()
         self.md["git"] = git_info(self.log)
@@ -81,18 +89,17 @@ class Scanner(object):
         )
 
         self.imaginary_prefix = "im_"
+        self._coeffs = []
 
     @property
     def imaginary_prefix(self) -> str:
-        """ Prefix for the name of imaginary parts of coefficients.
-        """
+        """ Prefix for the name of imaginary parts of coefficients. """
         return self.md["imaginary_prefix"]
 
     @imaginary_prefix.setter
     def imaginary_prefix(self, value: str) -> None:
         self.md["imaginary_prefix"] = value
 
-    # Write only access
     @property
     def spoints(self):
         """ Points in parameter space that are sampled."""
@@ -100,12 +107,13 @@ class Scanner(object):
 
     @property
     def coeffs(self):
-        return self.md["spoints"]["coeffs"].copy()
+        """ The name of the parameters/coefficients/dimensions of the spoints.
+        Set after spoints are set.
+        Does NOT include the names of the columns of the imaginary parts.
+        """
+        return self._coeffs.copy()
 
-    @coeffs.setter
-    def coeffs(self, value):
-        self.md["spoints"]["coeffs"] = value
-
+    # todo: implement sampling as well, not just binning
     def set_dfunction(
             self,
             func: Callable,
@@ -140,6 +148,9 @@ class Scanner(object):
             multiprocessing module.
 
         """
+        # The block below just wants to put some information about the function
+        # in the metadata. Can be ignored if you're only interested in what's
+        # happening.
         md = self.md["dfunction"]
         try:
             md["name"] = func.__name__
@@ -158,12 +169,132 @@ class Scanner(object):
         if binning is not None:
             md["nbins"] = len(binning) - 1
 
-        # global spoint calculator
-        self._spoint_calculator = SpointCalculator(
-            func, binning, normalize, kwargs
-        )
+        # This is the important thing: We set all required attributes of the
+        # spoint calculator!
+        self._spoint_calculator.func = func
+        self._spoint_calculator.binning = binning
+        self._spoint_calculator.normalize = normalize
+        self._spoint_calculator.kwargs = kwargs
 
-    # todo: implement set_spoints in a more general way here!
+    def set_spoints_grid(self, values) -> None:
+        """ Set a grid of points in sampling space.
+
+        Args:
+            values: A dictionary of the following form:
+
+                .. code-block:: python
+
+                    {
+                        <coeff name>: [
+                            value_1,
+                            ...,
+                            value_n
+                        ]
+                    }
+
+                where ``value_1``, ..., ``value_n`` can be complex numbers in
+                general.
+        """
+
+        # IMPORTANT to keep this order!
+        self._coeffs = sorted(list(values.keys()))
+
+        # Nowe we collect all lists of values.
+        values_lists = [
+            values[coeff] for coeff in self._coeffs
+        ]
+        # Now we build the cartesian product, i.e.
+        # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
+        # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
+        self._spoints = np.array(list(itertools.product(*values_lists)))
+
+        self.md["spoints"]["values"] = values
+
+    def set_spoints_equidist(self, ranges: Dict[str, tuple]) -> None:
+        """ Set a list of 'equidistant' points in sampling space.
+
+        Args:
+            ranges: A dictionary of the following form:
+
+                .. code-block:: python
+
+                    {
+                        <coeff name>: (
+                            <Minimum of coeff>,
+                            <Maximum of coeff>,
+                            <Number of bins between min and max>,
+                        )
+                    }
+
+        .. note::
+
+            In order to add imaginary parts to your coefficients,
+            prepend their name with ``im_`` (you can customize this prefix by
+            setting the :attr:`.imaginary_prefix` attribute to a custom value.)
+
+            Example:
+
+            .. code-block:: python
+
+                s = Scanner()
+                s.set_spoints_equidist(
+                    {
+                        "a": (-2, 2, 4),
+                        "im_a": (-1, 1, 10),
+                    },
+                    ...
+                )
+
+            Will sample the real part of ``a`` in 4 points between -2 and 2 and
+            the imaginary part of ``a`` in 10 points between -1 and 1.
+
+        Returns:
+            None
+        """
+        # Because of our hack with the imaginary prefix, let's first see which
+        # coefficients we really have
+
+        def is_imaginary(name: str) -> bool:
+            return name.startswith(self.imaginary_prefix)
+
+        def real_part(name: str) -> str:
+            if is_imaginary(name):
+                return name.replace(self.imaginary_prefix, "", 1)
+            else:
+                return name
+
+        def imaginary_part(name: str) -> str:
+            if not is_imaginary(name):
+                return self.imaginary_prefix + name
+            else:
+                return name
+
+        coeffs = list(set(map(real_part, ranges.keys())))
+
+        grid_config = {}
+        for coeff in coeffs:
+            # Now let's always collect the values of the real part and of the
+            # imaginary part
+            res = [0.]
+            ims = [0.]
+            if real_part(coeff) in ranges:
+                res = list(np.linspace(*ranges[real_part(coeff)]))
+            if imaginary_part(coeff) in ranges:
+                ims = list(np.linspace(*ranges[imaginary_part(coeff)]))
+            # And basically take their cartesian product, alias initialize
+            # the complex number.
+            grid_config[coeff] = [
+                complex(x, y)
+                for x in res
+                for y in ims
+            ]
+
+        self.set_spoints_grid(grid_config)
+        # Make sure to do this after set_spoints_grid, so we overwrite
+        # the relevant parts.
+        md = self.md["spoints"]
+        md["sampling"] = "equidistant"
+        md["ranges"] = ranges
 
     # **************************************************************************
     # B:  Run
@@ -179,7 +310,7 @@ class Scanner(object):
                 cores.
         """
 
-        if not self._spoints:
+        if not self._spoints.any():
             self.log.error(
                 "No sample points specified. Returning without doing "
                 "anything."
@@ -219,9 +350,6 @@ class Scanner(object):
             "core(s)/worker(s).".format(len(self._spoints), no_workers)
         )
 
-        # todo: perhaps collect everything in a dict with the column names
-        #   already explicit and use that to initialize the dataframe
-        #   (a bit cleaner) /klieret
         rows = []
         for index, result in tqdm.tqdm(
             enumerate(results),
@@ -234,19 +362,12 @@ class Scanner(object):
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
-            # Make sure that we have the same order as self.coeffs
-            coeff_values = [
-                self._spoints[index].wc[coeff]
-                for coeff in self.coeffs
-            ]
-
-            rows.append([*coeff_values, *result])
+            rows.append([*self._spoints[index], *result])
 
         # Wait for completion of all jobs here
         pool.join()
 
         self.log.debug("Converting data to pandas dataframe.")
-        # todo: check that there isn't any trouble with sorting.
         cols = self.coeffs
         cols.extend([
             "bin{}".format(no_bin)
@@ -255,7 +376,23 @@ class Scanner(object):
 
         # Now we finally write everything to data
         data.df = pd.DataFrame(data=rows, columns=cols)
+
+        # Special handling for complex numbers
+        coeffs_with_im = []
+        for coeff in self.coeffs:
+            coeffs_with_im.append(coeff)
+            if not list(data.df[coeff].apply(np.imag).unique()) == [0.]:
+                values = data.df[coeff]
+                data.df[coeff] = values.apply(np.real)
+                data.df[self.imaginary_prefix + coeff] = values.apply(np.imag)
+                coeffs_with_im.append(self.imaginary_prefix + coeff)
+            else:
+                data.df[coeff] = data.df[coeff].apply(np.real)
+
         data.df.index.name = "index"
+
+        self.md["spoints"]["coeffs"] = coeffs_with_im
+
         data.md["scan"] = self.md
 
         self.log.info("Integration done.")

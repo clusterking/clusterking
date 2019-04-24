@@ -106,8 +106,9 @@ class WilsonScanner(Scanner):
             for cartesian in cartesians
         ]
 
+        # fixme: why is this flagged by pycharm as defined outside of __init__?
+        self.coeffs = list(values.keys())
         md = self.md["spoints"]
-        md["coeffs"] = list(values.keys())
         md["values"] = values
         md["scale"] = scale
         md["eft"] = eft

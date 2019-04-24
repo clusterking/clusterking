@@ -86,6 +86,14 @@ class Scanner(object):
         """ Points in parameter space that are sampled."""
         return self._spoints
 
+    @property
+    def coeffs(self):
+        return self.md["spoints"]["coeffs"].copy()
+
+    @coeffs.setter
+    def coeffs(self, value):
+        self.md["spoints"]["coeffs"] = value
+
     def set_dfunction(
             self,
             func: Callable,
@@ -199,6 +207,9 @@ class Scanner(object):
             "core(s)/worker(s).".format(len(self._spoints), no_workers)
         )
 
+        # todo: perhaps collect everything in a dict with the column names
+        #   already explicit and use that to initialize the dataframe
+        #   (a bit cleaner) /klieret
         rows = []
         for index, result in tqdm.tqdm(
             enumerate(results),
@@ -211,7 +222,12 @@ class Scanner(object):
             if "nbins" not in md:
                 md["nbins"] = len(result) - 1
 
-            coeff_values = list(self._spoints[index].wc.values.values())
+            # Make sure that we have the same order as self.coeffs
+            coeff_values = [
+                self._spoints[index].wc[coeff]
+                for coeff in self.coeffs
+            ]
+
             rows.append([*coeff_values, *result])
 
         # Wait for completion of all jobs here
@@ -219,7 +235,7 @@ class Scanner(object):
 
         self.log.debug("Converting data to pandas dataframe.")
         # todo: check that there isn't any trouble with sorting.
-        cols = self.md["spoints"]["coeffs"].copy()
+        cols = self.coeffs
         cols.extend([
             "bin{}".format(no_bin)
             for no_bin in range(self.md["dfunction"]["nbins"])

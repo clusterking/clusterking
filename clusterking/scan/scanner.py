@@ -63,6 +63,7 @@ class Scanner(object):
     # **************************************************************************
 
     def __init__(self):
+        """ Initializes the :class:`clusterking.scan.Scanner` class. """
         self.log = get_logger("Scanner")
 
         #: Points in wilson space

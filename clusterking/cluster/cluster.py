@@ -19,7 +19,7 @@ class Cluster(object):
     def __init__(self, data: Data):
         """
         Args:
-            data: :py:class:`~clusterking.data.data.Data` object
+            data: :py:class:`~clusterking.data.Data` object
         """
         self.log = get_logger("Scanner")
 
@@ -62,7 +62,7 @@ class Cluster(object):
 
     # todo: overwrite argument?
     def write(self, cluster_column="cluster"):
-        """ Write results back in the :py:class:`~clusterking.data.data.Data`
+        """ Write results back in the :py:class:`~clusterking.data.Data`
         object. """
         self.data.df[cluster_column] = self.clusters
         self.data.md["cluster"][cluster_column] = self.md

@@ -52,6 +52,7 @@ class WilsonScanner(Scanner):
 
     """
     def __init__(self):
+        """ Initializes the :class:`clusterking.scan.WilsonScanner` class. """
         super().__init__()
 
     def set_spoints_grid(self, values, scale, eft, basis) -> None:

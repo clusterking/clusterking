@@ -5,7 +5,7 @@ import copy
 
 # 3d
 import numpy as np
-from typing import Callable, Union, Iterable
+from typing import Callable, Union, Iterable, List, Any
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -14,7 +14,7 @@ from clusterking.plots.plot_clusters import ClusterPlot
 
 
 class Data(DFMD):
-    """ This class inherits from the :py:class:`~clusterking.data.dfmd.DFMD`
+    """ This class inherits from the :py:class:`~clusterking.data.DFMD`
     class and adds additional methods to it. It is the basic container,
     that contains the
 
@@ -30,35 +30,36 @@ class Data(DFMD):
     # **************************************************************************
 
     @property
-    def bin_cols(self):
+    def bin_cols(self) -> List[str]:
         """ All columns that correspond to the bins of the
         distribution. This is automatically read from the
-        metadata as set in e.g. the Scan.run. """
+        metadata as set in e.g. :meth:`clusterking.scan.Scanner.run`.
+        """
         columns = list(self.df.columns)
         # todo: more general?
         return [c for c in columns if c.startswith("bin")]
 
     @property
-    def par_cols(self):
+    def par_cols(self) -> List[str]:
         """ All columns that correspond to the parameters (e.g. Wilson
         parameters). This is automatically read from the
         metadata as set in e.g. the
-        :py:meth:`clusterking.scan.scanner.Scanner.run`.
+        :meth:`clusterking.scan.Scanner.run`.
         """
         return self.md["scan"]["spoints"]["coeffs"]
 
     @property
-    def n(self):
+    def n(self) -> int:
         """ Number of points in parameter space that were sampled. """
         return len(self.df)
 
     @property
-    def nbins(self):
+    def nbins(self) -> int:
         """ Number of bins of the distribution. """
         return len(self.bin_cols)
 
     @property
-    def npars(self):
+    def npars(self) -> int:
         """ Number of parameters that were sampled (i.e. number of dimensions
         of the sampled parameter space.
         """
@@ -84,7 +85,7 @@ class Data(DFMD):
         else:
             return data
 
-    def norms(self):
+    def norms(self) -> np.ndarray:
         """ Returns a vector of all normalizations of all histograms (where
         each histogram corresponds to one sampled point in parameter space).
 
@@ -93,7 +94,7 @@ class Data(DFMD):
         """
         return np.sum(self.data(), axis=1)
 
-    def clusters(self, cluster_column="cluster"):
+    def clusters(self, cluster_column="cluster") -> List[Any]:
         """ Return list of all cluster names (unique)
 
         Args:
@@ -325,7 +326,7 @@ class Data(DFMD):
             d.sample_param(CT_bctaunutau=10)
 
         For the ``bpoints`` and ``bpoint_slices`` syntax, see the documenation
-        of :py:meth:`clusterking.data.data.Data.fix_param`.
+        of :py:meth:`clusterking.data.Data.fix_param`.
         """
         fix_kwargs = {}
         for param, value in kwargs.items():
@@ -363,6 +364,7 @@ class Data(DFMD):
     # --------------------------------------------------------------------------
 
     # todo: Test this
+    # todo: inplace?
     # fixme: perhaps don't allow new_column but rather give copy method
     def rename_clusters(self, arg=None, column="cluster", new_column=None):
         """ Rename clusters based on either
@@ -677,7 +679,7 @@ class Data(DFMD):
                 automatically based on data ranges.
 
         Returns:
-
+            Figure
         """
         cp = ClusterPlot(self)
         cp.cluster_column = cluster_column

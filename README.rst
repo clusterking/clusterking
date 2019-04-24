@@ -101,7 +101,7 @@ Being a condensed version of the basic tutorial, the following code is all that 
    import numpy as np
    import clusterking as ck
 
-   s = ck.scan.WilsonScanner()
+   s = ck.scan.WilsonScanner(scale=5, eft='WET', basis='flavio')
    d = ck.DataWithErrors()
 
    # Set up kinematic function
@@ -122,10 +122,7 @@ Being a condensed version of the basic tutorial, the following code is all that 
          "CVL_bctaunutau": (-1, 1, 10),
          "CSL_bctaunutau": (-1, 1, 10),
          "CT_bctaunutau": (-1, 1, 10)
-     },
-     scale=5,
-     eft='WET',
-     basis='flavio'
+     }
    )
 
    s.run(d)

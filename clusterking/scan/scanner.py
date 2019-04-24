@@ -9,7 +9,7 @@ import multiprocessing
 import os
 import shutil
 import time
-from typing import Callable, Sized, Dict
+from typing import Callable, Sized, Dict, Iterable
 import itertools
 
 # 3rd party
@@ -359,8 +359,12 @@ class Scanner(object):
             ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
         ):
             md = self.md["dfunction"]
+
+            if not isinstance(result, Iterable):
+                result = [result]
+
             if "nbins" not in md:
-                md["nbins"] = len(result) - 1
+                md["nbins"] = len(result)
 
             rows.append([*self._spoints[index], *result])
 

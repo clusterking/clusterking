@@ -255,7 +255,7 @@ class Scanner(object):
         # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
         self._spoints = np.array(list(itertools.product(*values_lists)))
 
-        self.md["spoints"]["values"] = values
+        self.md["spoints"]["grid"] = failsafe_serialize(values)
 
     def set_spoints_equidist(self, ranges: Dict[str, tuple]) -> None:
         """ Set a list of 'equidistant' points in sampling space.

@@ -7,7 +7,6 @@ import unittest
 # 3rd
 
 # ours
-from clusterking.util.log import silence_all_logs
 from clusterking.util.testing import MyTestCase
 from clusterking.data.data import Data
 from clusterking.benchmark.benchmark import Benchmark
@@ -15,14 +14,12 @@ from clusterking.benchmark.benchmark import Benchmark
 
 class TestHierarchyCluster(MyTestCase):
     def setUp(self):
-        silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
         self.dname = "1d_clustered"
         self.d = Data(self.ddir, self.dname)
 
     def test_cluster(self):
         b = Benchmark(self.d)
-        silence_all_logs()
         b.set_metric()
         b.select_bpoints()
         b.write()

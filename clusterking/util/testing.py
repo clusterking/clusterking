@@ -6,11 +6,15 @@ import pathlib
 import unittest
 
 # 3rd party
+import logging
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 import numpy as np
 
-ENV_VAR_TESTING_MODE = "B_decays_clustering_TESTMODE"
+# ours
+from clusterking.util.log import set_global_log_level
+
+ENV_VAR_TESTING_MODE = "CLUSTERKING_TESTMODE"
 
 
 def set_testing_mode(testing_mode: bool) -> None:
@@ -36,8 +40,10 @@ def is_testing_mode():
     elif testing_mode == "false":
         return False
     else:
-        raise ValueError("{} set to invalid value {}.".format(
-            ENV_VAR_TESTING_MODE, testing_mode))
+        raise ValueError(
+            "Environment variable {} set to invalid value {}.".format(
+            ENV_VAR_TESTING_MODE, testing_mode)
+        )
 
 
 def test_jupyter_notebook(path) -> None:
@@ -60,6 +66,10 @@ def test_jupyter_notebook(path) -> None:
 
 class MyTestCase(unittest.TestCase):
     """ Implements an additional general testing methods. """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        set_testing_mode(True)
+        set_global_log_level(logging.WARNING)
 
     def assertAllClose(self, a, b):
         """ Compares two numpy arrays """

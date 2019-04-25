@@ -5,7 +5,6 @@ from pathlib import Path
 import unittest
 
 # ours
-from clusterking.util.log import silence_all_logs
 from clusterking.util.testing import MyTestCase
 from clusterking.data.data import Data
 from clusterking.cluster.hierarchy_cluster import HierarchyCluster
@@ -13,14 +12,12 @@ from clusterking.cluster.hierarchy_cluster import HierarchyCluster
 
 class TestHierarchyCluster(MyTestCase):
     def setUp(self):
-        silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
         self.dname = "1d"
         self.d = Data(self.ddir, self.dname)
 
     def test_cluster(self):
         c = HierarchyCluster(self.d)
-        silence_all_logs()
         c.set_metric()
         c.build_hierarchy()
         c.cluster(max_d=0.75)
@@ -37,7 +34,6 @@ class TestHierarchyCluster(MyTestCase):
 
     def test_dendrogram_plot(self):
         c = HierarchyCluster(self.d)
-        silence_all_logs()
         c.set_metric()
         c.build_hierarchy()
         c.dendrogram()

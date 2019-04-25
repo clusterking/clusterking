@@ -10,7 +10,7 @@ try:
 except ImportError:
     colorlog = None
 
-clusterking_silence = "CLUSTERKING_SILENCE_ALL_LOGS"
+CLUSTERKING_LOGLEVEL_ENV = "CLUSTERKING_LOG_LEVEL"
 
 
 def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
@@ -41,8 +41,8 @@ def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
         return _logger
 
     _logger.setLevel(level)
-    if os.environ.get("SILENCE_ALL_LOGS", False):
-        _logger.setLevel(int(os.environ.get(clusterking_silence)))
+    if os.environ.get(CLUSTERKING_LOGLEVEL_ENV, False):
+        _logger.setLevel(int(os.environ.get(CLUSTERKING_LOGLEVEL_ENV)))
     if colorlog is not None:
         sh = colorlog.StreamHandler()
         log_colors = {'DEBUG':    'cyan',
@@ -67,7 +67,7 @@ def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
     return _logger
 
 
-def silence_all_logs(level=logging.WARNING):
+def set_global_log_level(level=logging.INFO):
     names = list(logging.root.manager.loggerDict.keys())
     names.append("DFMD")
     loggers = [
@@ -75,7 +75,7 @@ def silence_all_logs(level=logging.WARNING):
     ]
     for logger in loggers:
         logger.setLevel(level)
-    os.environ[clusterking_silence] = str(logging.WARNING)
+    os.environ[CLUSTERKING_LOGLEVEL_ENV] = str(logging.WARNING)
 
 
 if __name__ == "__main__":

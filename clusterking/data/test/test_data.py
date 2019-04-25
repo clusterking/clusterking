@@ -5,14 +5,12 @@ from pathlib import Path
 import unittest
 
 # ours
-from clusterking.util.log import silence_all_logs
 from clusterking.util.testing import MyTestCase
 from clusterking.data.data import Data
 
 
 class TestData(MyTestCase):
     def setUp(self):
-        silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
         self.dname = "test"
         self.data = [[100, 200], [400, 500]]
@@ -122,7 +120,6 @@ class TestData(MyTestCase):
 
 class TestSubSample(MyTestCase):
     def setUp(self):
-        silence_all_logs()
         self.ddir = Path(__file__).parent / "data"
         self.dname = "test_longer"
         self.d = Data(self.ddir, self.dname)

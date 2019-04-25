@@ -6,13 +6,12 @@ import tempfile
 import unittest
 
 # ours
-from clusterking.util.log import silence_all_logs
+from clusterking.util.testing import MyTestCase
 from clusterking.data.dfmd import DFMD
 
 
-class TestDFMD(unittest.TestCase):
+class TestDFMD(MyTestCase):
     def setUp(self):
-        silence_all_logs()
         self.data_dir = Path(__file__).parent / "data"
         self.test_fname = "test"
 

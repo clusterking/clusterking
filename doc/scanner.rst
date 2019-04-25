@@ -16,3 +16,4 @@
     .. autoclass:: WilsonScanner
         :members:
         :undoc-members:
+        :exclude-members: set_dfunction

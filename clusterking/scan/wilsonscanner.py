@@ -77,6 +77,11 @@ class WilsonScanner(Scanner):
             scale: Wilson coeff input scale in GeV
             eft: Wilson coeff input eft
             basis: Wilson coeff input basis
+
+        .. note::
+
+            A list of applicable bases and EFTs can be found at
+            https://wcxf.github.io/bases.html
         """
         super().__init__()
         self._set_wilson_format(scale, eft, basis)
@@ -103,15 +108,15 @@ class WilsonScanner(Scanner):
 
     @property
     def scale(self):
-        """ Scale of the input wilson coefficients in GeV. """
+        """ Scale of the input wilson coefficients in GeV (read-only). """
         return self.md["spoints"]["scale"]
 
     @property
     def eft(self):
-        """  Wilson coeff input eft """
+        """  Wilson coefficient input EFT (read-only) """
         return self.md["spoints"]["eft"]
 
     @property
     def basis(self):
-        """ Wilson coeff input basis """
+        """ Wilson coefficient input basis (read-only)"""
         return self.md["spoints"]["basis"]

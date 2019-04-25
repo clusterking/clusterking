@@ -16,8 +16,12 @@ def func_zero(coeffs):
     return 0.
 
 
-def func_identity(coeffs, x):
-    return x
+def func_identity(coeffs):
+    return coeffs
+
+
+def func_zero_bins(coeffs, x):
+    return coeffs
 
 
 class TestScanner(MyTestCase):
@@ -64,6 +68,44 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero)
         s.run(d)
+        self.assertEqual(
+            sorted(list(d.df.columns)),
+            ["a", "bin0"]
+        )
+        self.assertAllClose(
+            d.df.values,
+            np.array([[0., 0.], [1., 0.]])
+        )
+
+    def test_run_identity(self):
+        s = Scanner()
+        d = Data()
+        s.set_spoints_equidist({"a": (0, 1, 2)})
+        s.set_dfunction(func_identity)
+        s.run(d)
+        self.assertEqual(
+            sorted(list(d.df.columns)),
+            ["a", "bin0"]
+        )
+        self.assertAllClose(
+            d.df.values,
+            np.array([[0., 0.], [1., 1.]])
+        )
+
+    def test_run_simple_bins(self):
+        s = Scanner()
+        d = Data()
+        s.set_spoints_equidist({"a": (0, 1, 2)})
+        s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
+        s.run(d)
+        self.assertEqual(
+            sorted(list(d.df.columns)),
+            ["a", "bin0", "bin1"]
+        )
+        self.assertAllClose(
+            d.df.values,
+            np.array([[0., 0., 0.], [1., 1., 1.]])
+        )
 
 
 if __name__ == "__main__":

@@ -113,7 +113,7 @@ class Scanner(object):
 
         #: Points in wilson space
         #:  Use self.spoints to access this
-        self._spoints = []
+        self._spoints = None  # type: np.ndarray
 
         #: Instance of SpointCalculator to perform the claculations of
         #:  the wilson space points.
@@ -180,14 +180,6 @@ class Scanner(object):
 
         Returns:
             None
-
-        .. warning::
-
-            The function ``func`` has to be a globally defined function, else
-            you will probably run into the error
-            ``Can't pickle local object ...`` that is issued by the python
-            multiprocessing module.
-
         """
         if normalize and binning is None:
             raise ValueError(
@@ -324,17 +316,22 @@ class Scanner(object):
             # imaginary part
             res = [0.]
             ims = [0.]
+            is_complex = False
             if real_part(coeff) in ranges:
                 res = list(np.linspace(*ranges[real_part(coeff)]))
             if imaginary_part(coeff) in ranges:
                 ims = list(np.linspace(*ranges[imaginary_part(coeff)]))
+                is_complex = True
             # And basically take their cartesian product, alias initialize
             # the complex number.
-            grid_config[coeff] = [
-                complex(x, y)
-                for x in res
-                for y in ims
-            ]
+            if is_complex:
+                grid_config[coeff] = [
+                    complex(x, y)
+                    for x in res
+                    for y in ims
+                ]
+            else:
+                grid_config[coeff] = res
 
         self.set_spoints_grid(grid_config)
         # Make sure to do this after set_spoints_grid, so we overwrite
@@ -348,13 +345,23 @@ class Scanner(object):
     # **************************************************************************
 
     def run(self, data: Data, no_workers=None) -> None:
-        """Calculate all sample points in parallel and saves the result in
-        self.df.
+        """Calculate all sample points and writes the result to a dataframe.
 
         Args:
             data: Data object.
             no_workers: Number of worker nodes/cores. Default: Total number of
                 cores.
+
+        .. warning::
+
+            The function set in :meth:`set_dfunction` has to be a globally
+            defined function in order to do multiprocessing, else
+            you will probably run into the error
+            ``Can't pickle local object ...`` that is issued by the python
+            multiprocessing module.
+            If you run into any probelms like this, you can always run in
+            single core mode by specifying ``no_workes=1``.
+
         """
 
         if not self._spoints.any():
@@ -377,10 +384,54 @@ class Scanner(object):
             # os.cpu_count() didn't work
             self.log.warn(
                 "os.cpu_count() not determine number of cores. Fallling "
-                "back to no_workser = 1."
+                "back to single core mode."
             )
             no_workers = 1
 
+        if no_workers >= 2:
+            rows = self._run_multicore(no_workers)
+        else:
+            rows = self._run_singlecore()
+
+        self.log.debug("Converting data to pandas dataframe.")
+        cols = self.coeffs
+        cols.extend([
+            "bin{}".format(no_bin)
+            for no_bin in range(self.md["dfunction"]["nbins"])
+        ])
+
+        # Now we finally write everything to data
+        data.df = pd.DataFrame(data=rows, columns=cols)
+
+        # Special handling for complex numbers
+        coeffs_with_im = []
+        for coeff in self.coeffs:
+            coeffs_with_im.append(coeff)
+            if not list(data.df[coeff].apply(np.imag).unique()) == [0.]:
+                values = data.df[coeff]
+                data.df[coeff] = values.apply(np.real)
+                data.df[self.imaginary_prefix + coeff] = values.apply(np.imag)
+                coeffs_with_im.append(self.imaginary_prefix + coeff)
+            else:
+                data.df[coeff] = data.df[coeff].apply(np.real)
+
+        data.df.index.name = "index"
+
+        self.md["spoints"]["coeffs"] = coeffs_with_im
+
+        data.md["scan"] = self.md
+
+        self.log.info("Integration done.")
+
+    def _run_multicore(self, no_workers):
+        """ Calculate spoints in parallel processing mode.
+
+        Args:
+            no_workers: Number of workers.
+
+        Returns:
+            Rows of the dataframe.
+        """
         # pool of worker nodes
         pool = multiprocessing.Pool(processes=no_workers)
 
@@ -418,32 +469,39 @@ class Scanner(object):
         # Wait for completion of all jobs here
         pool.join()
 
-        self.log.debug("Converting data to pandas dataframe.")
-        cols = self.coeffs
-        cols.extend([
-            "bin{}".format(no_bin)
-            for no_bin in range(self.md["dfunction"]["nbins"])
-        ])
+        return rows
 
-        # Now we finally write everything to data
-        data.df = pd.DataFrame(data=rows, columns=cols)
+    def _run_singlecore(self):
+        """ Calculate spoints in single core processing mode. This is sometimes
+        useful because multiprocessing has its quirks.
 
-        # Special handling for complex numbers
-        coeffs_with_im = []
-        for coeff in self.coeffs:
-            coeffs_with_im.append(coeff)
-            if not list(data.df[coeff].apply(np.imag).unique()) == [0.]:
-                values = data.df[coeff]
-                data.df[coeff] = values.apply(np.real)
-                data.df[self.imaginary_prefix + coeff] = values.apply(np.imag)
-                coeffs_with_im.append(self.imaginary_prefix + coeff)
-            else:
-                data.df[coeff] = data.df[coeff].apply(np.real)
+        Returns:
+            Rows of the dataframe.
+        """
+        self.log.info(
+            "Started queue with {} job(s) in single core mode.".format(
+                len(self._spoints)
+            )
+        )
 
-        data.df.index.name = "index"
+        rows = []
+        for index, spoint in tqdm.tqdm(
+            enumerate(self._spoints),
+            desc="Scanning: ",
+            unit=" spoint",
+            total=len(self._spoints),
+            ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
+        ):
+            result = self._spoint_calculator.calc(spoint)
 
-        self.md["spoints"]["coeffs"] = coeffs_with_im
+            md = self.md["dfunction"]
 
-        data.md["scan"] = self.md
+            if not isinstance(result, Iterable):
+                result = [result]
 
-        self.log.info("Integration done.")
+            if "nbins" not in md:
+                md["nbins"] = len(result)
+
+            rows.append([*self._spoints[index], *result])
+
+        return rows

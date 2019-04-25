@@ -66,6 +66,43 @@ class SpointCalculator(object):
 # todo: also allow to disable multiprocessing if there are problems.
 class Scanner(object):
 
+    """
+    This class is set up with a function
+    (specified in :meth:`.set_dfunction`) that depends
+    on points in parameter space and a set of sample points in this parameter
+    space (specified via one of the ``set_spoints_...`` methods).
+    The function is then run for every sample point (in the :meth:`.run` method)
+    and the results are written to a :class:`~clusterking.data.Data`-like
+    object.
+
+    Usage example:
+
+    .. code-block:: python
+
+        import clusterking as ck
+
+        def myfunction(parameters, x):
+            return sum(parameters) * x
+
+        # Initialize Scanner class
+        s = ck.scan.Scanner()
+
+        # Set the function
+        s.set_dfunction(myfunction)
+
+        # Set the sample points
+        s.set_spoints_equidist({
+            "a": (-1, 1, 10),
+            "b": (-1, 1, 10)
+        })
+
+        # Initialize a Data class to write to:
+        d = ck.data.Data(0
+
+        # Run it
+        s.run(d)
+    """
+
     # **************************************************************************
     # A:  Setup
     # **************************************************************************
@@ -93,7 +130,9 @@ class Scanner(object):
 
     @property
     def imaginary_prefix(self) -> str:
-        """ Prefix for the name of imaginary parts of coefficients. """
+        """ Prefix for the name of imaginary parts of coefficients.
+        Also see e.g. :meth:`.set_spoints_equidist`.
+        """
         return self.md["imaginary_prefix"]
 
     @imaginary_prefix.setter
@@ -102,14 +141,15 @@ class Scanner(object):
 
     @property
     def spoints(self):
-        """ Points in parameter space that are sampled."""
+        """ Points in parameter space that are sampled (read-only)."""
         return self._spoints
 
     @property
     def coeffs(self):
-        """ The name of the parameters/coefficients/dimensions of the spoints.
+        """ The name of the parameters/coefficients/dimensions of the spoints
+        (read only).
         Set after spoints are set.
-        Does NOT include the names of the columns of the imaginary parts.
+        Does **not** include the names of the columns of the imaginary parts.
         """
         return self._coeffs.copy()
 
@@ -126,20 +166,27 @@ class Scanner(object):
 
         Args:
             func: A function that takes the point in parameter space
-                as the first argument.
-                It should either return a float (if the binning
-                option is specified), or a np.array elsewise.
-            binning: If this parameter is not set (None), we will use the
-                function as is. If it is set to an array-like object, we will
+                as the first argument (**Note**: The parameters are given in
+                alphabetically order with respect to the parameter name!).
+                It should either return a ``float`` or a ``np.ndarray``.
+                If the ``binning`` or ``sampling`` options are specified, only
+                ``float``s as return value are allowed.
+            binning: If this parameter is set to an array-like object, we will
                 integrate the function over the bins specified by this
                 parameter.
             normalize: If a binning is specified, normalize the resulting
-                distribution
+                distribution.
             **kwargs: All other keyword arguments are passed to the function.
 
         Returns:
             None
         """
+        if normalize and binning is None:
+            raise ValueError(
+                "The setting normalize=True only makes sense if a binning or "
+                "sampling is specified."
+            )
+
         # The block below just wants to put some information about the function
         # in the metadata. Can be ignored if you're only interested in what's
         # happening.
@@ -200,7 +247,7 @@ class Scanner(object):
         # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
         self._spoints = np.array(list(itertools.product(*values_lists)))
 
-        self.md["spoints"]["values"] = values
+        self.md["spoints"]["grid"] = failsafe_serialize(values)
 
     def set_spoints_equidist(self, ranges: Dict[str, tuple]) -> None:
         """ Set a list of 'equidistant' points in sampling space.

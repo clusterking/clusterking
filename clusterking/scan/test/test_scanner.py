@@ -2,6 +2,7 @@
 
 # std
 import unittest
+import tempfile
 
 # 3rd
 import numpy as np
@@ -25,6 +26,14 @@ def func_zero_bins(coeffs, x):
 
 
 class TestScanner(MyTestCase):
+
+    def setUp(self):
+        # We also want to test writing, to check that there are e.g. no
+        # JSON serialization problems.
+        self.tmpdir = tempfile.TemporaryDirectory()
+
+    def cleanUp(self):
+        self.tmpdir.cleanup()
 
     def test_set_spoints_grid(self):
         s = Scanner()
@@ -76,6 +85,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0.], [1., 0.]])
         )
+        d.write(self.tmpdir.name, "test")
 
     def test_run_identity(self):
         s = Scanner()
@@ -91,6 +101,23 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0.], [1., 1.]])
         )
+        d.write(self.tmpdir.name, "test")
+
+    def test_run_identity_singlecore(self):
+        s = Scanner()
+        d = Data()
+        s.set_spoints_equidist({"a": (0, 1, 2)})
+        s.set_dfunction(func_identity)
+        s.run(d, 1)
+        self.assertEqual(
+            sorted(list(d.df.columns)),
+            ["a", "bin0"]
+        )
+        self.assertAllClose(
+            d.df.values,
+            np.array([[0., 0.], [1., 1.]])
+        )
+        d.write(self.tmpdir.name, "test")
 
     def test_run_simple_bins(self):
         s = Scanner()
@@ -106,6 +133,23 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0., 0.], [1., 1., 1.]])
         )
+        d.write(self.tmpdir.name, "test")
+
+    def test_run_simple_bins_singlecore(self):
+        s = Scanner()
+        d = Data()
+        s.set_spoints_equidist({"a": (0, 1, 2)})
+        s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
+        s.run(d, 1)
+        self.assertEqual(
+            sorted(list(d.df.columns)),
+            ["a", "bin0", "bin1"]
+        )
+        self.assertAllClose(
+            d.df.values,
+            np.array([[0., 0., 0.], [1., 1., 1.]])
+        )
+        d.write(self.tmpdir.name, "test")
 
 
 if __name__ == "__main__":

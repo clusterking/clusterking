@@ -67,7 +67,8 @@ intersphinx_mapping = {
     'pandas': ('http://pandas-docs.github.io/pandas-docs-travis/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'matplotlib': ('https://matplotlib.org/', None)
+    'matplotlib': ('https://matplotlib.org/', None),
+    # 'wilson': ('https://wilson-eft.github.io/wilson/', None)
 }
 
 # Add any paths that contain templates here, relative to this directory.

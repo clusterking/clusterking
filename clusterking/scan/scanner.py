@@ -139,14 +139,6 @@ class Scanner(object):
 
         Returns:
             None
-
-        .. warning::
-
-            The function ``func`` has to be a globally defined function, else
-            you will probably run into the error
-            ``Can't pickle local object ...`` that is issued by the python
-            multiprocessing module.
-
         """
         # The block below just wants to put some information about the function
         # in the metadata. Can be ignored if you're only interested in what's
@@ -312,6 +304,16 @@ class Scanner(object):
             data: Data object.
             no_workers: Number of worker nodes/cores. Default: Total number of
                 cores.
+
+        .. warning::
+
+            The function set in :meth:`set_dfunction` has to be a globally
+            defined function in order to do multiprocessing, else
+            you will probably run into the error
+            ``Can't pickle local object ...`` that is issued by the python
+            multiprocessing module.
+            If you run into any probelms like this, you can always run in
+            single core mode by specifying ``no_workes=1``.
 
         """
 

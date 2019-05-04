@@ -12,7 +12,7 @@ read -p "Run unittests? [yY]" -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    `python3 -m unittest discover `
+    `nose2 `
     if [[ $? = 0 ]]
     then
         echo "Unittests passed."
@@ -37,8 +37,6 @@ else
    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 fi
 
-echo "checkpoint 3"
-
 # Find notebooks to be committed
 (
 IFS='
@@ -52,8 +50,6 @@ for NB in $NBS ; do
 done
 )
 
-echo "checkpoint 4"
 
+# todo: What did this do?
 # exec git diff-index --check --cached $against --
-
-echo "checkpoint 5"

@@ -102,29 +102,29 @@ Being a condensed version of the basic tutorial, the following code is all that 
    import clusterking as ck
 
    s = ck.scan.WilsonScanner(scale=5, eft='WET', basis='flavio')
-   d = ck.DataWithErrors()
 
    # Set up kinematic function
 
    def dBrdq2(w, q):
-     return flavio.np_prediction("dBR/dq2(B+->Dtaunu)", w, q)
+       return flavio.np_prediction("dBR/dq2(B+->Dtaunu)", w, q)
 
    s.set_dfunction(
-     dBrdq2,
-     binning=np.linspace(3.2, 11.6, 10),
-     normalize=True
+       dBrdq2,
+       binning=np.linspace(3.2, 11.6, 10),
+       normalize=True
    )
 
    # Set sampling points in Wilson space
 
-   s.set_spoints_equidist(
-     {
-         "CVL_bctaunutau": (-1, 1, 10),
-         "CSL_bctaunutau": (-1, 1, 10),
-         "CT_bctaunutau": (-1, 1, 10)
-     }
-   )
+   s.set_spoints_equidist({
+       "CVL_bctaunutau": (-1, 1, 10),
+       "CSL_bctaunutau": (-1, 1, 10),
+       "CT_bctaunutau": (-1, 1, 10)
+   })
 
+   # Create data object to write to and run
+
+   d = ck.DataWithErrors()
    s.run(d)
 
    # Use hierarchical clustering
@@ -140,10 +140,10 @@ Benchmark points
 
 .. code:: python
 
-   b = ck.Benchmark(d)
+   b = ck.Benchmark(d) # Initialize benchmarker for data d
    b.set_metric()      # Use default metric (Euclidean)
    b.select_bpoints()  # Select benchmark points based on metric
-   b.write()           # Write results to d
+   b.write()           # Write results back to d
 
 Plotting
 ~~~~~~~~
@@ -167,7 +167,7 @@ Plotting all benchmark points:
 
 .. code:: python
 
-    bp.plot_dist()
+    d.plot_dist()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/all_bcurves.png
 
@@ -175,7 +175,7 @@ Plotting minima and maxima of bin contents for all histograms in a cluster (+ben
 
 .. code:: python
 
-    bp.plot_dist_minmax(clusters=[0, 2])
+    d.plot_dist_minmax(clusters=[0, 2])
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/minmax_02.png
 
@@ -183,7 +183,7 @@ Similarly with box plots:
 
 .. code:: python
 
-   bp.plot_dist_box()
+   d.plot_dist_box()
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/box_plot.png
 

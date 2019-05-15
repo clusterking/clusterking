@@ -106,6 +106,10 @@ class WilsonScanner(Scanner):
         self._spoint_calculator.eft = self.eft
         self._spoint_calculator.basis = self.basis
 
+    def set_spoints_grid(self, *args, **kwargs):
+        super().set_spoints_grid(*args, **kwargs)
+        self._spoint_calculator.coeffs = self.coeffs
+
     @property
     def scale(self):
         """ Scale of the input wilson coefficients in GeV (read-only). """

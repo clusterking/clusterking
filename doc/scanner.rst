@@ -16,4 +16,4 @@
     .. autoclass:: WilsonScanner
         :members:
         :undoc-members:
-        :exclude-members: set_dfunction
+        :exclude-members: set_dfunction, set_spoints_grid

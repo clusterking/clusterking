@@ -403,6 +403,8 @@ class Scanner(object):
         # Now we finally write everything to data
         data.df = pd.DataFrame(data=rows, columns=cols)
 
+        # todo: Shouldn't we do that above already? This sounds not so
+        #   great performance wise...
         # Special handling for complex numbers
         coeffs_with_im = []
         for coeff in self.coeffs:
@@ -410,7 +412,12 @@ class Scanner(object):
             if not list(data.df[coeff].apply(np.imag).unique()) == [0.]:
                 values = data.df[coeff]
                 data.df[coeff] = values.apply(np.real)
-                data.df[self.imaginary_prefix + coeff] = values.apply(np.imag)
+                loc = list(data.df.columns).index(coeff)
+                data.df.insert(
+                    loc + 1,
+                    self.imaginary_prefix + coeff,
+                    values.apply(np.imag)
+                )
                 coeffs_with_im.append(self.imaginary_prefix + coeff)
             else:
                 data.df[coeff] = data.df[coeff].apply(np.real)

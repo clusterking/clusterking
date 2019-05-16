@@ -10,6 +10,13 @@ If you do not need to include errors in your analysis, use
 Both classes inherit from a very basic class,
 :py:class:`~clusterking.data.DFMD`, which provides basic input and output
 methods.
+
+.. warning::
+
+    We will switch to a SQL database as output format soon, so there will be
+    some slight interface changes. In particular, all information (which is
+    currently divided between two files) will be in only one file.
+
 """
 
 from clusterking.data.dwe import DataWithErrors

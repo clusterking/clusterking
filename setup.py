@@ -9,25 +9,6 @@ from pathlib import Path
 # (1) see https://stackoverflow.com/questions/8295644/
 # Without this import, install_requires won't work.
 
-# todo: perhaps read from requirements.txt
-# todo: perhaps split up in install_requires and extras_require
-install_requires = [
-    'pandas',
-    'numpy',
-    'scipy',
-    'flavio',
-    'gitpython',
-    'nbconvert',
-    'nbformat',
-    'jupyter_client',
-    'matplotlib',
-    'sklearn',
-    'colorlog',
-    'ipykernel',
-    'wilson',
-    'tqdm',
-    'sqlalchemy'
-]
 
 keywords = [
     "clustering",
@@ -55,6 +36,13 @@ with (this_dir / "README.rst").open() as fh:
 
 with (this_dir / "clusterking" / "version.txt").open() as vf:
     version = vf.read()
+
+with (this_dir / "requirements.txt").open() as rf:
+    install_requires = [
+        req.strip() for req in rf.readlines()
+        if req.strip() and not req.startswith("#")
+    ]
+
 
 setup(
     name='clusterking',

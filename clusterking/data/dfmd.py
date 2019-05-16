@@ -14,24 +14,21 @@ import sqlalchemy
 # ours
 from clusterking.util.metadata import nested_dict
 from clusterking.util.log import get_logger
+from clusterking.util.cli import handle_overwrite
 
 
 class DFMD(object):
-    """ This class bundles a pandas dataframe together with metadata and
-    provides methods to load from and write these two to files.
+    """ DFMD = DataFrame with MetaData.
+    This class bundles a pandas dataframe together with metadata and
+    provides methods to save and load such an object.
     """
     def __init__(self, path=None, log=None):
         """
-        There are five different ways to initialize this class:
-
-        1. Initialize it empty: ``DFMD()``.
-        2. Load from a path: ``DFMD("path/to/io.sql")``
+        Initialize a DFMD object.
 
         Args:
             log: instance of :py:class:`logging.Logger` or name of logger to be
                 created
-            *args: See above
-            **kwargs: See above
         """
         # These are the three attributes of this class
         #: This will hold all the configuration that we will write out
@@ -70,11 +67,11 @@ class DFMD(object):
     # **************************************************************************
 
     def load(self, path: Union[str, PurePath]) -> None:
-        """ Load from input files which have been generated from
+        """ Load input file as created by
         :py:meth:`~clusterking.data.DFMD.write`.
 
         Args:
-            path: Path to input/output directory
+            path: Path to input file
 
         Returns:
             None
@@ -93,10 +90,27 @@ class DFMD(object):
     # Writing
     # **************************************************************************
 
-    def write(self, path: Union[str, PurePath]):
-        # fixme: handle overwrite?
+    def write(self, path: Union[str, PurePath], overwrite="ask"):
+        """ Write output files that can later be read in using
+        :meth:`load`.
+
+        Args:
+            path: Path to output file
+            overwrite: How to proceed if output file already exists:
+                'ask' (ask interactively for approval if we have to overwrite),
+                'overwrite' (overwrite without asking), 'raise'
+                (raise Exception if file exists).
+                Default is 'ask'.
+
+        Returns:
+            None
+        """
         path = Path(path)
-        # fixme: Do we have to care about non existing directories?
+        handle_overwrite([path], behavior=overwrite, log=self.log)
+        if not path.parent.is_dir():
+            self.log.debug("Creating directory '{}'.".format(path.parent))
+            path.parent.mkdir(parents=True)
+
         engine = sqlalchemy.create_engine('sqlite:///' + str(path))
         self.df.to_sql("df", engine, if_exists="replace")
         # todo: perhaps it's better to use pickle in the future?

@@ -79,6 +79,23 @@ class TestDFMD(MyTestCase):
             dfmd_loaded = DFMD(Path(tmpdir) / "tmp_test.sql")
             self._compare_dfs(dfmd, dfmd_loaded)
 
+    def test_handle_overwrite(self):
+        dfmd = DFMD()
+        dfmd2 = DFMD(self.data_dir / self.test_fname)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dfmd.write(Path(tmpdir) / "test.sql")
+            with self.assertRaises(FileExistsError):
+                dfmd.write(Path(tmpdir) / "test.sql", overwrite="raise")
+            dfmd2.write(Path(tmpdir) / "test.sql", overwrite="overwrite")
+            dfmdx = DFMD(Path(tmpdir) / "test.sql")
+            self.assertGreaterEqual(len(dfmdx.df), 2)
+
+    def test_write_new_dir(self):
+        dfmd = DFMD()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fn = Path(tmpdir) / "a" / "b" / "c"
+            dfmd.write(fn)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,11 @@
 
 set -e
 
+if [[ ! -z "$(git status --porcelain)" ]]; then
+    echo "UNCLEAN repo! Abort!"
+    exit 234
+fi
+
 # Upload to pypi
 # Note: Need to bump version first!
 # (it's impossible to amend a release, you can only

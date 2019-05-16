@@ -25,7 +25,8 @@ install_requires = [
     'colorlog',
     'ipykernel',
     'wilson',
-    'tqdm'
+    'tqdm',
+    'sqlalchemy'
 ]
 
 keywords = [

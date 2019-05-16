@@ -12,7 +12,7 @@ from clusterking.scan.wilsonscanner import WilsonScanner
 from clusterking.data.data import Data
 
 
-def test_func(w, q):
+def simple_func(w, q):
     return q+1
 
 
@@ -27,7 +27,7 @@ class TestWilsonScannerRun(MyTestCase):
             },
         )
         self.s.set_dfunction(
-            test_func,
+            simple_func,
             binning=[0, 1, 2],
             normalize=True
         )

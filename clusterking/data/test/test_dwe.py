@@ -15,11 +15,11 @@ from clusterking.data.dwe import DataWithErrors
 class TestDataWithErrors(MyTestCase):
     def setUp(self):
         self.ddir = Path(__file__).parent / "data"
-        self.dname = "test"
+        self.dname = "test.sql"
         self.data = [[100., 200.], [400., 500.]]
 
     def test_empty(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         self.assertEqual(
             dwe.abs_cov.shape,
             (2, 2)
@@ -31,7 +31,7 @@ class TestDataWithErrors(MyTestCase):
         self.assertFalse(dwe.poisson_errors)
 
     def test_data(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         self.assertAllClose(
             dwe.data(),
             self.data
@@ -52,7 +52,7 @@ class TestDataWithErrors(MyTestCase):
     # -------------------------------------------------------------------------
 
     def test_add_err_cov(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         # Equal for all data points
         cov = [[4., 4.], [4., 16.]]
         dwe.add_err_cov(cov)
@@ -70,7 +70,7 @@ class TestDataWithErrors(MyTestCase):
         )
 
     def test_add_err_corr(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         dwe.add_err_corr(1, np.identity(2))
         self.assertAllClose(
             dwe.corr(),
@@ -81,7 +81,7 @@ class TestDataWithErrors(MyTestCase):
             [1., 0.32],
             [0.4, 1.],
         ]
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         dwe.add_err_corr(1., corr)
         self.assertAllClose(
             dwe.corr(),
@@ -92,7 +92,7 @@ class TestDataWithErrors(MyTestCase):
             1
         )
 
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         err = [1.52, 2.34]
         dwe.add_err_corr(err, corr)
         self.assertAllClose(
@@ -111,7 +111,7 @@ class TestDataWithErrors(MyTestCase):
         )
 
     def test_add_err_uncorr(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         dwe.add_err_uncorr(0.3)
         self.assertAllClose(
             dwe.corr(),
@@ -122,7 +122,7 @@ class TestDataWithErrors(MyTestCase):
             0.3
         )
 
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         err = [0.3, 1.5]
         dwe.add_err_uncorr(err)
         self.assertAllClose(
@@ -135,7 +135,7 @@ class TestDataWithErrors(MyTestCase):
         )
 
     def test_add_err_maxcorr(self):
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         dwe.add_err_maxcorr(0.3)
         self.assertAllClose(
             dwe.corr(),
@@ -146,7 +146,7 @@ class TestDataWithErrors(MyTestCase):
             0.3
         )
 
-        dwe = DataWithErrors(self.ddir, self.dname)
+        dwe = DataWithErrors(self.ddir / self.dname)
         err = [0.3, 1.5]
         dwe.add_err_maxcorr(err)
         self.assertAllClose(

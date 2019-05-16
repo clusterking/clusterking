@@ -77,10 +77,10 @@ class Benchmark(AbstractBenchmark):
             # The indizes of all spoints that are in the current cluster
             indizes = np.squeeze(np.argwhere(self._clusters == cluster), axis=1)
             # A data object with only these spoints
-            d_cut = type(self.data)(
-                df=self.data.df.iloc[indizes],
-                md=self.data.md
-            )
+            # todo: is this the proper style?
+            d_cut = type(self.data)()
+            d_cut.df = self.data.df.iloc[indizes]
+            d_cut.md = self.data.md
             m = self.fom(uncondense_distance_matrix(self.metric(d_cut)))
             # The index of the wpoint of the current cluster that has the lowest
             # sum of distances to all other elements in the same cluster

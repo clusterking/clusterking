@@ -15,8 +15,8 @@ from clusterking.benchmark.benchmark import Benchmark
 class TestHierarchyCluster(MyTestCase):
     def setUp(self):
         self.ddir = Path(__file__).parent / "data"
-        self.dname = "1d_clustered"
-        self.d = Data(self.ddir, self.dname)
+        self.dname = "1d_clustered.sql"
+        self.d = Data(self.ddir / self.dname)
 
     def test_cluster(self):
         b = Benchmark(self.d)

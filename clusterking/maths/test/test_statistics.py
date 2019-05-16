@@ -8,13 +8,13 @@ from clusterking.maths.statistics import *
 from clusterking.util.testing import MyTestCase
 
 
-class TestStatistics(MyTestCase):
+class _TestStatistics(MyTestCase):
     """ To test the conversion functions cov2err etc.
     Subclassed for specific test cases """
 
     def __init__(self, *args, **kwargs):
-        super(TestStatistics, self).__init__(*args, **kwargs)
-        if self.__class__ == TestStatistics:
+        super(_TestStatistics, self).__init__(*args, **kwargs)
+        if self.__class__ == _TestStatistics:
             # Make sure that unittest doesn't run the tests of this class,
             # only of its subclasses.
             self.run = lambda _self, *_args, **_kwargs: None
@@ -57,9 +57,9 @@ class TestStatistics(MyTestCase):
         )
 
 
-class TestStatistics1D(TestStatistics):
+class TestStatistics1D(_TestStatistics):
     """ Test metric utils with 1 datapoint.
-    Testing methods inherited from TestStatistics
+    Testing methods inherited from _TestStatistics
     """
     def setUp(self):
         self.cov = [[4, 4], [-4, 16]]
@@ -69,9 +69,9 @@ class TestStatistics1D(TestStatistics):
         self.data = [2, 1]
 
 
-class TestStatistics2D(TestStatistics):
+class TestStatistics2D(_TestStatistics):
     """ Test metric utils with several datapoints
-    Testing methods inherited from TestStatistics
+    Testing methods inherited from _TestStatistics
     """
     def setUp(self):
         self.cov = [

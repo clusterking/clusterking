@@ -2,6 +2,7 @@
 
 # std
 import unittest
+from pathlib import Path
 import tempfile
 
 # 3rd
@@ -85,7 +86,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0.], [1., 0.]])
         )
-        d.write(self.tmpdir.name, "test")
+        d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_identity(self):
         s = Scanner()
@@ -101,7 +102,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0.], [1., 1.]])
         )
-        d.write(self.tmpdir.name, "test")
+        d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_identity_singlecore(self):
         s = Scanner()
@@ -117,7 +118,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0.], [1., 1.]])
         )
-        d.write(self.tmpdir.name, "test")
+        d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_simple_bins(self):
         s = Scanner()
@@ -133,7 +134,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0., 0.], [1., 1., 1.]])
         )
-        d.write(self.tmpdir.name, "test")
+        d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_simple_bins_singlecore(self):
         s = Scanner()
@@ -149,7 +150,7 @@ class TestScanner(MyTestCase):
             d.df.values,
             np.array([[0., 0., 0.], [1., 1., 1.]])
         )
-        d.write(self.tmpdir.name, "test")
+        d.write(Path(self.tmpdir.name) / "test.sql")
 
 
 if __name__ == "__main__":

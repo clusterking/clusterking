@@ -13,8 +13,8 @@ from clusterking.cluster.hierarchy_cluster import HierarchyCluster
 class TestHierarchyCluster(MyTestCase):
     def setUp(self):
         self.ddir = Path(__file__).parent / "data"
-        self.dname = "1d"
-        self.d = Data(self.ddir, self.dname)
+        self.dname = "1d.sql"
+        self.d = Data(self.ddir / self.dname)
 
     def test_cluster(self):
         c = HierarchyCluster(self.d)

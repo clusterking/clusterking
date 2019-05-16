@@ -8,6 +8,7 @@ import pandas as pd
 from pathlib import PurePath, Path
 from typing import Union
 
+# 3rd
 import sqlalchemy
 
 # ours
@@ -15,8 +16,6 @@ from clusterking.util.metadata import nested_dict
 from clusterking.util.log import get_logger
 
 
-# fixme @caveat below: perhaps we should simply do that ourselves then?
-#   Unused objects should be garbage collected anyhow
 class DFMD(object):
     """ This class bundles a pandas dataframe together with metadata and
     provides methods to load from and write these two to files.

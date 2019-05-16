@@ -13,3 +13,4 @@ colorlog
 ipykernel
 wilson
 tqdm
+sqlalchemy

@@ -3,6 +3,7 @@
 # std
 
 # 3rd
+import copy
 import numpy as np
 from typing import Callable
 
@@ -77,10 +78,10 @@ class Benchmark(AbstractBenchmark):
             # The indizes of all spoints that are in the current cluster
             indizes = np.squeeze(np.argwhere(self._clusters == cluster), axis=1)
             # A data object with only these spoints
-            # todo: is this the proper style?
+            # todo: Can't we somehow implement this nicer?
             d_cut = type(self.data)()
             d_cut.df = self.data.df.iloc[indizes]
-            d_cut.md = self.data.md
+            d_cut.md = copy.deepcopy(self.data.md)
             m = self.fom(uncondense_distance_matrix(self.metric(d_cut)))
             # The index of the wpoint of the current cluster that has the lowest
             # sum of distances to all other elements in the same cluster

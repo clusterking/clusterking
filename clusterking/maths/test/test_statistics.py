@@ -8,92 +8,82 @@ from clusterking.maths.statistics import *
 from clusterking.util.testing import MyTestCase
 
 
-class _TestStatistics(MyTestCase):
+class TestStatistics(MyTestCase):
     """ To test the conversion functions cov2err etc.
     Subclassed for specific test cases """
 
-    def __init__(self, *args, **kwargs):
-        super(_TestStatistics, self).__init__(*args, **kwargs)
-        if self.__class__ == _TestStatistics:
-            # Make sure that unittest doesn't run the tests of this class,
-            # only of its subclasses.
-            self.run = lambda _self, *_args, **_kwargs: None
-
     def setUp(self):
-        self.cov = None
-        self.cov_rel = None
-        self.corr = None
-        self.err = None
-        self.data = None
+        self.data = {
+            "1D": {
+                "cov": [[4, 4], [-4, 16]],
+                "cov_rel": [[1, 2], [-2, 16]],
+                "err": [2, 4],
+                "corr": [[1, 1/2], [-1/2, 1]],
+                "data": [2, 1],
+            },
+            "2D": {
+                "cov": [
+                    [[4, 4], [-4, 16]],
+                    [[4, 0], [0, 25]]
+                ],
+                "cov_rel": [
+                    [[1, 2], [-2, 16]],
+                    [[4, 0], [0, 25]]
+                ],
+                "err": [
+                    [2, 4],
+                    [2, 5]
+                ],
+                "corr": [
+                    [[1, 1/2], [-1/2, 1]],
+                    [[1, 0], [0, 1]]
+                ],
+                "data": [
+                    [2, 1],
+                    [1, 1]
+                ]
+            }
+        }
 
     def test_cov2err(self):
-        self.assertAllClose(
-            cov2err(self.cov),
-            self.err
-        )
+        for dataset, data in self.data.items():
+            with self.subTest(dataset=dataset):
+                self.assertAllClose(
+                    cov2err(data["cov"]),
+                    data["err"]
+                )
 
     def test_corr2cov(self):
-        self.assertAllClose(
-            corr2cov(self.corr, self.err),
-            self.cov
-        )
+        for dataset, data in self.data.items():
+            with self.subTest(dataset=dataset):
+                self.assertAllClose(
+                    corr2cov(data["corr"], data["err"]),
+                    data["cov"]
+                )
 
     def test_cov2corr(self):
-        self.assertAllClose(
-            cov2corr(self.cov),
-            self.corr
-        )
+        for dataset, data in self.data.items():
+            with self.subTest(dataset=dataset):
+                self.assertAllClose(
+                    cov2corr(data["cov"]),
+                    data["corr"]
+                )
 
     def test_rel2abs_cov(self):
-        self.assertAllClose(
-            rel2abs_cov(self.cov_rel, self.data),
-            self.cov
-        )
+        for dataset, data in self.data.items():
+            with self.subTest(dataset=dataset):
+                self.assertAllClose(
+                    rel2abs_cov(data["cov_rel"], data["data"]),
+                    data["cov"]
+                )
 
     def test_abs2rel_cov(self):
-        self.assertAllClose(
-            abs2rel_cov(self.cov, self.data),
-            self.cov_rel
-        )
-
-
-class TestStatistics1D(_TestStatistics):
-    """ Test metric utils with 1 datapoint.
-    Testing methods inherited from _TestStatistics
-    """
-    def setUp(self):
-        self.cov = [[4, 4], [-4, 16]]
-        self.cov_rel = [[1, 2], [-2, 16]]
-        self.err = [2, 4]
-        self.corr = [[1, 1/2], [-1/2, 1]]
-        self.data = [2, 1]
-
-
-class TestStatistics2D(_TestStatistics):
-    """ Test metric utils with several datapoints
-    Testing methods inherited from _TestStatistics
-    """
-    def setUp(self):
-        self.cov = [
-            [[4, 4], [-4, 16]],
-            [[4, 0], [0, 25]]
-        ]
-        self.cov_rel = [
-            [[1, 2], [-2, 16]],
-            [[4, 0], [0, 25]]
-        ]
-        self.err = [
-            [2, 4],
-            [2, 5]
-        ]
-        self.corr = [
-            [[1, 1/2], [-1/2, 1]],
-            [[1, 0], [0, 1]]
-        ]
-        self.data = [
-            [2, 1],
-            [1, 1]
-        ]
+        for dataset, data in self.data.items():
+            with self.subTest(dataset=dataset):
+                self.assertAllClose(
+                    abs2rel_cov(data["cov"], data["data"]),
+                    data["cov_rel"]
+                )
 
 
 if __name__ == "__main__":

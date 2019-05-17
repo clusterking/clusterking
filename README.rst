@@ -93,9 +93,12 @@ For the latest development version type:
 Usage and Documentation
 -----------------------
 
-Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory (|binder2|_).
+Good starting point: **Jupyter notebooks** in the ``examples/jupyter_notebook`` directory.
+You can also try running them online right now (without any installation required) using
+|binder2|_ (just note that this is somewhat unstable, slow and takes some time
+to start up).
 
-.. |binder2| replace:: **run online using binder**
+.. |binder2| replace:: binder
 .. _binder2: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
 
 .. _run online using binder: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
@@ -104,6 +107,10 @@ For a documentation of the classes and functions in this package, **read the doc
 
 .. |readthedocs.io| replace:: **readthedocs.io**
 .. _readthedocs.io: https://clusterking.readthedocs.io/
+
+For additional examples, presentations and more, you can also head to our `other repositories`_.
+
+.. _other repositories: https://github.com/clusterking
 
 Example
 -------

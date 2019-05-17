@@ -97,7 +97,7 @@ class Scanner(object):
         })
 
         # Initialize a Data class to write to:
-        d = ck.data.Data(0
+        d = ck.data.Data()
 
         # Run it
         s.run(d)

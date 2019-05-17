@@ -2,7 +2,7 @@
    pypi and others otherwise
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/logo/logo.png
-    :align: right
+   :align: right
 
 Clustering of Kinematic Graphs
 ==============================
@@ -11,17 +11,18 @@ Clustering of Kinematic Graphs
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
+   :alt: CI
 
 .. |Coveralls| image:: https://coveralls.io/repos/github/clusterking/clusterking/badge.svg?branch=master
    :target: https://coveralls.io/github/clusterking/clusterking?branch=master
 
 .. |Doc Status| image:: https://readthedocs.org/projects/clusterking/badge/?version=latest
    :target: https://clusterking.readthedocs.io/
-   :alt: Documentation Status
+   :alt: Documentation
 
 .. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
-    :target: https://badge.fury.io/py/clusterking
-    :alt: Pypi status
+   :target: https://badge.fury.io/py/clusterking
+   :alt: Pypi
 
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
@@ -40,17 +41,34 @@ Clustering of Kinematic Graphs
 Description
 -----------
 
-This package provides a flexible yet easy to use framework to cluster sets of histograms (or other higher dimensional data) and to select benchmark points representing each cluster. The package particularly focuses on use cases in high energy physics.
+This package provides a flexible yet easy to use framework to cluster sets of
+histograms (or other higher dimensional data) and to select benchmark points
+representing each cluster. The package particularly focuses on use cases in
+high energy physics.
 
 Physics Case
 ------------
 
-While most of this package is very general and can be applied to a broad variety of use cases, we have been focusing on applications in high energy physics (particle physics) so far and provide additional convenience methods for this use case. In particular, most of the current tutorials are in this context.
+While most of this package is very general and can be applied to a broad variety
+of use cases, we have been focusing on applications in high energy physics
+(particle physics) so far and provide additional convenience methods for this
+use case. In particular, most of the current tutorials are in this context.
 
-Though very successful, the Standard Model of Particle Physics is believed to be uncomplete, prompting the search for New Physics (NP).
-The phenomenology of NP models typically depends on a number of free parameters, sometimes strongly influencing the shape of distributions of kinematic variables. Besides being an obvious challenge when presenting exclusion limits on such models, this also is an issue for experimental analyses that need to make assumptions on kinematic distributions in order to extract features of interest, but still want to publish their results in a very general way.
+Though very successful, the Standard Model of Particle Physics is believed to
+be uncomplete, prompting the search for New Physics (NP). The phenomenology
+of NP models typically depends on a number of free parameters, sometimes
+strongly influencing the shape of distributions of kinematic variables.
+Besides being an obvious challenge when presenting exclusion limits on such
+models, this also is an issue for experimental analyses that need to make
+assumptions on kinematic distributions in order to extract features of
+interest, but still want to publish their results in a very general way.
 
-By clustering the NP parameter space based on a metric that quantifies the similarity of the resulting kinematic distributions, a small number of NP benchmark points can be chosen in such a way that they can together represent the whole parameter space. Experiments (and theorists) can then report exclusion limits and measurements for these benchmark points without sacrificing generality.  
+By clustering the NP parameter space based on a metric that quantifies the
+similarity of the resulting kinematic distributions, a small number of NP
+benchmark points can be chosen in such a way that they can together represent
+the whole parameter space. Experiments (and theorists) can then report
+exclusion limits and measurements for these benchmark points without
+sacrificing generality.
 
 Installation
 ------------
@@ -93,7 +111,9 @@ Example
 Sample and cluster
 ~~~~~~~~~~~~~~~~~~
 
-Being a condensed version of the basic tutorial, the following code is all that is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu`` in the space of Wilson coefficients:
+Being a condensed version of the basic tutorial, the following code is all that
+is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu``
+in the space of Wilson coefficients:
 
 .. code:: python
 
@@ -190,7 +210,10 @@ Similarly with box plots:
 License & Contributing
 ----------------------
 
-This project is ongoing work and questions_, comments, `bug reports`_ or `pull requests`_ are most welcome. You can also use the chat room on gitter_ or contact us via email_.  We are also working on a paper, so please make sure to cite us once we publish.
+This project is ongoing work and questions_, comments,
+`bug reports`_ or `pull requests`_are most welcome. You can also use the chat
+room on gitter_ or contact us via email_.
+We are also working on a paper, so please make sure to cite us once we publish.
 
 .. _email: mailto:clusterkinematics@gmail.com
 .. _gitter: https://gitter.im/clusterking/community

@@ -21,7 +21,7 @@ Clustering of Kinematic Graphs
    :alt: Documentation
 
 .. |Pypi Status| image:: https://badge.fury.io/py/clusterking.svg
-   :target: https://badge.fury.io/py/clusterking
+   :target: https://pypi.org/project/clusterking/
    :alt: Pypi
 
 .. |Binder| image:: https://mybinder.org/badge_logo.svg

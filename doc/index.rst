@@ -16,6 +16,7 @@ The package particularly focuses on use cases in high energy physics.
   :caption: First steps
 
   readme
+  development
 
 .. toctree::
   :maxdepth: 2

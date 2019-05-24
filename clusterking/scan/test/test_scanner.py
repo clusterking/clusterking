@@ -26,6 +26,10 @@ def func_zero_bins(coeffs, x):
     return coeffs
 
 
+def func_sum_indentity_x(coeffs, x):
+    return sum(coeffs) * x
+
+
 class TestScanner(MyTestCase):
     def setUp(self):
         # We also want to test writing, to check that there are e.g. no
@@ -98,6 +102,28 @@ class TestScanner(MyTestCase):
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0", "bin1"])
         self.assertAllClose(
             d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
+        )
+        d.write(Path(self.tmpdir.name) / "test.sql")
+
+    def test_run_simple_bins_sample(self):
+        s = Scanner()
+        d = Data()
+        s.set_spoints_equidist({"a": (0, 2, 3)})
+        s.set_dfunction(func_sum_indentity_x, sampling=[0, 1, 2])
+        s.run(d)
+        self.assertEqual(
+            sorted(list(d.df.columns)), ["a", "bin0", "bin1", "bin2"]
+        )
+        print(d.df.values)
+        self.assertAllClose(
+            d.df.values,
+            np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0],
+                    [1.0, 0.0, 1.0, 2.0],
+                    [2.0, 0.0, 2.0, 4.0],
+                ]
+            ),
         )
         d.write(Path(self.tmpdir.name) / "test.sql")
 

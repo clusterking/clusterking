@@ -66,6 +66,10 @@ class Data(DFMD):
         """
         return len(self.par_cols)
 
+    # @property
+    # def _dist_xrange(self):
+    #     binning = self.md["scan"]["dfunc"]
+
     # **************************************************************************
     # Returning things
     # **************************************************************************

@@ -34,8 +34,15 @@ class SpointCalculator(object):
 
     def __init__(self):
         # All of these have to be set!
+        #: Function to run
         self.func = None
+        #: When function should be binned, this should be an array
+        #: of the bin edge points, if the function should be sampled, an array
+        #: of the sample points.
         self.binning = None
+        #: 'sample', 'integrate'
+        self.binning_mode = "integrate"
+        #: Normalize distribution if binning is specified
         self.normalize = False
         self.kwargs = {}
 
@@ -53,13 +60,22 @@ class SpointCalculator(object):
         Returns:
             np.array of the integration results
         """
+
         spoint = self._prepare_spoint(spoint)
         if self.binning is not None:
-            return clusterking.maths.binning.bin_function(
-                functools.partial(self.func, spoint, **self.kwargs),
-                self.binning,
-                normalize=self.normalize,
-            )
+            if self.binning_mode == "integrate":
+                return clusterking.maths.binning.bin_function(
+                    functools.partial(self.func, spoint, **self.kwargs),
+                    self.binning,
+                    normalize=self.normalize,
+                )
+            elif self.binning_mode == "sample":
+                func = functools.partial(self.func, spoint, **self.kwargs)
+                res = np.array(list(map(func, self.binning)))
+                if self.normalize:
+                    res /= sum(res)
+                print("results", res)
+                return res
         else:
             return self.func(spoint, **self.kwargs)
 
@@ -154,7 +170,12 @@ class Scanner(object):
 
     # todo: implement sampling as well, not just binning
     def set_dfunction(
-        self, func: Callable, binning: Sized = None, normalize=False, **kwargs
+        self,
+        func: Callable,
+        binning: Sized = None,
+        sampling: Sized = None,
+        normalize=False,
+        **kwargs
     ):
         """ Set the function that generates the distributions that are later
         clustered (e.g. a differential cross section).
@@ -167,8 +188,11 @@ class Scanner(object):
                 If the ``binning`` or ``sampling`` options are specified, only
                 ``float``s as return value are allowed.
             binning: If this parameter is set to an array-like object, we will
-                integrate the function over the bins specified by this
-                parameter.
+                integrate the function over the specified bins for every point
+                in parameter space.
+            sampling: If this parameter is set to an array-like object, we will
+                apply the function to these points for every point in parameter
+                space.
             normalize: If a binning is specified, normalize the resulting
                 distribution.
             **kwargs: All other keyword arguments are passed to the function.
@@ -181,6 +205,8 @@ class Scanner(object):
                 "The setting normalize=True only makes sense if a binning or "
                 "sampling is specified."
             )
+        if binning is not None and sampling is not None:
+            raise ValueError("Please specify EITHER sampling OR binning.")
 
         # The block below just wants to put some information about the function
         # in the metadata. Can be ignored if you're only interested in what's
@@ -200,13 +226,25 @@ class Scanner(object):
                 pass
 
         md["kwargs"] = failsafe_serialize(kwargs)
-        if binning is not None:
-            md["nbins"] = len(binning) - 1
+
+        md["binning"] = binning
 
         # This is the important thing: We set all required attributes of the
         # spoint calculator!
         self._spoint_calculator.func = func
-        self._spoint_calculator.binning = binning
+        if binning:
+            self._spoint_calculator.binning = binning
+            self._spoint_calculator.binning_mode = "integrate"
+            md["binning"] = binning
+            md["binning_mode"] = "integrate"
+            md["nbins"] = len(binning) - 1
+        elif sampling:
+            self._spoint_calculator.binning = sampling
+            md["binning"] = sampling
+            self._spoint_calculator.binning_mode = "sample"
+            md["binning_mode"] = "sample"
+            md["nbins"] = len(sampling)
+
         self._spoint_calculator.normalize = normalize
         self._spoint_calculator.kwargs = kwargs
 

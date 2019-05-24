@@ -7,7 +7,7 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License|
+|Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black|
 
 .. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
    :target: https://travis-ci.org/clusterking/clusterking
@@ -35,6 +35,10 @@ Clustering of Kinematic Graphs
 .. |License| image:: https://img.shields.io/github/license/clusterking/clusterking.svg
    :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
    :alt: License
+
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/python/black
+   :alt: Black
 
 .. start-body
 

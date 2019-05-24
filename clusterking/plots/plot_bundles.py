@@ -87,6 +87,17 @@ class BundlePlot(object):
         """ Instance of matplotlib.pyplot.figure """
         return self.ax.get_figure()
 
+    @property
+    def xrange(self):
+        """ Range of the xaxis """
+        return self.data._dist_xrange
+
+    @property
+    def _bins(self):
+        if self.data.md["scan"]["dfunction"]["binning_mode"] == "integrate":
+            return self.data.md["scan"]["dfunction"]["binning"]
+        return np.array(range(0, self.data.nbins + 1))
+
     # **************************************************************************
     # Internal helpers
     # **************************************************************************
@@ -269,11 +280,12 @@ class BundlePlot(object):
         if nlines == 1 and not benchmark:
             # Do not use faded out color if we just plot one line
             colors = [color]
+
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
-            plot_histogram(self.ax, None, data, color=colors[i], linestyle="-")
+            plot_histogram(self.ax, self._bins, data, color=colors[i], linestyle="-")
         if self._has_bpoints and benchmark:
-            plot_histogram(self.ax, None, df_cluster_bp.values, color=color)
+            plot_histogram(self.ax, self._bins, df_cluster_bp.values, color=color)
 
     def plot_bundles(
         self,
@@ -396,7 +408,7 @@ class BundlePlot(object):
         else:
             color = self.color_scheme.get_cluster_color(0)
         for i in range(len(maxima)):
-            x = bin_numbers[i : i + 2]
+            x = self._bins[i : i+2 ]
             y1 = [minima[i], minima[i]]
             y2 = [maxima[i], maxima[i]]
             self.ax.fill_between(
@@ -476,12 +488,13 @@ class BundlePlot(object):
         else:
             color = self.color_scheme.get_cluster_color(0)
 
-        # print(len(data.T))
+        bins = self._bins
+        positions = 1/2 * (np.array(bins[1:]) + np.array(bins[:-1]))
 
         self.ax.boxplot(
             data,
             notch=False,
-            positions=np.array(range(len(data.T))) + 0.5,
+            positions=positions, #np.array(range(len(data.T))) + 0.5,
             vert=True,
             patch_artist=True,
             boxprops=dict(facecolor=color, color=color, alpha=0.3),

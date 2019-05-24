@@ -232,15 +232,15 @@ class Scanner(object):
         # This is the important thing: We set all required attributes of the
         # spoint calculator!
         self._spoint_calculator.func = func
-        if binning:
+        if binning is not None:
             self._spoint_calculator.binning = binning
             self._spoint_calculator.binning_mode = "integrate"
-            md["binning"] = binning
+            md["binning"] = list(binning)
             md["binning_mode"] = "integrate"
             md["nbins"] = len(binning) - 1
-        elif sampling:
+        elif sampling is not None:
             self._spoint_calculator.binning = sampling
-            md["binning"] = sampling
+            md["binning"] = list(sampling)
             self._spoint_calculator.binning_mode = "sample"
             md["binning_mode"] = "sample"
             md["nbins"] = len(sampling)

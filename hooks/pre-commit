@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # https://stackoverflow.com/questions/3417896/
 exec < /dev/tty
 

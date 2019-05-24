@@ -11,6 +11,7 @@ class WpointCalculator(SpointCalculator):
     """ A class that holds the function with which we calculate each
     point in wilson space.
     """
+
     def __init__(self):
         super().__init__()
         # All of these have to be set to work!
@@ -27,7 +28,7 @@ class WpointCalculator(SpointCalculator):
             },
             scale=self.scale,
             eft=self.eft,
-            basis=self.basis
+            basis=self.basis,
         )
 
 
@@ -70,6 +71,7 @@ class WilsonScanner(Scanner):
         s.run(d)
 
     """
+
     def __init__(self, scale, eft, basis):
         """ Initializes the :class:`clusterking.scan.WilsonScanner` class.
 

@@ -22,6 +22,7 @@ class Data(DFMD):
     * The cluster numbers after clustering
     * The benchmark points after they are selected.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -123,8 +124,7 @@ class Data(DFMD):
         """
         if param is None:
             return {
-                param: self.get_param_values(param)
-                for param in self.par_cols
+                param: self.get_param_values(param) for param in self.par_cols
             }
         return self.df[param].unique()
 
@@ -153,19 +153,18 @@ class Data(DFMD):
     def _bpoint_slices(self, bpoint_column="bpoint"):
         """ See docstring of only_bpoint_slices. """
         bpoint_df = self.only_bpoints(bpoint_column=bpoint_column)
-        return {
-            param: bpoint_df.df[param].unique()
-            for param in self.par_cols
-        }
+        return {param: bpoint_df.df[param].unique() for param in self.par_cols}
 
     # todo: test me
     # todo: order dict to avoid changing results
-    def fix_param(self,
-                  inplace=False,
-                  bpoints=False,
-                  bpoint_slices=False,
-                  bpoint_column="bpoint",
-                  **kwargs):
+    def fix_param(
+        self,
+        inplace=False,
+        bpoints=False,
+        bpoint_slices=False,
+        bpoint_column="bpoint",
+        **kwargs
+    ):
         """ Fix some parameter values to get a subset of sample points.
 
         Args:
@@ -263,8 +262,9 @@ class Data(DFMD):
                 available_values = self.df[param].values
                 idx = (np.abs(available_values - value)).argmin()
                 nearest_value = available_values[idx]
-                param_selector |= \
-                    np.isclose(self.df[param].values, nearest_value)
+                param_selector |= np.isclose(
+                    self.df[param].values, nearest_value
+                )
             selector &= param_selector
         if bpoints:
             selector |= self.df[bpoint_column].astype(bool)
@@ -273,12 +273,14 @@ class Data(DFMD):
         self.df = self.df[selector]
 
     # todo: test
-    def sample_param(self,
-                     bpoints=False,
-                     bpoint_slices=False,
-                     bpoint_column="bpoint",
-                     inplace=False,
-                     **kwargs):
+    def sample_param(
+        self,
+        bpoints=False,
+        bpoint_slices=False,
+        bpoint_column="bpoint",
+        inplace=False,
+        **kwargs
+    ):
         """ Return a Data object that contains a subset of the sample points
         (points in parameter space). Similar to Data.fix_param.
 
@@ -401,8 +403,8 @@ class Data(DFMD):
                 funct=arg, column=column, new_column=new_column
             )
         else:
-            raise ValueError("Unsupported type ({}) for argument.".format(
-                type(arg))
+            raise ValueError(
+                "Unsupported type ({}) for argument.".format(type(arg))
             )
 
     def _rename_clusters_dict(self, old2new, column="cluster", new_column=None):
@@ -422,9 +424,7 @@ class Data(DFMD):
             if cluster not in old2new:
                 old2new[cluster] = cluster
         self._rename_clusters_func(
-            lambda name: old2new[name],
-            column,
-            new_column
+            lambda name: old2new[name], column, new_column
         )
 
     def _rename_clusters_func(self, funct, column="cluster", new_column=None):
@@ -448,8 +448,9 @@ class Data(DFMD):
         """
         if not new_column:
             new_column = column
-        self.df[new_column] = \
-            [funct(cluster) for cluster in self.df[column].values]
+        self.df[new_column] = [
+            funct(cluster) for cluster in self.df[column].values
+        ]
 
     def _rename_clusters_auto(self, column="cluster", new_column=None):
         """Try to name get_clusters in a way that doesn't depend on the
@@ -478,14 +479,16 @@ class Data(DFMD):
     # todo: ideally, we could just copy the docstrings from plot_bundles etc,
     #  but that doesn't work here, because some of the arguments are attributes
     #  currently
-    def plot_dist(self,
-                  cluster_column="cluster",
-                  bpoint_column="bpoint",
-                  title=None,
-                  clusters=None,
-                  nlines=None,
-                  bpoints=True,
-                  legend=True):
+    def plot_dist(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        title=None,
+        clusters=None,
+        nlines=None,
+        bpoints=True,
+        legend=True,
+    ):
         """Plot several examples of distributions for each cluster specified.
 
         Args:
@@ -512,20 +515,18 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.plot_bundles(
-            clusters=clusters,
-            nlines=nlines,
-            bpoints=bpoints
-        )
+        bp.plot_bundles(clusters=clusters, nlines=nlines, bpoints=bpoints)
         return bp.fig
 
-    def plot_dist_minmax(self,
-                         cluster_column="cluster",
-                         bpoint_column="bpoint",
-                         title=None,
-                         clusters=None,
-                         bpoints=True,
-                         legend=True):
+    def plot_dist_minmax(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        title=None,
+        clusters=None,
+        bpoints=True,
+        legend=True,
+    ):
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
 
@@ -551,20 +552,19 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.plot_minmax(
-            clusters=clusters,
-            bpoints=bpoints
-        )
+        bp.plot_minmax(clusters=clusters, bpoints=bpoints)
         return bp.fig
 
-    def plot_dist_box(self,
-                      cluster_column="cluster",
-                      bpoint_column="bpoint",
-                      title=None,
-                      clusters=None,
-                      bpoints=True,
-                      whiskers=2.5,
-                      legend=True):
+    def plot_dist_box(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        title=None,
+        clusters=None,
+        bpoints=True,
+        whiskers=2.5,
+        legend=True,
+    ):
         """
         Box plot of the bin contents of the distributions corresponding
         to selected clusters.
@@ -595,25 +595,22 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.box_plot(
-            clusters=clusters,
-            bpoints=bpoints,
-            whiskers=whiskers
-        )
+        bp.box_plot(clusters=clusters, bpoints=bpoints, whiskers=whiskers)
         return bp.fig
 
-    def plot_clusters_scatter(self,
-                              params,
-                              clusters=None,
-                              cluster_column="cluster",
-                              bpoint_column="bpoint",
-                              legend=True,
-                              max_subplots=16,
-                              max_cols=4,
-                              markers=("o", "v", "^", "v", "<", ">"),
-                              figsize=4,
-                              aspect_ratio=None,
-                              ):
+    def plot_clusters_scatter(
+        self,
+        params,
+        clusters=None,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        legend=True,
+        max_subplots=16,
+        max_cols=4,
+        markers=("o", "v", "^", "v", "<", ">"),
+        figsize=4,
+        aspect_ratio=None,
+    ):
         """
         Create scatter plot, specifying the columns to be on the axes of the
         plot. If 3 column are specified, 3D scatter plots
@@ -651,15 +648,17 @@ class Data(DFMD):
         cp.scatter(params, clusters=clusters)
         return cp.fig
 
-    def plot_clusters_fill(self,
-                           params,
-                           cluster_column="cluster",
-                           bpoint_column="bpoint",
-                           legend=True,
-                           max_subplots=16,
-                           max_cols=4,
-                           figsize=4,
-                           aspect_ratio=None):
+    def plot_clusters_fill(
+        self,
+        params,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        legend=True,
+        max_subplots=16,
+        max_cols=4,
+        figsize=4,
+        aspect_ratio=None,
+    ):
         """
         Call this method with two column names, x and y. The results are
         similar to those of 2D scatter plots as created by the scatter

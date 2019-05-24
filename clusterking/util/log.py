@@ -45,18 +45,21 @@ def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
         _logger.setLevel(int(os.environ.get(CLUSTERKING_LOGLEVEL_ENV)))
     if colorlog is not None:
         sh = colorlog.StreamHandler()
-        log_colors = {'DEBUG':    'cyan',
-                      'INFO':     'green',
-                      'WARNING':  'yellow',
-                      'ERROR':    'red',
-                      'CRITICAL': 'red'}
+        log_colors = {
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red",
+        }
         formatter = colorlog.ColoredFormatter(
-            '%(log_color)s%(name)s:%(levelname)s:%(message)s',
-            log_colors=log_colors)
+            "%(log_color)s%(name)s:%(levelname)s:%(message)s",
+            log_colors=log_colors,
+        )
     else:
         # no colorlog available:
         sh = logging.StreamHandler()
-        formatter = logging.Formatter('%(name)s:%(levelname)s:%(message)s')
+        formatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
     sh.setFormatter(formatter)
     sh.setLevel(sh_level)
     _logger.addHandler(sh)
@@ -70,9 +73,7 @@ def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
 def set_global_log_level(level=logging.INFO):
     names = list(logging.root.manager.loggerDict.keys())
     names.append("DFMD")
-    loggers = [
-        logging.getLogger(name) for name in names
-    ]
+    loggers = [logging.getLogger(name) for name in names]
     for logger in loggers:
         logger.setLevel(level)
     os.environ[CLUSTERKING_LOGLEVEL_ENV] = str(logging.WARNING)

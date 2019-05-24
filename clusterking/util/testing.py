@@ -42,7 +42,8 @@ def is_testing_mode():
     else:
         raise ValueError(
             "Environment variable {} set to invalid value {}.".format(
-            ENV_VAR_TESTING_MODE, testing_mode)
+                ENV_VAR_TESTING_MODE, testing_mode
+            )
         )
 
 
@@ -54,11 +55,11 @@ def test_jupyter_notebook(path) -> None:
     if not path.exists():
         raise ValueError("Notebook '{}' wasn't even found!".format(path))
     run_path_str = str(path.parent.resolve())
-    ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+    ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
     try:
         with path.open() as f:
             nb = nbformat.read(f, as_version=4)
-            ep.preprocess(nb, {'metadata': {'path': run_path_str}})
+            ep.preprocess(nb, {"metadata": {"path": run_path_str}})
     except Exception as e:
         set_testing_mode(False)
         raise e
@@ -66,6 +67,7 @@ def test_jupyter_notebook(path) -> None:
 
 class MyTestCase(unittest.TestCase):
     """ Implements an additional general testing methods. """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         set_testing_mode(True)
@@ -77,8 +79,6 @@ class MyTestCase(unittest.TestCase):
             a = np.array(a)
         if not isinstance(b, np.ndarray):
             b = np.array(b)
-        almost_same = (np.allclose(
-            a, b
-        ))
+        almost_same = np.allclose(a, b)
         if not almost_same:
             self.assertTrue(False, "Not the same: {} and {}.".format(a, b))

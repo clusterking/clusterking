@@ -37,8 +37,9 @@ class HierarchyCluster(Cluster):
 
     set_metric.__doc__ = metric_selection.__doc__
 
-    def build_hierarchy(self, method="complete", optimal_ordering=False) \
-            -> None:
+    def build_hierarchy(
+        self, method="complete", optimal_ordering=False
+    ) -> None:
         """ Build the hierarchy object.
 
         Args:
@@ -47,9 +48,11 @@ class HierarchyCluster(Cluster):
 
         """
         if self.metric is None:
-            msg = "Metric not set. please run self.set_metric or set " \
-                  " self.metric manually before running this method. " \
-                  "Returning without doing anything."
+            msg = (
+                "Metric not set. please run self.set_metric or set "
+                " self.metric manually before running this method. "
+                "Returning without doing anything."
+            )
             self.log.critical(msg)
             raise ValueError(msg)
 
@@ -62,7 +65,7 @@ class HierarchyCluster(Cluster):
         self.hierarchy = scipy.cluster.hierarchy.linkage(
             self.metric(self.data),
             method=method,
-            optimal_ordering=optimal_ordering
+            optimal_ordering=optimal_ordering,
         )
 
         self.log.debug("Done")
@@ -78,32 +81,30 @@ class HierarchyCluster(Cluster):
         """
 
         if self.hierarchy is None:
-            msg = "Please run build_hierarchy first to set self.hierarchy or" \
-                  "manually set HieararchyCluster.hierachy."
+            msg = (
+                "Please run build_hierarchy first to set self.hierarchy or"
+                "manually set HieararchyCluster.hierachy."
+            )
             self.log.critical(msg)
             raise ValueError(msg)
 
         # set up defaults for clustering here
         # (this way we can overwrite them with additional arguments)
-        fcluster_config = {
-            "criterion": "distance"
-        }
+        fcluster_config = {"criterion": "distance"}
         fcluster_config.update(kwargs)
         # noinspection PyTypeChecker
         clusters = scipy.cluster.hierarchy.fcluster(
-            self.hierarchy,
-            max_d,
-            **fcluster_config
+            self.hierarchy, max_d, **fcluster_config
         )
 
         return clusters
 
     def dendrogram(
-            self,
-            output: Optional[Union[None, str, pathlib.Path]] = None,
-            ax=None,
-            show=False,
-            **kwargs
+        self,
+        output: Optional[Union[None, str, pathlib.Path]] = None,
+        ax=None,
+        show=False,
+        **kwargs
     ) -> Union[plt.Axes, None]:
         """Creates dendrogram
 
@@ -120,8 +121,9 @@ class HierarchyCluster(Cluster):
         """
         self.log.debug("Plotting dendrogram.")
         if self.hierarchy is None:
-            self.log.error("Hierarchy not yet set up. Returning without "
-                           "doing anything.")
+            self.log.error(
+                "Hierarchy not yet set up. Returning without " "doing anything."
+            )
             return
 
         # do we add to a plot or generate a whole new figure?
@@ -131,24 +133,20 @@ class HierarchyCluster(Cluster):
             fig, ax = plt.subplots()
 
         labelsize = 20
-        ax.set_title('Hierarchical Clustering Dendrogram', fontsize=labelsize)
-        ax.set_xlabel('ID', fontsize=labelsize)
-        ax.set_ylabel('Distance', fontsize=labelsize)
+        ax.set_title("Hierarchical Clustering Dendrogram", fontsize=labelsize)
+        ax.set_xlabel("ID", fontsize=labelsize)
+        ax.set_ylabel("Distance", fontsize=labelsize)
 
         # set defaults for dendrogram plotting options here
         # (this way we can overwrite them with additional arguments)
         den_config = {
             "color_threshold": "default",
-            "leaf_rotation": 90.,  # rotates the x axis labels
-            "leaf_font_size": 8,   # font size for the x axis labels
+            "leaf_rotation": 90.0,  # rotates the x axis labels
+            "leaf_font_size": 8,  # font size for the x axis labels
         }
         den_config.update(kwargs)
 
-        scipy.cluster.hierarchy.dendrogram(
-            self.hierarchy,
-            ax=ax,
-            **den_config
-        )
+        scipy.cluster.hierarchy.dendrogram(self.hierarchy, ax=ax, **den_config)
 
         if show:
             fig.show()

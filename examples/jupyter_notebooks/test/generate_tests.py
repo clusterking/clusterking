@@ -35,7 +35,8 @@ class TestGenerator(object):
         self.this_dir = pathlib.Path(__file__).resolve().parent
         self.jupyter_dir = self.this_dir / ".."
         self.notebooks = [
-            candidate for candidate in self.jupyter_dir.iterdir()
+            candidate
+            for candidate in self.jupyter_dir.iterdir()
             if candidate.suffix == ".ipynb"
         ]
         self.generated_test_dir = self.this_dir / "test_auto_generated_tests"
@@ -48,8 +49,9 @@ class TestGenerator(object):
             name = "test_" + name
         return name
 
-    def notebook_path_to_test_path(self, notebook_path: pathlib.Path) \
-            -> pathlib.Path:
+    def notebook_path_to_test_path(
+        self, notebook_path: pathlib.Path
+    ) -> pathlib.Path:
         name = self.notebook_path_to_test_name(notebook_path)
         name += ".py"
         return self.generated_test_dir / name
@@ -60,8 +62,7 @@ class TestGenerator(object):
         with p.open("w") as outfile:
             outfile.write(
                 file_stub.format(
-                    function_name=name,
-                    notebook_path=notebook_path.resolve()
+                    function_name=name, notebook_path=notebook_path.resolve()
                 )
             )
 

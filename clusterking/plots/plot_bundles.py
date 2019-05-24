@@ -46,6 +46,7 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 class BundlePlot(object):
     """ Plotting class to plot distributions by cluster in order to analyse
     which distributions get assigned to which cluster. """
+
     def __init__(self, data):
         """
 
@@ -140,14 +141,17 @@ class BundlePlot(object):
             else:
                 raise ValueError(
                     "No cluster information available, but individual clusters"
-                    " were requested.")
+                    " were requested."
+                )
         if isinstance(clusters, int):
             clusters = [clusters]
         if not clusters:
             clusters = self._clusters
         return self._filter_clusters(clusters)
 
-    def _get_df_cluster(self, cluster: Union[None, int], bpoint=None) -> pd.DataFrame:
+    def _get_df_cluster(
+        self, cluster: Union[None, int], bpoint=None
+    ) -> pd.DataFrame:
         """ Return only the rows corresponding to one cluster in the
         dataframe and only the columns that correspond to the bins.
 
@@ -171,16 +175,12 @@ class BundlePlot(object):
             return df[bc]
         elif bpoint is False:
             if self._has_bpoints:
-                return df[
-                    df[self.bpoint_column] == False
-                ][bc]
+                return df[df[self.bpoint_column] == False][bc]
             else:
                 return df[bc]
         elif bpoint is True:
             if self._has_bpoints:
-                return df[
-                    df[self.bpoint_column] == True
-                ][bc]
+                return df[df[self.bpoint_column] == True][bc]
             else:
                 return pd.DataFrame()
         else:
@@ -223,24 +223,20 @@ class BundlePlot(object):
             # pycharm can't seem to find patches:
             # noinspection PyUnresolvedReferences
             p = matplotlib.patches.Patch(
-                facecolor=color,
-                edgecolor=color,
-                label=cluster,
+                facecolor=color, edgecolor=color, label=cluster
             )
             legend_elements.append(p)
         self.ax.legend(
-            handles=legend_elements,
-            loc='best',
-            title="Clusters",
-            frameon=False
+            handles=legend_elements, loc="best", title="Clusters", frameon=False
         )
 
     # --------------------------------------------------------------------------
     # Benchmark points + more lines
     # --------------------------------------------------------------------------
 
-    def _plot_bundles(self, cluster: Union[None, int], nlines=0,
-                      benchmark=True) -> None:
+    def _plot_bundles(
+        self, cluster: Union[None, int], nlines=0, benchmark=True
+    ) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
 
@@ -275,27 +271,16 @@ class BundlePlot(object):
             colors = [color]
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
-            plot_histogram(
-                self.ax,
-                None,
-                data,
-                color=colors[i],
-                linestyle="-"
-            )
+            plot_histogram(self.ax, None, data, color=colors[i], linestyle="-")
         if self._has_bpoints and benchmark:
-            plot_histogram(
-                self.ax,
-                None,
-                df_cluster_bp.values,
-                color=color,
-            )
+            plot_histogram(self.ax, None, df_cluster_bp.values, color=color)
 
     def plot_bundles(
-            self,
-            clusters: Optional[Union[None, int, Iterable[int]]] = None,
-            nlines=None,
-            ax=None,
-            bpoints=True
+        self,
+        clusters: Optional[Union[None, int, Iterable[int]]] = None,
+        nlines=None,
+        ax=None,
+        bpoints=True,
     ) -> None:
         """ Plot several examples of distributions for each cluster specified
 
@@ -329,9 +314,11 @@ class BundlePlot(object):
                 _title.append("+")
             _title.append("{} sample point(s) ".format(nlines))
         if clusters:
-            _title.append("for cluster(s) {}".format(
-                ", ".join(map(str, sorted(clusters)))
-            ))
+            _title.append(
+                "for cluster(s) {}".format(
+                    ", ".join(map(str, sorted(clusters)))
+                )
+            )
         self._set_ax(ax, " ".join(_title))
 
         # pycharm might be confused about the type of `clusters`:
@@ -362,21 +349,19 @@ class BundlePlot(object):
             contents = np.append(contents, contents[-1])
             edges = np.arange(len(contents))
 
-            ims.append(plt.step(
-                edges,
-                contents,
-                where="post",
-                color=color,
-                linestyle=linestyle
-            ))
+            ims.append(
+                plt.step(
+                    edges,
+                    contents,
+                    where="post",
+                    color=color,
+                    linestyle=linestyle,
+                )
+            )
 
         # self._set_ax(None, "Animated sample points")
         anim = animation.ArtistAnimation(
-            fig,
-            ims,
-            interval=500,
-            repeat_delay=3000,
-            blit=True
+            fig, ims, interval=500, repeat_delay=3000, blit=True
         )
         # In order to display this in the notebook, use
         # from IPython.display import HTML
@@ -411,7 +396,7 @@ class BundlePlot(object):
         else:
             color = self.color_scheme.get_cluster_color(0)
         for i in range(len(maxima)):
-            x = bin_numbers[i:i+2]
+            x = bin_numbers[i : i + 2]
             y1 = [minima[i], minima[i]]
             y2 = [maxima[i], maxima[i]]
             self.ax.fill_between(
@@ -422,13 +407,17 @@ class BundlePlot(object):
                 interpolate=False,
                 alpha=0.3,
                 hatch="////",
-                color=color
+                color=color,
             )
         if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
-    def plot_minmax(self, clusters: Optional[Union[int, Iterable[int]]] = None,
-                    ax=None, bpoints=True) -> None:
+    def plot_minmax(
+        self,
+        clusters: Optional[Union[int, Iterable[int]]] = None,
+        ax=None,
+        bpoints=True,
+    ) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
 
@@ -446,8 +435,10 @@ class BundlePlot(object):
 
         _title = ["Minima and maxima of the bin contents"]
         if self._has_clusters:
-            _title.append("for cluster(s) {}".format(
-                ', '.join(map(str, sorted(clusters))))
+            _title.append(
+                "for cluster(s) {}".format(
+                    ", ".join(map(str, sorted(clusters)))
+                )
             )
         self._set_ax(ax, " ".join(_title))
 
@@ -498,13 +489,18 @@ class BundlePlot(object):
             whiskerprops=dict(color=color),
             flierprops=dict(color=color, markeredgecolor=color),
             medianprops=dict(color=color),
-            whis=whiskers  # extend the range of the whiskers
+            whis=whiskers,  # extend the range of the whiskers
         )
         if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
-    def box_plot(self, clusters: Optional[Union[int, Iterable[int]]] = None,
-                 ax=None, whiskers=2.5, bpoints=True) -> None:
+    def box_plot(
+        self,
+        clusters: Optional[Union[int, Iterable[int]]] = None,
+        ax=None,
+        whiskers=2.5,
+        bpoints=True,
+    ) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
 
@@ -521,9 +517,11 @@ class BundlePlot(object):
         clusters = self._interpret_cluster_input(clusters)
         _title = ["Box plot of the bin contents"]
         if self._has_clusters:
-            _title.append("for cluster(s) {}".format(
-                ", ".join(map(str, sorted(clusters)))
-            ))
+            _title.append(
+                "for cluster(s) {}".format(
+                    ", ".join(map(str, sorted(clusters)))
+                )
+            )
         _title.append("\nWhisker length set to {}*IQR".format(whiskers))
         self._set_ax(ax, " ".join(_title))
         # pycharm might be confused about the type of `clusters`:

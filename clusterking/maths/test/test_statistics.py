@@ -18,71 +18,47 @@ class TestStatistics(MyTestCase):
                 "cov": [[4, 4], [-4, 16]],
                 "cov_rel": [[1, 2], [-2, 16]],
                 "err": [2, 4],
-                "corr": [[1, 1/2], [-1/2, 1]],
+                "corr": [[1, 1 / 2], [-1 / 2, 1]],
                 "data": [2, 1],
             },
             "2D": {
-                "cov": [
-                    [[4, 4], [-4, 16]],
-                    [[4, 0], [0, 25]]
-                ],
-                "cov_rel": [
-                    [[1, 2], [-2, 16]],
-                    [[4, 0], [0, 25]]
-                ],
-                "err": [
-                    [2, 4],
-                    [2, 5]
-                ],
-                "corr": [
-                    [[1, 1/2], [-1/2, 1]],
-                    [[1, 0], [0, 1]]
-                ],
-                "data": [
-                    [2, 1],
-                    [1, 1]
-                ]
-            }
+                "cov": [[[4, 4], [-4, 16]], [[4, 0], [0, 25]]],
+                "cov_rel": [[[1, 2], [-2, 16]], [[4, 0], [0, 25]]],
+                "err": [[2, 4], [2, 5]],
+                "corr": [[[1, 1 / 2], [-1 / 2, 1]], [[1, 0], [0, 1]]],
+                "data": [[2, 1], [1, 1]],
+            },
         }
 
     def test_cov2err(self):
         for dataset, data in self.data.items():
             with self.subTest(dataset=dataset):
-                self.assertAllClose(
-                    cov2err(data["cov"]),
-                    data["err"]
-                )
+                self.assertAllClose(cov2err(data["cov"]), data["err"])
 
     def test_corr2cov(self):
         for dataset, data in self.data.items():
             with self.subTest(dataset=dataset):
                 self.assertAllClose(
-                    corr2cov(data["corr"], data["err"]),
-                    data["cov"]
+                    corr2cov(data["corr"], data["err"]), data["cov"]
                 )
 
     def test_cov2corr(self):
         for dataset, data in self.data.items():
             with self.subTest(dataset=dataset):
-                self.assertAllClose(
-                    cov2corr(data["cov"]),
-                    data["corr"]
-                )
+                self.assertAllClose(cov2corr(data["cov"]), data["corr"])
 
     def test_rel2abs_cov(self):
         for dataset, data in self.data.items():
             with self.subTest(dataset=dataset):
                 self.assertAllClose(
-                    rel2abs_cov(data["cov_rel"], data["data"]),
-                    data["cov"]
+                    rel2abs_cov(data["cov_rel"], data["data"]), data["cov"]
                 )
 
     def test_abs2rel_cov(self):
         for dataset, data in self.data.items():
             with self.subTest(dataset=dataset):
                 self.assertAllClose(
-                    abs2rel_cov(data["cov"], data["data"]),
-                    data["cov_rel"]
+                    abs2rel_cov(data["cov"], data["data"]), data["cov_rel"]
                 )
 
 

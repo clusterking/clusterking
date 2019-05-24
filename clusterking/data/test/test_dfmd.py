@@ -30,22 +30,16 @@ class TestDFMD(MyTestCase):
                 "cluster",
                 "other_cluster",
                 "bpoint",
-                "other_bpoint"
-            ]
+                "other_bpoint",
+            ],
         )
-        self.assertEqual(
-            len(dfmd.df),
-            2
-        )
+        self.assertEqual(len(dfmd.df), 2)
 
     def _compare_dfs(self, dfmd1, dfmd2):
         self.assertListEqual(
             sorted(list(dfmd1.md.keys())), sorted(list(dfmd2.md.keys()))
         )
-        self.assertListEqual(
-            list(dfmd1.df.columns),
-            list(dfmd2.df.columns),
-        )
+        self.assertListEqual(list(dfmd1.df.columns), list(dfmd2.df.columns))
 
     def test_init_dir_name(self):
         dfmd = DFMD(self.data_dir / self.test_fname)

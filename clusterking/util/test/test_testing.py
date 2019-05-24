@@ -9,7 +9,6 @@ import clusterking.util.testing
 
 
 class TestTestingEnvVariable(unittest.TestCase):
-
     def test_true(self):
         clusterking.util.testing.set_testing_mode(True)
         self.assertTrue(clusterking.util.testing.is_testing_mode())
@@ -23,7 +22,6 @@ class TestTestingEnvVariable(unittest.TestCase):
 
 
 class TestTestJupyter(unittest.TestCase):
-
     def setUp(self):
         this_dir = pathlib.Path(__file__).resolve().parent
         self.jupyter_dir = this_dir / "jupyter"

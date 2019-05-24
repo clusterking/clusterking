@@ -22,6 +22,7 @@ class DFMD(object):
     This class bundles a pandas dataframe together with metadata and
     provides methods to save and load such an object.
     """
+
     def __init__(self, path=None, log=None):
         """
         Initialize a DFMD object.
@@ -57,9 +58,7 @@ class DFMD(object):
                 self.log = get_logger("DFMD")
         else:
             raise ValueError(
-                "Unsupported type '{}' for 'log' argument.".format(
-                    type(log)
-                )
+                "Unsupported type '{}' for 'log' argument.".format(type(log))
             )
 
     # **************************************************************************
@@ -79,7 +78,7 @@ class DFMD(object):
         path = Path(path)
         if not path.is_file():
             raise FileNotFoundError("File '{}' doesn't exist.".format(path))
-        engine = sqlalchemy.create_engine('sqlite:///' + str(path.resolve()))
+        engine = sqlalchemy.create_engine("sqlite:///" + str(path.resolve()))
         self.df = pd.read_sql_table("df", engine)
         self.df.set_index("index", inplace=True)
         md_json = pd.read_sql_table("md", engine)["md"][0]
@@ -111,7 +110,7 @@ class DFMD(object):
             self.log.debug("Creating directory '{}'.".format(path.parent))
             path.parent.mkdir(parents=True)
 
-        engine = sqlalchemy.create_engine('sqlite:///' + str(path))
+        engine = sqlalchemy.create_engine("sqlite:///" + str(path))
         self.df.to_sql("df", engine, if_exists="replace")
         # todo: perhaps it's better to use pickle in the future?
         md_json = json.dumps(self.md, sort_keys=True, indent=4)

@@ -4,4 +4,5 @@
 def check_matplot_inline():
     """ Return true, if running matplotlib inline."""
     import matplotlib
-    return 'inline' in matplotlib.get_backend()
+
+    return "inline" in matplotlib.get_backend()

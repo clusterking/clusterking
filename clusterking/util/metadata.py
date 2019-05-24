@@ -48,14 +48,18 @@ def git_info(log=None, path=None) -> Dict[str, str]:
         "branch": "unknown",
         "sha": "unknown",
         "msg": "unknown",
-        "time": "unknown"
+        "time": "unknown",
     }
 
     if git is None:
-        msg_warn = "Module 'git' not found, will not add git version " \
-                   "information to the output files."
-        msg_debug = "Install the 'git' module by running " \
-                    "'sudo pip3 install gitpython' or similar. "
+        msg_warn = (
+            "Module 'git' not found, will not add git version "
+            "information to the output files."
+        )
+        msg_debug = (
+            "Install the 'git' module by running "
+            "'sudo pip3 install gitpython' or similar. "
+        )
         if log:
             log.warning(msg_warn)
             log.debug(msg_debug)
@@ -79,8 +83,9 @@ def git_info(log=None, path=None) -> Dict[str, str]:
     git_config["sha"] = hcommit.hexsha
     git_config["msg"] = hcommit.message.strip("\n")
     commit_time = hcommit.committed_date
-    git_config["time"] = time.strftime("%a %_d %b %Y %H:%M",
-                                       time.gmtime(commit_time))
+    git_config["time"] = time.strftime(
+        "%a %_d %b %Y %H:%M", time.gmtime(commit_time)
+    )
     # todo: also add a nice string representation of git diff?
     return git_config
 
@@ -105,12 +110,7 @@ def save_git_info(output_path=None, *args, **kwargs) -> Dict[str, str]:
         output_path = this_dir / ".." / "git_info.json"
     gi = git_info(*args, **kwargs)
     with output_path.open("w") as output_file:
-        json.dump(
-            gi,
-            output_file,
-            indent=4,
-            sort_keys=True
-        )
+        json.dump(gi, output_file, indent=4, sort_keys=True)
     return gi
 
 

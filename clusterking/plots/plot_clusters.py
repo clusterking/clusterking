@@ -8,6 +8,7 @@ from typing import List
 # 3d party
 import matplotlib.pyplot as plt
 import matplotlib
+
 # noinspection PyUnresolvedReferences
 from mpl_toolkits.mplot3d import Axes3D  # NOTE BELOW (*)
 import numpy as np
@@ -32,6 +33,7 @@ class ClusterPlot(object):
     You can modify the attributes of this class to tweak some properties
     of the plots.
     """
+
     def __init__(self, data):
         """
         Args:
@@ -76,8 +78,9 @@ class ClusterPlot(object):
         self.bpoint_column = "bpoint"
 
         #: Default marker size
-        self.default_marker_size = \
-            1/2 * matplotlib.rcParams['lines.markersize'] ** 2
+        self.default_marker_size = (
+            1 / 2 * matplotlib.rcParams["lines.markersize"] ** 2
+        )
         #: Marker size of benchmark points
         self.bpoint_marker_size = 6 * self.default_marker_size
 
@@ -122,7 +125,7 @@ class ClusterPlot(object):
             aspect_ratio = self.aspect_ratio
         else:
             if len(self._axis_columns) == 1:
-                aspect_ratio = 2/self.fig_base_size
+                aspect_ratio = 2 / self.fig_base_size
             elif len(self._axis_columns) == 2:
                 y_width = self._get_lims(1)[1] - self._get_lims(1)[0]
                 x_width = self._get_lims(0)[1] - self._get_lims(0)[0]
@@ -198,23 +201,23 @@ class ClusterPlot(object):
         # the Wilson coeffs that aren't on the axes
 
         if len(df_dofs) > self.max_subplots:
-            steps_per_dof = int(self.max_subplots **
-                                (1 / len(self._dofs)))
+            steps_per_dof = int(self.max_subplots ** (1 / len(self._dofs)))
             self.log.debug("number of steps per dof", steps_per_dof)
             for col in self._dofs:
                 allowed_values = df_dofs[col].unique()
-                indizes = list(set(
-                    np.linspace(
-                        0,
-                        len(allowed_values)-1,
-                        steps_per_dof,
-                        dtype=int
+                indizes = list(
+                    set(
+                        np.linspace(
+                            0, len(allowed_values) - 1, steps_per_dof, dtype=int
+                        )
                     )
-                ))
+                )
                 allowed_values = allowed_values[indizes]
                 df_dofs = df_dofs[df_dofs[col].isin(allowed_values)]
-            self.log.debug("number of subplots left after "
-                           "subsampling = {}".format(len(df_dofs)))
+            self.log.debug(
+                "number of subplots left after "
+                "subsampling = {}".format(len(df_dofs))
+            )
 
         self._df_dofs = df_dofs
 
@@ -231,12 +234,14 @@ class ClusterPlot(object):
             "ncols": self._ncols,
             # todo: this is somewhat problematic, because this won't add space
             #   for titles etc. Please do this differently
-            "figsize": (self._ncols * self.figsize[0],
-                        self._nrows * self.figsize[1]),
+            "figsize": (
+                self._ncols * self.figsize[0],
+                self._nrows * self.figsize[1],
+            ),
             "squeeze": False,
         }
         if self._ndim == 3:
-            subplots_args["subplot_kw"] = {'projection': '3d'}
+            subplots_args["subplot_kw"] = {"projection": "3d"}
 
         self._fig, self._axs = plt.subplots(**subplots_args)
 
@@ -247,7 +252,7 @@ class ClusterPlot(object):
             if self._ndim == 1:
                 for loc in ["top", "left", "right"]:
                     self._axli[isubplot].spines[loc].set_visible(False)
-                self._axli[isubplot].spines['bottom'].set_position('center')
+                self._axli[isubplot].spines["bottom"].set_position("center")
 
         # 3. Hide plots
         # -------------
@@ -330,10 +335,7 @@ class ClusterPlot(object):
 
         Returns: Title as string
         """
-        kv = {
-            key: self._df_dofs.iloc[isubplot][key]
-            for key in self._dofs
-        }
+        kv = {key: self._df_dofs.iloc[isubplot][key] for key in self._dofs}
         strings = [
             self.kv_formatter.format(key, value) for key, value in kv.items()
         ]
@@ -363,16 +365,14 @@ class ClusterPlot(object):
             # pycharm can't seem to find patches:
             # noinspection PyUnresolvedReferences
             p = matplotlib.patches.Patch(
-                facecolor=color,
-                edgecolor=color,
-                label=cluster,
+                facecolor=color, edgecolor=color, label=cluster
             )
             legend_elements.append(p)
         self._axli[self._nsubplots - 1].legend(
             handles=legend_elements,
-            loc='lower left',
+            loc="lower left",
             title="Clusters",
-            frameon=False
+            frameon=False,
         )
         # todo: this shouldn't be necessary if setup axes worked as expected
         self._axli[self._nsubplots - 1].set_axis_off()
@@ -419,8 +419,9 @@ class ClusterPlot(object):
         self._axis_columns = cols
         if not self._clusters:
             # todo: use d.clusters
-            self._clusters = \
-                self.data.clusters(cluster_column=self.cluster_column)
+            self._clusters = self.data.clusters(
+                cluster_column=self.cluster_column
+            )
         # Careful: Use the real number of clusters when initializing the
         # color scheme!
         # todo: do we really need to reinitialize this?
@@ -431,8 +432,7 @@ class ClusterPlot(object):
         self._sample_dofs()
         self._setup_subplots()
 
-    def _set_fill_colors(self, matrix: np.ndarray) \
-            -> np.ndarray:
+    def _set_fill_colors(self, matrix: np.ndarray) -> np.ndarray:
         """ A helper function for the fill method. Given a n x m matrix of
         cluster numbers, this returns a n x m x 3 matrix, where the last 3
         dimensions contain the rgb value of the color that this cluster
@@ -482,8 +482,9 @@ class ClusterPlot(object):
 
         for isubplot in range(self._nsubplots - int(self.draw_legend)):
             for cluster in self._clusters:
-                df_cluster = \
-                    self.data.df[self.data.df[self.cluster_column] == cluster]
+                df_cluster = self.data.df[
+                    self.data.df[self.cluster_column] == cluster
+                ]
                 for col in self._dofs:
                     df_cluster = df_cluster[
                         df_cluster[col] == self._df_dofs.iloc[isubplot][col]
@@ -493,9 +494,7 @@ class ClusterPlot(object):
                     df_cluster_no_bp = df_cluster[
                         ~df_cluster[self.bpoint_column]
                     ]
-                    df_cluster_bp = df_cluster[
-                        df_cluster[self.bpoint_column]
-                    ]
+                    df_cluster_bp = df_cluster[df_cluster[self.bpoint_column]]
                 else:
                     df_cluster_no_bp = df_cluster
                     df_cluster_bp = pd.DataFrame()
@@ -511,7 +510,7 @@ class ClusterPlot(object):
                 self._axli[isubplot].scatter(
                     *data,
                     color=self.color_scheme.get_cluster_color(cluster),
-                    marker=self.markers[(cluster-1) % len(self.markers)],
+                    marker=self.markers[(cluster - 1) % len(self.markers)],
                     label=cluster,
                     s=self.default_marker_size,
                     **kwargs
@@ -526,7 +525,7 @@ class ClusterPlot(object):
                     self._axli[isubplot].scatter(
                         *bp_data,
                         color=self.color_scheme.get_cluster_color(cluster),
-                        marker=self.markers[(cluster-1) % len(self.markers)],
+                        marker=self.markers[(cluster - 1) % len(self.markers)],
                         label=cluster,
                         s=self.bpoint_marker_size,
                         **kwargs
@@ -534,7 +533,7 @@ class ClusterPlot(object):
 
         self._add_legend()
 
-        if 'inline' not in matplotlib.get_backend():
+        if "inline" not in matplotlib.get_backend():
             return self._fig
 
     # todo: implement interpolation
@@ -555,7 +554,7 @@ class ClusterPlot(object):
         if not kwargs_imshow:
             kwargs_imshow = {}
 
-        assert(len(cols) == 2)
+        assert len(cols) == 2
         self._setup_all(cols)
 
         for isubplot in range(self._nsubplots - int(self.draw_legend)):
@@ -566,17 +565,14 @@ class ClusterPlot(object):
                 ]
             x = df_subplot[cols[0]].unique()
             y = df_subplot[cols[1]].unique()
-            df_subplot.sort_values(by=[cols[1], cols[0]],
-                                   ascending=[False, True],
-                                   inplace=True)
+            df_subplot.sort_values(
+                by=[cols[1], cols[0]], ascending=[False, True], inplace=True
+            )
             z = df_subplot[self.cluster_column].values
             # check if this makes sense
             z_matrix = z.reshape(y.shape[0], int(len(z) / y.shape[0]))
 
-            imshow_config = {
-                "interpolation": "none",
-                "aspect": "auto"
-            }
+            imshow_config = {"interpolation": "none", "aspect": "auto"}
             imshow_config.update(kwargs_imshow)
 
             self._axli[isubplot].imshow(
@@ -586,7 +582,7 @@ class ClusterPlot(object):
             )
 
         self._add_legend()
-        if 'inline' not in matplotlib.get_backend():
+        if "inline" not in matplotlib.get_backend():
             return self._fig
 
     # ==========================================================================

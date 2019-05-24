@@ -5,8 +5,12 @@ import numpy as np
 
 # ours
 from clusterking.data.data import Data
-from clusterking.maths.statistics import cov2err, cov2corr, abs2rel_cov, \
-    corr2cov
+from clusterking.maths.statistics import (
+    cov2err,
+    cov2corr,
+    abs2rel_cov,
+    corr2cov,
+)
 
 
 class DataWithErrors(Data):
@@ -41,6 +45,7 @@ class DataWithErrors(Data):
     Args:
         data: n x nbins matrix
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -117,9 +122,7 @@ class DataWithErrors(Data):
                 return inpt
             else:
                 raise ValueError(
-                    "Wrong dimension ({}) of {} array.".format(
-                        inpt.ndim, what
-                    )
+                    "Wrong dimension ({}) of {} array.".format(inpt.ndim, what)
                 )
         elif what.lower() in ["corr", "cov"]:
             if inpt.ndim == 2:
@@ -173,7 +176,7 @@ class DataWithErrors(Data):
         if self.poisson_errors:
             cov += corr2cov(
                 np.tile(np.eye(self.nbins), (self.n, 1, 1)),
-                np.sqrt(self.poisson_errors) * np.sqrt(data)
+                np.sqrt(self.poisson_errors) * np.sqrt(data),
             )
 
         if not relative:

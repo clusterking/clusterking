@@ -16,6 +16,7 @@ class Cluster(object):
     """ Abstract baseclass of the Cluster classes. This class is subclassed to
     implement specific clustering algorithms and defines common functions.
     """
+
     def __init__(self, data: Data):
         """
         Args:
@@ -31,9 +32,7 @@ class Cluster(object):
         self.md = nested_dict()
 
         self.md["git"] = git_info(self.log)
-        self.md["time"] = time.strftime(
-            "%a %_d %b %Y %H:%M", time.gmtime()
-        )
+        self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
     def cluster(self, **kwargs):
         """ Performs the clustering.

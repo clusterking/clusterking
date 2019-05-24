@@ -18,6 +18,7 @@ class ColorScheme(object):
     cluster and keep it consistent accross different plots.
     Subclass and overwrite color lists to implement different schemes.
     """
+
     def __init__(self, clusters=None, colors=None):
         self.log = get_logger("Colors", sh_level=logging.WARNING)
 
@@ -38,7 +39,7 @@ class ColorScheme(object):
             "xkcd:darkish blue",
             "xkcd:dirt brown",
             "xkcd:vivid green",
-            "xkcd:periwinkle"
+            "xkcd:periwinkle",
         ]
         if colors:
             self.cluster_colors = colors
@@ -60,10 +61,7 @@ class ColorScheme(object):
 
     @cluster_colors.setter
     def cluster_colors(self, value):
-        self._cluster_colors = list(map(
-            matplotlib.colors.to_rgba,
-            value
-        ))
+        self._cluster_colors = list(map(matplotlib.colors.to_rgba, value))
 
     def get_cluster_color(self, cluster):
         """ Try to pick a unique element of a list corresponding to cluster.
@@ -78,25 +76,20 @@ class ColorScheme(object):
             index = self.clusters.index(cluster)
         else:
             self.log.error(
-                "Cluster {} is not in the list of clusters. ".format(
-                    cluster
-                ))
+                "Cluster {} is not in the list of clusters. ".format(cluster)
+            )
             index = 0
 
         return self.cluster_colors[index % len(self.cluster_colors)]
 
     def to_colormap(self, name="MyColorMap"):
         return matplotlib.colors.LinearSegmentedColormap.from_list(
-            name,
-            list(map(self.get_cluster_color, self.clusters))
+            name, list(map(self.get_cluster_color, self.clusters))
         )
 
     def faded_colormap(self, cluster, nlines, name="MyFadedColorMap", **kwargs):
         colors = self.get_cluster_colors_faded(cluster, nlines, **kwargs)
-        return matplotlib.colors.LinearSegmentedColormap.from_list(
-            name,
-            colors
-        )
+        return matplotlib.colors.LinearSegmentedColormap.from_list(name, colors)
 
     def demo(self):
         z = np.array(self.clusters).reshape((1, len(self.clusters)))
@@ -109,12 +102,12 @@ class ColorScheme(object):
     # todo: perhaps this should just be done in a different way, the faded
     #   colors add little value as far as distinguishability is concerned
     #   and make picking color schemes much harder...
-    def get_cluster_colors_faded(self, cluster, nlines, max_alpha=0.7,
-                                 min_alpha=0.3):
+    def get_cluster_colors_faded(
+        self, cluster, nlines, max_alpha=0.7, min_alpha=0.3
+    ):
         base_color = self.get_cluster_color(cluster)
         alphas = np.linspace(min_alpha, max_alpha, nlines)
         colors = [
-            matplotlib.colors.to_rgba(base_color, alpha)
-            for alpha in alphas
+            matplotlib.colors.to_rgba(base_color, alpha) for alpha in alphas
         ]
         return colors

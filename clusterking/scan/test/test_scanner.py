@@ -15,7 +15,7 @@ from clusterking.data.data import Data
 
 
 def func_zero(coeffs):
-    return 0.
+    return 0.0
 
 
 def func_identity(coeffs):
@@ -27,7 +27,6 @@ def func_zero_bins(coeffs, x):
 
 
 class TestScanner(MyTestCase):
-
     def setUp(self):
         # We also want to test writing, to check that there are e.g. no
         # JSON serialization problems.
@@ -38,15 +37,10 @@ class TestScanner(MyTestCase):
 
     def test_set_spoints_grid(self):
         s = Scanner()
-        s.set_spoints_grid({'c': [1, 2], 'a': [3], 'b': [1j, 1+1j]})
+        s.set_spoints_grid({"c": [1, 2], "a": [3], "b": [1j, 1 + 1j]})
         self.assertAllClose(
             s.spoints,
-            np.array([
-                [3, 1j, 1],
-                [3, 1j, 2],
-                [3, 1+1j, 1],
-                [3, 1+1j, 2],
-            ])
+            np.array([[3, 1j, 1], [3, 1j, 2], [3, 1 + 1j, 1], [3, 1 + 1j, 2]]),
         )
 
     def test_set_spoints_grid_empty(self):
@@ -57,19 +51,12 @@ class TestScanner(MyTestCase):
     def test_set_spoints_equidist(self):
         s = Scanner()
         s.imaginary_prefix = "xxx"
-        s.set_spoints_equidist({
-            "a": (1, 2, 2),
-            "xxxa": (3, 4, 2),
-            "c": (1, 1, 1)
-        })
+        s.set_spoints_equidist(
+            {"a": (1, 2, 2), "xxxa": (3, 4, 2), "c": (1, 1, 1)}
+        )
         self.assertAllClose(
             s.spoints,
-            np.array([
-                [1+3j, 1],
-                [1+4j, 1],
-                [2+3j, 1],
-                [2+4j, 1]
-            ])
+            np.array([[1 + 3j, 1], [1 + 4j, 1], [2 + 3j, 1], [2 + 4j, 1]]),
         )
 
     def test_run_zero(self):
@@ -78,14 +65,8 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero)
         s.run(d)
-        self.assertEqual(
-            sorted(list(d.df.columns)),
-            ["a", "bin0"]
-        )
-        self.assertAllClose(
-            d.df.values,
-            np.array([[0., 0.], [1., 0.]])
-        )
+        self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
+        self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 0.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_identity(self):
@@ -94,14 +75,8 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_identity)
         s.run(d)
-        self.assertEqual(
-            sorted(list(d.df.columns)),
-            ["a", "bin0"]
-        )
-        self.assertAllClose(
-            d.df.values,
-            np.array([[0., 0.], [1., 1.]])
-        )
+        self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
+        self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 1.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_identity_singlecore(self):
@@ -110,14 +85,8 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_identity)
         s.run(d, 1)
-        self.assertEqual(
-            sorted(list(d.df.columns)),
-            ["a", "bin0"]
-        )
-        self.assertAllClose(
-            d.df.values,
-            np.array([[0., 0.], [1., 1.]])
-        )
+        self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
+        self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 1.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
 
     def test_run_simple_bins(self):
@@ -126,13 +95,9 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
         s.run(d)
-        self.assertEqual(
-            sorted(list(d.df.columns)),
-            ["a", "bin0", "bin1"]
-        )
+        self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0", "bin1"])
         self.assertAllClose(
-            d.df.values,
-            np.array([[0., 0., 0.], [1., 1., 1.]])
+            d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
         )
         d.write(Path(self.tmpdir.name) / "test.sql")
 
@@ -142,13 +107,9 @@ class TestScanner(MyTestCase):
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
         s.run(d, 1)
-        self.assertEqual(
-            sorted(list(d.df.columns)),
-            ["a", "bin0", "bin1"]
-        )
+        self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0", "bin1"])
         self.assertAllClose(
-            d.df.values,
-            np.array([[0., 0., 0.], [1., 1., 1.]])
+            d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
         )
         d.write(Path(self.tmpdir.name) / "test.sql")
 

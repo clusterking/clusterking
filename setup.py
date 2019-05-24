@@ -2,6 +2,7 @@
 
 # std
 from distutils.core import setup
+
 # noinspection PyUnresolvedReferences
 import setuptools  # see below (1)
 from pathlib import Path
@@ -24,8 +25,10 @@ keywords = [
     "wilson",
 ]
 
-description = "Cluster sets of histograms/curves, in particular kinematic" \
-              " distributions in high energy physics."
+description = (
+    "Cluster sets of histograms/curves, in particular kinematic"
+    " distributions in high energy physics."
+)
 
 this_dir = Path(__file__).resolve().parent
 
@@ -39,13 +42,14 @@ with (this_dir / "clusterking" / "version.txt").open() as vf:
 
 with (this_dir / "requirements.txt").open() as rf:
     install_requires = [
-        req.strip() for req in rf.readlines()
+        req.strip()
+        for req in rf.readlines()
         if req.strip() and not req.startswith("#")
     ]
 
 
 setup(
-    name='clusterking',
+    name="clusterking",
     version=version,
     packages=packages,
     install_requires=install_requires,
@@ -55,9 +59,7 @@ setup(
         "Documentation": "https://clusterking.readthedocs.io/",
         "Source Code": "https://github.com/clusterking/clusterking/",
     },
-    package_data={
-        'clusterking': ['git_info.json', 'version.txt'],
-    },
+    package_data={"clusterking": ["git_info.json", "version.txt"]},
     license="MIT",
     keywords=keywords,
     description=description,
@@ -68,7 +70,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Physics",
-        "Topic :: Scientific/Engineering :: Visualization"
+        "Topic :: Scientific/Engineering :: Visualization",
     ],
 )
 

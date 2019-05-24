@@ -31,6 +31,7 @@ class SpointCalculator(object):
     library, which are described here:
     https://stackoverflow.com/questions/1412787/
     """
+
     def __init__(self):
         # All of these have to be set!
         self.func = None
@@ -57,7 +58,7 @@ class SpointCalculator(object):
             return clusterking.maths.binning.bin_function(
                 functools.partial(self.func, spoint, **self.kwargs),
                 self.binning,
-                normalize=self.normalize
+                normalize=self.normalize,
             )
         else:
             return self.func(spoint, **self.kwargs)
@@ -121,9 +122,7 @@ class Scanner(object):
 
         self.md = nested_dict()
         self.md["git"] = git_info(self.log)
-        self.md["time"] = time.strftime(
-            "%a %_d %b %Y %H:%M", time.gmtime()
-        )
+        self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
         self.imaginary_prefix = "im_"
         self._coeffs = []
@@ -155,11 +154,7 @@ class Scanner(object):
 
     # todo: implement sampling as well, not just binning
     def set_dfunction(
-            self,
-            func: Callable,
-            binning: Sized = None,
-            normalize=False,
-            **kwargs
+        self, func: Callable, binning: Sized = None, normalize=False, **kwargs
     ):
         """ Set the function that generates the distributions that are later
         clustered (e.g. a differential cross section).
@@ -239,9 +234,7 @@ class Scanner(object):
         self._coeffs = sorted(list(values.keys()))
 
         # Nowe we collect all lists of values.
-        values_lists = [
-            values[coeff] for coeff in self._coeffs
-        ]
+        values_lists = [values[coeff] for coeff in self._coeffs]
         # Now we build the cartesian product, i.e.
         # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
         # [(a1, b1, ..., z1), ..., (a2, b2, ..., z2)]
@@ -314,8 +307,8 @@ class Scanner(object):
         for coeff in coeffs:
             # Now let's always collect the values of the real part and of the
             # imaginary part
-            res = [0.]
-            ims = [0.]
+            res = [0.0]
+            ims = [0.0]
             is_complex = False
             if real_part(coeff) in ranges:
                 res = list(np.linspace(*ranges[real_part(coeff)]))
@@ -325,11 +318,7 @@ class Scanner(object):
             # And basically take their cartesian product, alias initialize
             # the complex number.
             if is_complex:
-                grid_config[coeff] = [
-                    complex(x, y)
-                    for x in res
-                    for y in ims
-                ]
+                grid_config[coeff] = [complex(x, y) for x in res for y in ims]
             else:
                 grid_config[coeff] = res
 
@@ -395,10 +384,12 @@ class Scanner(object):
 
         self.log.debug("Converting data to pandas dataframe.")
         cols = self.coeffs
-        cols.extend([
-            "bin{}".format(no_bin)
-            for no_bin in range(self.md["dfunction"]["nbins"])
-        ])
+        cols.extend(
+            [
+                "bin{}".format(no_bin)
+                for no_bin in range(self.md["dfunction"]["nbins"])
+            ]
+        )
 
         # Now we finally write everything to data
         data.df = pd.DataFrame(data=rows, columns=cols)
@@ -409,14 +400,14 @@ class Scanner(object):
         coeffs_with_im = []
         for coeff in self.coeffs:
             coeffs_with_im.append(coeff)
-            if not list(data.df[coeff].apply(np.imag).unique()) == [0.]:
+            if not list(data.df[coeff].apply(np.imag).unique()) == [0.0]:
                 values = data.df[coeff]
                 data.df[coeff] = values.apply(np.real)
                 loc = list(data.df.columns).index(coeff)
                 data.df.insert(
                     loc + 1,
                     self.imaginary_prefix + coeff,
-                    values.apply(np.imag)
+                    values.apply(np.imag),
                 )
                 coeffs_with_im.append(self.imaginary_prefix + coeff)
             else:
@@ -461,7 +452,7 @@ class Scanner(object):
             desc="Scanning: ",
             unit=" spoint",
             total=len(self._spoints),
-            ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
+            ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
         ):
             md = self.md["dfunction"]
 
@@ -497,7 +488,7 @@ class Scanner(object):
             desc="Scanning: ",
             unit=" spoint",
             total=len(self._spoints),
-            ncols=min(100, shutil.get_terminal_size((80, 20)).columns)
+            ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
         ):
             result = self._spoint_calculator.calc(spoint)
 

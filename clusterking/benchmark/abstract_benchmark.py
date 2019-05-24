@@ -16,6 +16,7 @@ class AbstractBenchmark(object):
     points from all the points (in parameter space) that correspond to one
     cluster.
     """
+
     def __init__(self, data: Data, cluster_column="cluster"):
         """
 

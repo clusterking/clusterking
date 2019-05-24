@@ -15,14 +15,14 @@ def yn_prompt(question: str, yes=None, no=None) -> bool:
         True if yes, False if no.
     """
     if not yes:
-        yes = ['yes', 'ye', 'y']
+        yes = ["yes", "ye", "y"]
     if not no:
-        no = ['no', 'n']
+        no = ["no", "n"]
 
     prompt = question
     if not prompt.endswith(" "):
         prompt += " "
-    prompt += "[{} or {}] ".format('/'.join(yes), "/".join(no))
+    prompt += "[{} or {}] ".format("/".join(yes), "/".join(no))
 
     print(prompt, end="")
 
@@ -33,8 +33,12 @@ def yn_prompt(question: str, yes=None, no=None) -> bool:
         elif choice in no:
             return False
         else:
-            print("Please respond with '{}' or '{}': ".format(
-                '/'.join(yes), "/".join(no)), end="")
+            print(
+                "Please respond with '{}' or '{}': ".format(
+                    "/".join(yes), "/".join(no)
+                ),
+                end="",
+            )
 
 
 def handle_overwrite(paths, behavior, log):
@@ -52,8 +56,10 @@ def handle_overwrite(paths, behavior, log):
     behavior = behavior.lower()
     if any([p.exists() for p in paths]):
         if behavior == "ask":
-            prompt = "Some of the output files would be overwritten. " \
-                     "Are you ok with that?"
+            prompt = (
+                "Some of the output files would be overwritten. "
+                "Are you ok with that?"
+            )
             if not yn_prompt(prompt):
                 log.warning("Returning without doing anything.")
                 return

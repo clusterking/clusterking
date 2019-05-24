@@ -66,16 +66,13 @@ def metric_selection(*args, **kwargs) -> Callable:
     """
     if len(args) == 0:
         # default
-        args = ['euclidean']
+        args = ["euclidean"]
     if isinstance(args[0], str):
         # The user can specify any of the metrics from
         # scipy.spatial.distance.pdist by name and supply additional
         # values
         return lambda data: scipy.spatial.distance.pdist(
-            data.data(),
-            args[0],
-            *args[1:],
-            **kwargs
+            data.data(), args[0], *args[1:], **kwargs
         )
     elif isinstance(args[0], Callable):
         # Assume that this is a function that takes DWE or Data as first
@@ -88,7 +85,7 @@ def metric_selection(*args, **kwargs) -> Callable:
 
 
 # todo: unittest
-def chi2_metric(dwe: DataWithErrors, output='condensed'):
+def chi2_metric(dwe: DataWithErrors, output="condensed"):
     """
     Returns the chi2/ndf values of the comparison of a datasets.
 
@@ -126,9 +123,9 @@ def chi2_metric(dwe: DataWithErrors, output='condensed'):
     # n x n
     chi2ndf = np.einsum("kli->kl", summand) / dwe.nbins
 
-    if output == 'condensed':
+    if output == "condensed":
         return condense_distance_matrix(chi2ndf)
-    elif output == 'full':
+    elif output == "full":
         return chi2ndf
     else:
         raise ValueError("Unknown argument '{}'.".format(output))

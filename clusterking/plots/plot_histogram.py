@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 
-def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs) \
-        -> None:
+def plot_histogram(
+    ax, edges, contents, normalize=False, *args, **kwargs
+) -> None:
     """
     Plot a histogram.
     
@@ -36,18 +37,17 @@ def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs) \
     if not len(contents.shape) == 1:
         raise ValueError(
             "The supplied contents array of shape {} can't be squeezed"
-            "into a one dimensional array.".format(_contents.shape))
+            "into a one dimensional array.".format(_contents.shape)
+        )
 
     # bin numbers for the x axis if no x values are supplied
     if edges:
         edges = np.array(edges)
-        assert(len(edges.shape) == 1)
+        assert len(edges.shape) == 1
         if not len(edges) == (len(contents) + 1):
             raise ValueError(
                 "Invalid number of bin edges ({}) supplied for "
-                "{} bins.".format(
-                    len(edges), len(contents)
-                )
+                "{} bins.".format(len(edges), len(contents))
             )
     else:
         edges = np.arange(len(contents) + 1)
@@ -64,12 +64,6 @@ def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs) \
     # because we use the 'post' plotting method for matplotlib.pyplot.step
     contents = np.append(contents, contents[-1])
 
-    ax.step(
-        edges,
-        contents,
-        where="post",
-        *args,
-        **kwargs
-    )
+    ax.step(edges, contents, where="post", *args, **kwargs)
 
     return ax

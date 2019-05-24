@@ -10,8 +10,10 @@ from typing import Callable
 # ours
 from clusterking.benchmark.abstract_benchmark import AbstractBenchmark
 from clusterking.util.metadata import failsafe_serialize
-from clusterking.maths.metric import uncondense_distance_matrix, \
-    metric_selection
+from clusterking.maths.metric import (
+    uncondense_distance_matrix,
+    metric_selection,
+)
 
 
 # todo: test this
@@ -26,6 +28,7 @@ class Benchmark(AbstractBenchmark):
     points in the same cluster (where "distance" of course is with respect
     to the metric).
     """
+
     def __init__(self, data, cluster_column="cluster"):
         """
         Args:

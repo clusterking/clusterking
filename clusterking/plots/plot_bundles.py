@@ -3,7 +3,7 @@
 # std
 import logging
 import random
-from typing import List, Iterable, Union
+from typing import List, Iterable, Union, Optional
 
 # 3rd party
 import matplotlib.pyplot as plt
@@ -290,8 +290,13 @@ class BundlePlot(object):
                 color=color,
             )
 
-    def plot_bundles(self, clusters: Union[None, int, Iterable[int]] = None,
-                     nlines=None, ax=None, bpoints=True) -> None:
+    def plot_bundles(
+            self,
+            clusters: Optional[Union[None, int, Iterable[int]]] = None,
+            nlines=None,
+            ax=None,
+            bpoints=True
+    ) -> None:
         """ Plot several examples of distributions for each cluster specified
 
         Args:
@@ -422,7 +427,7 @@ class BundlePlot(object):
         if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
-    def plot_minmax(self, clusters: Union[int, Iterable[int]] = None,
+    def plot_minmax(self, clusters: Optional[Union[int, Iterable[int]]] = None,
                     ax=None, bpoints=True) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -498,8 +503,8 @@ class BundlePlot(object):
         if bpoints:
             self._plot_bundles(cluster, nlines=0)
 
-    def box_plot(self, clusters: Union[int, Iterable[int]] = None, ax=None,
-                 whiskers=2.5, bpoints=True) -> None:
+    def box_plot(self, clusters: Optional[Union[int, Iterable[int]]] = None,
+                 ax=None, whiskers=2.5, bpoints=True) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
 

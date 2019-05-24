@@ -2,7 +2,7 @@
 
 # std
 import pathlib
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 # 3rd
 import scipy.cluster
@@ -100,7 +100,7 @@ class HierarchyCluster(Cluster):
 
     def dendrogram(
             self,
-            output: Union[None, str, pathlib.Path] = None,
+            output: Optional[Union[None, str, pathlib.Path]] = None,
             ax=None,
             show=False,
             **kwargs

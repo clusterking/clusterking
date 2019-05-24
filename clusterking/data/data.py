@@ -5,7 +5,7 @@ import copy
 
 # 3d
 import numpy as np
-from typing import Callable, Union, Iterable, List, Any
+from typing import Callable, Union, Iterable, List, Any, Optional
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -111,7 +111,7 @@ class Data(DFMD):
         return sorted(list(self.df[cluster_column].unique()))
 
     # todo: test me
-    def get_param_values(self, param: Union[None, str] = None):
+    def get_param_values(self, param: Optional[Union[None, str]] = None):
         """ Return all unique values of this parameter
 
         Args:

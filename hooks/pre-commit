@@ -5,28 +5,33 @@ exec < /dev/tty
 
 echo "Pre-commit hook engaged."
 
-####################
-# run unit checks
+# ==============================================================================
+# Run unit tests
+# ==============================================================================
 
-read -p "Run unittests? [yY]" -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-    `nose2 `
-    if [[ $? = 0 ]]
-    then
-        echo "Unittests passed."
-    else
-        echo "Unittests did not pass."
-        exit 1
-    fi
-else
-    echo "Skipping unit tests"
-fi
+#read -p "Run unittests? [yY]" -n 1 -r
+#echo    # (optional) move to a new line
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+#    `nose2 `
+#    if [[ $? = 0 ]]
+#    then
+#        echo "Unittests passed."
+#    else
+#        echo "Unittests did not pass."
+#        exit 1
+#    fi
+#else
+#    echo "Skipping unit tests"
+#fi
 
-####################
+echo "Running unittests"
+nose2
+
+# ==============================================================================
 # strip output of IPython Notebooks
 # FROM: https://gist.github.com/minrk/6176788
+# ==============================================================================
 
 echo "Now stripping output of IPython Notebooks"
 
@@ -50,6 +55,11 @@ for NB in $NBS ; do
 done
 )
 
-
 # todo: What did this do?
 # exec git diff-index --check --cached $against --
+
+# ==============================================================================
+# Format code
+# ==============================================================================
+
+hooks/black.sh

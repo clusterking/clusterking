@@ -222,7 +222,7 @@ License & Contributing
 ----------------------
 
 This project is ongoing work and questions_, comments,
-`bug reports`_ or `pull requests`_are most welcome. You can also use the chat
+`bug reports`_ or `pull requests`_ are most welcome. You can also use the chat
 room on gitter_ or contact us via email_.
 We are also working on a paper, so please make sure to cite us once we publish.
 

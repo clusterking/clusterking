@@ -283,9 +283,13 @@ class BundlePlot(object):
 
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
-            plot_histogram(self.ax, self._bins, data, color=colors[i], linestyle="-")
+            plot_histogram(
+                self.ax, self._bins, data, color=colors[i], linestyle="-"
+            )
         if self._has_bpoints and benchmark:
-            plot_histogram(self.ax, self._bins, df_cluster_bp.values, color=color)
+            plot_histogram(
+                self.ax, self._bins, df_cluster_bp.values, color=color
+            )
 
     def plot_bundles(
         self,
@@ -408,7 +412,7 @@ class BundlePlot(object):
         else:
             color = self.color_scheme.get_cluster_color(0)
         for i in range(len(maxima)):
-            x = self._bins[i : i+2 ]
+            x = self._bins[i : i + 2]
             y1 = [minima[i], minima[i]]
             y2 = [maxima[i], maxima[i]]
             self.ax.fill_between(
@@ -489,12 +493,12 @@ class BundlePlot(object):
             color = self.color_scheme.get_cluster_color(0)
 
         bins = self._bins
-        positions = 1/2 * (np.array(bins[1:]) + np.array(bins[:-1]))
+        positions = 1 / 2 * (np.array(bins[1:]) + np.array(bins[:-1]))
 
         self.ax.boxplot(
             data,
             notch=False,
-            positions=positions, #np.array(range(len(data.T))) + 0.5,
+            positions=positions,  # np.array(range(len(data.T))) + 0.5,
             vert=True,
             patch_artist=True,
             boxprops=dict(facecolor=color, color=color, alpha=0.3),

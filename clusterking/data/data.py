@@ -66,12 +66,13 @@ class Data(DFMD):
         """
         return len(self.par_cols)
 
-    # todo: test this
-    # todo: doc
     # todo: make not private?
     @property
     def _dist_xrange(self):
-        binning = self.md["scan"]["dfunc"]["binning"]
+        """ Return minimum and maximum of x axis of the distributions.
+        If not set, this will be 0 and number of bins.
+        """
+        binning = self.md["scan"]["dfunction"]["binning"]
         if not binning:
             # Fall back and give number of bins
             mini = 0

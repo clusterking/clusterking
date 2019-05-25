@@ -8,9 +8,11 @@ It's recommended to use the following prefixes:
 
 * ``[Fix]``: Fixing a bug
 * ``[Int]``: Interface change
-* ``[Feature]``: New feature
+* ``[Feat]``: New feature
 * ``[Doc]``: Everything regarding documentation
 * ``[CI]``: Continuus Integration (unittests and more)
+* ``[Ref]``: Code refactoring
+* ``[Clean]``: Code cleanup (style improvement etc.)
 
 this helps to get an overview over what's happening, e.g. when compiling
 release notes.

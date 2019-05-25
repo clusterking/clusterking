@@ -175,6 +175,7 @@ class Scanner(object):
         binning: Sized = None,
         sampling: Sized = None,
         normalize=False,
+        variable=None,
         **kwargs
     ):
         """ Set the function that generates the distributions that are later
@@ -195,6 +196,7 @@ class Scanner(object):
                 space.
             normalize: If a binning is specified, normalize the resulting
                 distribution.
+            variable: Name of variable on x-axis
             **kwargs: All other keyword arguments are passed to the function.
 
         Returns:
@@ -244,6 +246,8 @@ class Scanner(object):
             self._spoint_calculator.binning_mode = "sample"
             md["binning_mode"] = "sample"
             md["nbins"] = len(sampling)
+
+        md["variable"] = variable
 
         self._spoint_calculator.normalize = normalize
         self._spoint_calculator.kwargs = kwargs

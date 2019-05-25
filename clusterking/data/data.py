@@ -82,6 +82,14 @@ class Data(DFMD):
             maxi = max(binning)
         return mini, maxi
 
+    @property
+    def _dist_var(self):
+        """ Return name of variable on x axis of the distribution. """
+        var = self.md["scan"]["dfunction"]["variable"]
+        if var:
+            return var
+        return None
+
     # **************************************************************************
     # Returning things
     # **************************************************************************
@@ -376,6 +384,24 @@ class Data(DFMD):
     # **************************************************************************
     # Manipulating things
     # **************************************************************************
+
+    def configure_variable(self, variable, axis_label=None):
+        """ Set additional information for variales, e.g. the variable on the
+        x axis of the plots of the distribution or the parameters.
+
+        Args:
+            variable: Name of the variable
+            axis_label: An alternate name which will be used on the axes of plots.
+        """
+        if axis_label is not None:
+            self.md["variables"][variable]["axis_label"] = axis_label
+
+    def _get_axis_label(self, variable):
+        r = self.md["variables"][variable]["axis_label"]
+        if r:
+            return r
+        else:
+            return variable
 
     # --------------------------------------------------------------------------
     # Renaming clusters

@@ -92,6 +92,12 @@ class BundlePlot(object):
         return self.data._dist_xrange
 
     @property
+    def xlabel(self):
+        if self.data._dist_var:
+            return self.data._get_axis_label(self.data._dist_var)
+        return None
+
+    @property
     def _bins(self):
         if self.data.md["scan"]["dfunction"]["binning_mode"] == "integrate":
             return self.data.md["scan"]["dfunction"]["binning"]
@@ -209,6 +215,8 @@ class BundlePlot(object):
             fig, ax = plt.subplots()
             self.ax = ax
         ax.set_title(title)
+        if self.xlabel:
+            ax.set_xlabel(self.xlabel)
 
     # **************************************************************************
     # Plots
@@ -506,7 +514,7 @@ class BundlePlot(object):
             flierprops=dict(color=color, markeredgecolor=color),
             medianprops=dict(color=color),
             whis=whiskers,  # extend the range of the whiskers
-            manage_xticks=False
+            manage_xticks=False,
         )
         if bpoints:
             self._plot_bundles(cluster, nlines=0)

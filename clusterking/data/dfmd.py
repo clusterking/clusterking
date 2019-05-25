@@ -12,7 +12,7 @@ from typing import Union
 import sqlalchemy
 
 # ours
-from clusterking.util.metadata import nested_dict
+from clusterking.util.metadata import turn_into_nested_dict, nested_dict
 from clusterking.util.log import get_logger
 from clusterking.util.cli import handle_overwrite
 
@@ -82,8 +82,7 @@ class DFMD(object):
         self.df = pd.read_sql_table("df", engine)
         self.df.set_index("index", inplace=True)
         md_json = pd.read_sql_table("md", engine)["md"][0]
-        self.md = nested_dict()
-        self.md.update(json.loads(md_json))
+        self.md = turn_into_nested_dict(json.loads(md_json))
 
     # **************************************************************************
     # Writing

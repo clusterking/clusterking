@@ -13,6 +13,12 @@ class TestNestedDict(unittest.TestCase):
         nd[1][2][3] = None
         self.assertEqual(nd, {1: {2: {3: None}}})
 
+    def test_turn_into_nested_dict(self):
+        a = {1: {2: 3, 3: {4: 5}}}
+        a_nd = metadata.turn_into_nested_dict(a)
+        self.assertEqual(a_nd[1][3]["nexist"], {})
+        self.assertEqual(a_nd["nexist"], {})
+
 
 class TestMetaData(unittest.TestCase):
     def test_save_load(self):

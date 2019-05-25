@@ -32,6 +32,17 @@ def nested_dict():
     return collections.defaultdict(nested_dict)
 
 
+def turn_into_nested_dict(nested):
+    """ Turn a dictionary of dictionaries into a nested_dict default dict. """
+    new = nested_dict()
+    for key, value in nested.items():
+        if isinstance(value, dict):
+            new[key] = turn_into_nested_dict(value)
+        else:
+            new[key] = value
+    return new
+
+
 def git_info(log=None, path=None) -> Dict[str, str]:
     """ Return dictionary containing status of the git repository (commit hash,
     date etc.

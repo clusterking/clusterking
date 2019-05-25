@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import pandas as pd
-
 import matplotlib.animation as animation
 
 # ours
@@ -507,6 +506,7 @@ class BundlePlot(object):
             flierprops=dict(color=color, markeredgecolor=color),
             medianprops=dict(color=color),
             whis=whiskers,  # extend the range of the whiskers
+            manage_xticks=False
         )
         if bpoints:
             self._plot_bundles(cluster, nlines=0)

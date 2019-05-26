@@ -288,22 +288,34 @@ class ClusterPlot(object):
                 # Set labels and ticks:
 
                 if icol == 0:
-                    self._axli[isubplot].set_ylabel(self._axis_columns[1])
+                    self._axli[isubplot].set_ylabel(
+                        self.data._get_axis_label(self._axis_columns[1])
+                    )
                 else:
                     self._axli[isubplot].set_yticklabels([])
 
                 if irow == self._nrows - 2 and icol >= icol_hidden:
-                    self._axli[isubplot].set_xlabel(self._axis_columns[0])
+                    self._axli[isubplot].set_xlabel(
+                        self.data._get_axis_label(self._axis_columns[0])
+                    )
                 elif irow == self._nrows - 1 and icol <= icol_hidden:
-                    self._axli[isubplot].set_xlabel(self._axis_columns[0])
+                    self._axli[isubplot].set_xlabel(
+                        self.data._get_axis_label(self._axis_columns[0])
+                    )
                 else:
                     self._axli[isubplot].set_xticklabels([])
 
         elif self._ndim == 3:
             for isubplot in range(self._nsubplots):
-                self._axli[isubplot].set_xlabel(self._axis_columns[0])
-                self._axli[isubplot].set_ylabel(self._axis_columns[1])
-                self._axli[isubplot].set_zlabel(self._axis_columns[2])
+                self._axli[isubplot].set_xlabel(
+                    self.data._get_axis_label(self._axis_columns[0])
+                )
+                self._axli[isubplot].set_ylabel(
+                    self.data._get_axis_label(self._axis_columns[1])
+                )
+                self._axli[isubplot].set_zlabel(
+                    self.data._get_axis_label(self._axis_columns[2])
+                )
 
         # 3. Add title to subplots
         # ------------------------
@@ -337,7 +349,8 @@ class ClusterPlot(object):
         """
         kv = {key: self._df_dofs.iloc[isubplot][key] for key in self._dofs}
         strings = [
-            self.kv_formatter.format(key, value) for key, value in kv.items()
+            self.kv_formatter.format(self.data._get_axis_label(key), value)
+            for key, value in kv.items()
         ]
         max_line_length = 15
         title = ""

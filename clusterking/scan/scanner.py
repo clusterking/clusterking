@@ -187,7 +187,7 @@ class Scanner(object):
                 alphabetically order with respect to the parameter name!).
                 It should either return a ``float`` or a ``np.ndarray``.
                 If the ``binning`` or ``sampling`` options are specified, only
-                ``float``s as return value are allowed.
+                ``float`` s as return value are allowed.
             binning: If this parameter is set to an array-like object, we will
                 integrate the function over the specified bins for every point
                 in parameter space.

@@ -386,7 +386,7 @@ class Data(DFMD):
     # **************************************************************************
 
     def configure_variable(self, variable, axis_label=None):
-        """ Set additional information for variales, e.g. the variable on the
+        """ Set additional information for variables, e.g. the variable on the
         x axis of the plots of the distribution or the parameters.
 
         Args:

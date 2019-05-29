@@ -77,14 +77,11 @@ sacrificing generality.
 Installation
 ------------
 
-``clusterking`` can be installed with the python package installer:
+``clusterking`` can be installed/upgraded with the `python package installer <https://pip.pypa.io/en/stable/>`_:
 
 .. code:: sh
 
-    pip3 install clusterking
-
-For a local installation, you might want to use the ``--user`` switch of ``pip``.
-You can also update your current installation with ``pip3 install --upgrade clusterking``.  
+    pip3 install --user --upgrade clusterking
 
 For the latest development version type:
 
@@ -92,7 +89,7 @@ For the latest development version type:
 
     git clone https://github.com/clusterking/clusterking/
     cd clusterking
-    pip3 install --user .
+    pip3 install --user --editable .
 
 Usage and Documentation
 -----------------------
@@ -122,7 +119,7 @@ Example
 Sample and cluster
 ~~~~~~~~~~~~~~~~~~
 
-Being a condensed version of the basic tutorial, the following code is all that
+The following code (taken from ``examples/jupyter_notebook/010_basic_tutorial.ipynb``) is all that
 is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu``
 in the space of Wilson coefficients:
 

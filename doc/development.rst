@@ -1,6 +1,15 @@
 Development
 ===========
 
+Software
+--------
+
+Please run
+
+    pip install --user --upgrade -r requirements-dev.txt
+
+to install additional packages required for development.
+
 Git commit message
 ------------------
 
@@ -20,18 +29,25 @@ release notes.
 Git hooks
 ---------
 
-When developing code for ClusterKinG, please install our
-`pre-commit hook <https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks>`_
-which will automatically
+Please install out git pre-commit hooks:
 
-* Run all unittests
-* Strip output from jupyter notebooks
-* Reformats the code using `black <https://github.com/python/black>`_,
+    pre-commit install
 
-whenever you commit to git.
+Now, every time you commit to this package, a number of checks and cleanups
+are performed, among them
 
-The hooks can be installed by running
+* Code styling with `black <https://github.com/python/black>`_
+* Stripping output of jupyter notebooks with `nbstripout <https://github.com/kynan/nbstripout>`_
 
-.. code-block:: bash
+Unittests
+---------
 
-    hoooks/install_hooks.sh
+Whenever changing functionality, please run
+
+    pytest
+
+or alternatively
+
+    nose2
+
+to run all unittests.

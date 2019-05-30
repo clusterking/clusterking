@@ -1,3 +1,9 @@
+# This list of requirements is used by mybinder.
+# It also contains additional dependencies for plotting (and perhaps more
+# in the future).
+# Note: setup.py will also check (as a consistency check), that this list of
+# packages corresponds to the sum of its own lists, so make sure you keep both
+# files in sync!
 pandas
 numpy
 scipy
@@ -12,3 +18,4 @@ ipykernel
 wilson
 tqdm
 sqlalchemy
+flavio

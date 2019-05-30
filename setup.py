@@ -62,7 +62,6 @@ install_requires = [
 extras_require = {
     "plotting": ["matplotlib"],
     "dev": [
-        "pre-commmit",
         "pytest",
         "pytest-subtests",
         "pytest-cov",

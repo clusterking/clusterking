@@ -52,17 +52,27 @@ install_requires = [
     "numpy",
     "scipy",
     "gitpython",
-    "nbconvert",
-    "nbformat",
-    "jupyter_client",
-    "matplotlib",
     "sklearn",
     "colorlog",
-    "ipykernel",
     "wilson",
     "tqdm",
     "sqlalchemy",
 ]
+
+extras_require = {
+    "plotting": ["matplotlib"],
+    "dev": [
+        "pre-commmit",
+        "pytest",
+        "pytest-subtests",
+        "pytest-cov",
+        "nbstripout",
+        "nbconvert",
+        "nbformat",
+        "jupyter_client",
+        "ipykernel",
+    ],
+}
 
 binder_additional = sorted(list(set(binder_requires) - set(install_requires)))
 binder_missing = sorted(list(set(install_requires) - set(binder_requires)))
@@ -87,6 +97,7 @@ setup(
     version=version,
     packages=packages,
     install_requires=install_requires,
+    extras_require=extras_require,
     url="https://github.com/clusterking/clusterking",
     project_urls={
         "Bug Tracker": "https://github.com/clusterking/clusterking/issues",

@@ -28,7 +28,7 @@ Clustering of Kinematic Graphs
    :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
    :alt: Binder
 
-.. |Chat| image:: https://img.shields.io/gitter/room/clusterking/community.svg   
+.. |Chat| image:: https://img.shields.io/gitter/room/clusterking/community.svg
    :target: https://gitter.im/clusterking/community
    :alt: Gitter
 
@@ -81,7 +81,9 @@ Installation
 
 .. code:: sh
 
-    pip3 install --user --upgrade clusterking
+    pip3 install --user --upgrade clusterking[,plotting]
+
+If you do not require plotting, you can remove ``[,plotting]``.
 
 For the latest development version type:
 
@@ -184,7 +186,7 @@ Plotting
     )
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/plots/scatter_3d_02.png
- 
+
 .. code:: python
 
     d.plot_clusters_fill(['CVL_bctaunutau', 'CSL_bctaunutau'])

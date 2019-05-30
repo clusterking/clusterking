@@ -6,6 +6,8 @@ Software
 
 Please run
 
+.. code-block:: shell
+
     pip install --user --upgrade -r requirements-dev.txt
 
 to install additional packages required for development.
@@ -31,6 +33,8 @@ Git hooks
 
 Please install out git pre-commit hooks:
 
+.. code-block:: shell
+
     pre-commit install
 
 Now, every time you commit to this package, a number of checks and cleanups
@@ -44,9 +48,13 @@ Unittests
 
 Whenever changing functionality, please run
 
+.. code-block:: shell
+
     pytest
 
 or alternatively
+
+.. code-block:: shell
 
     nose2
 

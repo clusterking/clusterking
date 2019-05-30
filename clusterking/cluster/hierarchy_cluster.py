@@ -121,6 +121,8 @@ class HierarchyCluster(Cluster):
         """
         self.log.debug("Plotting dendrogram.")
         import_matplotlib()
+        import matplotlib.pyplot as plt
+
         if self.hierarchy is None:
             self.log.error(
                 "Hierarchy not yet set up. Returning without " "doing anything."

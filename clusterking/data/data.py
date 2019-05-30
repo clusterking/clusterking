@@ -9,8 +9,6 @@ from typing import Callable, Union, Iterable, List, Any, Optional
 
 # ours
 from clusterking.data.dfmd import DFMD
-from clusterking.plots.plot_bundles import BundlePlot
-from clusterking.plots.plot_clusters import ClusterPlot
 
 
 class Data(DFMD):
@@ -187,7 +185,7 @@ class Data(DFMD):
         bpoints=False,
         bpoint_slices=False,
         bpoint_column="bpoint",
-        **kwargs
+        **kwargs,
     ):
         """ Fix some parameter values to get a subset of sample points.
 
@@ -258,7 +256,7 @@ class Data(DFMD):
                 bpoints=bpoints,
                 bpoint_slices=bpoint_slices,
                 bpoint_column=bpoint_column,
-                **kwargs
+                **kwargs,
             )
             return new_obj
 
@@ -303,7 +301,7 @@ class Data(DFMD):
         bpoint_slices=False,
         bpoint_column="bpoint",
         inplace=False,
-        **kwargs
+        **kwargs,
     ):
         """ Return a Data object that contains a subset of the sample points
         (points in parameter space). Similar to Data.fix_param.
@@ -378,7 +376,7 @@ class Data(DFMD):
             bpoints=bpoints,
             bpoint_slices=bpoint_slices,
             bpoint_column=bpoint_column,
-            **fix_kwargs
+            **fix_kwargs,
         )
 
     # **************************************************************************
@@ -552,6 +550,8 @@ class Data(DFMD):
         Returns:
             Figure
         """
+        from clusterking.plots.plot_bundles import BundlePlot
+
         bp = BundlePlot(self)
         bp.cluster_column = cluster_column
         bp.bpoint_column = bpoint_column
@@ -589,6 +589,8 @@ class Data(DFMD):
         Returns:
             Figure
         """
+        from clusterking.plots.plot_bundles import BundlePlot
+
         bp = BundlePlot(self)
         bp.cluster_column = cluster_column
         bp.bpoint_column = bpoint_column
@@ -632,6 +634,8 @@ class Data(DFMD):
             Figure
 
         """
+        from clusterking.plots.plot_bundles import BundlePlot
+
         bp = BundlePlot(self)
         bp.cluster_column = cluster_column
         bp.bpoint_column = bpoint_column
@@ -678,6 +682,8 @@ class Data(DFMD):
         Returns:
             Figure
         """
+        from clusterking.plots.plot_clusters import ClusterPlot
+
         cp = ClusterPlot(self)
         cp.cluster_column = cluster_column
         cp.bpoint_column = bpoint_column
@@ -722,6 +728,8 @@ class Data(DFMD):
         Returns:
             Figure
         """
+        from clusterking.plots.plot_clusters import ClusterPlot
+
         cp = ClusterPlot(self)
         cp.cluster_column = cluster_column
         cp.bpoint_column = bpoint_column

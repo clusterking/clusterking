@@ -9,7 +9,6 @@ interesting for users.
 import clusterking.cluster
 import clusterking.data
 import clusterking.maths
-import clusterking.plots
 import clusterking.scan
 import clusterking.util
 from clusterking.data import Data, DataWithErrors

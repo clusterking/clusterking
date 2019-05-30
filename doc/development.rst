@@ -4,13 +4,30 @@ Development
 Software
 --------
 
-Please run
+Please install the ClusterKinG package with the development packages:
 
 .. code-block:: shell
 
-    pip install --user --upgrade -r requirements-dev.txt
+    pip3 install --user clusterking[plotting,dev]
 
-to install additional packages required for development.
+This will enable you to run our unittests and more.
+
+
+Git hooks
+---------
+
+Please install out git pre-commit hooks:
+
+.. code-block:: shell
+
+    pip3 install --user pre-commit
+    pre-commit install
+
+Now, every time you commit to this package, a number of checks and cleanups
+are performed, among them
+
+* Code styling with `black <https://github.com/python/black>`_
+* Stripping output of jupyter notebooks with `nbstripout <https://github.com/kynan/nbstripout>`_
 
 Git commit message
 ------------------
@@ -24,24 +41,11 @@ It's recommended to use the following prefixes:
 * ``[CI]``: Continuus Integration (unittests and more)
 * ``[Ref]``: Code refactoring
 * ``[Clean]``: Code cleanup (style improvement etc.)
+* ``[Deploy]``: Everything that has to do with releases
+* ``[Dev]``: Things that are only relevant to developers
 
 this helps to get an overview over what's happening, e.g. when compiling
 release notes.
-
-Git hooks
----------
-
-Please install out git pre-commit hooks:
-
-.. code-block:: shell
-
-    pre-commit install
-
-Now, every time you commit to this package, a number of checks and cleanups
-are performed, among them
-
-* Code styling with `black <https://github.com/python/black>`_
-* Stripping output of jupyter notebooks with `nbstripout <https://github.com/kynan/nbstripout>`_
 
 Unittests
 ---------

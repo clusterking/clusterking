@@ -85,13 +85,7 @@ Installation
 
 If you do not require plotting, you can remove ``[,plotting]``.
 
-For the latest development version type:
-
-.. code:: sh
-
-    git clone https://github.com/clusterking/clusterking/
-    cd clusterking
-    pip3 install --user --editable .
+More options and troubleshooting advice is given in the `documentation <https://clusterking.readthedocs.io/en/latest/installation.html>`_.
 
 Usage and Documentation
 -----------------------

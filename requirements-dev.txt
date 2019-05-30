@@ -1,5 +1,0 @@
-pre-commmit
-pytest
-pytest-subtests
-pytest-cov
-nbstripout

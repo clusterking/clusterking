@@ -21,18 +21,9 @@ Implementation of different plots.
     advertised above.
 
 """
-try:
-    import matplotlib
-except ImportError:
-    from clusterking.util.log import get_logger
+from clusterking.util.matplotlib_utils import import_matplotlib
 
-    log = get_logger()
-    msg = (
-        "Could not import matplotlib. Perhaps you didn't install ClusterKinG "
-        "with the 'plotting' option? Please install matplotlib to use "
-        "ClusterKinG's plotting funcionality. "
-    )
-
+import_matplotlib()
 from clusterking.plots.plot_bundles import BundlePlot
 from clusterking.plots.plot_clusters import ClusterPlot
 from clusterking.plots.plot_histogram import plot_histogram

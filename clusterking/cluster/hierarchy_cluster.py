@@ -6,13 +6,13 @@ from typing import Union, Callable, Optional
 
 # 3rd
 import scipy.cluster
-import matplotlib.pyplot as plt
 import scipy.spatial
 
 # ours
 from clusterking.cluster.cluster import Cluster
 from clusterking.util.metadata import failsafe_serialize
 from clusterking.maths.metric import metric_selection
+from clusterking.util.matplotlib_utils import import_matplotlib
 
 
 # todo: document
@@ -105,7 +105,7 @@ class HierarchyCluster(Cluster):
         ax=None,
         show=False,
         **kwargs
-    ) -> Union[plt.Axes, None]:
+    ):
         """Creates dendrogram
 
         Args:
@@ -120,6 +120,7 @@ class HierarchyCluster(Cluster):
             The matplotlib.pyplot.Axes object
         """
         self.log.debug("Plotting dendrogram.")
+        import_matplotlib()
         if self.hierarchy is None:
             self.log.error(
                 "Hierarchy not yet set up. Returning without " "doing anything."

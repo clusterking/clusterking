@@ -215,6 +215,10 @@ class TestSubSample(MyTestCase):
         )
         self.assertEqual(e.n, 16)
 
+    def test_sample_param_random(self):
+        e = self.d.sample_param_random(n=5)
+        self.assertEqual(e.n, 5)
+
 
 if __name__ == "__main__":
     unittest.main()

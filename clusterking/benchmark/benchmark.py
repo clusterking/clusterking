@@ -79,7 +79,9 @@ class Benchmark(AbstractBenchmark):
         result = np.full(self.data.n, False, bool)
         for cluster in set(self._clusters):
             # The indizes of all spoints that are in the current cluster
-            indizes = np.squeeze(np.argwhere(self._clusters == cluster), axis=1)
+            indizes = np.squeeze(
+                np.argwhere(self._clusters.to_numpy() == cluster), axis=1
+            )
             # A data object with only these spoints
             # todo: Can't we somehow implement this nicer?
             d_cut = type(self.data)()

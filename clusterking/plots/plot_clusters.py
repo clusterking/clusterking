@@ -403,6 +403,9 @@ class ClusterPlot(object):
         mi = min(self.data.df[self._axis_columns[ax_no]].values)
         ma = max(self.data.df[self._axis_columns[ax_no]].values)
         d = ma - mi
+        if d == 0.0:
+            # Should only occurr during testing or in other edge cases
+            d = 1
         pad = stretch * d
         return mi - pad, ma + pad
 

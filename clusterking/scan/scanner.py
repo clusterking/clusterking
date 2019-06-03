@@ -20,7 +20,7 @@ import tqdm
 # ours
 from clusterking.data.data import Data
 import clusterking.maths.binning
-from clusterking.util.metadata import git_info, failsafe_serialize, nested_dict
+from clusterking.util.metadata import version_info, failsafe_serialize, nested_dict
 from clusterking.util.log import get_logger
 
 
@@ -137,7 +137,7 @@ class Scanner(object):
         self._spoint_calculator = SpointCalculator()
 
         self.md = nested_dict()
-        self.md["git"] = git_info(self.log)
+        self.md["git"] = version_info(self.log)
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
         self.imaginary_prefix = "im_"

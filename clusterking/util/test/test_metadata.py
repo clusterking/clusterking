@@ -22,7 +22,7 @@ class TestNestedDict(unittest.TestCase):
 
 class TestMetaData(unittest.TestCase):
     def test_save_load(self):
-        gi = metadata.git_info()
+        gi = metadata.get_git_info()
         gi_saved = metadata.save_git_info()
         self.assertEqual(gi, gi_saved)
         gi_loaded = metadata.load_git_info()
@@ -41,6 +41,17 @@ class TestMetaData(unittest.TestCase):
         for case in cases:
             self.assertEqual(metadata.failsafe_serialize(case), case)
         self.assertEqual(metadata.failsafe_serialize(cases), cases)
+
+
+class TestGetVersion(unittest.TestCase):
+    def test_get_version(self):
+        version = metadata.get_version()
+        # Version has form int.int[.int]
+        ints = version.split(".")
+        self.assertGreaterEqual(len(ints), 2)
+        self.assertLessEqual(len(ints), 3)
+        for i in ints:
+            self.assertTrue(i.isnumeric())
 
 
 if __name__ == "__main__":

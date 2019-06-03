@@ -7,7 +7,7 @@
 import time
 
 # us
-from clusterking.util.metadata import git_info, nested_dict
+from clusterking.util.metadata import version_info, nested_dict
 from clusterking.util.log import get_logger
 from clusterking.data.data import Data
 
@@ -31,7 +31,7 @@ class Cluster(object):
         #: Metadata
         self.md = nested_dict()
 
-        self.md["git"] = git_info(self.log)
+        self.md["git"] = version_info(self.log)
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
     def cluster(self, **kwargs):

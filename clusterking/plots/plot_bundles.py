@@ -516,7 +516,7 @@ class BundlePlot(object):
             whis=whiskers,  # extend the range of the whiskers
         )
 
-        if StrictVersion(matplotlib.__version__) < StrictVersion("1.3"):
+        if StrictVersion(matplotlib.__version__) < StrictVersion("3.1"):
             boxplot_options["manage_xticks"] = False
         else:
             boxplot_options["manage_ticks"] = False

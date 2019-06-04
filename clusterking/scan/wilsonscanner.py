@@ -4,7 +4,7 @@
 import wilson
 
 # ours
-from clusterking.scan.scanner import Scanner, SpointCalculator
+from clusterking.scan.scanner import Scanner, SpointCalculator, ScannerResult
 
 
 class WpointCalculator(SpointCalculator):
@@ -30,6 +30,10 @@ class WpointCalculator(SpointCalculator):
             eft=self.eft,
             basis=self.basis,
         )
+
+
+class WilsonScannerResult(ScannerResult):
+    pass
 
 
 class WilsonScanner(Scanner):

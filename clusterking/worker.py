@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
+# std
 from abc import ABC, abstractmethod
+
+# ours
+from clusterking.data.data import Data
 
 
 class Worker(ABC):
@@ -11,5 +15,5 @@ class Worker(ABC):
         return self._run(data)
 
     @abstractmethod
-    def _run(self, data):
+    def _run(self, data: Data):
         pass

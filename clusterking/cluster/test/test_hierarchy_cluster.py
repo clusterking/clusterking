@@ -17,13 +17,12 @@ class TestHierarchyCluster(MyTestCase):
         self.d = Data(self.ddir / self.dname)
 
     def test_cluster(self):
-        c = HierarchyCluster(self.d)
+        c = HierarchyCluster()
         c.set_metric()
-        c.build_hierarchy()
-        c.cluster(max_d=0.75)
-        c.write()
-        c.cluster(max_d=1.5)
-        c.write(cluster_column="cluster15")
+        c.set_max_d(0.75)
+        c.run(self.d).write()
+        c.set_max_d(1.5)
+        c.run(self.d).write(cluster_column="cluster15")
         # The minimal distance between our distributions is 1, so they all
         # end up in different clusters
         self.assertEqual(len(self.d.clusters()), self.d.n)
@@ -33,10 +32,11 @@ class TestHierarchyCluster(MyTestCase):
         self.assertEqual(len(self.d.clusters(cluster_column="cluster15")), 6)
 
     def test_dendrogram_plot(self):
-        c = HierarchyCluster(self.d)
+        c = HierarchyCluster()
         c.set_metric()
-        c.build_hierarchy()
-        c.dendrogram()
+        c.set_max_d(0.2)
+        r = c.run(self.d)
+        r.dendrogram()
 
 
 if __name__ == "__main__":

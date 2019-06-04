@@ -225,7 +225,7 @@ We are also working on a paper, so please make sure to cite us once we publish.
 .. _bug reports: https://github.com/clusterking/clusterking/issues
 .. _pull requests: https://github.com/clusterking/clusterking/pulls
 
-This software is lienced under the `MIT license`_.
+This software is licenced under the `MIT license`_.
 
 .. _MIT  license: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
 

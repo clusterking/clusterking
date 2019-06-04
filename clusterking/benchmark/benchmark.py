@@ -8,7 +8,10 @@ import numpy as np
 from typing import Callable
 
 # ours
-from clusterking.benchmark.abstract_benchmark import AbstractBenchmark
+from clusterking.benchmark.abstract_benchmark import (
+    AbstractBenchmark,
+    BenchmarkResult,
+)
 from clusterking.util.metadata import failsafe_serialize
 from clusterking.maths.metric import (
     uncondense_distance_matrix,
@@ -16,7 +19,6 @@ from clusterking.maths.metric import (
 )
 
 
-# todo: test this
 class Benchmark(AbstractBenchmark):
     """ Selecting benchmarks based on a figure of merit that is calculated
     with the metric. You have to use
@@ -29,13 +31,13 @@ class Benchmark(AbstractBenchmark):
     to the metric).
     """
 
-    def __init__(self, data, cluster_column="cluster"):
+    def __init__(self):
         """
         Args:
             data: :py:class:`~clusterking.data.data.Data` object
             cluster_column: Column name of the clusters
         """
-        super().__init__(data=data, cluster_column=cluster_column)
+        super().__init__()
         self.metric = None
         self.fom = lambda x: np.sum(x, axis=1)
 
@@ -67,7 +69,7 @@ class Benchmark(AbstractBenchmark):
         """
         self.fom = lambda metric: fct(metric, *args, **kwargs)
 
-    def _select_bpoints(self):
+    def _run(self, data):
         if self.metric is None:
             self.log.error(
                 "Metric not set. please run self.set_metric or set "
@@ -76,18 +78,23 @@ class Benchmark(AbstractBenchmark):
             )
             return
 
-        result = np.full(self.data.n, False, bool)
-        for cluster in set(self._clusters):
+        clusters = data.df[self.cluster_column]
+
+        result = np.full(data.n, False, bool)
+        for cluster in set(clusters):
             # The indizes of all spoints that are in the current cluster
-            indizes = np.squeeze(np.argwhere(self._clusters == cluster), axis=1)
+            # Note: Do not use to_numpy (requires pandas 0.24)
+            indizes = np.squeeze(
+                np.argwhere(np.array(clusters) == cluster), axis=1
+            )
             # A data object with only these spoints
             # todo: Can't we somehow implement this nicer?
-            d_cut = type(self.data)()
-            d_cut.df = self.data.df.iloc[indizes]
-            d_cut.md = copy.deepcopy(self.data.md)
+            d_cut = type(data)()
+            d_cut.df = data.df.iloc[indizes]
+            d_cut.md = copy.deepcopy(data.md)
             m = self.fom(uncondense_distance_matrix(self.metric(d_cut)))
             # The index of the wpoint of the current cluster that has the lowest
             # sum of distances to all other elements in the same cluster
             index_minimal = indizes[np.argmin(m)]
             result[index_minimal] = True
-        return result
+        return BenchmarkResult(data=data, md=self.md, bpoints=result)

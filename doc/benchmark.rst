@@ -1,5 +1,5 @@
-``Benchmark``
-==========================
+Benchmark
+=========
 
 .. automodule:: clusterking.benchmark
 

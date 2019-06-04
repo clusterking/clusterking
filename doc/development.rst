@@ -4,11 +4,14 @@ Development
 Software
 --------
 
-Please install the ClusterKinG package with the development packages:
+Please install the ClusterKinG package with the development packages from the
+latest master version on github:
 
 .. code-block:: shell
 
-    pip3 install --user clusterking[plotting,dev]
+    git clone https://github.com/clusterking/clusterking
+    cd clusterking
+    pip3 install --user .[plotting,dev]
 
 This will enable you to run our unittests and more.
 
@@ -16,7 +19,7 @@ This will enable you to run our unittests and more.
 Git hooks
 ---------
 
-Please install out git pre-commit hooks:
+Please install our git pre-commit hooks:
 
 .. code-block:: shell
 

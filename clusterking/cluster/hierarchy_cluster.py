@@ -93,10 +93,6 @@ class HierarchyClusterResult(ClusterResult):
 # todo: document
 class HierarchyCluster(Cluster):
     def __init__(self):
-        """
-        Args:
-            data: :py:class:`~clusterking.data.data.Data` object
-        """
         super().__init__()
 
         #: Function that, applied to Data or DWE object returns the metric as

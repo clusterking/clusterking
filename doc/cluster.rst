@@ -31,3 +31,7 @@ Cluster
     .. autoclass:: KmeansCluster
       :members:
       :undoc-members:
+
+    .. autoclass:: KmeansClusterResult
+      :members:
+      :undoc-members:

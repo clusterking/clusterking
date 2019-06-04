@@ -64,6 +64,10 @@ intersphinx_mapping = {
     "numpy": ("https://docs.scipy.org/doc/numpy/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
     "matplotlib": ("https://matplotlib.org/", None),
+    "sklearn": (
+        "http://scikit-learn.org/stable",
+        (None, "./_intersphinx/sklearn-objects.inv"),
+    )
     # 'wilson': ('https://wilson-eft.github.io/wilson/', None)
 }
 

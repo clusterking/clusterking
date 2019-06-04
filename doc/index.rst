@@ -28,6 +28,7 @@ The package particularly focuses on use cases in high energy physics.
   scanner
   cluster
   benchmark
+  stability
   plots
   maths
   util

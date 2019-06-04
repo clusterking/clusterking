@@ -30,7 +30,7 @@ class TestWilsonScannerRun(MyTestCase):
         self.d = Data()
 
     def test_run(self):
-        self.s.run(self.d)
+        self.s.run(self.d).write()
         self.assertEqual(self.d.n, 8)
         self.assertEqual(self.d.nbins, 2)
         self.assertEqual(self.d.npars, 3)

@@ -1,5 +1,5 @@
-``Maths``
-=====================
+Maths
+=====
 
 Mathematics.
 
@@ -25,4 +25,3 @@ Mathematics.
     .. automodule:: clusterking.maths.statistics
         :members:
         :undoc-members:
-

@@ -1,5 +1,5 @@
-``Data``
-=====================
+Data
+====
 
 .. automodule:: clusterking.data
 

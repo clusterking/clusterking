@@ -1,5 +1,5 @@
-``Plots``
-=====================
+Plots
+=====
 
 .. automodule:: clusterking.plots
 

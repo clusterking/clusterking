@@ -24,6 +24,7 @@ The package particularly focuses on use cases in high energy physics.
   :caption: Module documentation
 
   data
+  workers_results
   scanner
   cluster
   benchmark

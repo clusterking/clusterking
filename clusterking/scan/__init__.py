@@ -17,5 +17,5 @@ Two classes are defined:
   of a :class:`wilson.Wilson` object as first argument.
 """
 
-from clusterking.scan.scanner import Scanner
-from clusterking.scan.wilsonscanner import WilsonScanner
+from clusterking.scan.scanner import Scanner, ScannerResult
+from clusterking.scan.wilsonscanner import WilsonScanner, WilsonScannerResult

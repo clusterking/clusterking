@@ -43,7 +43,14 @@ def turn_into_nested_dict(nested):
     return new
 
 
-def git_info(log=None, path=None) -> Dict[str, str]:
+def version_info(log=None, path=None) -> Dict[str, str]:
+    vinfo = {}
+    vinfo.update(get_git_info(log=log, path=path))
+    vinfo["version"] = get_version()
+    return vinfo
+
+
+def get_git_info(log=None, path=None):
     """ Return dictionary containing status of the git repository (commit hash,
     date etc.
 
@@ -119,7 +126,7 @@ def save_git_info(output_path=None, *args, **kwargs) -> Dict[str, str]:
     if not output_path:
         this_dir = pathlib.Path(__file__).parent.resolve()
         output_path = this_dir / ".." / "git_info.json"
-    gi = git_info(*args, **kwargs)
+    gi = get_git_info(*args, **kwargs)
     with output_path.open("w") as output_file:
         json.dump(gi, output_file, indent=4, sort_keys=True)
     return gi
@@ -134,7 +141,7 @@ def load_git_info(input_path=None) -> Dict[str, str]:
             bclustering/git_info.json
 
     Returns:
-        Parsed json file (should be identical to saved output of git_info).
+        Parsed json file (should be identical to saved output of version_info).
     """
     if input_path:
         input_path = pathlib.Path(input_path)
@@ -158,9 +165,17 @@ def failsafe_serialize(obj):
         return str(obj)
 
 
+def get_version():
+    """ Return ClusterKinG version. """
+    version_path = pathlib.Path(__file__).parent.parent / "version.txt"
+    with version_path.open("r") as version_file:
+        version = version_file.read().strip()
+    return version
+
+
 if __name__ == "__main__":
-    print("Testing git_info")
-    print(git_info())
+    print("Testing version_info")
+    print(version_info())
     print("Saving git_info")
     save_git_info()
     print("Loading git info again")

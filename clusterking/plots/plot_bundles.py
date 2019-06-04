@@ -4,6 +4,7 @@
 import logging
 import random
 from typing import List, Iterable, Union, Optional
+from distutils.version import StrictVersion
 
 # 3rd party
 import matplotlib.pyplot as plt
@@ -502,8 +503,7 @@ class BundlePlot(object):
         bins = self._bins
         positions = 1 / 2 * (np.array(bins[1:]) + np.array(bins[:-1]))
 
-        self.ax.boxplot(
-            data,
+        boxplot_options = dict(
             notch=False,
             positions=positions,  # np.array(range(len(data.T))) + 0.5,
             vert=True,
@@ -514,8 +514,14 @@ class BundlePlot(object):
             flierprops=dict(color=color, markeredgecolor=color),
             medianprops=dict(color=color),
             whis=whiskers,  # extend the range of the whiskers
-            manage_xticks=False,
         )
+
+        if StrictVersion(matplotlib.__version__) < StrictVersion("3.1"):
+            boxplot_options["manage_xticks"] = False
+        else:
+            boxplot_options["manage_ticks"] = False
+
+        self.ax.boxplot(data, **boxplot_options)
         if bpoints:
             self._plot_bundles(cluster, nlines=0)
 

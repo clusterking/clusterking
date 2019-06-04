@@ -1,5 +1,5 @@
-``Utility``
-=====================
+Utility
+=======
 
 .. automodule:: clusterking.util
 

@@ -54,7 +54,7 @@ class TestScanner(MyTestCase):
 
     def test_set_spoints_equidist(self):
         s = Scanner()
-        s.imaginary_prefix = "xxx"
+        s.set_imaginary_prefix("xxx")
         s.set_spoints_equidist(
             {"a": (1, 2, 2), "xxxa": (3, 4, 2), "c": (1, 1, 1)}
         )
@@ -68,7 +68,7 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero)
-        s.run(d)
+        s.run(d).write()
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
         self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 0.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
@@ -78,7 +78,7 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_identity)
-        s.run(d)
+        s.run(d).write()
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
         self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 1.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
@@ -88,7 +88,8 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_identity)
-        s.run(d, 1)
+        s.set_no_workers(1)
+        s.run(d).write()
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0"])
         self.assertAllClose(d.df.values, np.array([[0.0, 0.0], [1.0, 1.0]]))
         d.write(Path(self.tmpdir.name) / "test.sql")
@@ -98,7 +99,7 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
-        s.run(d)
+        s.run(d).write()
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0", "bin1"])
         self.assertAllClose(
             d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
@@ -110,7 +111,7 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 2, 3)})
         s.set_dfunction(func_sum_indentity_x, sampling=[0, 1, 2])
-        s.run(d)
+        s.run(d).write()
         self.assertEqual(
             sorted(list(d.df.columns)), ["a", "bin0", "bin1", "bin2"]
         )
@@ -132,7 +133,8 @@ class TestScanner(MyTestCase):
         d = Data()
         s.set_spoints_equidist({"a": (0, 1, 2)})
         s.set_dfunction(func_zero_bins, binning=[0, 1, 2])
-        s.run(d, 1)
+        s.set_no_workers(1)
+        s.run(d).write()
         self.assertEqual(sorted(list(d.df.columns)), ["a", "bin0", "bin1"])
         self.assertAllClose(
             d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])

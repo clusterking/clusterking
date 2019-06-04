@@ -1,5 +1,5 @@
-``Cluster``
-==========================
+Cluster
+=======
 
 .. automodule:: clusterking.cluster
 
@@ -10,10 +10,18 @@
       :members:
       :undoc-members:
 
+    .. autoclass:: ClusterResult
+      :members:
+      :undoc-members:
+
 ``HierarchyCluster``
 --------------------
 
     .. autoclass:: HierarchyCluster
+      :members:
+      :undoc-members:
+
+    .. autoclass:: HierarchyClusterResult
       :members:
       :undoc-members:
 
@@ -24,3 +32,6 @@
       :members:
       :undoc-members:
 
+    .. autoclass:: KmeansClusterResult
+      :members:
+      :undoc-members:

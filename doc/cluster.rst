@@ -1,5 +1,5 @@
-``Cluster``
-==========================
+Cluster
+=======
 
 .. automodule:: clusterking.cluster
 

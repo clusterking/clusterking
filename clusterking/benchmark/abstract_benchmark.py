@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # std
+from abc import abstractmethod
 
 # 3rd
 import numpy as np
@@ -9,46 +10,54 @@ import numpy as np
 from clusterking.data.data import Data
 from clusterking.util.metadata import nested_dict
 from clusterking.util.log import get_logger
+from clusterking.result import Result
+from clusterking.worker import Worker
 
 
-class AbstractBenchmark(object):
+class AbstractBenchmark(Worker):
     """Subclass this class to implement algorithms to choose benchmark
     points from all the points (in parameter space) that correspond to one
     cluster.
     """
 
-    def __init__(self, data: Data, cluster_column="cluster"):
+    def __init__(self):
         """
-
-        Args:
-            data: :py:class:`~clusterking.data.data.Data` object
-            cluster_column: Column name of the clusters
         """
-        self.data = data
+        super().__init__()
         self.bpoints = None
         self.md = nested_dict()
         self.log = get_logger("Benchmark")
-        self.md["cluster_column"] = cluster_column
+        self.set_cluster_column()
 
     @property
-    def cluster_column(self):
-        """ The column from which we read the cluster information.
-        Defaults to 'cluster'. """
+    def cluster_column(self) -> str:
         return self.md["cluster_column"]
 
-    @property
-    def _clusters(self):
-        return self.data.df[self.cluster_column]
+    # **************************************************************************
+    # Settings
+    # **************************************************************************
 
-    def select_bpoints(self) -> None:
-        """ Select one benchmark point for each cluster.
-        """
-        self.bpoints = self._select_bpoints()
+    def set_cluster_column(self, column="cluster"):
+        """ St the column of the dataframe of the :class:`~clusterking.data.Data`
+        object that contains the cluster information. """
+        self.md["cluster_column"] = column
 
-    def _select_bpoints(self, *args, **kwargs) -> np.ndarray:
-        raise NotImplementedError
+    # **************************************************************************
+    # Run
+    # **************************************************************************
 
-    def write(self, bpoint_column="bpoint") -> None:
+    @abstractmethod
+    def _run(self, data):
+        pass
+
+
+class AbstractBenchmarkResult(Result):
+    def __init__(self, data, bpoints, md):
+        super().__init__(data=data)
+        self._bpoints = bpoints
+        self._md = md
+
+    def _write(self, bpoint_column="bpoint") -> None:
         """ Write benchmark points to a column in the dataframe of the data
         object.
 
@@ -58,5 +67,5 @@ class AbstractBenchmark(object):
         Returns:
             None
         """
-        self.data.df[bpoint_column] = self.bpoints
-        self.data.md["bpoint"][bpoint_column] = self.md
+        self._data.df[bpoint_column] = self._bpoints
+        self._data.md["bpoint"][bpoint_column] = self._md

@@ -10,10 +10,18 @@
       :members:
       :undoc-members:
 
+    .. autoclass:: ClusterResult
+      :members:
+      :undoc-members:
+
 ``HierarchyCluster``
 --------------------
 
     .. autoclass:: HierarchyCluster
+      :members:
+      :undoc-members:
+
+    .. autoclass:: HierarchyClusterResult
       :members:
       :undoc-members:
 
@@ -23,4 +31,3 @@
     .. autoclass:: KmeansCluster
       :members:
       :undoc-members:
-

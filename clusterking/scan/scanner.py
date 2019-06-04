@@ -122,7 +122,10 @@ class Scanner(Worker):
         d = ck.data.Data()
 
         # Run it
-        s.run(d)
+        r = s.run(d)
+
+        # Write back results to data
+        r.write()
     """
 
     # **************************************************************************

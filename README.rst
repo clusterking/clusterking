@@ -112,8 +112,8 @@ For additional examples, presentations and more, you can also head to our `other
 Example
 -------
 
-Sample and cluster
-~~~~~~~~~~~~~~~~~~
+Sample
+~~~~~~
 
 The following code (taken from ``examples/jupyter_notebook/010_basic_tutorial.ipynb``) is all that
 is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu``
@@ -149,25 +149,31 @@ in the space of Wilson coefficients:
    # Create data object to write to and run
 
    d = ck.DataWithErrors()
-   s.run(d)
+   r = s.run(d)
+   r.write()  # Write results back to data object
 
-   # Use hierarchical clustering
+Cluster
+~~~~~~~
 
-   c = ck.cluster.HierarchyCluster(d)
-   c.set_metric()         # Use default metric (Euclidean)
-   c.build_hierarchy()    # Build up clustering hierarchy
-   c.cluster(max_d=0.15)  # "Cut off" hierarchy
-   c.write()              # Write results to d
+Using hierarchical clustering:
+
+.. code:: python
+
+   c = ck.cluster.HierarchyCluster)  # Initialize worker class
+   c.set_metric("euclidean")
+   c.set_max_d(0.15)      # "Cut off" value for hierarchy
+   r = c.run(d)           # Run clustering on d
+   r.write()              # Write results to d
 
 Benchmark points
 ~~~~~~~~~~~~~~~~
 
 .. code:: python
 
-   b = ck.Benchmark(d) # Initialize benchmarker for data d
-   b.set_metric()      # Use default metric (Euclidean)
-   b.select_bpoints()  # Select benchmark points based on metric
-   b.write()           # Write results back to d
+   b = ck.Benchmark() # Initialize worker class
+   b.set_metric("euclidean")
+   r = b.run(d)        # Select benchmark points based on metric
+   r.write()           # Write results back to d
 
 Plotting
 ~~~~~~~~

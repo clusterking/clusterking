@@ -67,9 +67,9 @@ class WilsonScanner(Scanner):
         # Initialize a Data objects to write to
         d = ck.Data()
 
-        # Start running with maximally 3 cores and write the results to Data
-        s.run(d)
-
+        # Run and write back data
+        r = s.run(d)
+        r.write()
     """
 
     def __init__(self, scale, eft, basis):

@@ -10,13 +10,17 @@ from typing import Callable
 # ours
 from clusterking.benchmark.abstract_benchmark import (
     AbstractBenchmark,
-    BenchmarkResult,
+    AbstractBenchmarkResult,
 )
 from clusterking.util.metadata import failsafe_serialize
 from clusterking.maths.metric import (
     uncondense_distance_matrix,
     metric_selection,
 )
+
+
+class BenchmarkResult(AbstractBenchmarkResult):
+    pass
 
 
 class Benchmark(AbstractBenchmark):

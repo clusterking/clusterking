@@ -15,6 +15,9 @@ Currently implemented:
 
 """
 
-from clusterking.cluster.hierarchy_cluster import HierarchyCluster
+from clusterking.cluster.hierarchy_cluster import (
+    HierarchyCluster,
+    HierarchyClusterResult,
+)
 from clusterking.cluster.kmeans_cluster import KmeansCluster
-from clusterking.cluster.cluster import Cluster
+from clusterking.cluster.cluster import Cluster, ClusterResult

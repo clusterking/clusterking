@@ -27,7 +27,7 @@ class AbstractBenchmark(Worker):
         self.bpoints = None
         self.md = nested_dict()
         self.log = get_logger("Benchmark")
-        self.set_cluster_column("cluster")
+        self.set_cluster_column()
 
     @property
     def cluster_column(self) -> str:
@@ -37,7 +37,9 @@ class AbstractBenchmark(Worker):
     # Settings
     # **************************************************************************
 
-    def set_cluster_column(self, column):
+    def set_cluster_column(self, column="cluster"):
+        """ St the column of the dataframe of the :class:`~clusterking.data.Data`
+        object that contains the cluster information. """
         self.md["cluster_column"] = column
 
     # **************************************************************************
@@ -49,7 +51,7 @@ class AbstractBenchmark(Worker):
         pass
 
 
-class BenchmarkResult(Result):
+class AbstractBenchmarkResult(Result):
     def __init__(self, data, bpoints, md):
         super().__init__(data=data)
         self._bpoints = bpoints

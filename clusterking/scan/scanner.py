@@ -18,10 +18,16 @@ import pandas as pd
 import tqdm
 
 # ours
+from clusterking.worker import Worker
 from clusterking.data.data import Data
 import clusterking.maths.binning
-from clusterking.util.metadata import version_info, failsafe_serialize, nested_dict
+from clusterking.util.metadata import (
+    version_info,
+    failsafe_serialize,
+    nested_dict,
+)
 from clusterking.util.log import get_logger
+from clusterking.result import Result
 
 
 class SpointCalculator(object):
@@ -81,8 +87,7 @@ class SpointCalculator(object):
 
 
 # todo: also allow to disable multiprocessing if there are problems.
-class Scanner(object):
-
+class Scanner(Worker):
     """
     This class is set up with a function
     (specified in :meth:`.set_dfunction`) that depends
@@ -121,11 +126,13 @@ class Scanner(object):
     """
 
     # **************************************************************************
-    # A:  Setup
+    # Constructor
     # **************************************************************************
 
     def __init__(self):
         """ Initializes the :class:`clusterking.scan.Scanner` class. """
+        super().__init__()
+        # todo: move
         self.log = get_logger("Scanner")
 
         #: Points in wilson space
@@ -136,23 +143,28 @@ class Scanner(object):
         #:  the wilson space points.
         self._spoint_calculator = SpointCalculator()
 
+        # todo: move
         self.md = nested_dict()
         self.md["git"] = version_info(self.log)
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
-        self.imaginary_prefix = "im_"
+        # todo: shouldn't that be in metadata?
         self._coeffs = []
+
+        self._no_workers = None
+
+        self.set_imaginary_prefix("im_")
+
+    # **************************************************************************
+    # Convenience properties
+    # **************************************************************************
 
     @property
     def imaginary_prefix(self) -> str:
         """ Prefix for the name of imaginary parts of coefficients.
-        Also see e.g. :meth:`.set_spoints_equidist`.
+        Also see e.g. :meth:`.set_spoints_equidist`. Read only.
         """
         return self.md["imaginary_prefix"]
-
-    @imaginary_prefix.setter
-    def imaginary_prefix(self, value: str) -> None:
-        self.md["imaginary_prefix"] = value
 
     @property
     def spoints(self):
@@ -168,7 +180,10 @@ class Scanner(object):
         """
         return self._coeffs.copy()
 
-    # todo: implement sampling as well, not just binning
+    # **************************************************************************
+    # Settings
+    # **************************************************************************
+
     def set_dfunction(
         self,
         func: Callable,
@@ -371,11 +386,18 @@ class Scanner(object):
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
+    # todo: doc
+    def set_no_workers(self, no_workers):
+        self._no_workers = no_workers
+
+    def set_imaginary_prefix(self, value: str) -> None:
+        self.md["imaginary_prefix"] = value
+
     # **************************************************************************
-    # B:  Run
+    # Run
     # **************************************************************************
 
-    def run(self, data: Data, no_workers=None) -> None:
+    def _run(self, data: Data):
         """Calculate all sample points and writes the result to a dataframe.
 
         Args:
@@ -409,7 +431,8 @@ class Scanner(object):
             )
             return
 
-        if not no_workers:
+        no_workers = self._no_workers
+        if not self._no_workers:
             no_workers = os.cpu_count()
         if not no_workers:
             # os.cpu_count() didn't work
@@ -424,44 +447,13 @@ class Scanner(object):
         else:
             rows = self._run_singlecore()
 
-        self.log.debug("Converting data to pandas dataframe.")
-        cols = self.coeffs
-        cols.extend(
-            [
-                "bin{}".format(no_bin)
-                for no_bin in range(self.md["dfunction"]["nbins"])
-            ]
+        return ScannerResult(
+            data=data,
+            rows=rows,
+            spoints=self._spoints,
+            md=self.md,
+            coeffs=self._coeffs,
         )
-
-        # Now we finally write everything to data
-        data.df = pd.DataFrame(data=rows, columns=cols)
-
-        # todo: Shouldn't we do that above already? This sounds not so
-        #   great performance wise...
-        # Special handling for complex numbers
-        coeffs_with_im = []
-        for coeff in self.coeffs:
-            coeffs_with_im.append(coeff)
-            if not list(data.df[coeff].apply(np.imag).unique()) == [0.0]:
-                values = data.df[coeff]
-                data.df[coeff] = values.apply(np.real)
-                loc = list(data.df.columns).index(coeff)
-                data.df.insert(
-                    loc + 1,
-                    self.imaginary_prefix + coeff,
-                    values.apply(np.imag),
-                )
-                coeffs_with_im.append(self.imaginary_prefix + coeff)
-            else:
-                data.df[coeff] = data.df[coeff].apply(np.real)
-
-        data.df.index.name = "index"
-
-        self.md["spoints"]["coeffs"] = coeffs_with_im
-
-        data.md["scan"] = self.md
-
-        self.log.info("Integration done.")
 
     def _run_multicore(self, no_workers):
         """ Calculate spoints in parallel processing mode.
@@ -545,3 +537,82 @@ class Scanner(object):
             rows.append([*self._spoints[index], *result])
 
         return rows
+
+
+class ScannerResult(Result):
+    def __init__(self, data, rows, spoints, md, coeffs):
+        super().__init__(data=data)
+        self._rows = rows
+        self._spoints = spoints
+        self.md = md
+        self._coeffs = coeffs
+
+    # **************************************************************************
+    # Convenience properties
+    # **************************************************************************
+
+    @property
+    def imaginary_prefix(self) -> str:
+        """ Prefix for the name of imaginary parts of coefficients.
+        Also see e.g. :meth:`.set_spoints_equidist`. Read only.
+        """
+        return self.md["imaginary_prefix"]
+
+    @property
+    def spoints(self):
+        """ Points in parameter space that are sampled (read-only)."""
+        return self._spoints
+
+    @property
+    def coeffs(self):
+        """ The name of the parameters/coefficients/dimensions of the spoints
+        (read only).
+        Set after spoints are set.
+        Does **not** include the names of the columns of the imaginary parts.
+        """
+        return self._coeffs.copy()
+
+    # **************************************************************************
+    # Write
+    # **************************************************************************
+
+    def _write(self):
+        self.log.debug("Converting data to pandas dataframe.")
+        cols = self.coeffs
+        cols.extend(
+            [
+                "bin{}".format(no_bin)
+                for no_bin in range(self.md["dfunction"]["nbins"])
+            ]
+        )
+
+        # Now we finally write everything to data
+        self._data.df = pd.DataFrame(data=self._rows, columns=cols)
+
+        # todo: Shouldn't we do that above already? This sounds not so
+        #   great performance wise...
+        # Special handling for complex numbers
+        coeffs_with_im = []
+        for coeff in self.coeffs:
+            coeffs_with_im.append(coeff)
+            if not list(self._data.df[coeff].apply(np.imag).unique()) == [0.0]:
+                values = self._data.df[coeff]
+                self._data.df[coeff] = values.apply(np.real)
+                loc = list(self._data.df.columns).index(coeff)
+                self._data.df.insert(
+                    loc + 1,
+                    self.imaginary_prefix + coeff,
+                    values.apply(np.imag),
+                )
+                coeffs_with_im.append(self.imaginary_prefix + coeff)
+            else:
+                self._data.df[coeff] = self._data.df[coeff].apply(np.real)
+
+        self._data.df.index.name = "index"
+
+        # fixme: Should already be set in worker class
+        self.md["spoints"]["coeffs"] = coeffs_with_im
+
+        self._data.md["scan"] = self.md
+
+        self.log.info("Integration done.")

@@ -14,9 +14,9 @@ class Result(ABC):
         self._data = data  # type: Data
         self.log = get_logger(str(type(self)))
 
-    def write(self):
-        return self._write()
+    def write(self, *args, **kwargs):
+        return self._write(*args, **kwargs)
 
     @abstractmethod
-    def _write(self):
+    def _write(self, *args, **kwargs):
         pass

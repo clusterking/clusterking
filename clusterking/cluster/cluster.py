@@ -5,26 +5,29 @@
 
 # std
 import time
+from abc import abstractmethod
 
 # us
 from clusterking.util.metadata import version_info, nested_dict
 from clusterking.util.log import get_logger
 from clusterking.data.data import Data
+from clusterking.worker import Worker
+from clusterking.result import Result
 
 
-class Cluster(object):
+class Cluster(Worker):
     """ Abstract baseclass of the Cluster classes. This class is subclassed to
     implement specific clustering algorithms and defines common functions.
     """
 
-    def __init__(self, data: Data):
+    def __init__(self):
         """
         Args:
             data: :py:class:`~clusterking.data.Data` object
         """
+        super().__init__()
         self.log = get_logger("Scanner")
 
-        self.data = data
         self.clusters = None
         # self.bpoints = None
 
@@ -34,35 +37,25 @@ class Cluster(object):
         self.md["git"] = version_info(self.log)
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
-    def cluster(self, **kwargs):
-        """ Performs the clustering.
-        This method is a wrapper around the _cluster implementation in the
-        subclasses. See there for additional arguments.
-        """
-        self.log.info("Performing clustering.")
-
-        self.md["cluster_args"] = kwargs
-
-        self.clusters = self._cluster(**kwargs)
-
-        n_clusters = len(set(self.clusters))
-        self.log.info(
-            "Clustering resulted in {} get_clusters.".format(n_clusters)
-        )
-        self.md["n_clusters"] = n_clusters
-
-        self.log.info("Done")
-
-    def _cluster(self, **kwargs):
+    @abstractmethod
+    def _run(self, **kwargs):
         """ Implementation of the clustering. Should return an array-like object
         with the cluster number.
         """
-        raise NotImplementedError
+        pass
 
-    # todo: overwrite argument?
-    def write(self, cluster_column="cluster"):
+
+# todo: add back n_clusters
+class ClusterResult(Result):
+    def __init__(self, data, md, clusters):
+        super().__init__(data=data)
+        self._md = md
+        self._clusters = clusters
+        self._md["n_clusters"] = len(set(self._clusters))
+
+    def _write(self, cluster_column="cluster"):
         """ Write results back in the :py:class:`~clusterking.data.Data`
         object. """
-        self.data.df[cluster_column] = self.clusters
-        self.data.md["cluster"][cluster_column] = self.md
-        self.data.rename_clusters(column=cluster_column)
+        self._data.df[cluster_column] = self._clusters
+        self._data.md["cluster"][cluster_column] = self._md
+        self._data.rename_clusters(column=cluster_column)

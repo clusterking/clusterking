@@ -6,7 +6,6 @@ import pandas as pd
 
 # ours
 from clusterking.stability.clustermatcher import TrivialClusterMatcher
-from clusterking.util.matplotlib_utils import import_matplotlib
 
 
 class SubSampleStabilityTesterResult(object):
@@ -31,6 +30,10 @@ class SubSampleStabilityTester(object):
         self._progress_bar = None
         self.set_progress_bar()
 
+    # **************************************************************************
+    # Config
+    # **************************************************************************
+
     def set_basic_config(self, fraction=0.75, repeat=100):
         assert 0 < fraction < 1
         self._fraction = fraction
@@ -44,6 +47,10 @@ class SubSampleStabilityTester(object):
 
     def set_progress_bar(self, state=True):
         self._progress_bar = state
+
+    # **************************************************************************
+    # Run
+    # **************************************************************************
 
     def run(self, data, worker):
         foms = []
@@ -72,3 +79,30 @@ class SubSampleStabilityTester(object):
         df["nclusters"] = nclusters
         df["match_lost"] = match_losts
         return SubSampleStabilityTesterResult(df=df)
+
+
+class SubSampleStabilityVsFractionResult(object):
+    def __init__(self, df):
+        self.df = df
+
+
+class SubSampleStabilityVsFraction(object):
+    def __init__(self):
+        pass
+
+    def run(self, data, cluster, ssst, fractions):
+        x = []
+        fom = []
+        nclusters = []
+        ssst.set_progress_bar(False)
+        for fract in tqdm.tqdm(fractions):
+            x.append(fract)
+            ssst.set_basic_config(fraction=fract, repeat=200)
+            r = ssst.run(data, cluster)
+            fom.append(r.df["fom"].mean())
+            nclusters.append(r.df["nclusters"].mean())
+        df = pd.DataFrame()
+        df["fract"] = x
+        df["fom"] = fom
+        df["nclusters"] = nclusters
+        return SubSampleStabilityVsFractionResult(df=df)

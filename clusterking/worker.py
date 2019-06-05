@@ -7,6 +7,8 @@ from abc import ABC, abstractmethod
 from clusterking.data.data import Data
 
 
+# todo: run should simply be overwritten. There's nothing we can factor out there
+#   and we still might want to have different arguments if we supply something else than data
 class Worker(ABC):
     """ The worker class represents an operation on the data.
 
@@ -23,7 +25,7 @@ class Worker(ABC):
     def __init__(self):
         pass
 
-    def run(self, data):
+    def run(self, data, *args, **kwargs):
         """ Run the operation on the data.
 
         Args:
@@ -32,8 +34,8 @@ class Worker(ABC):
         Returns:
             :class:`~clusterking.result.Result` object
         """
-        return self._run(data)
+        return self._run(data, *args, **kwargs)
 
     @abstractmethod
-    def _run(self, data: Data):
+    def _run(self, data: Data, *args, **kwargs):
         pass

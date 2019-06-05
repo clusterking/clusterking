@@ -162,8 +162,28 @@ class HierarchyCluster(Cluster):
         )
 
     # todo: Allow reusing of hierarchy
-    def _run(self, data):
-        hierarchy = self._build_hierarchy(data)
+    def _run(
+        self,
+        data,
+        reuse_hierarchy_from: Optional[HierarchyClusterResult] = None,
+    ):
+        """
+
+        Args:
+            data:
+            reuse_hierarchy_from: Reuse the hierarchy from a
+                :class:`HierarchyClusterResult` object.
+
+        Returns:
+
+        """
+        if reuse_hierarchy_from:
+            # todo: Perhaps add some consistency checks here to ensure that
+            #   only hierarchies are reused that belong to the same data and
+            #   to the same worker
+            hierarchy = reuse_hierarchy_from.hierarchy
+        else:
+            hierarchy = self._build_hierarchy(data)
 
         # noinspection PyTypeChecker
         clusters = scipy.cluster.hierarchy.fcluster(

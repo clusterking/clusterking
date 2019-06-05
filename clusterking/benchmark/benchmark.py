@@ -45,6 +45,10 @@ class Benchmark(AbstractBenchmark):
         self.metric = None
         self.fom = lambda x: np.sum(x, axis=1)
 
+    # **************************************************************************
+    # Settings
+    # **************************************************************************
+
     # Docstring set below
     def set_metric(self, *args, **kwargs) -> None:
         self.md["metric"]["args"] = failsafe_serialize(args)
@@ -73,7 +77,11 @@ class Benchmark(AbstractBenchmark):
         """
         self.fom = lambda metric: fct(metric, *args, **kwargs)
 
-    def _run(self, data):
+    # **************************************************************************
+    # Run
+    # **************************************************************************
+
+    def run(self, data):
         if self.metric is None:
             self.log.error(
                 "Metric not set. please run self.set_metric or set "

@@ -8,8 +8,12 @@ from clusterking.util.log import get_logger
 from clusterking.data.data import Data
 
 
-# todo: doc
-class Result(ABC):
+class AbstractResult(ABC):
+    def __init__(self):
+        pass
+
+
+class DataResult(AbstractResult):
     """ The result object represents the result of the execution of a
     :class:`~clusterking.worker.Worker` object on the
     :class:`~clusterking.data.Data` object.
@@ -24,15 +28,13 @@ class Result(ABC):
             initialized by the user. Rather it is a return object of the
             :meth:`clusterking.worker.Worker.run` method.
         """
+        super().__init__()
         self._data = data  # type: Data
         self.log = get_logger(str(type(self)))
 
+    @abstractmethod
     def write(self, *args, **kwargs):
         """ Write relevant data back to the :class:`~clusterking.data.Data`
         object that was passed to :meth:`clusterking.worker.Worker.run`.
         """
-        return self._write(*args, **kwargs)
-
-    @abstractmethod
-    def _write(self, *args, **kwargs):
         pass

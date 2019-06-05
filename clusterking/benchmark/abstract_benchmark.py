@@ -10,11 +10,11 @@ import numpy as np
 from clusterking.data.data import Data
 from clusterking.util.metadata import nested_dict
 from clusterking.util.log import get_logger
-from clusterking.result import Result
-from clusterking.worker import Worker
+from clusterking.result import DataResult
+from clusterking.worker import DataWorker
 
 
-class AbstractBenchmark(Worker):
+class AbstractBenchmark(DataWorker):
     """Subclass this class to implement algorithms to choose benchmark
     points from all the points (in parameter space) that correspond to one
     cluster.
@@ -47,17 +47,17 @@ class AbstractBenchmark(Worker):
     # **************************************************************************
 
     @abstractmethod
-    def _run(self, data):
+    def run(self, data):
         pass
 
 
-class AbstractBenchmarkResult(Result):
+class AbstractBenchmarkResult(DataResult):
     def __init__(self, data, bpoints, md):
         super().__init__(data=data)
         self._bpoints = bpoints
         self._md = md
 
-    def _write(self, bpoint_column="bpoint") -> None:
+    def write(self, bpoint_column="bpoint") -> None:
         """ Write benchmark points to a column in the dataframe of the data
         object.
 

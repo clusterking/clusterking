@@ -2,8 +2,8 @@ Workers and Results
 ===================
 
 Operations on the data (represented by a :class:`~clusterking.data.Data` object) are
-performed by worker classes, which are formally a subclass of the
-:class:`~clusterking.worker.Worker` class.
+performed by worker classes, which are a subclass of the
+:class:`~clusterking.worker.DataWorker` class.
 
 Usually the workflow looks as follows:
 
@@ -13,7 +13,7 @@ Usually the workflow looks as follows:
    This returns a result object ``r``.
 
 Running a worker class returns a result class, which is formally a subclass of the
-:class:`~clusterking.result.Result`` class.
+:class:`~clusterking.result.AbstractResult`` class.
 
 Most prominently, it has a ``write`` method, that allows to writes the relevant
 part of the results back to the :class:`~clusterking.data.Data` object. Thus the
@@ -26,7 +26,11 @@ workflow continues as
 ``Worker``
 ---------------------
 
-    .. autoclass:: Worker
+    .. autoclass:: AbstractWorker
+        :members:
+        :undoc-members:
+
+    .. autoclass:: DataWorker
         :members:
         :undoc-members:
 
@@ -35,6 +39,10 @@ workflow continues as
 ``Result``
 ---------------------
 
-    .. autoclass:: Result
+    .. autoclass:: AbstractResult
+        :members:
+        :undoc-members:
+
+    .. autoclass:: DataResult
         :members:
         :undoc-members:

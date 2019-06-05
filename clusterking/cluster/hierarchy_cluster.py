@@ -162,7 +162,7 @@ class HierarchyCluster(Cluster):
         )
 
     # todo: Allow reusing of hierarchy
-    def _run(
+    def run(
         self,
         data,
         reuse_hierarchy_from: Optional[HierarchyClusterResult] = None,

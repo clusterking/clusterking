@@ -44,7 +44,7 @@ class KmeansCluster(Cluster):
         self._kmeans_kwargs = kwargs
         self.md["kmeans"]["kwargs"] = failsafe_serialize(kwargs)
 
-    def _run(self, data) -> KmeansClusterResult:
+    def run(self, data) -> KmeansClusterResult:
         kmeans = sklearn.cluster.KMeans(**self._kmeans_kwargs)
         matrix = data.data()
         kmeans.fit(matrix)

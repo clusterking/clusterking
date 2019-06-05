@@ -116,7 +116,7 @@ Sample
 ~~~~~~
 
 The following code (taken from ``examples/jupyter_notebook/010_basic_tutorial.ipynb``) is all that
-is needed to cluster the shape of the ``q^2`` distribution of ``B-> D* tau nu``
+is needed to cluster the shape of the ``q^2`` distribution of ``B -> D tau nu``
 in the space of Wilson coefficients:
 
 .. code:: python

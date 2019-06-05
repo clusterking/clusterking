@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 
+# std
+from typing import Optional, Callable
+
 # 3rd
 import tqdm
 import pandas as pd
 
 # ours
-from clusterking.stability.clustermatcher import TrivialClusterMatcher
+from clusterking.stability.clustermatcher import (
+    ClusterMatcher,
+    TrivialClusterMatcher,
+)
 
 
 class SubSampleStabilityTesterResult(object):
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame):
+        #: Results as :class:`pandas.DataFrame`
         self.df = df
 
 
@@ -18,52 +25,120 @@ def default_fom(clustered1, clustered2):
     return sum(clustered1 == clustered2) / len(clustered1)
 
 
+# todo: allow adding several foms and cluster matchers
 class SubSampleStabilityTester(object):
+    """ Test the stability of clustering algorithms by repeatedly
+    clustering subsamples of data and then comparing if the clusters match.
+
+    """
+
     def __init__(self):
+        #: Fraction of sample points to be contained in the subsamples.
+        #: Set using :meth:`set_basic_config`.
         self._fraction = None
+        #: Number of subsamples to consider.
+        #: Set using :meth:`set_basic_config`.
         self._repeat = None
-        self.set_basic_config()
+        #: Cluster matcher object to be used
         self._cluster_matcher = None
-        self.set_cluster_matcher()
+        #: Figure of merit to calculate
         self._fom = None
+        #: Display a progress bar?
+        self._progress_bar = True
+
+        # Set default values:
+        self.set_basic_config()
+        self.set_cluster_matcher()
         self.set_fom()
-        self._progress_bar = None
         self.set_progress_bar()
 
     # **************************************************************************
     # Config
     # **************************************************************************
 
-    def set_basic_config(self, fraction=0.75, repeat=100):
+    def set_basic_config(self, fraction=0.75, repeat=100) -> None:
+        """ Basic configuration
+
+        Args:
+            fraction: Fraction of sample points to be contained in the subsamples
+            repeat: Number of subsamples to test
+
+        Returns:
+            None
+        """
         assert 0 < fraction < 1
         self._fraction = fraction
         self._repeat = repeat
 
-    def set_cluster_matcher(self, matcher=TrivialClusterMatcher):
+    def set_cluster_matcher(
+        self, matcher: Optional[ClusterMatcher] = None
+    ) -> None:
+        """ Set cluster matcher (matches cluster names of two different
+        clusterings
+
+        Args:
+            matcher: :class:`~clusterking.stability.clustermatcher.ClusterMatcher`
+                object. Default: TrivialClusterMatcher.
+
+        Returns:
+            None
+        """
+        if matcher is None:
+            matcher = TrivialClusterMatcher
         self._cluster_matcher = matcher
 
-    def set_fom(self, fct=default_fom):
+    def set_fom(self, fct: Optional[Callable] = None) -> None:
+        """ Set figure of merit to be calculated.
+
+        Args:
+            fct: Function that takes two clusterings and returns a float.
+
+        Returns:
+            None
+        """
+        if fct is None:
+            fct = default_fom
         self._fom = fct
 
-    def set_progress_bar(self, state=True):
+    def set_progress_bar(self, state=True) -> None:
+        """ Set or unset progress bar.
+
+        Args:
+            state: Bool: Display progress bar?
+
+        Returns:
+            None
+        """
         self._progress_bar = state
 
     # **************************************************************************
     # Run
     # **************************************************************************
 
-    def run(self, data, worker):
+    def run(self, data, cluster_worker):
+        """ Run test.
+
+        Args:
+            data: `~clusterking.data.Data` object
+            cluster_worker: Pre-configured `~clusterking.cluster.Cluster`
+                object
+
+        Returns:
+            :class:`~clusterking.stability.subsamplestability.SubSampleStabilityTesterResult` object
+        """
         foms = []
         nclusters = []
         match_losts = []
-        default_clusters = worker.run(data).get_clusters(indexed=True)
+        default_clusters = cluster_worker.run(data).get_clusters(indexed=True)
         matcher = self._cluster_matcher()
         if self._progress_bar:
             iterator = tqdm.tqdm(range(self._repeat))
         else:
             iterator = range(self._repeat)
         for i in iterator:
-            r = worker.run(data.sample_param_random(frac=self._fraction))
+            r = cluster_worker.run(
+                data.sample_param_random(frac=self._fraction)
+            )
             clusters = r.get_clusters(indexed=True)
             relevant_default_clusters = default_clusters[clusters.index]
             rename_dct = matcher.run(clusters, relevant_default_clusters)
@@ -82,11 +157,16 @@ class SubSampleStabilityTester(object):
 
 
 class SubSampleStabilityVsFractionResult(object):
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame):
+        #: Results as :class:`pandas.DataFrame`
         self.df = df
 
 
 class SubSampleStabilityVsFraction(object):
+    """ Repeatedly run :class:`SubSampleStabilityTester` for different
+    fractions.
+    """
+
     def __init__(self):
         pass
 

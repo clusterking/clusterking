@@ -141,7 +141,7 @@ class SubSampleStabilityTester(object):
             )
             clusters = r.get_clusters(indexed=True)
             relevant_default_clusters = default_clusters[clusters.index]
-            rename_dct = matcher.run(clusters, relevant_default_clusters)
+            rename_dct = matcher.run(clusters, relevant_default_clusters).dct
             clusters_renamed = clusters.map(rename_dct)
             fom = self._fom(clusters_renamed, relevant_default_clusters)
             foms.append(fom)

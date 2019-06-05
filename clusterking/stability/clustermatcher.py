@@ -8,7 +8,15 @@ import numpy as np
 import pandas as pd
 
 
-# todo: Result class?
+class ClusterMatcherResult(object):
+    """ Result of :class:`ClusterMatcher`. """
+
+    def __init__(self, dct: dict):
+        #: Dictionary cluster name first clustering -> cluster name second
+        #: clustering.
+        self.dct = dct  # type: dict
+
+
 class ClusterMatcher(ABC):
     """ Cluster names are arbitrary in general, i.e. when trying to compare
     two clustered datasets and trying to calculate a figure of merit, we have
@@ -20,7 +28,9 @@ class ClusterMatcher(ABC):
         pass
 
     @abstractmethod
-    def run(self, clustered1: pd.Series, clustered2: pd.Series) -> dict:
+    def run(
+        self, clustered1: pd.Series, clustered2: pd.Series
+    ) -> ClusterMatcherResult:
         """ Run.
 
         Args:
@@ -31,6 +41,10 @@ class ClusterMatcher(ABC):
 
         """
         pass
+
+
+class TrivialClusterMatcherResult(ClusterMatcherResult):
+    pass
 
 
 class TrivialClusterMatcher(ClusterMatcher):
@@ -46,4 +60,4 @@ class TrivialClusterMatcher(ClusterMatcher):
             mask = clustered1 == cluster1
             most_likely = np.argmax(np.bincount(clustered2[mask]))
             dct[cluster1] = most_likely
-        return dct
+        return TrivialClusterMatcherResult(dct=dct)

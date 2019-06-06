@@ -176,7 +176,7 @@ class DataWithErrors(Data):
         if self.poisson_errors:
             cov += corr2cov(
                 np.tile(np.eye(self.nbins), (self.n, 1, 1)),
-                np.sqrt(self.poisson_errors) * np.sqrt(data),
+                np.sqrt(data) / np.sqrt(self.poisson_errors),
             )
 
         if not relative:

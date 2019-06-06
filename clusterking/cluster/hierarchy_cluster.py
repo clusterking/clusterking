@@ -25,6 +25,17 @@ class HierarchyClusterResult(ClusterResult):
     def hierarchy(self):
         return self._hierarchy
 
+    @property
+    def worker_id(self):
+        """ ID of the HierarchyCluster worker that generated this object. """
+        return self._worker_id
+
+    @property
+    def data_id(self) -> int:
+        """ ID of the data object that the HierarchyCluster worker was run on.
+        """
+        return id(self._data)
+
     def dendrogram(
         self,
         output: Optional[Union[None, str, pathlib.Path]] = None,
@@ -91,7 +102,6 @@ class HierarchyClusterResult(ClusterResult):
         return ax
 
 
-# todo: document
 class HierarchyCluster(Cluster):
     def __init__(self):
         super().__init__()
@@ -107,11 +117,15 @@ class HierarchyCluster(Cluster):
         self.set_fcluster_options()
 
     @property
-    def max_d(self):
+    def max_d(self) -> Optional[float]:
+        """ Cutoff value set in :meth:`set_max_d`. """
         return self.md["max_d"]
 
     @property
-    def metric(self):
+    def metric(self) -> Callable:
+        """ Metric that was set in :meth:`set_metric`
+        (Function that takes Data object as only parameter and
+        returns a reduced distance matrix.) """
         return self._metric
 
     # Docstring set below
@@ -127,8 +141,9 @@ class HierarchyCluster(Cluster):
         """ Configure hierarchy building
 
         Args:
-            method: See reference on scipy.cluster.hierarchy.linkage
-            optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
+            method: See reference on :class:`scipy.cluster.hierarchy.linkage`
+            optimal_ordering: See reference on
+                :class:`scipy.cluster.hierarchy.linkage`
 
         """
         md = self.md["hierarchy"]
@@ -136,6 +151,7 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
     def _build_hierarchy(self, data):
+        """ Builds hierarchy using :class:`scipy.cluster.hierarchy.linkage` """
 
         if self._metric is None:
             msg = (
@@ -158,11 +174,29 @@ class HierarchyCluster(Cluster):
 
         return hierarchy
 
-    def set_max_d(self, max_d):
-        # todo: make prop
+    def set_max_d(self, max_d) -> None:
+        """ Set the cutoff value of the hierarchy that then gives the clusters.
+        This corresponds to the ``t`` argument of
+        :class:`scipy.cluster.hierarchy.fcluster`.
+
+        Args:
+            max_d: float
+
+        Returns:
+            None
+        """
         self.md["max_d"] = max_d
 
-    def set_fcluster_options(self, **kwargs):
+    def set_fcluster_options(self, **kwargs) -> None:
+        """ Set additional keyword options for our call to
+        ``scipy.cluster.hierarchy.fcluster``.
+
+        Args:
+            kwargs: Keyword arguments
+
+        Returns:
+            None
+        """
         # set up defaults for clustering here
         # (this way we can overwrite them with additional arguments)
         self._fcluster_kwargs = {"criterion": "distance"}
@@ -188,25 +222,26 @@ class HierarchyCluster(Cluster):
         """
         if not self.max_d:
             raise ValueError(
-                "Please use set the cutoff value using set_max_d before running "
-                "this worker."
+                "Please use set the cutoff value using set_max_d before"
+                "running this worker."
             )
 
         if reuse_hierarchy_from:
-            if not id(self) == reuse_hierarchy_from._worker_id:
+            if not id(self) == reuse_hierarchy_from.worker_id:
                 raise ValueError(
                     "It seems like the hierarchy you passed comes from a"
                     " different HierarchyCluster object than this one: IDs "
                     "don't match (self: {} vs reuse_hierarchy_from: {})".format(
-                        id(self), reuse_hierarchy_from._worker_id
+                        id(self), reuse_hierarchy_from.worker_id
                     )
                 )
-            if not id(data) == id(reuse_hierarchy_from._data):
+            if not id(data) == reuse_hierarchy_from.data_id:
                 raise ValueError(
                     "It seems like the hierarchy you passed corresponds to a"
                     " different data object than the one you gave me now. "
-                    "IDs don't match (passed to me: {} vs reuse_hierarchy_from: {})".format(
-                        id(data), id(reuse_hierarchy_from._data)
+                    "IDs don't match (passed to me: {} vs "
+                    "reuse_hierarchy_from: {})".format(
+                        id(data), reuse_hierarchy_from.data_id
                     )
                 )
             # Without caching properties of data and cluster class, we can't

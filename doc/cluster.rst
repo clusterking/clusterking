@@ -1,5 +1,5 @@
-``Cluster``
-==========================
+Cluster
+=======
 
 .. automodule:: clusterking.cluster
 
@@ -29,5 +29,9 @@
 -----------------
 
     .. autoclass:: KmeansCluster
+      :members:
+      :undoc-members:
+
+    .. autoclass:: KmeansClusterResult
       :members:
       :undoc-members:

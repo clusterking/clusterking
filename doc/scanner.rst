@@ -1,5 +1,5 @@
-``Scanner``
-==========================
+Scan
+====
 
 .. automodule:: clusterking.scan
 

@@ -99,11 +99,20 @@ class HierarchyCluster(Cluster):
         #: Function that, applied to Data or DWE object returns the metric as
         #: a condensed distance matrix.
         self._metric = None  # type: Callable
+        #: Keyword arguments to the call of fcluster
         self._fcluster_kwargs = {}
 
         self.set_metric()
         self.set_hierarchy_options()
         self.set_fcluster_options()
+
+    @property
+    def max_d(self):
+        return self.md["max_d"]
+
+    @property
+    def metric(self):
+        return self._metric
 
     # Docstring set below
     def set_metric(self, *args, **kwargs) -> None:
@@ -162,7 +171,6 @@ class HierarchyCluster(Cluster):
             self._fcluster_kwargs
         )
 
-    # todo: Allow reusing of hierarchy
     def run(
         self,
         data,
@@ -178,6 +186,12 @@ class HierarchyCluster(Cluster):
         Returns:
 
         """
+        if not self.max_d:
+            raise ValueError(
+                "Please use set the cutoff value using set_max_d before running "
+                "this worker."
+            )
+
         if reuse_hierarchy_from:
             if not id(self) == reuse_hierarchy_from._worker_id:
                 raise ValueError(
@@ -204,7 +218,7 @@ class HierarchyCluster(Cluster):
 
         # noinspection PyTypeChecker
         clusters = scipy.cluster.hierarchy.fcluster(
-            hierarchy, self.md["max_d"], **self._fcluster_kwargs
+            hierarchy, self.max_d, **self._fcluster_kwargs
         )
 
         return HierarchyClusterResult(

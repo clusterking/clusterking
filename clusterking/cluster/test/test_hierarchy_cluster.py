@@ -69,6 +69,13 @@ class TestHierarchyCluster(MyTestCase):
             c2.run(e, reuse_hierarchy_from=r)
         self.assertTrue("different HierarchyCluster object" in str(e.exception))
 
+    def test_hierarchy_cluster_no_max_d(self):
+        d = self.d.copy()
+        c = HierarchyCluster()
+        with self.assertRaises(ValueError) as e:
+            c.run(d)
+        self.assertTrue("set_max_d" in str(e.exception))
+
     def test_dendrogram_plot(self):
         c = HierarchyCluster()
         c.set_metric()

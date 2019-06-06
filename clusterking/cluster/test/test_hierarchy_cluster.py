@@ -40,8 +40,34 @@ class TestHierarchyCluster(MyTestCase):
         r = c.run(d)
         r.write()
         r2 = c.run(d, reuse_hierarchy_from=r)
-        r.write(cluster_column="reused")
+        r2.write(cluster_column="reused")
         self.assertListEqual(d.df["cluster"].tolist(), d.df["reused"].tolist())
+
+    def test_reuse_hierarchy_fail_different_data(self):
+        d = self.d.copy()
+        e = self.d.copy()
+        c = HierarchyCluster()
+        c.set_metric("euclidean")
+        c.set_max_d(1.5)
+        r = c.run(d)
+        r.write()
+        with self.assertRaises(ValueError) as ex:
+            c.run(e, reuse_hierarchy_from=r)
+        self.assertTrue("different data object" in str(ex.exception))
+
+    def test_reuse_hierarchy_fail_different_cluster(self):
+        d = self.d.copy()
+        c = HierarchyCluster()
+        c2 = HierarchyCluster()
+        c.set_metric("euclidean")
+        c.set_max_d(1.5)
+        c2.set_metric("euclidean")
+        c2.set_max_d(1.5)
+        r = c.run(d)
+        r.write()
+        with self.assertRaises(ValueError) as e:
+            c2.run(e, reuse_hierarchy_from=r)
+        self.assertTrue("different HierarchyCluster object" in str(e.exception))
 
     def test_dendrogram_plot(self):
         c = HierarchyCluster()

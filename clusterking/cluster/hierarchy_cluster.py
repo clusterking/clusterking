@@ -16,9 +16,10 @@ from clusterking.util.matplotlib_utils import import_matplotlib
 
 
 class HierarchyClusterResult(ClusterResult):
-    def __init__(self, data, md, clusters, hierarchy):
+    def __init__(self, data, md, clusters, hierarchy, worker_id):
         super().__init__(data=data, md=md, clusters=clusters)
         self._hierarchy = hierarchy
+        self._worker_id = worker_id
 
     @property
     def hierarchy(self):
@@ -178,9 +179,25 @@ class HierarchyCluster(Cluster):
 
         """
         if reuse_hierarchy_from:
-            # todo: Perhaps add some consistency checks here to ensure that
-            #   only hierarchies are reused that belong to the same data and
-            #   to the same worker
+            if not id(self) == reuse_hierarchy_from._worker_id:
+                raise ValueError(
+                    "It seems like the hierarchy you passed comes from a"
+                    " different HierarchyCluster object than this one: IDs "
+                    "don't match (self: {} vs reuse_hierarchy_from: {})".format(
+                        id(self), reuse_hierarchy_from._worker_id
+                    )
+                )
+            if not id(data) == id(reuse_hierarchy_from._data):
+                raise ValueError(
+                    "It seems like the hierarchy you passed corresponds to a"
+                    " different data object than the one you gave me now. "
+                    "IDs don't match (passed to me: {} vs reuse_hierarchy_from: {})".format(
+                        id(data), id(reuse_hierarchy_from._data)
+                    )
+                )
+            # Without caching properties of data and cluster class, we can't
+            # really check that they weren't modified in place, so this is
+            # about all we can do right now.
             hierarchy = reuse_hierarchy_from.hierarchy
         else:
             hierarchy = self._build_hierarchy(data)
@@ -191,5 +208,9 @@ class HierarchyCluster(Cluster):
         )
 
         return HierarchyClusterResult(
-            data=data, md=self.md, clusters=clusters, hierarchy=hierarchy
+            data=data,
+            md=self.md,
+            clusters=clusters,
+            hierarchy=hierarchy,
+            worker_id=id(self),
         )

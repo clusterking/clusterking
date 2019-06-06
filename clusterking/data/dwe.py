@@ -13,6 +13,7 @@ from clusterking.maths.statistics import (
 )
 
 
+# todo: document
 class DataWithErrors(Data):
     """ This class extends the :py:class:`~clusterking.data.Data` class by
     convenient and performant ways to add errors to the distributions.
@@ -52,10 +53,11 @@ class DataWithErrors(Data):
         # Initialize some values to their default
         self.rel_cov = None
         self.abs_cov = None
-        self.poisson_errors = 0
+        self.poisson_errors = False
+        self.poisson_errors_scale = 1.0
 
     # **************************************************************************
-    # A: Additional shortcuts
+    # Properties
     # **************************************************************************
 
     @property
@@ -100,8 +102,16 @@ class DataWithErrors(Data):
     def poisson_errors(self, value):
         self.md["errors"]["poisson"] = value
 
+    @property
+    def poisson_errors_scale(self):
+        return self.md["errors"]["poisson_scale"]
+
+    @poisson_errors_scale.setter
+    def poisson_errors_scale(self, value):
+        self.md["errors"]["poisson_scale"] = value
+
     # **************************************************************************
-    # B: Helper functions
+    # Internal helper functions
     # **************************************************************************
 
     def _interpret_input(self, inpt, what: str) -> np.ndarray:
@@ -135,7 +145,7 @@ class DataWithErrors(Data):
             raise ValueError("Unknown value what='{}'.".format(what))
 
     # **************************************************************************
-    # C: Doing the actual calculations
+    # Actual calculations
     # **************************************************************************
 
     # Note: Overrides inherited method from data.
@@ -164,7 +174,8 @@ class DataWithErrors(Data):
 
         Args:
             relative: "Relative to data", i.e.
-                :math:`\\mathrm{Cov}_{ij} / (\\mathrm{data}_i \cdot \\mathrm{data}_j)`
+                :math:`\\mathrm{Cov}_{ij} /
+                (\\mathrm{data}_i \cdot \\mathrm{data}_j)`
 
         Returns:
             self.n x self.nbins x self.nbins array
@@ -176,7 +187,15 @@ class DataWithErrors(Data):
         if self.poisson_errors:
             cov += corr2cov(
                 np.tile(np.eye(self.nbins), (self.n, 1, 1)),
-                np.sqrt(data) / np.sqrt(self.poisson_errors),
+                # Normal poisson errors are sqrt(data_i). What happens if
+                # data is normalized from N to N', i.e.
+                #   Sum(data_normalized) = N'?
+                # Let N/N' = scale
+                # Then the errors should be
+                #   sqrt(data) / scale = sqrt(data/scale) / sqrt(scale) =
+                #   = sqrt(data_normalized) / sqrt(scale)
+                # Hence:
+                np.sqrt(data) / np.sqrt(self.poisson_errors_scale),
             )
 
         if not relative:
@@ -207,7 +226,7 @@ class DataWithErrors(Data):
             return cov2err(self.cov()) / self.data()
 
     # **************************************************************************
-    # D: Configuration
+    # Configuration
     # **************************************************************************
 
     # -------------------------------------------------------------------------
@@ -329,4 +348,5 @@ class DataWithErrors(Data):
         Returns:
             None
         """
-        self.poisson_errors = normalization_scale
+        self.poisson_errors = True
+        self.poisson_errors_scale = normalization_scale

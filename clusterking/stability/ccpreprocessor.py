@@ -76,7 +76,7 @@ class TrivialClusterMatcher(CCPreprocessor):
             mask = clustered1 == cluster1
             most_likely = np.argmax(np.bincount(clustered2[mask]))
             dct[cluster1] = most_likely
-
+        clustered2 = clustered2.map(dct)
         return CCPreprocessorResult(
             clustered1=clustered1, clustered2=clustered2
         )

@@ -6,6 +6,7 @@ import collections
 
 # 3rd
 import pandas as pd
+import tqdm
 
 
 class NoisySampleStabilityTesterResult(object):
@@ -54,10 +55,11 @@ class NoisySampleStabilityTester(object):
     # **************************************************************************
 
     def run(self, data, scanner, cluster):
+        scanner.set_progress_bar(False)
         datas = []
         original_clusters = None
         fom_results = collections.defaultdict(list)
-        for _ in range(self._repeat + 1):
+        for _ in tqdm.tqdm(range(self._repeat + 1)):
             noisy_scanner = copy.copy(scanner)
             if _ >= 1:
                 noisy_scanner.add_spoints_noise(
@@ -69,6 +71,7 @@ class NoisySampleStabilityTester(object):
             rs = noisy_scanner.run(this_data)
             rs.write()
             rc = cluster.run(this_data)
+            rc.write()
             clusters = rc.get_clusters(indexed=True)
             if _ == 0:
                 original_clusters = copy.copy(clusters)

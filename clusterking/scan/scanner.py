@@ -156,6 +156,8 @@ class Scanner(DataWorker):
 
         self._no_workers = None
 
+        self._progress_bar = True
+
         self.set_imaginary_prefix("im_")
 
     # **************************************************************************
@@ -186,6 +188,9 @@ class Scanner(DataWorker):
     # **************************************************************************
     # Settings
     # **************************************************************************
+
+    def set_progress_bar(self, value):
+        self._progress_bar = value
 
     def set_dfunction(
         self,
@@ -508,13 +513,19 @@ class Scanner(DataWorker):
         )
 
         rows = []
-        for index, result in tqdm.tqdm(
-            enumerate(results),
-            desc="Scanning: ",
-            unit=" spoint",
-            total=len(self._spoints),
-            ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
-        ):
+
+        if self._progress_bar:
+            iterator = tqdm.tqdm(
+                enumerate(results),
+                desc="Scanning: ",
+                unit=" spoint",
+                total=len(self._spoints),
+                ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
+            )
+        else:
+            iterator = enumerate(results)
+
+        for index, result in iterator:
             md = self.md["dfunction"]
 
             if not isinstance(result, Iterable):

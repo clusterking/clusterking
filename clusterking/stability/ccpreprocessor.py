@@ -54,6 +54,16 @@ class CCPreprocessor(object):
         )
 
 
+class ClusterMatcher(CCPreprocessor):
+    pass
+
+
+class ClusterMatcherResult(CCPreprocessorResult):
+    def __init__(self, clustered1, clustered2, rename_dct):
+        super().__init__(clustered1=clustered1, clustered2=clustered2)
+        self.rename_dct = rename_dct
+
+
 class TrivialClusterMatcher(CCPreprocessor):
     """ Thus subclass of :class:`CCMatcher` maps cluster names from the
     first clustering to the cluster name of the second that maximizes
@@ -77,6 +87,6 @@ class TrivialClusterMatcher(CCPreprocessor):
             most_likely = np.argmax(np.bincount(clustered2[mask]))
             dct[cluster1] = most_likely
         clustered2 = clustered2.map(dct)
-        return CCPreprocessorResult(
-            clustered1=clustered1, clustered2=clustered2
+        return ClusterMatcherResult(
+            clustered1=clustered1, clustered2=clustered2, rename_dct=dct
         )

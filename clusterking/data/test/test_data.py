@@ -11,10 +11,12 @@ from clusterking.data.data import Data
 
 class TestData(MyTestCase):
     def setUp(self):
-        self.ddir = Path(__file__).parent / "data"
-        self.dname = "test.sql"
+        path = Path(__file__).parent / "data" / "test.sql"
         self.data = [[100, 200], [400, 500]]
-        self.d = Data(self.ddir / self.dname)
+        self.d = Data(path)
+
+    def nd(self):
+        return self.d.copy(deep=True)
 
     # **************************************************************************
     # Property shortcuts
@@ -104,9 +106,11 @@ class TestData(MyTestCase):
 
 class TestSubSample(MyTestCase):
     def setUp(self):
-        self.ddir = Path(__file__).parent / "data"
-        self.dname = "test_longer.sql"
-        self.d = Data(self.ddir / self.dname)
+        path = Path(__file__).parent / "data" / "test_longer.sql"
+        self.d = Data(path)
+
+    def nd(self):
+        return self.d.copy(deep=True)
 
     def test_only_bpoints(self):
         self.assertEqual(self.d.only_bpoints().n, 1)

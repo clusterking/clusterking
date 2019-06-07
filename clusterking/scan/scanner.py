@@ -18,7 +18,7 @@ import pandas as pd
 import tqdm
 
 # ours
-from clusterking.worker import Worker
+from clusterking.worker import DataWorker
 from clusterking.data.data import Data
 import clusterking.maths.binning
 from clusterking.util.metadata import (
@@ -27,7 +27,7 @@ from clusterking.util.metadata import (
     nested_dict,
 )
 from clusterking.util.log import get_logger
-from clusterking.result import Result
+from clusterking.result import DataResult
 
 
 class SpointCalculator(object):
@@ -87,7 +87,7 @@ class SpointCalculator(object):
 
 
 # todo: also allow to disable multiprocessing if there are problems.
-class Scanner(Worker):
+class Scanner(DataWorker):
     """
     This class is set up with a function
     (specified in :meth:`.set_dfunction`) that depends
@@ -424,7 +424,7 @@ class Scanner(Worker):
     # Run
     # **************************************************************************
 
-    def _run(self, data: Data):
+    def run(self, data: Data):
         """Calculate all sample points and writes the result to a dataframe.
 
         Args:
@@ -566,7 +566,7 @@ class Scanner(Worker):
         return rows
 
 
-class ScannerResult(Result):
+class ScannerResult(DataResult):
     def __init__(self, data, rows, spoints, md, coeffs):
         super().__init__(data=data)
         self._rows = rows
@@ -603,7 +603,7 @@ class ScannerResult(Result):
     # Write
     # **************************************************************************
 
-    def _write(self):
+    def write(self):
         self.log.debug("Converting data to pandas dataframe.")
         cols = self.coeffs
         cols.extend(

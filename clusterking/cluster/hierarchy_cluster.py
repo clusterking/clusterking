@@ -16,13 +16,25 @@ from clusterking.util.matplotlib_utils import import_matplotlib
 
 
 class HierarchyClusterResult(ClusterResult):
-    def __init__(self, data, md, clusters, hierarchy):
+    def __init__(self, data, md, clusters, hierarchy, worker_id):
         super().__init__(data=data, md=md, clusters=clusters)
         self._hierarchy = hierarchy
+        self._worker_id = worker_id
 
     @property
     def hierarchy(self):
         return self._hierarchy
+
+    @property
+    def worker_id(self):
+        """ ID of the HierarchyCluster worker that generated this object. """
+        return self._worker_id
+
+    @property
+    def data_id(self) -> int:
+        """ ID of the data object that the HierarchyCluster worker was run on.
+        """
+        return id(self._data)
 
     def dendrogram(
         self,
@@ -90,7 +102,6 @@ class HierarchyClusterResult(ClusterResult):
         return ax
 
 
-# todo: document
 class HierarchyCluster(Cluster):
     def __init__(self):
         super().__init__()
@@ -98,11 +109,24 @@ class HierarchyCluster(Cluster):
         #: Function that, applied to Data or DWE object returns the metric as
         #: a condensed distance matrix.
         self._metric = None  # type: Callable
+        #: Keyword arguments to the call of fcluster
         self._fcluster_kwargs = {}
 
         self.set_metric()
         self.set_hierarchy_options()
         self.set_fcluster_options()
+
+    @property
+    def max_d(self) -> Optional[float]:
+        """ Cutoff value set in :meth:`set_max_d`. """
+        return self.md["max_d"]
+
+    @property
+    def metric(self) -> Callable:
+        """ Metric that was set in :meth:`set_metric`
+        (Function that takes Data object as only parameter and
+        returns a reduced distance matrix.) """
+        return self._metric
 
     # Docstring set below
     def set_metric(self, *args, **kwargs) -> None:
@@ -117,8 +141,9 @@ class HierarchyCluster(Cluster):
         """ Configure hierarchy building
 
         Args:
-            method: See reference on scipy.cluster.hierarchy.linkage
-            optimal_ordering: See reference on scipy.cluster.hierarchy.linkage
+            method: See reference on :class:`scipy.cluster.hierarchy.linkage`
+            optimal_ordering: See reference on
+                :class:`scipy.cluster.hierarchy.linkage`
 
         """
         md = self.md["hierarchy"]
@@ -126,6 +151,7 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
     def _build_hierarchy(self, data):
+        """ Builds hierarchy using :class:`scipy.cluster.hierarchy.linkage` """
 
         if self._metric is None:
             msg = (
@@ -148,11 +174,29 @@ class HierarchyCluster(Cluster):
 
         return hierarchy
 
-    def set_max_d(self, max_d):
-        # todo: make prop
+    def set_max_d(self, max_d) -> None:
+        """ Set the cutoff value of the hierarchy that then gives the clusters.
+        This corresponds to the ``t`` argument of
+        :class:`scipy.cluster.hierarchy.fcluster`.
+
+        Args:
+            max_d: float
+
+        Returns:
+            None
+        """
         self.md["max_d"] = max_d
 
-    def set_fcluster_options(self, **kwargs):
+    def set_fcluster_options(self, **kwargs) -> None:
+        """ Set additional keyword options for our call to
+        ``scipy.cluster.hierarchy.fcluster``.
+
+        Args:
+            kwargs: Keyword arguments
+
+        Returns:
+            None
+        """
         # set up defaults for clustering here
         # (this way we can overwrite them with additional arguments)
         self._fcluster_kwargs = {"criterion": "distance"}
@@ -161,15 +205,61 @@ class HierarchyCluster(Cluster):
             self._fcluster_kwargs
         )
 
-    # todo: Allow reusing of hierarchy
-    def _run(self, data):
-        hierarchy = self._build_hierarchy(data)
+    def run(
+        self,
+        data,
+        reuse_hierarchy_from: Optional[HierarchyClusterResult] = None,
+    ):
+        """
+
+        Args:
+            data:
+            reuse_hierarchy_from: Reuse the hierarchy from a
+                :class:`HierarchyClusterResult` object.
+
+        Returns:
+
+        """
+        if not self.max_d:
+            raise ValueError(
+                "Please use set the cutoff value using set_max_d before"
+                "running this worker."
+            )
+
+        if reuse_hierarchy_from:
+            if not id(self) == reuse_hierarchy_from.worker_id:
+                raise ValueError(
+                    "It seems like the hierarchy you passed comes from a"
+                    " different HierarchyCluster object than this one: IDs "
+                    "don't match (self: {} vs reuse_hierarchy_from: {})".format(
+                        id(self), reuse_hierarchy_from.worker_id
+                    )
+                )
+            if not id(data) == reuse_hierarchy_from.data_id:
+                raise ValueError(
+                    "It seems like the hierarchy you passed corresponds to a"
+                    " different data object than the one you gave me now. "
+                    "IDs don't match (passed to me: {} vs "
+                    "reuse_hierarchy_from: {})".format(
+                        id(data), reuse_hierarchy_from.data_id
+                    )
+                )
+            # Without caching properties of data and cluster class, we can't
+            # really check that they weren't modified in place, so this is
+            # about all we can do right now.
+            hierarchy = reuse_hierarchy_from.hierarchy
+        else:
+            hierarchy = self._build_hierarchy(data)
 
         # noinspection PyTypeChecker
         clusters = scipy.cluster.hierarchy.fcluster(
-            hierarchy, self.md["max_d"], **self._fcluster_kwargs
+            hierarchy, self.max_d, **self._fcluster_kwargs
         )
 
         return HierarchyClusterResult(
-            data=data, md=self.md, clusters=clusters, hierarchy=hierarchy
+            data=data,
+            md=self.md,
+            clusters=clusters,
+            hierarchy=hierarchy,
+            worker_id=id(self),
         )

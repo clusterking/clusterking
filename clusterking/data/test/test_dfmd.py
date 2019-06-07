@@ -12,8 +12,11 @@ from clusterking.data.dfmd import DFMD
 
 class TestDFMD(MyTestCase):
     def setUp(self):
-        self.data_dir = Path(__file__).parent / "data"
-        self.test_fname = "test.sql"
+        path = Path(__file__).parent / "data" / "test.sql"
+        self.dfmd = DFMD(path)
+
+    def ndfmd(self):
+        return self.dfmd.copy(deep=True)
 
     def test_init_empty(self):
         DFMD()
@@ -42,32 +45,25 @@ class TestDFMD(MyTestCase):
         self.assertListEqual(list(dfmd1.df.columns), list(dfmd2.df.columns))
 
     def test_init_dir_name(self):
-        dfmd = DFMD(self.data_dir / self.test_fname)
+        dfmd = self.ndfmd()
         self._test_dfmd_vs_cached(dfmd)
 
-    # todo: implement working tests for copying
-    # def test_shallow_copy(self):
-    #     dfmd1 = DFMD(self.data_dir, "test_scan")
-    #     dfmd2 = dfmd1.copy(False)
-    #     dfmd3 = copy.copy(dfmd1)
-    #     self.assertEqual(id(dfmd1.df), id(dfmd2.df))
-    #     self.assertEqual(id(dfmd1.md), id(dfmd2.md))
-    #     self.assertEqual(id(dfmd1.df), id(dfmd3.df))
-    #     self.assertEqual(id(dfmd1.md), id(dfmd3.md))
-    #
-    # def test_deep_copy(self):
-    #     # Note: hash(str(df.values)) only corresponds to comparing some of the
-    #     # entries.
-    #     dfmd1 = DFMD(self.data_dir, "test_scan")
-    #     dfmd2 = dfmd1.copy()
-    #     dfmd3 = copy.deepcopy(dfmd1)
-    #     self.assertNotEqual(id(dfmd1.df), id(dfmd2.df))
-    #     self.assertNotEqual(id(dfmd1.md), id(dfmd2.md))
-    #     self.assertNotEqual(id(dfmd1.df), id(dfmd3.df))
-    #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
+    def test_shallow_copy(self):
+        dfmd1 = self.ndfmd()
+        dfmd2 = dfmd1.copy(deep=False)
+        self.assertTrue(dfmd1.df.equals(dfmd2.df))
+        self.assertDictEqual(dfmd1.md, dfmd2.md)
+
+    def test_deep_copy(self):
+        dfmd1 = self.ndfmd()
+        dfmd2 = dfmd1.copy(deep=True)
+        self.assertTrue(dfmd1.df.equals(dfmd2.df))
+        self.assertDictEqual(dfmd1.md, dfmd2.md)
+        dfmd2.md["TESTTEST"] = "modified"
+        self.assertFalse(dfmd1.md["TESTTEST"])
 
     def test_write_read(self):
-        dfmd = DFMD(self.data_dir / self.test_fname)
+        dfmd = self.ndfmd()
         with tempfile.TemporaryDirectory() as tmpdir:
             dfmd.write(Path(tmpdir) / "tmp_test.sql")
             dfmd_loaded = DFMD(Path(tmpdir) / "tmp_test.sql")
@@ -75,7 +71,7 @@ class TestDFMD(MyTestCase):
 
     def test_handle_overwrite(self):
         dfmd = DFMD()
-        dfmd2 = DFMD(self.data_dir / self.test_fname)
+        dfmd2 = self.ndfmd()
         with tempfile.TemporaryDirectory() as tmpdir:
             dfmd.write(Path(tmpdir) / "test.sql")
             with self.assertRaises(FileExistsError):
@@ -89,6 +85,7 @@ class TestDFMD(MyTestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             fn = Path(tmpdir) / "a" / "b" / "c"
             dfmd.write(fn)
+            self.assertTrue(fn.is_file())
 
 
 if __name__ == "__main__":

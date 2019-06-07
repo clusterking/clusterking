@@ -14,11 +14,11 @@ import pandas as pd
 from clusterking.util.metadata import version_info, nested_dict
 from clusterking.util.log import get_logger
 from clusterking.data.data import Data
-from clusterking.worker import Worker
-from clusterking.result import Result
+from clusterking.worker import DataWorker
+from clusterking.result import DataResult
 
 
-class Cluster(Worker):
+class Cluster(DataWorker):
     """ Abstract baseclass of the Cluster classes. This class is subclassed to
     implement specific clustering algorithms and defines common functions.
     """
@@ -41,7 +41,7 @@ class Cluster(Worker):
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
     @abstractmethod
-    def _run(self, **kwargs):
+    def run(self, data, **kwargs):
         """ Implementation of the clustering. Should return an array-like object
         with the cluster number.
         """
@@ -49,7 +49,7 @@ class Cluster(Worker):
 
 
 # todo: add back n_clusters
-class ClusterResult(Result):
+class ClusterResult(DataResult):
     def __init__(self, data, md, clusters):
         super().__init__(data=data)
         self._md = md
@@ -62,7 +62,7 @@ class ClusterResult(Result):
         else:
             return pd.Series(self._clusters, index=self._data.df.index)
 
-    def _write(self, cluster_column="cluster"):
+    def write(self, cluster_column="cluster"):
         """ Write results back in the :py:class:`~clusterking.data.Data`
         object. """
         self._data.df[cluster_column] = self._clusters

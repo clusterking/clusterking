@@ -48,26 +48,19 @@ class TestDFMD(MyTestCase):
         dfmd = self.ndfmd()
         self._test_dfmd_vs_cached(dfmd)
 
-    # todo: implement working tests for copying
-    # def test_shallow_copy(self):
-    #     dfmd1 = DFMD(self.data_dir, "test_scan")
-    #     dfmd2 = dfmd1.copy(False)
-    #     dfmd3 = copy.copy(dfmd1)
-    #     self.assertEqual(id(dfmd1.df), id(dfmd2.df))
-    #     self.assertEqual(id(dfmd1.md), id(dfmd2.md))
-    #     self.assertEqual(id(dfmd1.df), id(dfmd3.df))
-    #     self.assertEqual(id(dfmd1.md), id(dfmd3.md))
-    #
-    # def test_deep_copy(self):
-    #     # Note: hash(str(df.values)) only corresponds to comparing some of the
-    #     # entries.
-    #     dfmd1 = DFMD(self.data_dir, "test_scan")
-    #     dfmd2 = dfmd1.copy()
-    #     dfmd3 = copy.deepcopy(dfmd1)
-    #     self.assertNotEqual(id(dfmd1.df), id(dfmd2.df))
-    #     self.assertNotEqual(id(dfmd1.md), id(dfmd2.md))
-    #     self.assertNotEqual(id(dfmd1.df), id(dfmd3.df))
-    #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
+    def test_shallow_copy(self):
+        dfmd1 = self.ndfmd()
+        dfmd2 = dfmd1.copy(deep=False)
+        self.assertTrue(dfmd1.df.equals(dfmd2.df))
+        self.assertDictEqual(dfmd1.md, dfmd2.md)
+
+    def test_deep_copy(self):
+        dfmd1 = self.ndfmd()
+        dfmd2 = dfmd1.copy(deep=True)
+        self.assertTrue(dfmd1.df.equals(dfmd2.df))
+        self.assertDictEqual(dfmd1.md, dfmd2.md)
+        dfmd2.md["TESTTEST"] = "modified"
+        self.assertFalse(dfmd1.md["TESTTEST"])
 
     def test_write_read(self):
         dfmd = self.ndfmd()

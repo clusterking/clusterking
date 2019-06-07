@@ -80,12 +80,12 @@ class TrivialClusterMatcher(CCPreprocessor):
         clustered2 = clustered2.loc[index_intersection]
 
         # 2. Rename clusters
-        clusters1 = set(clustered1)
+        clusters2 = set(clustered2)
         dct = {}
-        for cluster1 in clusters1:
-            mask = clustered1 == cluster1
-            most_likely = np.argmax(np.bincount(clustered2[mask]))
-            dct[cluster1] = most_likely
+        for cluster2 in clusters2:
+            mask = clustered2 == cluster2
+            most_likely = np.argmax(np.bincount(clustered1[mask]))
+            dct[cluster2] = most_likely
         clustered2 = clustered2.map(dct)
         return ClusterMatcherResult(
             clustered1=clustered1, clustered2=clustered2, rename_dct=dct

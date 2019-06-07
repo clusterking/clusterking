@@ -9,7 +9,7 @@ import tqdm
 import pandas as pd
 
 # ours
-from clusterking.stability.ccfom import CCFOM
+from clusterking.stability.fom import CCFOM
 
 
 class SubSampleStabilityTesterResult(object):
@@ -106,17 +106,18 @@ class SubSampleStabilityTester(object):
         Returns:
             :class:`~clusterking.stability.subsamplestability.SubSampleStabilityTesterResult` object
         """
-        original_clusters = cluster.run(data).get_clusters(indexed=True)
+        original_data = data.copy(deep=True)
+        cluster.run(original_data).write()
         if self._progress_bar:
             iterator = tqdm.tqdm(range(self._repeat))
         else:
             iterator = range(self._repeat)
         fom_results = collections.defaultdict(list)
         for i in iterator:
-            r = cluster.run(data.sample_param_random(frac=self._fraction))
-            subsample_clusters = r.get_clusters(indexed=True)
+            this_data = data.sample_param_random(frac=self._fraction)
+            cluster.run(this_data).write()
             for fom_name, fom in self._foms.items():
-                fom = fom.run(original_clusters, subsample_clusters).fom
+                fom = fom.run(original_data, this_data).fom
                 fom_results[fom_name].append(fom)
 
         df = pd.DataFrame(fom_results)

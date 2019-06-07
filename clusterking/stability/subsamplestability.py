@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 
 # std
-from typing import Optional, Callable
+from typing import Optional, Callable, Dict
+import collections
 
 # 3rd
 import tqdm
 import pandas as pd
 
 # ours
-from clusterking.stability.clustermatcher import (
-    ClusterMatcher,
-    TrivialClusterMatcher,
-)
+from clusterking.stability.ccfom import CCFOM
 
 
 class SubSampleStabilityTesterResult(object):
@@ -20,12 +18,6 @@ class SubSampleStabilityTesterResult(object):
         self.df = df
 
 
-def default_fom(clustered1, clustered2):
-    assert len(clustered1) == len(clustered2)
-    return sum(clustered1 == clustered2) / len(clustered1)
-
-
-# todo: allow adding several foms and cluster matchers
 class SubSampleStabilityTester(object):
     """ Test the stability of clustering algorithms by repeatedly
     clustering subsamples of data and then comparing if the clusters match.
@@ -39,66 +31,54 @@ class SubSampleStabilityTester(object):
         #: Number of subsamples to consider.
         #: Set using :meth:`set_basic_config`.
         self._repeat = None
-        #: Cluster matcher object to be used
-        self._cluster_matcher = None
-        #: Figure of merit to calculate
-        self._fom = None
+        #: Figure of merits to calculate as dictionary name: CCFOM
+        self._foms = {}  # type: Dict[str, CCFOM]
         #: Display a progress bar?
         self._progress_bar = True
 
         # Set default values:
-        self.set_basic_config()
-        self.set_cluster_matcher()
-        self.set_fom()
+        self.set_fraction()
+        self.set_repeat()
         self.set_progress_bar()
 
     # **************************************************************************
     # Config
     # **************************************************************************
 
-    def set_basic_config(self, fraction=0.75, repeat=100) -> None:
+    def set_fraction(self, fraction=0.75) -> None:
         """ Basic configuration
 
         Args:
             fraction: Fraction of sample points to be contained in the subsamples
+
+        Returns:
+            None
+        """
+        assert 0 <= fraction <= 1
+        self._fraction = fraction
+
+    def set_repeat(self, repeat=100) -> None:
+        """
+
+        Args:
             repeat: Number of subsamples to test
 
         Returns:
             None
         """
-        assert 0 < fraction < 1
-        self._fraction = fraction
         self._repeat = repeat
 
-    def set_cluster_matcher(
-        self, matcher: Optional[ClusterMatcher] = None
-    ) -> None:
-        """ Set cluster matcher (matches cluster names of two different
-        clusterings
-
-        Args:
-            matcher: :class:`~clusterking.stability.clustermatcher.ClusterMatcher`
-                object. Default: TrivialClusterMatcher.
-
-        Returns:
-            None
+    def add_fom(self, fom) -> None:
         """
-        if matcher is None:
-            matcher = TrivialClusterMatcher
-        self._cluster_matcher = matcher
-
-    def set_fom(self, fct: Optional[Callable] = None) -> None:
-        """ Set figure of merit to be calculated.
-
-        Args:
-            fct: Function that takes two clusterings and returns a float.
-
-        Returns:
-            None
         """
-        if fct is None:
-            fct = default_fom
-        self._fom = fct
+        if fom.name in self._foms:
+            # todo: do with log
+            print(
+                "Warning: FOM with name {} already existed. Replacing.".format(
+                    fom.name
+                )
+            )
+        self._foms[fom.name] = fom
 
     def set_progress_bar(self, state=True) -> None:
         """ Set or unset progress bar.
@@ -126,33 +106,22 @@ class SubSampleStabilityTester(object):
         Returns:
             :class:`~clusterking.stability.subsamplestability.SubSampleStabilityTesterResult` object
         """
-        foms = []
-        nclusters = []
-        match_losts = []
-        default_clusters = cluster_worker.run(data).get_clusters(indexed=True)
-        matcher = self._cluster_matcher()
+        original_clusters = cluster_worker.run(data).get_clusters(indexed=True)
         if self._progress_bar:
             iterator = tqdm.tqdm(range(self._repeat))
         else:
             iterator = range(self._repeat)
+        fom_results = collections.defaultdict(list)
         for i in iterator:
             r = cluster_worker.run(
                 data.sample_param_random(frac=self._fraction)
             )
-            clusters = r.get_clusters(indexed=True)
-            relevant_default_clusters = default_clusters[clusters.index]
-            rename_dct = matcher.run(clusters, relevant_default_clusters).dct
-            clusters_renamed = clusters.map(rename_dct)
-            fom = self._fom(clusters_renamed, relevant_default_clusters)
-            foms.append(fom)
-            ncluster = len(set(clusters))
-            nclusters.append(ncluster)
-            match_lost = len(rename_dct.keys()) - len(set(rename_dct.values()))
-            match_losts.append(match_lost)
-        df = pd.DataFrame()
-        df["fom"] = foms
-        df["nclusters"] = nclusters
-        df["match_lost"] = match_losts
+            subsample_clusters = r.get_clusters(indexed=True)
+            for fom_name, fom in self._foms.items():
+                fom = fom.run(original_clusters, subsample_clusters).fom
+                fom_results[fom_name].append(fom)
+
+        df = pd.DataFrame(fom_results)
         return SubSampleStabilityTesterResult(df=df)
 
 
@@ -171,18 +140,14 @@ class SubSampleStabilityVsFraction(object):
         pass
 
     def run(self, data, cluster, ssst, fractions):
-        x = []
-        fom = []
-        nclusters = []
+        results = collections.defaultdict(list)
         ssst.set_progress_bar(False)
         for fract in tqdm.tqdm(fractions):
-            x.append(fract)
-            ssst.set_basic_config(fraction=fract, repeat=200)
+            ssst.set_fraction(fract)
             r = ssst.run(data, cluster)
-            fom.append(r.df["fom"].mean())
-            nclusters.append(r.df["nclusters"].mean())
-        df = pd.DataFrame()
-        df["fract"] = x
-        df["fom"] = fom
-        df["nclusters"] = nclusters
+            foms = r.df.mean().to_dict()
+            results["fraction"].append(fract)
+            for key, value in foms.items():
+                results[key].append(value)
+        df = pd.DataFrame(results)
         return SubSampleStabilityVsFractionResult(df=df)

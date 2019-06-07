@@ -101,7 +101,7 @@ class TestDataWithErrors(MyTestCase):
     # --------------------------------------------------------------------------
 
     def test_add_err_poisson(self):
-        dwe = DataWithErrors(self.ddir / self.dname)
+        dwe = self.ndwe()
         dwe.add_err_poisson()
         self.assertAllClose(dwe.err(), np.sqrt(self.data))
         self.assertAllClose(dwe.err(relative=True), 1 / np.sqrt(self.data))
@@ -110,13 +110,13 @@ class TestDataWithErrors(MyTestCase):
     def test_add_err_poisson_scaled_relative(self):
         # Now we increase the statistics by a factor of 4 and expect that the
         # Normed errors are reduced by a factor of 2.
-        dwe1 = DataWithErrors(self.ddir / self.dname)
+        dwe1 = self.ndwe()
         dwe1.add_err_poisson()
         rel_err1 = dwe1.err(relative=True)
-        dwe2 = DataWithErrors(self.ddir / self.dname)
-        dwe2.add_err_poisson(normalization_scale=2)
+        dwe2 = self.ndwe()
+        dwe2.add_err_poisson(normalization_scale=4)
         rel_err2 = dwe2.err(relative=True)
-        self.assertAllClose(rel_err1 * 2, rel_err2)
+        self.assertAllClose(rel_err1, rel_err2 * 2)
 
 
 if __name__ == "__main__":

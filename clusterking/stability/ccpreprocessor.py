@@ -66,8 +66,8 @@ class TrivialClusterMatcher(CCPreprocessor):
         index_intersection = set(clustered1.index).intersection(
             set(clustered2.index)
         )
-        clustered1 = clustered1[index_intersection]
-        clustered2 = clustered2[index_intersection]
+        clustered1 = clustered1.loc[index_intersection]
+        clustered2 = clustered2.loc[index_intersection]
 
         # 2. Rename clusters
         clusters1 = set(clustered1)

@@ -185,11 +185,14 @@ class DataWithErrors(Data):
             return abs2rel_cov(cov, data)
 
     def corr(self) -> np.ndarray:
-        """ Return correlation matrix
+        """ Return correlation matrix. If covarianace matrix is empty (because
+        no errors have been added), a unit matrix is returned.
 
         Returns:
             self.n x self.nbins x self.nbins array
         """
+        if np.sum(np.abs(self.cov())) == 0.0:
+            return np.tile(np.eye(self.nbins), (self.n, 1, 1))
         return cov2corr(self.cov())
 
     def err(self, relative=False) -> np.ndarray:

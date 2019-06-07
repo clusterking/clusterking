@@ -24,17 +24,19 @@ class TestDataWithErrors(MyTestCase):
         self.assertAllClose(dwe.rel_cov, np.zeros((2, 2)))
         self.assertFalse(dwe.poisson_errors)
 
-    def test_data(self):
+    def test_data_no_errors(self):
         dwe = DataWithErrors(self.ddir / self.dname)
         self.assertAllClose(dwe.data(), self.data)
         self.assertAllClose(
             dwe.data(normalize=True), [[1 / 3, 2 / 3], [4 / 9, 5 / 9]]
         )
-        # fixme
-        # self.assertAllClose(
-        #     dwe.data(decorrelate=True),
-        #     self.data
-        # )
+        all_zero = np.zeros((2, 2))
+        unit = np.eye(2)
+        self.assertAllClose(dwe.rel_cov, all_zero)
+        self.assertAllClose(dwe.abs_cov, all_zero)
+        self.assertAllClose(dwe.cov(), all_zero)
+        self.assertAllClose(dwe.corr(), unit)
+        self.assertAllClose(dwe.data(decorrelate=True), self.data)
 
     # -------------------------------------------------------------------------
 

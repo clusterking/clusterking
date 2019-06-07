@@ -12,8 +12,11 @@ from clusterking.data.dfmd import DFMD
 
 class TestDFMD(MyTestCase):
     def setUp(self):
-        self.data_dir = Path(__file__).parent / "data"
-        self.test_fname = "test.sql"
+        path = Path(__file__).parent / "data" / "test.sql"
+        self.dfmd = DFMD(path)
+
+    def ndfmd(self):
+        return self.dfmd.copy(deep=True)
 
     def test_init_empty(self):
         DFMD()
@@ -42,7 +45,7 @@ class TestDFMD(MyTestCase):
         self.assertListEqual(list(dfmd1.df.columns), list(dfmd2.df.columns))
 
     def test_init_dir_name(self):
-        dfmd = DFMD(self.data_dir / self.test_fname)
+        dfmd = self.ndfmd()
         self._test_dfmd_vs_cached(dfmd)
 
     # todo: implement working tests for copying
@@ -67,7 +70,7 @@ class TestDFMD(MyTestCase):
     #     self.assertNotEqual(id(dfmd1.md), id(dfmd3.md))
 
     def test_write_read(self):
-        dfmd = DFMD(self.data_dir / self.test_fname)
+        dfmd = self.ndfmd()
         with tempfile.TemporaryDirectory() as tmpdir:
             dfmd.write(Path(tmpdir) / "tmp_test.sql")
             dfmd_loaded = DFMD(Path(tmpdir) / "tmp_test.sql")
@@ -75,7 +78,7 @@ class TestDFMD(MyTestCase):
 
     def test_handle_overwrite(self):
         dfmd = DFMD()
-        dfmd2 = DFMD(self.data_dir / self.test_fname)
+        dfmd2 = self.ndfmd()
         with tempfile.TemporaryDirectory() as tmpdir:
             dfmd.write(Path(tmpdir) / "test.sql")
             with self.assertRaises(FileExistsError):
@@ -89,6 +92,7 @@ class TestDFMD(MyTestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             fn = Path(tmpdir) / "a" / "b" / "c"
             dfmd.write(fn)
+            self.assertTrue(fn.is_file())
 
 
 if __name__ == "__main__":

@@ -389,6 +389,30 @@ class Scanner(Worker):
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
+    # todo: expand doc
+    # todo: Apply to only one dimension?
+    def add_spoints_noise(self, generator="gauss", **kwargs):
+        """ Add noise to existing sample points. """
+        if self.spoints is None:
+            raise ValueError(
+                "This method can only be applied after spoints"
+                " have been set."
+            )
+        if generator == "gauss":
+            gauss_kwargs = {"mean": 0.0, "sigma": 1.0}
+            gauss_kwargs.update(kwargs)
+            rand = np.random.normal(
+                loc=gauss_kwargs["mean"],
+                scale=gauss_kwargs["sigma"],
+                size=self.spoints.shape,
+            )
+        else:
+            raise ValueError("Unknown generator {}.".format(generator))
+        if "noise" not in self.md:
+            self.md["noise"] = []
+        self.md["noise"].append({"generator": generator, "kwargs": kwargs})
+        self._spoints += rand
+
     # todo: doc
     def set_no_workers(self, no_workers):
         self._no_workers = no_workers

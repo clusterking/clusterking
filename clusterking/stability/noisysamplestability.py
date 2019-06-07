@@ -8,15 +8,21 @@ import collections
 import pandas as pd
 import tqdm
 
+# ours
+from clusterking.worker import AbstractWorker
+from clusterking.result import AbstractResult
 
-class NoisySampleStabilityTesterResult(object):
+
+class NoisySampleStabilityTesterResult(AbstractResult):
     def __init__(self, df, cached_data=None):
+        super().__init__()
         self.df = df
         self._cached_data = cached_data
 
 
-class NoisySampleStabilityTester(object):
+class NoisySampleStabilityTester(AbstractWorker):
     def __init__(self):
+        super().__init__()
         self._noise_kwargs = {}
         self._noise_args = []
         self._repeat = 10

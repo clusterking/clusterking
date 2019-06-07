@@ -95,27 +95,25 @@ class SubSampleStabilityTester(object):
     # Run
     # **************************************************************************
 
-    def run(self, data, cluster_worker):
+    def run(self, data, cluster):
         """ Run test.
 
         Args:
             data: `~clusterking.data.Data` object
-            cluster_worker: Pre-configured `~clusterking.cluster.Cluster`
+            cluster: Pre-configured `~clusterking.cluster.Cluster`
                 object
 
         Returns:
             :class:`~clusterking.stability.subsamplestability.SubSampleStabilityTesterResult` object
         """
-        original_clusters = cluster_worker.run(data).get_clusters(indexed=True)
+        original_clusters = cluster.run(data).get_clusters(indexed=True)
         if self._progress_bar:
             iterator = tqdm.tqdm(range(self._repeat))
         else:
             iterator = range(self._repeat)
         fom_results = collections.defaultdict(list)
         for i in iterator:
-            r = cluster_worker.run(
-                data.sample_param_random(frac=self._fraction)
-            )
+            r = cluster.run(data.sample_param_random(frac=self._fraction))
             subsample_clusters = r.get_clusters(indexed=True)
             for fom_name, fom in self._foms.items():
                 fom = fom.run(original_clusters, subsample_clusters).fom

@@ -4,18 +4,22 @@ from abc import ABC, abstractmethod
 
 # ours
 from clusterking.stability.ccpreprocessor import CCPreprocessor
+from clusterking.worker import AbstractWorker
+from clusterking.result import AbstractResult
 
 
-class CCFOMResult(object):
+class CCFOMResult(AbstractResult):
     def __init__(self, fom, name):
+        super().__init__()
         self.fom = fom
         self.name = name
 
 
-class CCFOM(ABC):
+class CCFOM(AbstractWorker):
     """ Cluster comparison figure of merit (CCFOM). """
 
     def __init__(self, preprocessor=None, name=None):
+        super().__init__()
         self._preprocessor = preprocessor
         self._name = name
 

@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 
 # std
-from abc import ABC, abstractmethod
-import copy
 
 # 3rd
 import numpy as np
 import pandas as pd
 
 # ours
+from clusterking.result import AbstractResult
+from clusterking.worker import AbstractWorker
 
 
-class CCPreprocessorResult(object):
+class CCPreprocessorResult(AbstractResult):
     def __init__(self, clustered1, clustered2):
+        super().__init__()
         self.clustered1 = clustered1
         self.clustered2 = clustered2
 
 
-class CCPreprocessor(object):
+class CCPreprocessor(AbstractWorker):
     """ Cluster names are arbitrary in general, i.e. when trying to compare
     two clustered datasets and trying to calculate a figure of merit, we have
     to match the names together.
@@ -25,6 +26,7 @@ class CCPreprocessor(object):
     """
 
     def __init__(self, name=None):
+        super().__init__()
         self._name = None
 
     @property

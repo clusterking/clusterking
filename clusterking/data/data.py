@@ -524,7 +524,7 @@ class Data(DFMD):
         Returns:
             None
         """
-        old_cluster_names = self.df[column].unique()
+        old_cluster_names = sorted(list(self.df[column].unique()))
         new_cluster_names = range(len(old_cluster_names))
         old2new = dict(zip(old_cluster_names, new_cluster_names))
         self.rename_clusters(old2new, column, new_column)

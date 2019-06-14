@@ -25,7 +25,11 @@ class FOM(AbstractWorker):
     """ Figure of Merit, comparing the outcome of two experiments (e.g. the
     clusters of two very similar datasets). """
 
-    def __init__(self, name: Optional[str] = None):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        preprocessor: Optional[Preprocessor] = None,
+    ):
         """ Initialize the FOM worker.
 
         Args:
@@ -33,19 +37,27 @@ class FOM(AbstractWorker):
         """
         super().__init__()
         self._name = name
+        self._preprocessor = preprocessor
 
     @property
-    def name(self) -> str:
+    def name(self):
         """ Name of the FOM """
         if self._name is None:
-            return str(type(self).__name__)
+            return str(type(self).__name__) + "_" + self._preprocessor.name
         return self._name
 
-    @name.setter
-    def name(self, value: str):
+    def set_name(self, value: str):
         self._name = value
 
-    @abstractmethod
+    @property
+    def preprocessor(self):
+        if self._preprocessor is None:
+            self._preprocessor = Preprocessor()
+        return self._preprocessor
+
+    def set_preprocessor(self, preprocessor: Preprocessor):
+        self._preprocessor = preprocessor
+
     def run(self, data1: Data, data2: Data) -> FOMResult:
         """ Calculate figure of merit.
 
@@ -56,34 +68,6 @@ class FOM(AbstractWorker):
         Returns:
             :class:`FOMResult` object
         """
-        pass
-
-
-class CCFOM(FOM):
-    """ Cluster Comparison figure of merit (CCFOM), comparing whether the
-    clusters of two experiments match. """
-
-    def __init__(self, preprocessor=None, name: Optional[str] = None):
-        super().__init__(name=name)
-        self._preprocessor = preprocessor
-
-    @property
-    def name(self):
-        """ Name of the FOM """
-        if self._name is None:
-            return str(type(self).__name__) + "_" + self._preprocessor.name
-        return self._name
-
-    @property
-    def preprocessor(self):
-        if self._preprocessor is None:
-            self._preprocessor = Preprocessor()
-        return self._preprocessor
-
-    def set_preprocessor(self, preprocessor):
-        self._preprocessor = preprocessor
-
-    def run(self, data1: Data, data2: Data) -> FOMResult:
         preprocessed = self.preprocessor.run(data1, data2)
         return FOMResult(
             fom=self._fom(preprocessed.data1, preprocessed.data2),
@@ -91,8 +75,13 @@ class CCFOM(FOM):
         )
 
     @abstractmethod
-    def _fom(self, clustered1, clustered2):
+    def _fom(self, data1: Data, data2: Data):
         pass
+
+
+class CCFOM(FOM):
+    """ Cluster Comparison figure of merit (CCFOM), comparing whether the
+    clusters of two experiments match. """
 
 
 class MatchingClusters(CCFOM):

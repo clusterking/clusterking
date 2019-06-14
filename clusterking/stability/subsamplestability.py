@@ -3,6 +3,7 @@
 # std
 from typing import Iterable, Optional
 import collections
+import copy
 
 # 3rd
 import tqdm
@@ -34,7 +35,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         super().__init__()
         #: Fraction of sample points to be contained in the subsamples.
         #: Set using :meth:`set_basic_config`.
-        self._fraction = None
+        self._sample_kwargs = {}
         #: Number of subsamples to consider.
         #: Set using :meth:`set_basic_config`.
         self._repeat = None
@@ -42,7 +43,6 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         self._progress_bar = True
 
         # Set default values:
-        self.set_fraction()
         self.set_repeat()
         self.set_progress_bar()
 
@@ -50,18 +50,21 @@ class SubSampleStabilityTester(AbstractStabilityTester):
     # Config
     # **************************************************************************
 
-    def set_fraction(self, fraction=0.75) -> None:
-        """ Set the fraction of sample points to be contained in the subsamples.
+    def set_sampling(self, **kwargs) -> None:
+        """ Configure the subsampling of the data. If performing
+        benchmarking, it is ensured that none of the benchmark points of the
+        original dataframe are removed during subsampling (to allow to
+        compare the benchmarking results).
 
         Args:
-            fraction: Fraction of sample points to be contained in the
-                subsamples
+            **kwargs: Keyword arguments to
+                :meth:`clusterking.data.Data.sample_param_random`, in particular
+                keyword arguments to :meth:`pandas.DataFrame.sample`.
 
         Returns:
             None
         """
-        assert 0 <= fraction <= 1
-        self._fraction = fraction
+        self._sample_kwargs = kwargs
 
     def set_repeat(self, repeat=100) -> None:
         """
@@ -114,8 +117,13 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         else:
             iterator = range(self._repeat)
         fom_results = collections.defaultdict(list)
+
+        sample_kwargs = copy.deepcopy(self._sample_kwargs)
+        if benchmark is not None and "bpoints" not in self._sample_kwargs:
+            sample_kwargs["bpoints"] = True
+
         for _ in iterator:
-            this_data = data.sample_param_random(frac=self._fraction)
+            this_data = data.sample_param_random(**sample_kwargs)
             cluster.run(this_data).write()
             if benchmark is not None:
                 benchmark.run(this_data).write()
@@ -151,7 +159,7 @@ class SubSampleStabilityVsFraction(object):
         results = collections.defaultdict(list)
         ssst.set_progress_bar(False)
         for fract in tqdm.tqdm(fractions):
-            ssst.set_fraction(fract)
+            ssst.set_sampling(fract)
             r = ssst.run(data, cluster)
             foms = r.df.mean().to_dict()
             results["fraction"].append(fract)

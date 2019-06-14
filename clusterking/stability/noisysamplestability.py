@@ -11,6 +11,7 @@ import tqdm
 # ours
 from clusterking.worker import AbstractWorker
 from clusterking.result import AbstractResult
+from clusterking.stability.stabilitytester import AbstractStabilityTester
 
 
 class NoisySampleStabilityTesterResult(AbstractResult):
@@ -20,7 +21,15 @@ class NoisySampleStabilityTesterResult(AbstractResult):
         self._cached_data = cached_data
 
 
-class NoisySampleStabilityTester(AbstractWorker):
+class NoisySampleStabilityTester(AbstractStabilityTester):
+    """ This stability test generates data samples with slightly varied
+    sample points (by adding :meth:`clusterking.scan.Scanner.add_spoints_noise`
+    to a pre-configured :class:`clusterking.scan.Scanner` object) and compares
+    the resulting clusters and benchmark points.
+
+
+    """
+
     def __init__(self):
         super().__init__()
         self._noise_kwargs = {}
@@ -28,7 +37,6 @@ class NoisySampleStabilityTester(AbstractWorker):
         self._repeat = 10
         self._cache_data = True
         self.set_repeat()
-        self._foms = {}
 
     # **************************************************************************
     # Config
@@ -43,18 +51,6 @@ class NoisySampleStabilityTester(AbstractWorker):
 
     def set_cache_data(self, value):
         self._cache_data = value
-
-    def add_fom(self, fom) -> None:
-        """
-        """
-        if fom.name in self._foms:
-            # todo: do with log
-            print(
-                "Warning: FOM with name {} already existed. Replacing.".format(
-                    fom.name
-                )
-            )
-        self._foms[fom.name] = fom
 
     # **************************************************************************
     # Run

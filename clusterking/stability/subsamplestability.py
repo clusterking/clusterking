@@ -9,7 +9,7 @@ import tqdm
 import pandas as pd
 
 # ours
-from clusterking.stability.fom import CCFOM
+from clusterking.stability.stabilitytester import AbstractStabilityTester
 
 
 class SubSampleStabilityTesterResult(object):
@@ -18,21 +18,20 @@ class SubSampleStabilityTesterResult(object):
         self.df = df
 
 
-class SubSampleStabilityTester(object):
+class SubSampleStabilityTester(AbstractStabilityTester):
     """ Test the stability of clustering algorithms by repeatedly
     clustering subsamples of data and then comparing if the clusters match.
 
     """
 
     def __init__(self):
+        super().__init__()
         #: Fraction of sample points to be contained in the subsamples.
         #: Set using :meth:`set_basic_config`.
         self._fraction = None
         #: Number of subsamples to consider.
         #: Set using :meth:`set_basic_config`.
         self._repeat = None
-        #: Figure of merits to calculate as dictionary name: CCFOM
-        self._foms = {}  # type: Dict[str, CCFOM]
         #: Display a progress bar?
         self._progress_bar = True
 
@@ -67,18 +66,6 @@ class SubSampleStabilityTester(object):
             None
         """
         self._repeat = repeat
-
-    def add_fom(self, fom) -> None:
-        """
-        """
-        if fom.name in self._foms:
-            # todo: do with log
-            print(
-                "Warning: FOM with name {} already existed. Replacing.".format(
-                    fom.name
-                )
-            )
-        self._foms[fom.name] = fom
 
     def set_progress_bar(self, state=True) -> None:
         """ Set or unset progress bar.

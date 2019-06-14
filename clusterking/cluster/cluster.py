@@ -7,6 +7,9 @@
 import time
 from abc import abstractmethod
 
+# 3rd
+import pandas as pd
+
 # us
 from clusterking.util.metadata import version_info, nested_dict
 from clusterking.util.log import get_logger
@@ -52,6 +55,12 @@ class ClusterResult(DataResult):
         self._md = md
         self._clusters = clusters
         self._md["n_clusters"] = len(set(self._clusters))
+
+    def get_clusters(self, indexed=False):
+        if not indexed:
+            return self._clusters
+        else:
+            return pd.Series(self._clusters, index=self._data.df.index)
 
     def write(self, cluster_column="cluster"):
         """ Write results back in the :py:class:`~clusterking.data.Data`

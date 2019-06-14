@@ -379,6 +379,23 @@ class Data(DFMD):
             **fix_kwargs
         )
 
+    def sample_param_random(self, inplace=False, **kwargs):
+        """ Random subsampling in parameter space.
+
+        Args:
+            inplace: Modify this Data object instead of returning a new one
+            **kwargs: Arguments for :meth:`pandas.DataFrame.sample`
+
+        Returns:
+            If ``inplace == True``, return new Data with subset of sample
+            points.
+        """
+        if not inplace:
+            new = self.copy()
+            new.sample_param_random(inplace=True, **kwargs)
+            return new
+        self.df = self.df.sample(**kwargs)
+
     # **************************************************************************
     # Manipulating things
     # **************************************************************************

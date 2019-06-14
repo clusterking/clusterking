@@ -4,6 +4,7 @@
 import unittest
 from pathlib import Path
 import tempfile
+import copy
 
 # 3rd
 import numpy as np
@@ -140,6 +141,15 @@ class TestScanner(MyTestCase):
             d.df.values, np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
         )
         d.write(Path(self.tmpdir.name) / "test.sql")
+
+    def test_add_gaussian_noise(self):
+        s = Scanner()
+        s.set_spoints_equidist({"a": (-1, 1, 10), "b": (-1, 1, 10)})
+        unmodified_spoints = copy.copy(s.spoints)
+        s.add_spoints_noise("gauss", mean=0.0, sigma=0.0)
+        self.assertAllClose(unmodified_spoints, s.spoints)
+        s.add_spoints_noise("gauss", mean=1.0, sigma=0.0)
+        self.assertAllClose(unmodified_spoints + 1, s.spoints)
 
 
 if __name__ == "__main__":

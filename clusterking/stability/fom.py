@@ -129,7 +129,7 @@ class BMFOM(FOM):
                 (data1.df["cluster"] == cluster) & data1.df["bpoint"]
             ]
             bpoints2 = data2.df[
-                (data1.df["cluster"] == cluster) & data2.df["bpoint"]
+                (data2.df["cluster"] == cluster) & data2.df["bpoint"]
             ]
             msg = "Found {} bpoints instead of 1 for dataset {}."
             if len(bpoints1) != 1:

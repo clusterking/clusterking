@@ -2,7 +2,10 @@
 
 # std
 from abc import abstractmethod
-from typing import Optional
+from typing import Optional, Callable, Dict, Tuple, Any, Union
+
+# 3rd
+import numpy as np
 
 # ours
 from clusterking.stability.preprocessor import Preprocessor
@@ -34,6 +37,9 @@ class FOM(AbstractWorker):
 
         Args:
             name: Name of the FOM
+            preprocessor:
+                :class:`~clusterking.stability.preprocessor.Preprocessor`
+                object
         """
         super().__init__()
         self._name = name
@@ -111,4 +117,99 @@ class BMFOM(FOM):
     """ Benchmark Figure of Merit (BMFOM), comparing whether the benchmark
     points of two experiments match. """
 
-    pass
+    def _fom(self, data1: Data, data2: Data) -> float:
+        clusters1 = set(data1.df["cluster"].unique())
+        clusters2 = set(data2.df["cluster"].unique())
+        if not clusters1 == clusters2:
+            return np.nan
+        clusters = clusters1
+        cluster2bpoint = {}
+        for cluster in clusters:
+            bpoints1 = data1.df[
+                (data1.df["cluster"] == cluster) & data1.df["bpoint"]
+            ]
+            bpoints2 = data2.df[
+                (data1.df["cluster"] == cluster) & data2.df["bpoint"]
+            ]
+            msg = "Found {} bpoints instead of 1 for dataset {}."
+            if len(bpoints1) != 1:
+                raise ValueError(msg.format(len(bpoints1), 1))
+            if len(bpoints2) != 1:
+                raise ValueError(msg.format(len(bpoints2), 2))
+            bpoint1 = bpoints1.iloc[0][data1.par_cols]
+            bpoint2 = bpoints2.iloc[0][data2.par_cols]
+            cluster2bpoint[cluster] = (bpoint1, bpoint2)
+        return self._fom2(cluster2bpoint)
+
+    @abstractmethod
+    def _fom2(self, cluster2bpoint: Dict[int, Tuple[Any, Any]]) -> float:
+        pass
+
+
+class AverageBMProximityFOM(BMFOM):
+    """ Returns the average distance of benchmark points in parameter space
+    between two experiments.
+    """
+
+    _named_averaging_fcts = {
+        "max": lambda iter: max(iter),
+        "arithmetic": lambda iter: sum(iter) / len(iter),
+    }
+    _named_metric_fcts = {
+        "euclidean": lambda x: np.sqrt(np.sum(np.square(x[0] - x[1])))
+    }
+
+    named_averaging_fcts = _named_averaging_fcts.keys()
+    named_metric_fcts = _named_metric_fcts.keys()
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        preprocessor: Optional[Preprocessor] = None,
+    ):
+        """ Initialize the FOM worker.
+
+        Args:
+            name: Name of the FOM
+            preprocessor:
+                :class:`~clusterking.stability.preprocessor.Preprocessor`
+                object
+        """
+        super().__init__(name=name, preprocessor=preprocessor)
+        self._averaging = self._named_averaging_fcts["arithmetic"]
+        self._metric = self._named_metric_fcts["euclidean"]
+
+    def set_averaging(self, fct: Union[str, Callable]) -> None:
+        """ Set averaging mode
+
+        Args:
+            mode: Function of the distances between benchmark poins of the same
+                cluster or name of pre-implemented functions (check
+                :attr:`named_averaging_fcts` for a list)
+
+        Returns:
+            None
+        """
+        if isinstance(fct, str):
+            self._averaging = self._named_averaging_fcts[fct]
+        else:
+            self._averaging = fct
+
+    def set_metric(self, fct: Union[str, Callable]) -> None:
+        """ Set metric in parameter space
+
+        Args:
+            fct: Functino of a tuple of two points in parameter space or name
+                of pre-implemented functions (check
+                :attr:`named_metric_fcts` for a list)
+
+        Returns:
+            None
+        """
+        if isinstance(fct, str):
+            self._metric = self._named_metric_fcts[fct]
+        else:
+            self._metric = fct
+
+    def _fom2(self, cluster2bpoint: Dict[int, Tuple[Any, Any]]) -> float:
+        return self._averaging(list(map(self._metric, cluster2bpoint.values())))

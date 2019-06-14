@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # std
-from typing import Iterable
+from typing import Iterable, Optional
 import collections
 
 # 3rd
@@ -15,6 +15,7 @@ from clusterking.stability.stabilitytester import (
 )
 from clusterking.data.data import Data
 from clusterking.cluster import Cluster
+from clusterking.benchmark import AbstractBenchmark
 
 
 class SubSampleStabilityTesterResult(StabilityTesterResult):
@@ -89,13 +90,18 @@ class SubSampleStabilityTester(AbstractStabilityTester):
     # **************************************************************************
 
     def run(
-        self, data: Data, cluster: Cluster
+        self,
+        data: Data,
+        cluster: Cluster,
+        benchmark: Optional[AbstractBenchmark] = None,
     ) -> SubSampleStabilityTesterResult:
         """ Run test.
 
         Args:
             data: :class:`~clusterking.data.Data` object
             cluster: Pre-configured :class:`~clusterking.cluster.Cluster`
+                object
+            benchmark: Optional: :class:`~clusterking.cluster.cluster.Cluster`
                 object
 
         Returns:
@@ -111,6 +117,8 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         for _ in iterator:
             this_data = data.sample_param_random(frac=self._fraction)
             cluster.run(this_data).write()
+            if benchmark is not None:
+                benchmark.run(this_data).write()
             for fom_name, fom in self._foms.items():
                 fom = fom.run(original_data, this_data).fom
                 fom_results[fom_name].append(fom)

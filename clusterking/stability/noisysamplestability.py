@@ -3,6 +3,7 @@
 # std
 import copy
 import collections
+from typing import Optional
 
 # 3rd
 import pandas as pd
@@ -16,6 +17,7 @@ from clusterking.stability.stabilitytester import (
 from clusterking.data.data import Data
 from clusterking.scan.scanner import Scanner
 from clusterking.cluster.cluster import Cluster
+from clusterking.benchmark.benchmark import AbstractBenchmark
 
 
 class NoisySampleStabilityTesterResult(StabilityTesterResult):
@@ -93,7 +95,11 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
     # **************************************************************************
 
     def run(
-        self, data: Data, scanner: Scanner, cluster: Cluster
+        self,
+        data: Data,
+        scanner: Scanner,
+        cluster: Cluster,
+        benchmark: Optional[AbstractBenchmark] = None,
     ) -> NoisySampleStabilityTesterResult:
         """ Run stability test.
 
@@ -101,6 +107,8 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
             data: :class:`~clusterking.data.data.Data` object
             scanner: :class:`~clusterking.scan.scan.Scanner` object
             cluster: :class:`~clusterking.cluster.cluster.Cluster` object
+            benchmark: Optional: :class:`~clusterking.cluster.cluster.Cluster`
+                object
 
         Returns:
             :class:`~NoisySampleStabilityTesterResult` object
@@ -118,10 +126,10 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
             this_data = data.copy(deep=True)
             if self._cache_data:
                 datas.append(this_data)
-            rs = noisy_scanner.run(this_data)
-            rs.write()
-            rc = cluster.run(this_data)
-            rc.write()
+            noisy_scanner.run(this_data).write()
+            cluster.run(this_data).write()
+            if benchmark is not None:
+                benchmark.run(this_data).write()
             if _ == 0:
                 original_data = this_data.copy(deep=True)
                 continue

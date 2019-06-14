@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # std
-from typing import Optional, Callable, Dict
+from typing import Iterable
 import collections
 
 # 3rd
@@ -9,19 +9,24 @@ import tqdm
 import pandas as pd
 
 # ours
-from clusterking.stability.stabilitytester import AbstractStabilityTester
+from clusterking.stability.stabilitytester import (
+    AbstractStabilityTester,
+    StabilityTesterResult,
+)
+from clusterking.data.data import Data
+from clusterking.cluster import Cluster
 
 
-class SubSampleStabilityTesterResult(object):
+class SubSampleStabilityTesterResult(StabilityTesterResult):
     def __init__(self, df: pd.DataFrame):
+        super().__init__()
         #: Results as :class:`pandas.DataFrame`
         self.df = df
 
 
 class SubSampleStabilityTester(AbstractStabilityTester):
     """ Test the stability of clustering algorithms by repeatedly
-    clustering subsamples of data and then comparing if the clusters match.
-
+    clustering subsamples of data.
     """
 
     def __init__(self):
@@ -45,10 +50,11 @@ class SubSampleStabilityTester(AbstractStabilityTester):
     # **************************************************************************
 
     def set_fraction(self, fraction=0.75) -> None:
-        """ Basic configuration
+        """ Set the fraction of sample points to be contained in the subsamples.
 
         Args:
-            fraction: Fraction of sample points to be contained in the subsamples
+            fraction: Fraction of sample points to be contained in the
+                subsamples
 
         Returns:
             None
@@ -82,16 +88,18 @@ class SubSampleStabilityTester(AbstractStabilityTester):
     # Run
     # **************************************************************************
 
-    def run(self, data, cluster):
+    def run(
+        self, data: Data, cluster: Cluster
+    ) -> SubSampleStabilityTesterResult:
         """ Run test.
 
         Args:
-            data: `~clusterking.data.Data` object
-            cluster: Pre-configured `~clusterking.cluster.Cluster`
+            data: :class:`~clusterking.data.Data` object
+            cluster: Pre-configured :class:`~clusterking.cluster.Cluster`
                 object
 
         Returns:
-            :class:`~clusterking.stability.subsamplestability.SubSampleStabilityTesterResult` object
+            :class:`SubSampleStabilityTesterResult` object
         """
         original_data = data.copy(deep=True)
         cluster.run(original_data).write()
@@ -100,7 +108,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         else:
             iterator = range(self._repeat)
         fom_results = collections.defaultdict(list)
-        for i in iterator:
+        for _ in iterator:
             this_data = data.sample_param_random(frac=self._fraction)
             cluster.run(this_data).write()
             for fom_name, fom in self._foms.items():
@@ -125,7 +133,13 @@ class SubSampleStabilityVsFraction(object):
     def __init__(self):
         pass
 
-    def run(self, data, cluster, ssst, fractions):
+    def run(
+        self,
+        data: Data,
+        cluster: Cluster,
+        ssst: SubSampleStabilityTester,
+        fractions: Iterable[float],
+    ):
         results = collections.defaultdict(list)
         ssst.set_progress_bar(False)
         for fract in tqdm.tqdm(fractions):

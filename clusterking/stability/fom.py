@@ -6,9 +6,13 @@ from abc import abstractmethod
 from clusterking.stability.ccpreprocessor import CCPreprocessor
 from clusterking.worker import AbstractWorker
 from clusterking.result import AbstractResult
+from clusterking.data.data import Data
 
 
 class FOMResult(AbstractResult):
+    """ Object containing the result of a Figure of Merit (FOM), represented
+    by a :class:`FOM` object. """
+
     def __init__(self, fom, name):
         super().__init__()
         self.fom = fom
@@ -16,22 +20,40 @@ class FOMResult(AbstractResult):
 
 
 class FOM(AbstractWorker):
+    """ Figure of Merit, comparing the outcome of two experiments (e.g. the
+    clusters of two very similar datasets). """
+
     def __init__(self, name=None):
+        """ Initialize the FOM worker.
+
+        Args:
+            name: Name of the FOM
+        """
         super().__init__()
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """ Name of the FOM """
         if self._name is None:
             return str(type(self).__name__)
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str):
         self._name = value
 
     @abstractmethod
-    def run(self, data1, data2):
+    def run(self, data1: Data, data2: Data) -> FOMResult:
+        """ Calculate figure of merit.
+
+        Args:
+            data1: "original" :class:`~clusterking.data.data.Data` object
+            data2: "other" :class:`~clusterking.data.data.Data` object
+
+        Returns:
+            :class:`FOMResult` object
+        """
         pass
 
 
@@ -44,6 +66,7 @@ class CCFOM(FOM):
 
     @property
     def name(self):
+        """ Name of the FOM """
         if self._name is None:
             return str(type(self).__name__) + "_" + self._preprocessor.name
         return self._name
@@ -57,7 +80,7 @@ class CCFOM(FOM):
     def set_preprocessor(self, preprocessor):
         self._preprocessor = preprocessor
 
-    def run(self, data1, data2):
+    def run(self, data1: Data, data2: Data) -> FOMResult:
         clustered1 = data1.df["cluster"]
         clustered2 = data2.df["cluster"]
         preprocessed = self.preprocessor.run(clustered1, clustered2)
@@ -72,11 +95,19 @@ class CCFOM(FOM):
 
 
 class MatchingClusters(CCFOM):
-    def _fom(self, clustered1, clustered2):
+    """ Fraction of sample points (spoints) that lie in the same cluster, when
+    comparing two clustered datasets with the same number of sample points.
+    """
+
+    def _fom(self, clustered1, clustered2) -> float:
         assert len(clustered1) == len(clustered2)
         return sum(clustered1 == clustered2) / len(clustered1)
 
 
 class DeltaNClusters(CCFOM):
-    def _fom(self, clustered1, clustered2):
+    """ Difference of number of clusters between two experiments
+    (number of clusters in experiment 1 - number of lcusters in experiment 2).
+    """
+
+    def _fom(self, clustered1, clustered2) -> int:
         return len(set(clustered1)) - len(set(clustered2))

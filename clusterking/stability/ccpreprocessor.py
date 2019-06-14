@@ -19,15 +19,9 @@ class CCPreprocessorResult(AbstractResult):
 
 
 class CCPreprocessor(AbstractWorker):
-    """ Cluster names are arbitrary in general, i.e. when trying to compare
-    two clustered datasets and trying to calculate a figure of merit, we have
-    to match the names together.
-    This is donen by this worker class.
-    """
-
     def __init__(self, name=None):
         super().__init__()
-        self._name = None
+        self._name = name
 
     @property
     def name(self):
@@ -56,14 +50,18 @@ class CCPreprocessor(AbstractWorker):
         )
 
 
-class ClusterMatcher(CCPreprocessor):
-    pass
-
-
 class ClusterMatcherResult(CCPreprocessorResult):
     def __init__(self, clustered1, clustered2, rename_dct):
         super().__init__(clustered1=clustered1, clustered2=clustered2)
         self.rename_dct = rename_dct
+
+
+class ClusterMatcher(CCPreprocessor):
+    """ Cluster names are arbitrary in general, i.e. when trying to compare
+    two clustered datasets and trying to calculate a figure of merit, we have
+    to match the names together.
+    This is donen by this worker class.
+    """
 
 
 class TrivialClusterMatcher(CCPreprocessor):

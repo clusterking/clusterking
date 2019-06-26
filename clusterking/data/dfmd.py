@@ -144,6 +144,8 @@ class DFMD(object):
     def __copy__(self):
         new = type(self)()
         new.df = copy.copy(self.df)
+        new.md = copy.copy(self.md)
+        new.log = copy.copy(self.log)
         return new
 
     def __deepcopy__(self, memo):

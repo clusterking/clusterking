@@ -146,9 +146,11 @@ class TestScanner(MyTestCase):
         s = Scanner()
         s.set_spoints_equidist({"a": (-1, 1, 10), "b": (-1, 1, 10)})
         unmodified_spoints = copy.copy(s.spoints)
-        s.add_spoints_noise("gauss", mean=0.0, sigma=0.0)
+        # Note: sigma = 0. results in an error in some versions, so we choose
+        # a very small value instead.
+        s.add_spoints_noise("gauss", mean=0.0, sigma=10 ** -10)
         self.assertAllClose(unmodified_spoints, s.spoints)
-        s.add_spoints_noise("gauss", mean=1.0, sigma=0.0)
+        s.add_spoints_noise("gauss", mean=1.0, sigma=10 ** -10)
         self.assertAllClose(unmodified_spoints + 1, s.spoints)
 
 

@@ -43,6 +43,23 @@ class TestDataWithErrors(MyTestCase):
 
     # -------------------------------------------------------------------------
 
+    def test_reset_errors(self):
+        dwe = self.ndwe()
+        cov = [[4.0, 4.0], [4.0, 16.0]]
+        dwe.add_err_cov(cov)
+        dwe.add_err_corr(1, np.identity(2))
+        dwe.add_err_uncorr(0.3)
+        dwe.add_err_poisson(normalization_scale=25)
+        dwe.reset_errors()
+        self.assertEqual(np.count_nonzero(dwe.cov()), 0)
+        self.assertEqual(np.count_nonzero(dwe.abs_cov), 0)
+        self.assertEqual(np.count_nonzero(dwe.rel_cov), 0)
+        self.assertFalse(dwe.poisson_errors)
+        self.assertEqual(dwe.poisson_errors_scale, 1.0)
+        self.assertAllClose(
+            dwe.corr(), np.tile(np.eye(dwe.nbins), (dwe.n, 1, 1))
+        )
+
     def test_add_err_cov(self):
         dwe = self.ndwe()
         # Equal for all data points

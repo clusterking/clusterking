@@ -278,6 +278,17 @@ class DataWithErrors(Data):
     # Configuration
     # **************************************************************************
 
+    def reset_errors(self) -> None:
+        """ Set all errors back to 0.
+
+        Returns:
+            None
+        """
+        self.rel_cov = None
+        self.abs_cov = None
+        self.poisson_errors = False
+        self.poisson_errors_scale = 1
+
     # -------------------------------------------------------------------------
     # Add absolute errors
     # -------------------------------------------------------------------------

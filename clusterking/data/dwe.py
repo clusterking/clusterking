@@ -43,7 +43,7 @@ class DataWithErrors(Data):
             + &\\delta_{ij} \\sqrt{d^{(n)}_i d^{(n)}_j} / \\sqrt{s}
 
     .. note::
-        All of these methods, add the errors in a consistent way for all sample
+        All of these methods add the errors in a consistent way for all sample
         points/distributions, i.e. it is impossible to add a certain error
         specifically to one sample point only!
 

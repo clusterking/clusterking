@@ -14,7 +14,7 @@ from clusterking.data.dfmd import DFMD
 class Data(DFMD):
     """ This class inherits from the :py:class:`~clusterking.data.DFMD`
     class and adds additional methods to it. It is the basic container,
-    that contains the
+    that contains
 
     * The distributions to cluster
     * The cluster numbers after clustering
@@ -447,7 +447,7 @@ class Data(DFMD):
         1. A dictionary of the form ``{<old cluster name>: <new cluster name>}``
         2. A function that maps the old cluster name to the new cluster name
 
-        Example for 2: Say our :py:class:`~clusterking.data.Data``
+        Example for 2: Say our :py:class:`~clusterking.data.Data`
         object ``d`` contains clusters 1 to 10
         in the default column ``cluster``. The following method call
         will instead use the numbers 0 to 9:

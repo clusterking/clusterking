@@ -108,5 +108,8 @@ class Benchmark(AbstractBenchmark):
             # The index of the wpoint of the current cluster that has the lowest
             # sum of distances to all other elements in the same cluster
             index_minimal = indizes[np.argmin(m)]
+            if isinstance(index_minimal, np.ndarray) and len(index_minimal) > 2:
+                self.log.warning("More than one minimum found for BM FOM.")
+                index_minimal = index_minimal[0]
             result[index_minimal] = True
         return BenchmarkResult(data=data, md=self.md, bpoints=result)

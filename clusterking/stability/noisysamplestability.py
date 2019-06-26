@@ -3,20 +3,29 @@
 # std
 import copy
 import collections
+from typing import Optional
 
 # 3rd
 import pandas as pd
 import tqdm
 
 # ours
-from clusterking.worker import AbstractWorker
-from clusterking.result import AbstractResult
-from clusterking.stability.stabilitytester import AbstractStabilityTester
+from clusterking.stability.stabilitytester import (
+    AbstractStabilityTester,
+    StabilityTesterResult,
+)
+from clusterking.data.data import Data
+from clusterking.scan.scanner import Scanner
+from clusterking.cluster.cluster import Cluster
+from clusterking.benchmark.benchmark import AbstractBenchmark
 
 
-class NoisySampleStabilityTesterResult(AbstractResult):
-    def __init__(self, df, cached_data=None):
+class NoisySampleStabilityTesterResult(StabilityTesterResult):
+    """ Result of :class:`NoisySampleStabilityTester`"""
+
+    def __init__(self, df: pd.DataFrame, cached_data=None):
         super().__init__()
+        #: :class:`pd.DataFrame` containing figures of merits for each result
         self.df = df
         self._cached_data = cached_data
 
@@ -42,21 +51,68 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
     # Config
     # **************************************************************************
 
-    def set_repeat(self, repeat=10):
+    def set_repeat(self, repeat=10) -> None:
+        """ Set number of experiments.
+
+        Args:
+            repeat: Number of experiments
+
+        Returns:
+            None
+        """
         self._repeat = repeat
 
-    def set_noise(self, *args, **kwargs):
+    def set_noise(self, *args, **kwargs) -> None:
+        """ Configure noise, applied to the spoints in each experiment. See
+        :meth:`clusterking.scan.Scanner.add_spoints_noise`.
+
+        Args:
+            *args: Positional arguments to
+                :meth:`clusterking.scan.Scanner.add_spoints_noise`.
+            **kwargs: Keyword argumnets to
+                :meth:`clusterking.scan.Scanner.add_spoints_noise`.
+
+        Returns:
+            None
+        """
         self._noise_args = args
         self._noise_kwargs = kwargs
 
-    def set_cache_data(self, value):
+    def set_cache_data(self, value: bool) -> None:
+        """ Do we cache the :class:`~clusterking.data.Data` objects of each
+        experimnt?
+
+        Args:
+            value: bool. Cache the data?
+
+        Returns:
+            None
+        """
         self._cache_data = value
 
     # **************************************************************************
     # Run
     # **************************************************************************
 
-    def run(self, data, scanner, cluster):
+    def run(
+        self,
+        data: Data,
+        scanner: Scanner,
+        cluster: Cluster,
+        benchmark: Optional[AbstractBenchmark] = None,
+    ) -> NoisySampleStabilityTesterResult:
+        """ Run stability test.
+
+        Args:
+            data: :class:`~clusterking.data.data.Data` object
+            scanner: :class:`~clusterking.scan.scan.Scanner` object
+            cluster: :class:`~clusterking.cluster.cluster.Cluster` object
+            benchmark: Optional: :class:`~clusterking.cluster.cluster.Cluster`
+                object
+
+        Returns:
+            :class:`~NoisySampleStabilityTesterResult` object
+        """
         scanner.set_progress_bar(False)
         datas = []
         original_data = None
@@ -70,10 +126,10 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
             this_data = data.copy(deep=True)
             if self._cache_data:
                 datas.append(this_data)
-            rs = noisy_scanner.run(this_data)
-            rs.write()
-            rc = cluster.run(this_data)
-            rc.write()
+            noisy_scanner.run(this_data).write()
+            cluster.run(this_data).write()
+            if benchmark is not None:
+                benchmark.run(this_data).write()
             if _ == 0:
                 original_data = this_data.copy(deep=True)
                 continue

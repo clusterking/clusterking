@@ -379,11 +379,17 @@ class Data(DFMD):
             **fix_kwargs
         )
 
-    def sample_param_random(self, inplace=False, **kwargs):
+    def sample_param_random(
+        self, inplace=False, bpoints=False, bpoint_column="bpoint", **kwargs
+    ):
         """ Random subsampling in parameter space.
 
         Args:
             inplace: Modify this Data object instead of returning a new one
+            bpoints: Keep bpoints (no matter if they are selected by the other
+                selection or not)
+            bpoint_column: Column with benchmark points (default 'bpoints')
+                (for use with the ``bpoints`` option)
             **kwargs: Arguments for :meth:`pandas.DataFrame.sample`
 
         Returns:
@@ -392,9 +398,19 @@ class Data(DFMD):
         """
         if not inplace:
             new = self.copy()
-            new.sample_param_random(inplace=True, **kwargs)
+            new.sample_param_random(
+                inplace=True,
+                bpoints=bpoints,
+                bpoint_column=bpoint_column,
+                **kwargs
+            )
             return new
-        self.df = self.df.sample(**kwargs)
+        if not bpoints:
+            self.df = self.df.sample(**kwargs)
+        else:
+            bpoint_df = self.df[self.df[bpoint_column]]
+            self.df = self.df[~self.df[bpoint_column]].sample(**kwargs)
+            self.df = self.df.append(bpoint_df)
 
     # **************************************************************************
     # Manipulating things

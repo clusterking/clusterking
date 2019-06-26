@@ -13,7 +13,6 @@ from clusterking.maths.statistics import (
 )
 
 
-# todo: document
 class DataWithErrors(Data):
     """ This class extends the :py:class:`~clusterking.data.Data` class by
     convenient and performant ways to add errors to the distributions.
@@ -25,9 +24,23 @@ class DataWithErrors(Data):
 
     1. Add relative errors (with correlation) relative to the bin content of
        each bin in the distribution: ``add_rel_err_...``
+       (:math:`\\mathrm{Cov}^{(k)}_{\\text{rel}}(i, j)`)
     2. Add absolute errors (with correlation): ``add_err_...``
+       (:math:`\\mathrm{Cov}^{(k)}_{\\text{abs}}(i, j)`)
     3. Add poisson errors:
        :py:meth:`.add_err_poisson`
+
+    The covariance matrix for bin i and j of distribution n
+    (with contents :math:`d^{(n)}_i`) will then
+    be
+
+    .. math::
+
+        \mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)  =
+                &\\sum_{k}\\mathrm{Cov}_{\\text{rel}}^{(k)}(i, j)
+                \\cdot d^{(n)}_i d^{(n)}_j + \\\\
+            + &\\sum_k\\mathrm{Cov}_{\\text{abs}}^{(k)}(i, j) + \\\\
+            + &\\delta_{ij} \\sqrt{d^{(n)}_i d^{(n)}_j} / \\sqrt{s}
 
     .. note::
         All of these methods, add the errors in a consistent way for all sample
@@ -51,6 +64,7 @@ class DataWithErrors(Data):
         super().__init__(*args, **kwargs)
 
         # Initialize some values to their default
+        # [Defined as properties, documented below]
         self.rel_cov = None
         self.abs_cov = None
         self.poisson_errors = False
@@ -62,6 +76,19 @@ class DataWithErrors(Data):
 
     @property
     def rel_cov(self):
+        """ Relative covariance matrix that will be later applied to the data
+        (see class documentation).
+
+        .. math::
+
+            \\mathrm{Cov}_{\\text{rel}}(i, j)
+            = \\sum_k\\mathrm{Cov}_{\\text{rel}}^{(k)}(i, j)
+
+        If no errors have been added, this is defined to be a zero matrix.
+
+        Returns:
+            ``self.nbins * self.nbins`` matrix
+        """
         value = self.md["errors"]["rel_cov"]
         if value is None:
             if self.nbins:
@@ -79,6 +106,19 @@ class DataWithErrors(Data):
 
     @property
     def abs_cov(self):
+        """ Absolute covariance matrix that will be later applied to the data
+        (see class documentation).
+
+        .. math::
+
+            \\mathrm{Cov}_{\\text{abs}}(i, j)
+            = \\sum_k\\mathrm{Cov}_{\\text{abs}}^{(k)}(i, j)
+
+        If no errors have been added, this is defined to be a zero matrix.
+
+        Returns:
+            ``self.nbins * self.nbins`` matrix
+        """
         value = self.md["errors"]["abs_cov"]
         if value is None:
             if self.nbins:
@@ -95,7 +135,8 @@ class DataWithErrors(Data):
         self.md["errors"]["abs_cov"] = value
 
     @property
-    def poisson_errors(self):
+    def poisson_errors(self) -> bool:
+        """ Should poisson errors be added? """
         return self.md["errors"]["poisson"]
 
     @poisson_errors.setter
@@ -103,7 +144,9 @@ class DataWithErrors(Data):
         self.md["errors"]["poisson"] = value
 
     @property
-    def poisson_errors_scale(self):
+    def poisson_errors_scale(self) -> float:
+        """ Scale poisson errors. See documentation of :meth:`add_err_poisson`.
+        """
         return self.md["errors"]["poisson_scale"]
 
     @poisson_errors_scale.setter
@@ -159,7 +202,7 @@ class DataWithErrors(Data):
                 :meth:`clusterking.data.Data.data()`
 
         Returns:
-            self.n x self.nbins array
+            ``self.n * self.nbins`` array
         """
         ret = super().data(**kwargs)
 
@@ -170,15 +213,17 @@ class DataWithErrors(Data):
         return ret
 
     def cov(self, relative=False) -> np.ndarray:
-        """ Return covariance matrix
+        """ Return covariance matrix :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)`
+
+        If no errors have been added, a zero matrix is returned.
 
         Args:
             relative: "Relative to data", i.e.
-                :math:`\\mathrm{Cov}_{ij} /
-                (\\mathrm{data}_i \cdot \\mathrm{data}_j)`
+                :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j) /
+                (d^{(n)}_i \cdot d^{(n)}_j)`
 
         Returns:
-            self.n x self.nbins x self.nbins array
+            ``self.n x self.nbins x self.nbins`` array
         """
 
         data = self.data()
@@ -204,24 +249,25 @@ class DataWithErrors(Data):
             return abs2rel_cov(cov, data)
 
     def corr(self) -> np.ndarray:
-        """ Return correlation matrix. If covarianace matrix is empty (because
+        """ Return correlation matrix. If covariance matrix is empty (because
         no errors have been added), a unit matrix is returned.
 
         Returns:
-            self.n x self.nbins x self.nbins array
+            ``self.n x self.nbins x self.nbins`` array
         """
         if np.sum(np.abs(self.cov())) == 0.0:
             return np.tile(np.eye(self.nbins), (self.n, 1, 1))
         return cov2corr(self.cov())
 
     def err(self, relative=False) -> np.ndarray:
-        """ Return errors per bin
+        """ Return errors per bin, i.e.
+        :math:`e_i^{(n)} = \sqrt{\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_i)}`
 
         Args:
-            relative: Relative errors
+            relative: Relative errors, i.e. :math:`e_i^{(n)}/d_i^{(n)}`
 
         Returns:
-            self.n x self.nbins array
+            ``self.n x self.nbins`` array
         """
         if not relative:
             return cov2err(self.cov())
@@ -240,7 +286,7 @@ class DataWithErrors(Data):
         """ Add error from covariance matrix.
 
         Args:
-            cov: self.n x self.nbins x self.nbins array of covariance matrices
+            cov: ``self.n x self.nbins x self.nbins`` array of covariance matrices
                 or self.nbins x self.nbins covariance matrix (if equal for
                 all data points)
         """
@@ -251,11 +297,11 @@ class DataWithErrors(Data):
         """ Add error from errors vector and correlation matrix.
 
         Args:
-            err: self.n x self.nbins vector of errors for each data point and
+            err: ``self.n x self.nbins`` vector of errors for each data point and
                 bin or self.nbins vector of uniform errors per data point or
                 float (uniform error per bin and datapoint)
-            corr: self.n x self.nbins x self.nbins correlation matrices
-                or self.nbins x self.nbins correlation matrix
+            corr: ``self.n x self.nbins x self.nbins`` correlation matrices
+                or ``self.nbins x self.nbins`` correlation matrix
         """
         err = self._interpret_input(err, "err")
         corr = self._interpret_input(corr, "corr")
@@ -351,5 +397,12 @@ class DataWithErrors(Data):
         Returns:
             None
         """
+        if self.poisson_errors:
+            self.log.warning("Poisson errors had already been added before.")
+            if normalization_scale != self.poisson_errors_scale:
+                self.log.warning(
+                    "However we CHANGED (not added to) the scaling of the "
+                    "Poisson errors."
+                )
         self.poisson_errors = True
         self.poisson_errors_scale = normalization_scale

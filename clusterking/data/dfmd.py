@@ -6,7 +6,7 @@ import json
 import logging
 import pandas as pd
 from pathlib import PurePath, Path
-from typing import Union
+from typing import Union, Optional
 
 # 3rd
 import sqlalchemy
@@ -23,13 +23,19 @@ class DFMD(object):
     provides methods to save and load such an object.
     """
 
-    def __init__(self, path=None, log=None):
+    def __init__(
+        self,
+        path: Optional[Union[str, PurePath]] = None,
+        log: Optional[Union[str, logging.Logger]] = None,
+    ):
         """
         Initialize a DFMD object.
 
         Args:
-            log: instance of :py:class:`logging.Logger` or name of logger to be
-                created
+            path: Optional: load from this file (specified as string or
+                :class:`pathlib.PurePath`)
+            log: Optional: instance of :py:class:`logging.Logger` or name of
+                logger to be created
         """
         # These are the three attributes of this class
         #: This will hold all the configuration that we will write out
@@ -138,8 +144,6 @@ class DFMD(object):
     def __copy__(self):
         new = type(self)()
         new.df = copy.copy(self.df)
-        new.md = copy.copy(self.md)
-        new.log = self.log
         return new
 
     def __deepcopy__(self, memo):

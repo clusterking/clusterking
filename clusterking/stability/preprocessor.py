@@ -60,7 +60,7 @@ class ClusterMatcher(Preprocessor):
     """
 
 
-class TrivialClusterMatcher(Preprocessor):
+class TrivialClusterMatcher(ClusterMatcher):
     """ Thus subclass of :class:`CCMatcher` maps cluster names from the
     first clustering to the cluster name of the second that maximizes
     the number of sample points that lie in the same cluster.

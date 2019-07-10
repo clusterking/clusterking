@@ -7,7 +7,7 @@ from typing import Optional
 
 # 3rd
 import pandas as pd
-import tqdm
+import tqdm.auto
 
 # ours
 from clusterking.stability.stabilitytester import (
@@ -117,7 +117,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
         datas = []
         original_data = None
         fom_results = collections.defaultdict(list)
-        for _ in tqdm.tqdm(range(self._repeat + 1)):
+        for _ in tqdm.auto.tqdm(range(self._repeat + 1)):
             noisy_scanner = copy.copy(scanner)
             if _ >= 1:
                 noisy_scanner.add_spoints_noise(

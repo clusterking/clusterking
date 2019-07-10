@@ -15,7 +15,7 @@ import itertools
 # 3rd party
 import numpy as np
 import pandas as pd
-import tqdm
+import tqdm.auto
 
 # ours
 from clusterking.worker import DataWorker
@@ -515,12 +515,11 @@ class Scanner(DataWorker):
         rows = []
 
         if self._progress_bar:
-            iterator = tqdm.tqdm(
+            iterator = tqdm.auto.tqdm(
                 enumerate(results),
                 desc="Scanning: ",
                 unit=" spoint",
                 total=len(self._spoints),
-                ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
             )
         else:
             iterator = enumerate(results)
@@ -555,12 +554,11 @@ class Scanner(DataWorker):
         )
 
         rows = []
-        for index, spoint in tqdm.tqdm(
+        for index, spoint in tqdm.auto.tqdm(
             enumerate(self._spoints),
             desc="Scanning: ",
             unit=" spoint",
             total=len(self._spoints),
-            ncols=min(100, shutil.get_terminal_size((80, 20)).columns),
         ):
             result = self._spoint_calculator.calc(spoint)
 

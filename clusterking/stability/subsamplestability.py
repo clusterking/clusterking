@@ -6,7 +6,7 @@ import collections
 import copy
 
 # 3rd
-import tqdm
+import tqdm.auto
 import pandas as pd
 
 # ours
@@ -113,7 +113,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         original_data = data.copy(deep=True)
         cluster.run(original_data).write()
         if self._progress_bar:
-            iterator = tqdm.tqdm(range(self._repeat))
+            iterator = tqdm.auto.tqdm(range(self._repeat))
         else:
             iterator = range(self._repeat)
         fom_results = collections.defaultdict(list)
@@ -158,7 +158,7 @@ class SubSampleStabilityVsFraction(object):
     ):
         results = collections.defaultdict(list)
         ssst.set_progress_bar(False)
-        for fract in tqdm.tqdm(fractions):
+        for fract in tqdm.auto.tqdm(fractions):
             ssst.set_sampling(fract)
             r = ssst.run(data, cluster)
             foms = r.df.mean().to_dict()

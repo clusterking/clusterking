@@ -21,6 +21,7 @@ from clusterking.cluster.cluster import Cluster
 from clusterking.benchmark.benchmark import AbstractBenchmark
 from clusterking.worker import AbstractWorker
 from clusterking.result import AbstractResult
+from clusterking.util.log import get_logger
 
 
 class NoisySampleStabilityTesterResult(StabilityTesterResult):
@@ -95,6 +96,7 @@ class NoisySample(AbstractWorker):
         self._repeat = 10
         self._cache_data = True
         self.set_repeat()
+        self.log = get_logger("NoisySample")
 
     # **************************************************************************
     # Config
@@ -135,6 +137,9 @@ class NoisySample(AbstractWorker):
         self, scanner: Scanner, data: Optional[Data] = None
     ) -> NoisySampleResult:
         """
+        .. note::
+            This method will handle keyboard interrupts and still return the
+            so far collected data.
 
         Args:
             scanner: :class:`~clusterking.scan.scan.Scanner` object
@@ -144,18 +149,24 @@ class NoisySample(AbstractWorker):
                 :class:`~clusterking.data.DataWithErrors` object.
 
         Returns:
-
+            :class:`NoisySampleResult`.
         """
         datas = []
         for _ in tqdm.auto.tqdm(range(self._repeat + 1), desc="NoisySample:"):
-            noisy_scanner = copy.copy(scanner)
-            noisy_scanner.set_progress_bar(True, leave=False, position=1)
-            noisy_scanner.add_spoints_noise(
-                *self._noise_args, **self._noise_kwargs
-            )
-            this_data = data.copy(deep=True)
-            noisy_scanner.run(this_data).write()
-            datas.append(this_data)
+            try:
+                noisy_scanner = copy.copy(scanner)
+                noisy_scanner.set_progress_bar(True, leave=False, position=1)
+                noisy_scanner.add_spoints_noise(
+                    *self._noise_args, **self._noise_kwargs
+                )
+                this_data = data.copy(deep=True)
+                noisy_scanner.run(this_data).write()
+                datas.append(this_data)
+            except KeyboardInterrupt:
+                self.log.critical(
+                    "Keyboard interrupt: Will still return "
+                    "so far collected samples"
+                )
         return NoisySampleResult(datas)
 
 

@@ -81,7 +81,7 @@ Installation
 
 .. code:: sh
 
-    pip3 install --user --upgrade clusterking[plotting]
+    pip3 install --user --upgrade "clusterking[plotting]"
 
 If you do not require plotting, you can remove ``[plotting]``.
 

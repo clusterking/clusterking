@@ -5,7 +5,7 @@ Basic installation:
 
 .. code:: sh
 
-    pip3 install --user --upgrade clusterking[,plotting]
+    pip3 install --user --upgrade "clusterking[,plotting]"
 
 If you do not require plotting, you can remove ``[plotting]``, which adds
 ``matplotlib`` as a dependency.
@@ -19,7 +19,7 @@ For the latest development version type:
 
     git clone https://github.com/clusterking/clusterking/
     cd clusterking
-    pip3 install --user --editable .[plotting,dev]
+    pip3 install --user --editable ".[plotting,dev]"
 
 Here, ``[,plotting,dev]`` also installs additional packages that are needed
 for development, such as support for unittests, etc.

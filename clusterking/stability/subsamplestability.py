@@ -128,7 +128,10 @@ class SubSampleStabilityTester(AbstractStabilityTester):
             if benchmark is not None:
                 benchmark.run(this_data).write()
             for fom_name, fom in self._foms.items():
-                fom = fom.run(original_data, this_data).fom
+                try:
+                    fom = fom.run(original_data, this_data).fom
+                except ValueError:
+                    fom = -1
                 fom_results[fom_name].append(fom)
 
         df = pd.DataFrame(fom_results)

@@ -157,6 +157,7 @@ class Scanner(DataWorker):
         self._no_workers = None
 
         self._progress_bar = True
+        self._tqdm_kwargs = {}
 
         self.set_imaginary_prefix("im_")
 
@@ -189,8 +190,9 @@ class Scanner(DataWorker):
     # Settings
     # **************************************************************************
 
-    def set_progress_bar(self, value):
+    def set_progress_bar(self, value, **kwargs):
         self._progress_bar = value
+        self._tqdm_kwargs = kwargs
 
     def set_dfunction(
         self,
@@ -515,12 +517,11 @@ class Scanner(DataWorker):
         rows = []
 
         if self._progress_bar:
-            iterator = tqdm.auto.tqdm(
-                enumerate(results),
-                desc="Scanning: ",
-                unit=" spoint",
-                total=len(self._spoints),
+            tqdm_kwargs = dict(
+                desc="Scanning: ", unit=" spoint", total=len(self._spoints)
             )
+            tqdm_kwargs.update(self._tqdm_kwargs)
+            iterator = tqdm.auto.tqdm(enumerate(results), **tqdm_kwargs)
         else:
             iterator = enumerate(results)
 

@@ -145,10 +145,10 @@ class NoisySample(AbstractWorker):
         Returns:
 
         """
-        scanner.set_progress_bar(False)
         datas = []
-        for _ in tqdm.auto.tqdm(range(self._repeat + 1)):
+        for _ in tqdm.auto.tqdm(range(self._repeat + 1), desc="NoisySample:"):
             noisy_scanner = copy.copy(scanner)
+            noisy_scanner.set_progress_bar(True, leave=False, position=1)
             noisy_scanner.add_spoints_noise(
                 *self._noise_args, **self._noise_kwargs
             )
@@ -193,7 +193,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
         """
         reference_data = None
         fom_results = collections.defaultdict(list)
-        for isample, data in enumerate(sample.samples):
+        for isample, data in tqdm.auto.tqdm(list(enumerate(sample.samples))):
             if cluster is not None:
                 cluster.run(data).write()
             if benchmark is not None:

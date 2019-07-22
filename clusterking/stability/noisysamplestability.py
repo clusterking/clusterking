@@ -13,7 +13,7 @@ import tqdm.auto
 # ours
 from clusterking.stability.stabilitytester import (
     AbstractStabilityTester,
-    StabilityTesterResult,
+    SimpleStabilityTesterResult,
 )
 from clusterking.data.data import Data
 from clusterking.scan.scanner import Scanner
@@ -24,13 +24,10 @@ from clusterking.result import AbstractResult
 from clusterking.util.log import get_logger
 
 
-class NoisySampleStabilityTesterResult(StabilityTesterResult):
+class NoisySampleStabilityTesterResult(SimpleStabilityTesterResult):
     """ Result of :class:`NoisySampleStabilityTester`"""
 
-    def __init__(self, df: pd.DataFrame):
-        super().__init__()
-        #: :class:`pd.DataFrame` containing figures of merits for each result
-        self.df = df
+    pass
 
 
 class NoisySampleResult(AbstractResult):

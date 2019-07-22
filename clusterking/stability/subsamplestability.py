@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 # std
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 import collections
 import copy
+from pathlib import Path, PurePath
 
 # 3rd
 import tqdm.auto
@@ -12,18 +13,15 @@ import pandas as pd
 # ours
 from clusterking.stability.stabilitytester import (
     AbstractStabilityTester,
-    StabilityTesterResult,
+    SimpleStabilityTesterResult,
 )
 from clusterking.data.data import Data
 from clusterking.cluster import Cluster
 from clusterking.benchmark import AbstractBenchmark
 
 
-class SubSampleStabilityTesterResult(StabilityTesterResult):
-    def __init__(self, df: pd.DataFrame):
-        super().__init__()
-        #: Results as :class:`pandas.DataFrame`
-        self.df = df
+class SubSampleStabilityTesterResult(SimpleStabilityTesterResult):
+    pass
 
 
 class SubSampleStabilityTester(AbstractStabilityTester):
@@ -138,10 +136,8 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         return SubSampleStabilityTesterResult(df=df)
 
 
-class SubSampleStabilityVsFractionResult(object):
-    def __init__(self, df: pd.DataFrame):
-        #: Results as :class:`pandas.DataFrame`
-        self.df = df
+class SubSampleStabilityVsFractionResult(SimpleStabilityTesterResult):
+    pass
 
 
 class SubSampleStabilityVsFraction(object):

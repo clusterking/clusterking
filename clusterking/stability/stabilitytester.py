@@ -2,6 +2,11 @@
 
 # std
 from abc import abstractmethod
+from typing import Union
+from pathlib import Path, PurePath
+
+# 3rd
+import pandas as pd
 
 # ours
 from clusterking.worker import AbstractWorker
@@ -12,7 +17,17 @@ from clusterking.stability.fom import FOM
 class StabilityTesterResult(AbstractResult):
     """ Result of a :class:`AbstractStabilityTester` """
 
-    pass
+
+class SimpleStabilityTesterResult(AbstractResult):
+    def __init__(self, df: pd.DataFrame):
+        super().__init__()
+        self.df = df
+
+    def write(self, path: Union[str, PurePath]) -> None:
+        self.df.to_csv(Path(path))
+
+    def load(self, path: Union[str, PurePath]) -> None:
+        self.df = pd.read_csv(Path(path))
 
 
 class AbstractStabilityTester(AbstractWorker):

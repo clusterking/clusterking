@@ -41,7 +41,7 @@ class DFMD(object):
         #: This will hold all the configuration that we will write out
         self.md = None
         #: :py:class:`pandas.DataFrame` to hold all of the results
-        self.df = None  # type: pd.DataFrame
+        self.df = None  # type: Optional[pd.DataFrame]
         #: Instance of :py:class:`logging.Logger`
         self.log = None
 
@@ -149,10 +149,11 @@ class DFMD(object):
         return new
 
     def __deepcopy__(self, memo):
+        new = type(self)()
         # Pycharm doesn't seem to recognize the memo argument:
         # noinspection PyArgumentList
-        new = type(self)()
         new.df = copy.deepcopy(self.df, memo)
+        # noinspection PyArgumentList
         new.md = copy.deepcopy(self.md, memo)
         new.log = self.log
         memo[id(self)] = new

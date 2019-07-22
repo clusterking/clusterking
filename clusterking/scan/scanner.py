@@ -7,9 +7,8 @@ normalized q2 distribution. """
 import functools
 import multiprocessing
 import os
-import shutil
 import time
-from typing import Callable, Sized, Dict, Iterable
+from typing import Callable, Sized, Dict, Iterable, Optional
 import itertools
 
 # 3rd party
@@ -140,7 +139,7 @@ class Scanner(DataWorker):
 
         #: Points in wilson space
         #:  Use self.spoints to access this
-        self._spoints = None  # type: np.ndarray
+        self._spoints = None  # type: Optional[np.ndarray]
 
         #: Instance of SpointCalculator to perform the claculations of
         #:  the wilson space points.
@@ -197,8 +196,8 @@ class Scanner(DataWorker):
     def set_dfunction(
         self,
         func: Callable,
-        binning: Sized = None,
-        sampling: Sized = None,
+        binning: Optional[Sized] = None,
+        sampling: Optional[Sized] = None,
         normalize=False,
         variable=None,
         **kwargs
@@ -436,8 +435,6 @@ class Scanner(DataWorker):
 
         Args:
             data: Data object.
-            no_workers: Number of worker nodes/cores. Default: Total number of
-                cores.
 
         .. warning::
 

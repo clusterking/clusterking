@@ -85,7 +85,8 @@ class NoisySampleResult(AbstractResult):
 class NoisySample(AbstractWorker):
     def __init__(self):
         """ This stability test generates data samples with slightly varied
-        sample points (by adding :meth:`clusterking.scan.Scanner.add_spoints_noise`
+        sample points (by adding
+        :meth:`clusterking.scan.Scanner.add_spoints_noise`
         to a pre-configured :class:`clusterking.scan.Scanner` object)
         """
         super().__init__()
@@ -137,9 +138,9 @@ class NoisySample(AbstractWorker):
 
         Args:
             scanner: :class:`~clusterking.scan.scan.Scanner` object
-            data: data:  :class:`~clusterking.data.data.Data` object. This does not
-                have to contain any actual sample points, but is used so that
-                you can use data with errors by passing a
+            data: data:  :class:`~clusterking.data.data.Data` object. This does
+                not have to contain any actual sample points, but is used so
+                that you can use data with errors by passing a
                 :class:`~clusterking.data.DataWithErrors` object.
 
         Returns:
@@ -184,6 +185,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
 
         Args:
 
+            sample: :class:`~NoisySampleResult`
             cluster: :class:`~clusterking.cluster.cluster.Cluster` object
             benchmark: Optional: :class:`~clusterking.cluster.cluster.Cluster`
                 object

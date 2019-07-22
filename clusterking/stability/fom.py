@@ -89,6 +89,10 @@ class CCFOM(FOM):
     """ Cluster Comparison figure of merit (CCFOM), comparing whether the
     clusters of two experiments match. """
 
+    @abstractmethod
+    def _fom(self, data1: Data, data2: Data):
+        pass
+
 
 class MatchingClusters(CCFOM):
     """ Fraction of sample points (spoints) that lie in the same cluster, when
@@ -152,8 +156,8 @@ class AverageBMProximityFOM(BMFOM):
     """
 
     _named_averaging_fcts = {
-        "max": lambda iter: max(iter),
-        "arithmetic": lambda iter: sum(iter) / len(iter),
+        "max": lambda it: max(it),
+        "arithmetic": lambda it: sum(it) / len(it),
     }
     _named_metric_fcts = {
         "euclidean": lambda x: np.sqrt(np.sum(np.square(x[0] - x[1])))
@@ -183,7 +187,7 @@ class AverageBMProximityFOM(BMFOM):
         """ Set averaging mode
 
         Args:
-            mode: Function of the distances between benchmark poins of the same
+            fct: Function of the distances between benchmark points of the same
                 cluster or name of pre-implemented functions (check
                 :attr:`named_averaging_fcts` for a list)
 

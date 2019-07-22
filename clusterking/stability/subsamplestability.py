@@ -159,7 +159,7 @@ class SubSampleStabilityVsFraction(object):
         results = collections.defaultdict(list)
         ssst.set_progress_bar(False)
         for fract in tqdm.auto.tqdm(fractions):
-            ssst.set_sampling(fract)
+            ssst.set_sampling(frac=fract)
             r = ssst.run(data, cluster)
             foms = r.df.mean().to_dict()
             results["fraction"].append(fract)

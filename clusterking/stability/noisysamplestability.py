@@ -80,7 +80,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
 
     def set_cache_data(self, value: bool) -> None:
         """ Do we cache the :class:`~clusterking.data.Data` objects of each
-        experimnt?
+        experiment?
 
         Args:
             value: bool. Cache the data?

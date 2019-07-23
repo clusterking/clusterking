@@ -159,7 +159,7 @@ Using hierarchical clustering:
 
 .. code:: python
 
-   c = ck.cluster.HierarchyCluster)  # Initialize worker class
+   c = ck.cluster.HierarchyCluster()  # Initialize worker class
    c.set_metric("euclidean")
    c.set_max_d(0.15)      # "Cut off" value for hierarchy
    r = c.run(d)           # Run clustering on d

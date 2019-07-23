@@ -71,6 +71,7 @@ extras_require = {
         "jupyter_client",
         "ipykernel",
         "twine",
+        "pre-commit",
     ],
 }
 

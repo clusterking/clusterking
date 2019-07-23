@@ -70,6 +70,7 @@ extras_require = {
         "nbformat",
         "jupyter_client",
         "ipykernel",
+        "twine",
     ],
 }
 

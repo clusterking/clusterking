@@ -98,6 +98,16 @@ def chi2_metric(dwe: DataWithErrors, output="condensed"):
         Condensed distance matrix
 
     """
+    # If people try to use chi2 metric with a mere Data object, the decorrelate
+    # option doesn't exist and we'd get an ununderstandable error, so we rather
+    # cache this here.
+    if not isinstance(dwe, DataWithErrors):
+        raise TypeError(
+            "In order to use chi2 metric, you have to use a DataWithErrors "
+            "object with added errors, however you supplied an object of type "
+            "{type}. ".format(type=type(dwe))
+        )
+
     # https://root.cern.ch/doc/master/classTH1.html#a6c281eebc0c0a848e7a0d620425090a5
 
     # n vector

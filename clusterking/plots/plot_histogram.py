@@ -87,10 +87,25 @@ def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs) -> None:
     if not ax:
         fig, ax = plt.subplots()
 
-    assert len(content_high) == len(content_low) == len(edges) - 1
+    content_low = np.squeeze(np.array(content_low))
+    content_high = np.squeeze(np.array(content_high))
 
-    content_low = list(content_low) + [content_low[-1]]
-    content_high = list(content_high) + [content_high[-1]]
-    ax.fill_between(edges, content_low, content_high, step="post", **kwargs)
+    if not len(content_high) == len(content_low) == len(edges) - 1:
+        raise ValueError(
+            "Lenghts don't match: content_high: {}, content_low: {}, "
+            "edges -1: {}".format(
+                len(content_high), len(content_low), len(edges) - 1
+            )
+        )
+
+    content_low = np.concatenate((content_low, np.atleast_1d(content_low[-1])))
+    content_high = np.concatenate(
+        (content_high, np.atleast_1d(content_high[-1]))
+    )
+
+    fb_kwargs = dict(step="post", linewidth=0)
+    fb_kwargs.update(kwargs)
+
+    ax.fill_between(edges, content_low, content_high, **fb_kwargs)
 
     return ax

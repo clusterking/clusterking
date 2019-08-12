@@ -679,7 +679,7 @@ class Data(DFMD):
 
     def plot_clusters_scatter(
         self,
-        params,
+        params=None,
         clusters=None,
         cluster_column="cluster",
         bpoint_column="bpoint",
@@ -699,7 +699,7 @@ class Data(DFMD):
         Benchmark points are marked by enlarged plot markers.
 
         Args:
-            params: The names of the columns to be shown on the x, y (and z)
+            params: The names of the columns to be shown on the x, (y, (z))
                axis of the plots.
             clusters: The get_clusters to be plotted (default: all)
             cluster_column: Column with the cluster names (default 'cluster')
@@ -717,6 +717,12 @@ class Data(DFMD):
         """
         from clusterking.plots.plot_clusters import ClusterPlot
 
+        if params is None:
+            if len(self.par_cols) in [1, 2, 3]:
+                params = self.par_cols[:]
+            else:
+                raise ValueError("Please specify parameter 'params'.")
+
         cp = ClusterPlot(self)
         cp.cluster_column = cluster_column
         cp.bpoint_column = bpoint_column
@@ -731,7 +737,7 @@ class Data(DFMD):
 
     def plot_clusters_fill(
         self,
-        params,
+        params=None,
         cluster_column="cluster",
         bpoint_column="bpoint",
         legend=True,
@@ -762,6 +768,12 @@ class Data(DFMD):
             Figure
         """
         from clusterking.plots.plot_clusters import ClusterPlot
+
+        if params is None:
+            if len(self.par_cols) in [2, 3]:
+                params = self.par_cols[:]
+            else:
+                raise ValueError("Please specify parameter 'params'.")
 
         cp = ClusterPlot(self)
         cp.cluster_column = cluster_column

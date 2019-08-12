@@ -419,7 +419,7 @@ class BundlePlot(object):
         Args:
             cluster: Name of cluster to be plotted or None if there are no
                 clusters
-            bpoints: Plot reference
+            bpoints: Plot benchmark points
 
 
         Returns:
@@ -429,14 +429,12 @@ class BundlePlot(object):
         maxima = list(df_cluster.max().values)
         minima = list(df_cluster.min().values)
 
-        bin_numbers = np.array(range(0, len(self.data.bin_cols) + 1))
-
         if cluster is not None:
             color = self.color_scheme.get_cluster_color(cluster)
         else:
             color = self.color_scheme.get_cluster_color(0)
         for i in range(len(maxima)):
-            x = self._bins[i : i + 2]
+            x = self._bins[i : (i + 2)]
             y1 = [minima[i], minima[i]]
             y2 = [maxima[i], maxima[i]]
             self.ax.fill_between(
@@ -466,7 +464,7 @@ class BundlePlot(object):
                 If None (default), all clusters are chosen.
             ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
                 one is instantiated.
-            bpoints: Plot reference
+            bpoints: Plot benchmark points
 
         Returns:
             None
@@ -495,7 +493,19 @@ class BundlePlot(object):
     # Plot with errors
     # --------------------------------------------------------------------------
 
-    def _err_plot(self, cluster, bpoints=True) -> None:
+    def _err_plot(self, cluster: Union[None, int], bpoints=True) -> None:
+        """ Main implementation of :meth:`err_plot``
+
+        Args:
+            clusters: Name of cluster to be plotted or None if there are no
+                clusters
+            bpoints: Plot benchmark points? If False or benchmark points are
+                not available, distributions correponding to random sample
+                points are chosen.
+
+        Returns:
+            None
+        """
         if bpoints and self._has_bpoints:
             data, index = self._get_df_cluster(
                 cluster, bpoint=True, bpoint_return_index=True
@@ -526,22 +536,30 @@ class BundlePlot(object):
             color=light_color,
         )
 
-        # y1 = np.squeeze((data + err_high).values)
-        # y2 = np.squeeze((data - err_low).values)
-        # self.ax.fill_between(
-        #     self._bins[1:], y1, y2, interpolate=False, color=color
-        # )
-
     def err_plot(
         self,
         clusters: Optional[Union[None, int, Iterable[int]]] = None,
         ax=None,
         bpoints=True,
     ):
+        """ Plot distributions with errors.
+
+        Args:
+            clusters:  List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
+                one is instantiated.
+            bpoints: Plot benchmark points? If False or benchmark points are
+                not available, distributions correponding to random sample
+                points are chosen.
+
+        Returns:
+            None
+        """
         clusters = self._interpret_cluster_input(clusters)
         _title = []
         if self._has_bpoints and bpoints:
-            _title.append("benchmark point")
+            _title.append("Benchmark point")
         else:
             _title.append("Random sample point")
         if clusters:

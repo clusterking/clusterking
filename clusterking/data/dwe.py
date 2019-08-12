@@ -36,7 +36,7 @@ class DataWithErrors(Data):
 
     .. math::
 
-        \mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)  =
+        \\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)  =
                 &\\sum_{k}\\mathrm{Cov}_{\\text{rel}}^{(k)}(i, j)
                 \\cdot d^{(n)}_i d^{(n)}_j + \\\\
             + &\\sum_k\\mathrm{Cov}_{\\text{abs}}^{(k)}(i, j) + \\\\

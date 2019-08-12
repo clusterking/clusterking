@@ -497,7 +497,7 @@ class BundlePlot(object):
         """ Main implementation of :meth:`err_plot``
 
         Args:
-            clusters: Name of cluster to be plotted or None if there are no
+            cluster: Name of cluster to be plotted or None if there are no
                 clusters
             bpoints: Plot benchmark points? If False or benchmark points are
                 not available, distributions correponding to random sample

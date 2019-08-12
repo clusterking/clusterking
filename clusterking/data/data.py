@@ -422,7 +422,8 @@ class Data(DFMD):
 
         Args:
             variable: Name of the variable
-            axis_label: An alternate name which will be used on the axes of plots.
+            axis_label: An alternate name which will be used on the axes of
+                plots.
         """
         if axis_label is not None:
             self.md["variables"][variable]["axis_label"] = axis_label

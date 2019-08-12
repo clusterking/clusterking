@@ -220,7 +220,7 @@ class DataWithErrors(Data):
         Args:
             relative: "Relative to data", i.e.
                 :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j) /
-                (d^{(n)}_i \cdot d^{(n)}_j)`
+                (d^{(n)}_i \\cdot d^{(n)}_j)`
 
         Returns:
             ``self.n x self.nbins x self.nbins`` array
@@ -261,7 +261,7 @@ class DataWithErrors(Data):
 
     def err(self, relative=False) -> np.ndarray:
         """ Return errors per bin, i.e.
-        :math:`e_i^{(n)} = \sqrt{\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_i)}`
+        :math:`e_i^{(n)} = \\sqrt{\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_i)}`
 
         Args:
             relative: Relative errors, i.e. :math:`e_i^{(n)}/d_i^{(n)}`
@@ -297,9 +297,9 @@ class DataWithErrors(Data):
         """ Add error from covariance matrix.
 
         Args:
-            cov: ``self.n x self.nbins x self.nbins`` array of covariance matrices
-                or self.nbins x self.nbins covariance matrix (if equal for
-                all data points)
+            cov: ``self.n x self.nbins x self.nbins`` array of covariance
+                matrices or self.nbins x self.nbins covariance matrix (if equal
+                for all data points)
         """
         cov = self._interpret_input(cov, "cov")
         self.abs_cov += cov
@@ -308,8 +308,8 @@ class DataWithErrors(Data):
         """ Add error from errors vector and correlation matrix.
 
         Args:
-            err: ``self.n x self.nbins`` vector of errors for each data point and
-                bin or self.nbins vector of uniform errors per data point or
+            err: ``self.n x self.nbins`` vector of errors for each data point
+                and bin or self.nbins vector of uniform errors per data point or
                 float (uniform error per bin and datapoint)
             corr: ``self.n x self.nbins x self.nbins`` correlation matrices
                 or ``self.nbins x self.nbins`` correlation matrix

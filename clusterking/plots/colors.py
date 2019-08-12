@@ -65,7 +65,7 @@ class ColorScheme(object):
 
     def get_cluster_color(self, cluster):
         """ Try to pick a unique element of a list corresponding to cluster.
-        
+
         Args:
             cluster: Name of cluster
 
@@ -111,3 +111,7 @@ class ColorScheme(object):
             matplotlib.colors.to_rgba(base_color, alpha) for alpha in alphas
         ]
         return colors
+
+    def get_err_color(self, cluster):
+        base_color = self.get_cluster_color(cluster)
+        return matplotlib.colors.to_rgba(base_color, 0.3)

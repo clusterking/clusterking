@@ -13,13 +13,13 @@ def plot_histogram(
 ) -> None:
     """
     Plot a histogram.
-    
+
     Args:
         ax: Instance of ``matplotlib.axes.Axes`` to plot on. If ``None``, a new
             figure will be initialized.
         edges: Edges of the bins or None (to use bin numbers on the x axis)
         contents: bin contents
-        normalize (bool): Normalize histogram. Default False. 
+        normalize (bool): Normalize histogram. Default False.
         *args: passed on to ``matplotlib.pyplot.step``
         **kwargs: passed on to ``matplotlib.pyplot.step``
 
@@ -65,5 +65,32 @@ def plot_histogram(
     contents = np.append(contents, contents[-1])
 
     ax.step(edges, contents, where="post", *args, **kwargs)
+
+    return ax
+
+
+def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs) -> None:
+    """
+    Plot a histogram.
+
+    Args:
+        ax: Instance of ``matplotlib.axes.Axes`` to plot on. If ``None``, a new
+            figure will be initialized.
+        edges: Edges of the bins or None (to use bin numbers on the x axis)
+        content_low:
+        content_high
+
+    Returns:
+        Instance of ``matplotlib.axes.Axes``
+    """
+
+    if not ax:
+        fig, ax = plt.subplots()
+
+    assert len(content_high) == len(content_low) == len(edges) - 1
+
+    content_low = list(content_low) + [content_low[-1]]
+    content_high = list(content_high) + [content_high[-1]]
+    ax.fill_between(edges, content_low, content_high, step="post", **kwargs)
 
     return ax

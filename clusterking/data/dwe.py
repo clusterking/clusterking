@@ -417,3 +417,47 @@ class DataWithErrors(Data):
                 )
         self.poisson_errors = True
         self.poisson_errors_scale = normalization_scale
+
+    # **************************************************************************
+    # Quick plots
+    # **************************************************************************
+
+    def plot_dist_err(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        title=None,
+        clusters=None,
+        bpoints=True,
+        legend=True,
+    ):
+        """Plot distribution with errors.
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            title: Plot title (``None``: automatic)
+            clusters: List of clusters to selected or single cluster.
+                If None (default), all clusters are chosen.
+            bpoints: Draw benchmark points if available (default True). If
+                false or not benchmark points are available, pick a random
+                sample point for each cluster.
+            legend: Draw legend? (default True)
+
+        Note: To customize these kind of plots further, check the
+        :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
+        :py:meth:`~clusterking.plots.plot_bundles.BundlePlot.err_plot`
+        method thereof.
+
+        Returns:
+            Figure
+        """
+        from clusterking.plots.plot_bundles import BundlePlot
+
+        bp = BundlePlot(self)
+        bp.cluster_column = cluster_column
+        bp.bpoint_column = bpoint_column
+        bp.title = title
+        bp.draw_legend = legend
+        bp.err_plot(clusters=clusters, bpoints=bpoints)
+        return bp.fig

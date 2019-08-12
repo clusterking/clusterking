@@ -15,7 +15,7 @@ import matplotlib.animation as animation
 
 # ours
 from clusterking.util.log import get_logger
-from clusterking.plots.plot_histogram import plot_histogram
+from clusterking.plots.plot_histogram import plot_histogram, plot_histogram_fill
 from clusterking.plots.colors import ColorScheme
 
 
@@ -166,8 +166,9 @@ class BundlePlot(object):
             clusters = self._clusters
         return self._filter_clusters(clusters)
 
+    # todo: getting the bpoint should be a different function
     def _get_df_cluster(
-        self, cluster: Union[None, int], bpoint=None
+        self, cluster: Union[None, int], bpoint=None, bpoint_return_index=False
     ) -> pd.DataFrame:
         """ Return only the rows corresponding to one cluster in the
         dataframe and only the columns that correspond to the bins.
@@ -197,11 +198,26 @@ class BundlePlot(object):
                 return df[bc]
         elif bpoint is True:
             if self._has_bpoints:
-                return df[df[self.bpoint_column] == True][bc]
+                df_bp = df[df[self.bpoint_column] == True]
+                assert len(df_bp) == 1
+                if not bpoint_return_index:
+                    return df_bp[bc]
+                else:
+                    return df_bp[bc], df_bp.index[0]
+
             else:
                 return pd.DataFrame()
         else:
             raise ValueError("Invalid argument bpoint=={}".format(bpoint))
+
+    def _get_df_cluster_err_high(self, index):
+        indices = list(self.data.df.index)
+        loc = indices.index(index)
+        # todo: this is horribly inefficient
+        return self.data.err()[loc]
+
+    def _get_df_cluster_err_low(self, *args, **kwargs):
+        return self._get_df_cluster_err_high(*args, **kwargs)
 
     def _set_ax(self, ax, title):
         """ Set up axes. """
@@ -472,6 +488,76 @@ class BundlePlot(object):
             self._plot_minmax(cluster, bpoints=bpoints)
         if not clusters:
             self._plot_minmax(None, bpoints=bpoints)
+
+        self._draw_legend(clusters)
+
+    # --------------------------------------------------------------------------
+    # Plot with errors
+    # --------------------------------------------------------------------------
+
+    def _err_plot(self, cluster, bpoints=True) -> None:
+        if bpoints and self._has_bpoints:
+            data, index = self._get_df_cluster(
+                cluster, bpoint=True, bpoint_return_index=True
+            )
+        else:
+            df_cluster_no_bp = self._get_df_cluster(cluster, bpoint=False)
+            i = get_random_indizes(0, len(df_cluster_no_bp), 1)[0]
+            data = df_cluster_no_bp.iloc[[i]]
+            index = data.index[0]
+            data = np.squeeze(data.values)
+
+        err_high = self._get_df_cluster_err_high(index=index)
+        err_low = self._get_df_cluster_err_low(index=index)
+
+        if cluster is not None:
+            color = self.color_scheme.get_cluster_color(cluster)
+            light_color = self.color_scheme.get_err_color(cluster)
+        else:
+            color = self.color_scheme.get_cluster_color(0)
+            light_color = self.color_scheme.get_err_color(0)
+
+        plot_histogram(self.ax, self._bins, data, color=color, linestyle="-")
+        plot_histogram_fill(
+            self.ax,
+            self._bins,
+            data - err_low,
+            data + err_high,
+            color=light_color,
+        )
+
+        # y1 = np.squeeze((data + err_high).values)
+        # y2 = np.squeeze((data - err_low).values)
+        # self.ax.fill_between(
+        #     self._bins[1:], y1, y2, interpolate=False, color=color
+        # )
+
+    def err_plot(
+        self,
+        clusters: Optional[Union[None, int, Iterable[int]]] = None,
+        ax=None,
+        bpoints=True,
+    ):
+        clusters = self._interpret_cluster_input(clusters)
+        _title = []
+        if self._has_bpoints and bpoints:
+            _title.append("benchmark point")
+        else:
+            _title.append("Random sample point")
+        if clusters:
+            _title.append(
+                "for cluster(s) {}".format(
+                    ", ".join(map(str, sorted(clusters)))
+                )
+            )
+        self._set_ax(ax, " ".join(_title))
+
+        # pycharm might be confused about the type of `clusters`:
+        # noinspection PyTypeChecker
+        for cluster in clusters:
+            self._err_plot(cluster, bpoints=bpoints)
+        if not clusters:
+            self._err_plot(cluster=None, bpoints=False)
 
         self._draw_legend(clusters)
 

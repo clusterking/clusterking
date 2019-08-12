@@ -549,9 +549,6 @@ class Data(DFMD):
     # Quick plots
     # **************************************************************************
 
-    # todo: ideally, we could just copy the docstrings from plot_bundles etc,
-    #  but that doesn't work here, because some of the arguments are attributes
-    #  currently
     def plot_dist(
         self,
         cluster_column="cluster",

@@ -35,3 +35,7 @@ clusterking/git_info.json
 # ====
 
 examples/jupyter_notebooks/test/test_auto_generated_tests/**
+
+# Virtual environment
+# ===================
+venv/**

@@ -11,9 +11,9 @@ latest master version on github:
 
     git clone https://github.com/clusterking/clusterking
     cd clusterking
-    pip3 install --user .[plotting,dev]
+    pip3 install --user ".[plotting,dev]"
 
-This will enable you to run our unittests and more.
+This will enable you to run our unittests, build the documentation and more.
 
 
 Git hooks

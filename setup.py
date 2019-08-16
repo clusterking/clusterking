@@ -73,6 +73,7 @@ extras_require = {
         "twine",
         "pre-commit",
         "sphinx",
+        "sphinx-rtd-theme",
     ],
 }
 

@@ -611,7 +611,7 @@ class BundlePlot(object):
         plot_histogram(self.ax, self._bins, data, **hist_kw)
 
         hf_kw = dict(color=light_color)
-        hf_kw.update(hist_kwargs)
+        hf_kw.update(hist_fill_kwargs)
 
         plot_histogram_fill(
             self.ax, self._bins, data - err_low, data + err_high, **hf_kw

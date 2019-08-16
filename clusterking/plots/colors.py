@@ -22,7 +22,7 @@ class ColorScheme(object):
 
     def __init__(
         self,
-        clusters: Optional[List[str]] = None,
+        clusters: Optional[List[int]] = None,
         colors: Optional[List[str]] = None,
     ):
         """ Initialize `ColorScheme` object.
@@ -75,7 +75,7 @@ class ColorScheme(object):
     def cluster_colors(self, value):
         self._cluster_colors = list(map(matplotlib.colors.to_rgba, value))
 
-    def get_cluster_color(self, cluster: str):
+    def get_cluster_color(self, cluster: int):
         """ Returns base color for cluster.
 
         Args:
@@ -101,7 +101,7 @@ class ColorScheme(object):
         )
 
     def faded_colormap(
-        self, cluster: str, nlines: int, name="MyFadedColorMap", **kwargs
+        self, cluster: int, nlines: int, name="MyFadedColorMap", **kwargs
     ):
         """ Returns colormap for one cluster, including the faded colors.
 
@@ -126,7 +126,7 @@ class ColorScheme(object):
         z = np.array(self.clusters).reshape((1, len(self.clusters)))
         return plt.imshow(z, cmap=self.to_colormap())
 
-    def demo_faded(self, cluster: Optional[str] = None, nlines=10, **kwargs):
+    def demo_faded(self, cluster: Optional[int] = None, nlines=10, **kwargs):
         """ Plot the color shades for different lines corresponding to the same
         cluster
 
@@ -147,7 +147,7 @@ class ColorScheme(object):
     #   colors add little value as far as distinguishability is concerned
     #   and make picking color schemes much harder...
     def get_cluster_colors_faded(
-        self, cluster: str, nlines: int, max_alpha=0.7, min_alpha=0.3
+        self, cluster: int, nlines: int, max_alpha=0.7, min_alpha=0.3
     ):
         """ Shades of the base color, for cases where we want to draw multiple
         lines for one cluster
@@ -168,7 +168,7 @@ class ColorScheme(object):
         ]
         return colors
 
-    def get_err_color(self, cluster: str):
+    def get_err_color(self, cluster: int):
         """ Get color for error shades.
 
         Args:

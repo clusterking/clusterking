@@ -72,6 +72,7 @@ extras_require = {
         "ipykernel",
         "twine",
         "pre-commit",
+        "sphinx",
     ],
 }
 

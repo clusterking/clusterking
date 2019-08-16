@@ -8,23 +8,21 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 
-def plot_histogram(
-    ax, edges, contents, normalize=False, *args, **kwargs
-) -> None:
+def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs):
     """
     Plot a histogram.
 
     Args:
-        ax: Instance of ``matplotlib.axes.Axes`` to plot on. If ``None``, a new
+        ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a new
             figure will be initialized.
         edges: Edges of the bins or None (to use bin numbers on the x axis)
         contents: bin contents
         normalize (bool): Normalize histogram. Default False.
-        *args: passed on to ``matplotlib.pyplot.step``
-        **kwargs: passed on to ``matplotlib.pyplot.step``
+        *args: passed on to `matplotlib.pyplot.step`
+        **kwargs: passed on to `matplotlib.pyplot.step`
 
     Returns:
-        Instance of ``matplotlib.axes.Axes``
+        Instance of `matplotlib.axes.Axes`
     """
 
     if not ax:
@@ -69,19 +67,20 @@ def plot_histogram(
     return ax
 
 
-def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs) -> None:
+def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs):
     """
-    Plot a histogram.
+    Plot two histograms with area shaded in between.
 
     Args:
-        ax: Instance of ``matplotlib.axes.Axes`` to plot on. If ``None``, a new
+        ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a new
             figure will be initialized.
         edges: Edges of the bins or None (to use bin numbers on the x axis)
-        content_low:
-        content_high
+        content_low: Bin contents of lower histogram
+        content_high: Bin contents of higher histogram
+        **kwargs: Keyword argumenets to `matplotlib.pyplot.fill_between`
 
     Returns:
-        Instance of ``matplotlib.axes.Axes``
+        Instance of `matplotlib.axes.Axes`
     """
 
     if not ax:

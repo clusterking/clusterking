@@ -2,6 +2,7 @@
 
 # std
 import logging
+from typing import List, Optional
 
 # 3rd party
 import matplotlib.colors
@@ -19,7 +20,17 @@ class ColorScheme(object):
     Subclass and overwrite color lists to implement different schemes.
     """
 
-    def __init__(self, clusters=None, colors=None):
+    def __init__(
+        self,
+        clusters: Optional[List[str]] = None,
+        colors: Optional[List[str]] = None,
+    ):
+        """ Initialize `ColorScheme` object.
+
+        Args:
+            clusters: List of cluster names
+            colors: List of colors
+        """
         self.log = get_logger("Colors", sh_level=logging.WARNING)
 
         self._cluster_colors = None
@@ -57,20 +68,21 @@ class ColorScheme(object):
 
     @property
     def cluster_colors(self):
+        """ List of colors """
         return self._cluster_colors
 
     @cluster_colors.setter
     def cluster_colors(self, value):
         self._cluster_colors = list(map(matplotlib.colors.to_rgba, value))
 
-    def get_cluster_color(self, cluster):
-        """ Try to pick a unique element of a list corresponding to cluster.
+    def get_cluster_color(self, cluster: str):
+        """ Returns base color for cluster.
 
         Args:
-            cluster: Name of cluster
+            cluster: Name of cluster. Has to be in :attr:`clusters`
 
         Returns:
-            Element of that list
+            Color
         """
         if cluster in self.clusters:
             index = self.clusters.index(cluster)
@@ -83,28 +95,72 @@ class ColorScheme(object):
         return self.cluster_colors[index % len(self.cluster_colors)]
 
     def to_colormap(self, name="MyColorMap"):
+        """ Returns colormap with color for each cluster. """
         return matplotlib.colors.LinearSegmentedColormap.from_list(
             name, list(map(self.get_cluster_color, self.clusters))
         )
 
-    def faded_colormap(self, cluster, nlines, name="MyFadedColorMap", **kwargs):
+    def faded_colormap(
+        self, cluster: str, nlines: int, name="MyFadedColorMap", **kwargs
+    ):
+        """ Returns colormap for one cluster, including the faded colors.
+
+        Args:
+            cluster: Name of cluster
+            nlines: Number of shades
+            name: Name of colormap
+            **kwargs: Arguments for :meth:`get_cluster_colors_faded`
+
+        Returns:
+            Colormap
+        """
         colors = self.get_cluster_colors_faded(cluster, nlines, **kwargs)
         return matplotlib.colors.LinearSegmentedColormap.from_list(name, colors)
 
     def demo(self):
-        z = np.array(self.clusters).reshape((1, len(self.clusters)))
-        plt.imshow(z, cmap=self.to_colormap())
+        """ Plot the colors for all clusters.
 
-    def demo_faded(self, cluster=None, nlines=10, **kwargs):
+        Returns:
+            figure
+        """
+        z = np.array(self.clusters).reshape((1, len(self.clusters)))
+        return plt.imshow(z, cmap=self.to_colormap())
+
+    def demo_faded(self, cluster: Optional[str] = None, nlines=10, **kwargs):
+        """ Plot the color shades for different lines corresponding to the same
+        cluster
+
+        Args:
+            cluster: Name of cluster
+            nlines: Number of shades
+            **kwargs: Arguments for :meth:`get_cluster_colors_faded`
+
+        Returns:
+            figure
+        """
         z = np.array(range(nlines)).reshape((1, nlines))
-        plt.imshow(z, cmap=self.faded_colormap(cluster, nlines, **kwargs))
+        return plt.imshow(
+            z, cmap=self.faded_colormap(cluster, nlines, **kwargs)
+        )
 
     # todo: perhaps this should just be done in a different way, the faded
     #   colors add little value as far as distinguishability is concerned
     #   and make picking color schemes much harder...
     def get_cluster_colors_faded(
-        self, cluster, nlines, max_alpha=0.7, min_alpha=0.3
+        self, cluster: str, nlines: int, max_alpha=0.7, min_alpha=0.3
     ):
+        """ Shades of the base color, for cases where we want to draw multiple
+        lines for one cluster
+
+        Args:
+            cluster: Name of cluster
+            nlines: Number of shades
+            max_alpha: Maximum alpha value
+            min_alpha: Minimum alpha value
+
+        Returns:
+            List of colors
+        """
         base_color = self.get_cluster_color(cluster)
         alphas = np.linspace(min_alpha, max_alpha, nlines)
         colors = [
@@ -112,6 +168,14 @@ class ColorScheme(object):
         ]
         return colors
 
-    def get_err_color(self, cluster):
+    def get_err_color(self, cluster: str):
+        """ Get color for error shades.
+
+        Args:
+            cluster: Cluster name
+
+        Returns:
+            color
+        """
         base_color = self.get_cluster_color(cluster)
         return matplotlib.colors.to_rgba(base_color, 0.3)

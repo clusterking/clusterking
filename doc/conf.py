@@ -28,7 +28,12 @@ sys.path.insert(0, os.path.abspath("../"))
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 
-autodoc_mock_imports = ["_tkinter", "matplotlib", "pandas"]
+autodoc_mock_imports = [
+    "_tkinter",
+    "matplotlib",
+    "pandas",
+    "mpl_toolkits.mplot3d",
+]
 
 autodoc_default_options = {
     "special-members": "__init__",

@@ -3,7 +3,7 @@
 # std
 import logging
 import random
-from typing import List, Iterable, Union, Optional
+from typing import List, Iterable, Union, Optional, Dict, Any
 from distutils.version import StrictVersion
 
 # 3rd party
@@ -274,8 +274,8 @@ class BundlePlot(object):
         cluster: Union[None, int],
         nlines=0,
         benchmark=True,
-        hist_kwargs=None,
-        hist_kwargs_bp=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_kwargs_bp: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
@@ -341,8 +341,8 @@ class BundlePlot(object):
         nlines=None,
         ax=None,
         bpoints=True,
-        hist_kwargs=None,
-        hist_kwargs_bp=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_kwargs_bp: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Plot several examples of distributions for each cluster specified
 
@@ -454,8 +454,8 @@ class BundlePlot(object):
         self,
         cluster: Union[None, int],
         bpoints=True,
-        hist_kwargs=None,
-        fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
@@ -505,8 +505,8 @@ class BundlePlot(object):
         clusters: Optional[Union[int, Iterable[int]]] = None,
         ax=None,
         bpoints=True,
-        hist_kwargs=None,
-        fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -562,8 +562,8 @@ class BundlePlot(object):
         self,
         cluster: Union[None, int],
         bpoints=True,
-        hist_kwargs=None,
-        hist_fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Main implementation of :meth:`err_plot``
 
@@ -622,8 +622,8 @@ class BundlePlot(object):
         clusters: Optional[Union[None, int, Iterable[int]]] = None,
         ax=None,
         bpoints=True,
-        hist_kwargs=None,
-        hist_fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_fill_kwargs: Optional[Dict[str, Any]] = None,
     ):
         """ Plot distributions with errors.
 
@@ -747,8 +747,8 @@ class BundlePlot(object):
         ax=None,
         whiskers=2.5,
         bpoints=True,
-        boxplot_kwargs=None,
-        hist_kwargs=None,
+        boxplot_kwargs: Optional[Dict[str, Any]] = None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.

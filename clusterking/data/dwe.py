@@ -2,6 +2,7 @@
 
 # 3rd
 import numpy as np
+from typing import List, Optional, Dict, Any
 
 # ours
 from clusterking.data.data import Data
@@ -426,12 +427,12 @@ class DataWithErrors(Data):
         self,
         cluster_column="cluster",
         bpoint_column="bpoint",
-        title=None,
-        clusters=None,
+        title: Optional[str] = None,
+        clusters: Optional[List[int]] = None,
         bpoints=True,
         legend=True,
-        hist_kwargs=None,
-        hist_fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_fill_kwargs: Optional[Dict[str, Any]] = None,
         ax=None,
     ):
         """Plot distribution with errors.

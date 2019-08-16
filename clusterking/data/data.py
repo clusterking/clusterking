@@ -5,7 +5,7 @@ import copy
 
 # 3d
 import numpy as np
-from typing import Callable, Union, Iterable, List, Any, Optional
+from typing import Callable, Union, Iterable, List, Any, Optional, Dict
 
 # ours
 from clusterking.data.dfmd import DFMD
@@ -554,14 +554,14 @@ class Data(DFMD):
         self,
         cluster_column="cluster",
         bpoint_column="bpoint",
-        title=None,
-        clusters=None,
+        title: Optional[str] = None,
+        clusters: Optional[List[int]] = None,
         nlines=None,
         bpoints=True,
         legend=True,
         ax=None,
-        hist_kwargs=None,
-        hist_kwargs_bp=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        hist_kwargs_bp: Optional[Dict[str, Any]] = None,
     ):
         """Plot several examples of distributions for each cluster specified.
 
@@ -611,13 +611,13 @@ class Data(DFMD):
         self,
         cluster_column="cluster",
         bpoint_column="bpoint",
-        title=None,
-        clusters=None,
+        title: Optional[str] = None,
+        clusters: Optional[List[int]] = None,
         bpoints=True,
         legend=True,
         ax=None,
-        hist_kwargs=None,
-        fill_kwargs=None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
+        fill_kwargs: Optional[Dict[str, Any]] = None,
     ):
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -664,14 +664,14 @@ class Data(DFMD):
         self,
         cluster_column="cluster",
         bpoint_column="bpoint",
-        title=None,
-        clusters=None,
+        title: Optional[str] = None,
+        clusters: Optional[List[int]] = None,
         bpoints=True,
         whiskers=2.5,
         legend=True,
         ax=None,
-        boxplot_kwargs=None,
-        hist_kwargs=None,
+        boxplot_kwargs: Optional[Dict[str, Any]] = None,
+        hist_kwargs: Optional[Dict[str, Any]] = None,
     ):
         """
         Box plot of the bin contents of the distributions corresponding
@@ -733,7 +733,6 @@ class Data(DFMD):
         markers=("o", "v", "^", "v", "<", ">"),
         figsize=4,
         aspect_ratio=None,
-        ax=None,
     ):
         """
         Create scatter plot, specifying the columns to be on the axes of the
@@ -756,8 +755,6 @@ class Data(DFMD):
             figsize: Base size of each subplot
             aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
                 automatically based on data ranges.
-            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
-                one is instantiated.
 
         Returns:
             Figure
@@ -779,7 +776,7 @@ class Data(DFMD):
         cp.markers = markers
         cp.fig_base_size = figsize
         cp.aspect_ratio = aspect_ratio
-        cp.scatter(params, clusters=clusters, ax=ax)
+        cp.scatter(params, clusters=clusters)
         return cp.fig
 
     def plot_clusters_fill(
@@ -792,7 +789,6 @@ class Data(DFMD):
         max_cols=4,
         figsize=4,
         aspect_ratio=None,
-        ax=None,
     ):
         """
         Call this method with two column names, x and y. The results are
@@ -811,8 +807,6 @@ class Data(DFMD):
             figsize: Base size of each subplot
             aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
                 automatically based on data ranges.
-            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
-                one is instantiated.
 
         Returns:
             Figure

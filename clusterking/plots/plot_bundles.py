@@ -630,7 +630,7 @@ class BundlePlot(object):
         Args:
             clusters:  List of clusters to selected or single cluster.
                 If None (default), all clusters are chosen.
-            ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
                 one is instantiated.
             bpoints: Plot benchmark points? If False or benchmark points are
                 not available, distributions correponding to random sample

@@ -559,6 +559,7 @@ class Data(DFMD):
         nlines=None,
         bpoints=True,
         legend=True,
+        ax=None,
         hist_kwargs=None,
         hist_kwargs_bp=None,
     ):
@@ -574,6 +575,8 @@ class Data(DFMD):
                 plotted (default 0)
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
+                one is instantiated.
             hist_kwargs: Keyword arguments passed on to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`
             hist_kwargs_bp: Like ``hist_kwargs`` but used for benchmark points.
@@ -595,6 +598,7 @@ class Data(DFMD):
         bp.title = title
         bp.draw_legend = legend
         bp.plot_bundles(
+            ax=ax,
             clusters=clusters,
             nlines=nlines,
             bpoints=bpoints,
@@ -611,6 +615,7 @@ class Data(DFMD):
         clusters=None,
         bpoints=True,
         legend=True,
+        ax=None,
         hist_kwargs=None,
         fill_kwargs=None,
     ):
@@ -625,6 +630,8 @@ class Data(DFMD):
                 If None (default), all clusters are chosen.
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
+                one is instantiated.
             hist_kwargs: Keyword arguments to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`
             fill_kwargs: Keyword arguments to`matplotlib.pyplot.fill_between`
@@ -649,6 +656,7 @@ class Data(DFMD):
             bpoints=bpoints,
             hist_kwargs=hist_kwargs,
             fill_kwargs=fill_kwargs,
+            ax=ax,
         )
         return bp.fig
 
@@ -661,6 +669,7 @@ class Data(DFMD):
         bpoints=True,
         whiskers=2.5,
         legend=True,
+        ax=None,
         boxplot_kwargs=None,
         hist_kwargs=None,
     ):
@@ -680,7 +689,8 @@ class Data(DFMD):
                 2.5.
             legend: Draw legend? (default True)
             boxplot_kwargs: Arguments to `matplotlib.pyplot.boxplot`
-            hist_kwargs: See :meth:`box_plot`
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
+                one is instantiated.
             boxplot_kwargs: Keyword arguments to `matplotlib.pyplot.boxplot`
             hist_kwargs: Keyword arguments to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`
@@ -707,6 +717,7 @@ class Data(DFMD):
             whiskers=whiskers,
             boxplot_kwargs=boxplot_kwargs,
             hist_kwargs=hist_kwargs,
+            ax=ax,
         )
         return bp.fig
 
@@ -722,6 +733,7 @@ class Data(DFMD):
         markers=("o", "v", "^", "v", "<", ">"),
         figsize=4,
         aspect_ratio=None,
+        ax=None,
     ):
         """
         Create scatter plot, specifying the columns to be on the axes of the
@@ -744,6 +756,8 @@ class Data(DFMD):
             figsize: Base size of each subplot
             aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
                 automatically based on data ranges.
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
+                one is instantiated.
 
         Returns:
             Figure
@@ -765,7 +779,7 @@ class Data(DFMD):
         cp.markers = markers
         cp.fig_base_size = figsize
         cp.aspect_ratio = aspect_ratio
-        cp.scatter(params, clusters=clusters)
+        cp.scatter(params, clusters=clusters, ax=ax)
         return cp.fig
 
     def plot_clusters_fill(
@@ -778,6 +792,7 @@ class Data(DFMD):
         max_cols=4,
         figsize=4,
         aspect_ratio=None,
+        ax=None,
     ):
         """
         Call this method with two column names, x and y. The results are
@@ -796,6 +811,8 @@ class Data(DFMD):
             figsize: Base size of each subplot
             aspect_ratio: Aspect ratio of 2D plots. If None, will be chosen
                 automatically based on data ranges.
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
+                one is instantiated.
 
         Returns:
             Figure

@@ -432,6 +432,7 @@ class DataWithErrors(Data):
         legend=True,
         hist_kwargs=None,
         hist_fill_kwargs=None,
+        ax=None,
     ):
         """Plot distribution with errors.
 
@@ -440,7 +441,7 @@ class DataWithErrors(Data):
             bpoint_column: Column with bpoints (default 'bpoint')
             title: Plot title (``None``: automatic)
             clusters: List of clusters to selected or single cluster.
-                If None (default), all clusters are chosen.
+                If ``None`` (default), all clusters are chosen.
             bpoints: Draw benchmark points if available (default True). If
                 false or not benchmark points are available, pick a random
                 sample point for each cluster.
@@ -449,6 +450,8 @@ class DataWithErrors(Data):
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`
             hist_fill_kwargs: Keyword arguments to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram_fill`
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a new
+                one is instantiated.
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
@@ -470,5 +473,6 @@ class DataWithErrors(Data):
             bpoints=bpoints,
             hist_kwargs=hist_kwargs,
             hist_fill_kwargs=hist_fill_kwargs,
+            ax=ax,
         )
         return bp.fig

@@ -430,6 +430,8 @@ class DataWithErrors(Data):
         clusters=None,
         bpoints=True,
         legend=True,
+        hist_kwargs=None,
+        hist_fill_kwargs=None,
     ):
         """Plot distribution with errors.
 
@@ -443,6 +445,10 @@ class DataWithErrors(Data):
                 false or not benchmark points are available, pick a random
                 sample point for each cluster.
             legend: Draw legend? (default True)
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            hist_fill_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram_fill`
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
@@ -459,5 +465,10 @@ class DataWithErrors(Data):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.err_plot(clusters=clusters, bpoints=bpoints)
+        bp.err_plot(
+            clusters=clusters,
+            bpoints=bpoints,
+            hist_kwargs=hist_kwargs,
+            hist_fill_kwargs=hist_fill_kwargs,
+        )
         return bp.fig

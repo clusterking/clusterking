@@ -270,7 +270,12 @@ class BundlePlot(object):
     # --------------------------------------------------------------------------
 
     def _plot_bundles(
-        self, cluster: Union[None, int], nlines=0, benchmark=True
+        self,
+        cluster: Union[None, int],
+        nlines=0,
+        benchmark=True,
+        hist_kwargs=None,
+        hist_kwargs_bp=None,
     ) -> None:
         """ Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
@@ -279,10 +284,17 @@ class BundlePlot(object):
             cluster: Number of cluster to be plotted
             nlines: Number of example distributions of the cluster to be
                 plotted
+            hist_kwargs: See :meth:`plot_bundles`,
+            hist_kwargs_bp: See :meth:`plot_bundles`
 
         Returns:
             None
         """
+
+        if hist_kwargs is None:
+            hist_kwargs = {}
+        if hist_kwargs_bp is None:
+            hist_kwargs = hist_kwargs.copy()
 
         df_cluster_no_bp = self._get_df_cluster(cluster, bpoint=False)
         if len(df_cluster_no_bp) < nlines:
@@ -295,7 +307,6 @@ class BundlePlot(object):
 
         indizes = get_random_indizes(0, len(df_cluster_no_bp), nlines)
         if cluster is None:
-            # todo: get more distinct colors here
             color = self.color_scheme.get_cluster_color(0)
             colors = self.color_scheme.get_cluster_colors_faded(0, nlines)
         else:
@@ -308,11 +319,20 @@ class BundlePlot(object):
         for i, index in enumerate(indizes):
             data = np.squeeze(df_cluster_no_bp.iloc[[index]].values)
             plot_histogram(
-                self.ax, self._bins, data, color=colors[i], linestyle="-"
+                self.ax,
+                self._bins,
+                data,
+                color=colors[i],
+                linestyle="-",
+                **hist_kwargs
             )
         if self._has_bpoints and benchmark:
             plot_histogram(
-                self.ax, self._bins, df_cluster_bp.values, color=color
+                self.ax,
+                self._bins,
+                df_cluster_bp.values,
+                color=color,
+                **hist_kwargs
             )
 
     def plot_bundles(
@@ -321,6 +341,8 @@ class BundlePlot(object):
         nlines=None,
         ax=None,
         bpoints=True,
+        hist_kwargs=None,
+        hist_kwargs_bp=None,
     ) -> None:
         """ Plot several examples of distributions for each cluster specified
 
@@ -334,6 +356,10 @@ class BundlePlot(object):
                 (default), a new axes object and figure is initialized and
                 saved as self.ax and self.fig.
             bpoints: Draw benchmark curve
+            hist_kwargs: Keyword arguments passed on to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            hist_kwargs_bp: Like ``hist_kwargs`` but used for benchmark points.
+                If ``None``, ``hist_kwargs`` is used.
 
         Returns:
             None
@@ -364,9 +390,21 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._plot_bundles(cluster, nlines=nlines, benchmark=bpoints)
+            self._plot_bundles(
+                cluster,
+                nlines=nlines,
+                benchmark=bpoints,
+                hist_kwargs=hist_kwargs,
+                hist_kwargs_bp=hist_kwargs_bp,
+            )
         if not clusters:
-            self._plot_bundles(cluster=None, nlines=nlines, benchmark=False)
+            self._plot_bundles(
+                cluster=None,
+                nlines=nlines,
+                benchmark=False,
+                hist_kwargs=hist_kwargs,
+                hist_kwargs_bp=hist_kwargs_bp,
+            )
 
         self._draw_legend(clusters)
 
@@ -412,7 +450,13 @@ class BundlePlot(object):
     # Minima/Maxima of bin content for each cluster
     # --------------------------------------------------------------------------
 
-    def _plot_minmax(self, cluster: Union[None, int], bpoints=True) -> None:
+    def _plot_minmax(
+        self,
+        cluster: Union[None, int],
+        bpoints=True,
+        hist_kwargs=None,
+        fill_kwargs=None,
+    ) -> None:
         """ Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
 
@@ -420,7 +464,8 @@ class BundlePlot(object):
             cluster: Name of cluster to be plotted or None if there are no
                 clusters
             bpoints: Plot benchmark points
-
+            hist_kwargs: See :meth:`plot_minmax`
+            fill_kwargs: See :meth:`plot_minmax`
 
         Returns:
             None
@@ -429,32 +474,39 @@ class BundlePlot(object):
         maxima = list(df_cluster.max().values)
         minima = list(df_cluster.min().values)
 
+        if fill_kwargs is None:
+            fill_kwargs = {}
+
         if cluster is not None:
             color = self.color_scheme.get_cluster_color(cluster)
         else:
             color = self.color_scheme.get_cluster_color(0)
+
         for i in range(len(maxima)):
             x = self._bins[i : (i + 2)]
             y1 = [minima[i], minima[i]]
             y2 = [maxima[i], maxima[i]]
-            self.ax.fill_between(
-                x,
-                y1,
-                y2,
+            fb_kwargs = dict(
                 facecolor=color,
                 interpolate=False,
                 alpha=0.3,
                 hatch="////",
                 color=color,
             )
+            fb_kwargs.update(fill_kwargs)
+            self.ax.fill_between(x, y1, y2, **fb_kwargs)
         if bpoints:
-            self._plot_bundles(cluster, nlines=0)
+            self._plot_bundles(
+                cluster, nlines=0, benchmark=True, hist_kwargs=hist_kwargs
+            )
 
     def plot_minmax(
         self,
         clusters: Optional[Union[int, Iterable[int]]] = None,
         ax=None,
         bpoints=True,
+        hist_kwargs=None,
+        fill_kwargs=None,
     ) -> None:
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -465,6 +517,9 @@ class BundlePlot(object):
             ax: Instance of ``matplotlib.axes.Axes`` to plot on. If None, a new
                 one is instantiated.
             bpoints: Plot benchmark points
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            fill_kwargs: Keyword arguments to`matplotlib.pyplot.fill_between`
 
         Returns:
             None
@@ -483,9 +538,19 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._plot_minmax(cluster, bpoints=bpoints)
+            self._plot_minmax(
+                cluster,
+                bpoints=bpoints,
+                hist_kwargs=hist_kwargs,
+                fill_kwargs=fill_kwargs,
+            )
         if not clusters:
-            self._plot_minmax(None, bpoints=bpoints)
+            self._plot_minmax(
+                None,
+                bpoints=bpoints,
+                hist_kwargs=hist_kwargs,
+                fill_kwargs=fill_kwargs,
+            )
 
         self._draw_legend(clusters)
 
@@ -493,7 +558,13 @@ class BundlePlot(object):
     # Plot with errors
     # --------------------------------------------------------------------------
 
-    def _err_plot(self, cluster: Union[None, int], bpoints=True) -> None:
+    def _err_plot(
+        self,
+        cluster: Union[None, int],
+        bpoints=True,
+        hist_kwargs=None,
+        hist_fill_kwargs=None,
+    ) -> None:
         """ Main implementation of :meth:`err_plot``
 
         Args:
@@ -502,10 +573,17 @@ class BundlePlot(object):
             bpoints: Plot benchmark points? If False or benchmark points are
                 not available, distributions correponding to random sample
                 points are chosen.
+            hist_kwargs: See :meth:`err_plot`
+            hist_fill_kwargs: See :meth:`err_plot`
 
         Returns:
             None
         """
+        if hist_kwargs is None:
+            hist_kwargs = {}
+        if hist_fill_kwargs is None:
+            hist_fill_kwargs = {}
+
         if bpoints and self._has_bpoints:
             data, index = self._get_df_cluster(
                 cluster, bpoint=True, bpoint_return_index=True
@@ -527,13 +605,16 @@ class BundlePlot(object):
             color = self.color_scheme.get_cluster_color(0)
             light_color = self.color_scheme.get_err_color(0)
 
-        plot_histogram(self.ax, self._bins, data, color=color, linestyle="-")
+        hist_kw = dict(color=color, linestyle="-")
+        hist_kw.update(hist_kwargs)
+
+        plot_histogram(self.ax, self._bins, data, **hist_kw)
+
+        hf_kw = dict(color=light_color)
+        hf_kw.update(hist_kwargs)
+
         plot_histogram_fill(
-            self.ax,
-            self._bins,
-            data - err_low,
-            data + err_high,
-            color=light_color,
+            self.ax, self._bins, data - err_low, data + err_high, **hf_kw
         )
 
     def err_plot(
@@ -541,6 +622,8 @@ class BundlePlot(object):
         clusters: Optional[Union[None, int, Iterable[int]]] = None,
         ax=None,
         bpoints=True,
+        hist_kwargs=None,
+        hist_fill_kwargs=None,
     ):
         """ Plot distributions with errors.
 
@@ -552,6 +635,10 @@ class BundlePlot(object):
             bpoints: Plot benchmark points? If False or benchmark points are
                 not available, distributions correponding to random sample
                 points are chosen.
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            hist_fill_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram_fill`
 
         Returns:
             None
@@ -573,9 +660,19 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._err_plot(cluster, bpoints=bpoints)
+            self._err_plot(
+                cluster,
+                bpoints=bpoints,
+                hist_kwargs=hist_kwargs,
+                hist_fill_kwargs=hist_fill_kwargs,
+            )
         if not clusters:
-            self._err_plot(cluster=None, bpoints=False)
+            self._err_plot(
+                cluster=None,
+                bpoints=False,
+                hist_kwargs=hist_kwargs,
+                hist_fill_kwargs=hist_fill_kwargs,
+            )
 
         self._draw_legend(clusters)
 
@@ -583,19 +680,33 @@ class BundlePlot(object):
     # Box plots
     # --------------------------------------------------------------------------
 
-    def _box_plot(self, cluster, whiskers=1.5, bpoints=True) -> None:
-        """ Main implementation of self.box_plot.
-        Gets called for every cluster specified in self.box_plot.
+    def _box_plot(
+        self,
+        cluster,
+        whiskers=1.5,
+        bpoints=True,
+        boxplot_kwargs=None,
+        hist_kwargs=None,
+    ) -> None:
+        """ Main implementation of :meth:`box_plot`.
+        Gets called for every cluster specified in :meth:`box_plot`.
 
         Args:
             cluster: Name of cluster to be plotted
             whiskers: Length of the whiskers of the box plot.
                 See self.box_plot for more information.
                 Default: 1.5 (matplotlib default)
+            boxplot_kwargs: See :meth:`box_plot`
+            hist_kwargs: See :meth:`box_plot`
 
         Returns:
             None
         """
+        if boxplot_kwargs is None:
+            boxplot_kwargs = {}
+        if hist_kwargs is None:
+            hist_kwargs = {}
+
         df_cluster = self._get_df_cluster(cluster)
         data = df_cluster.values
 
@@ -619,6 +730,7 @@ class BundlePlot(object):
             medianprops=dict(color=color),
             whis=whiskers,  # extend the range of the whiskers
         )
+        boxplot_options.update(boxplot_kwargs)
 
         if StrictVersion(matplotlib.__version__) < StrictVersion("3.1"):
             boxplot_options["manage_xticks"] = False
@@ -627,7 +739,7 @@ class BundlePlot(object):
 
         self.ax.boxplot(data, **boxplot_options)
         if bpoints:
-            self._plot_bundles(cluster, nlines=0)
+            self._plot_bundles(cluster, nlines=0, hist_kwargs=hist_kwargs)
 
     def box_plot(
         self,
@@ -635,6 +747,8 @@ class BundlePlot(object):
         ax=None,
         whiskers=2.5,
         bpoints=True,
+        boxplot_kwargs=None,
+        hist_kwargs=None,
     ) -> None:
         """ Box plot of the bin contents of the distributions corresponding
         to selected clusters.
@@ -648,6 +762,9 @@ class BundlePlot(object):
                 (interquartile range, containing 50% of all values). Default
                 2.5.
             bpoints: Draw benchmarks?
+            boxplot_kwargs: Arguments to `matplotlib.pyplot.boxplot`
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
         """
         clusters = self._interpret_cluster_input(clusters)
         _title = ["Box plot of the bin contents"]
@@ -662,8 +779,18 @@ class BundlePlot(object):
         # pycharm might be confused about the type of `clusters`:
         # noinspection PyTypeChecker
         for cluster in clusters:
-            self._box_plot(cluster, whiskers=whiskers, bpoints=bpoints)
+            self._box_plot(
+                cluster,
+                whiskers=whiskers,
+                bpoints=bpoints,
+                boxplot_kwargs=boxplot_kwargs,
+            )
         if not clusters:
-            self._box_plot(None, whiskers=whiskers, bpoints=bpoints)
+            self._box_plot(
+                None,
+                whiskers=whiskers,
+                bpoints=bpoints,
+                hist_kwargs=hist_kwargs,
+            )
 
         self._draw_legend(clusters)

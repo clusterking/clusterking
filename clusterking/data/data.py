@@ -559,6 +559,8 @@ class Data(DFMD):
         nlines=None,
         bpoints=True,
         legend=True,
+        hist_kwargs=None,
+        hist_kwargs_bp=None,
     ):
         """Plot several examples of distributions for each cluster specified.
 
@@ -572,6 +574,10 @@ class Data(DFMD):
                 plotted (default 0)
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
+            hist_kwargs: Keyword arguments passed on to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            hist_kwargs_bp: Like ``hist_kwargs`` but used for benchmark points.
+                If ``None``, ``hist_kwargs`` is used.
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
@@ -588,7 +594,13 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.plot_bundles(clusters=clusters, nlines=nlines, bpoints=bpoints)
+        bp.plot_bundles(
+            clusters=clusters,
+            nlines=nlines,
+            bpoints=bpoints,
+            hist_kwargs=hist_kwargs,
+            hist_kwargs_bp=hist_kwargs_bp,
+        )
         return bp.fig
 
     def plot_dist_minmax(
@@ -599,6 +611,8 @@ class Data(DFMD):
         clusters=None,
         bpoints=True,
         legend=True,
+        hist_kwargs=None,
+        fill_kwargs=None,
     ):
         """ Plot the minimum and maximum of each bin for the specified
         clusters.
@@ -611,6 +625,9 @@ class Data(DFMD):
                 If None (default), all clusters are chosen.
             bpoints: Draw benchmark points (default True)
             legend: Draw legend? (default True)
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
+            fill_kwargs: Keyword arguments to`matplotlib.pyplot.fill_between`
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
@@ -627,7 +644,12 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.plot_minmax(clusters=clusters, bpoints=bpoints)
+        bp.plot_minmax(
+            clusters=clusters,
+            bpoints=bpoints,
+            hist_kwargs=hist_kwargs,
+            fill_kwargs=fill_kwargs,
+        )
         return bp.fig
 
     def plot_dist_box(
@@ -639,6 +661,8 @@ class Data(DFMD):
         bpoints=True,
         whiskers=2.5,
         legend=True,
+        boxplot_kwargs=None,
+        hist_kwargs=None,
     ):
         """
         Box plot of the bin contents of the distributions corresponding
@@ -655,6 +679,11 @@ class Data(DFMD):
                 (interquartile range, containing 50% of all values). Default
                 2.5.
             legend: Draw legend? (default True)
+            boxplot_kwargs: Arguments to `matplotlib.pyplot.boxplot`
+            hist_kwargs: See :meth:`box_plot`
+            boxplot_kwargs: Keyword arguments to `matplotlib.pyplot.boxplot`
+            hist_kwargs: Keyword arguments to
+                :meth:`~clusterking.plots.plot_histogram.plot_histogram`
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the
@@ -672,7 +701,13 @@ class Data(DFMD):
         bp.bpoint_column = bpoint_column
         bp.title = title
         bp.draw_legend = legend
-        bp.box_plot(clusters=clusters, bpoints=bpoints, whiskers=whiskers)
+        bp.box_plot(
+            clusters=clusters,
+            bpoints=bpoints,
+            whiskers=whiskers,
+            boxplot_kwargs=boxplot_kwargs,
+            hist_kwargs=hist_kwargs,
+        )
         return bp.fig
 
     def plot_clusters_scatter(

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 
-def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs):
+def plot_histogram(ax, edges, contents, normalize=False, **kwargs):
     """
     Plot a histogram.
 
@@ -18,7 +18,6 @@ def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs):
         edges: Edges of the bins or None (to use bin numbers on the x axis)
         contents: bin contents
         normalize (bool): Normalize histogram. Default False.
-        *args: passed on to `matplotlib.pyplot.step`
         **kwargs: passed on to `matplotlib.pyplot.step`
 
     Returns:
@@ -62,7 +61,9 @@ def plot_histogram(ax, edges, contents, normalize=False, *args, **kwargs):
     # because we use the 'post' plotting method for matplotlib.pyplot.step
     contents = np.append(contents, contents[-1])
 
-    ax.step(edges, contents, where="post", *args, **kwargs)
+    step_kwargs = dict(where="post")
+    step_kwargs.update(kwargs)
+    ax.step(edges, contents, **step_kwargs)
 
     return ax
 

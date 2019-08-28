@@ -55,7 +55,7 @@ class NoisySampleResult(AbstractResult):
             )
         if not directory.exists():
             directory.mkdir(parents=True)
-        if len(list(directory.iterdir())) >= 1 and not non_empty == "raise":
+        if len(list(directory.iterdir())) >= 1 and non_empty == "raise":
             raise FileExistsError(
                 "{} is not an empty directory".format(directory.resolve())
             )

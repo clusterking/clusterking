@@ -35,18 +35,16 @@ class NoisySampleResult(AbstractResult):
         super().__init__()
         if samples is None:
             samples = []
-        self.samples = samples
+        self.samples = samples  # type: List[Data]
 
-    def write(
-        self, directory: Union[str, PurePath], ignore_non_empty=False
-    ) -> None:
+    def write(self, directory: Union[str, PurePath], non_empty="add") -> None:
         """ Write to output directory
 
         Args:
             directory: Path to directory
-            ignore_non_empty: Ignore any files that exist in the directory.
-                These might be overwritten.
-
+            non_empty: What to do if directory is not empty: ``raise`` (raise
+                :py:class:`FileExistsError`), ``ignore`` (do nothing and
+                potentially overwrite files), ``add`` (add files with new name).
         Returns:
             None
         """
@@ -57,13 +55,27 @@ class NoisySampleResult(AbstractResult):
             )
         if not directory.exists():
             directory.mkdir(parents=True)
-        if len(list(directory.iterdir())) >= 1 and not ignore_non_empty:
+        if len(list(directory.iterdir())) >= 1 and not non_empty == "raise":
             raise FileExistsError(
                 "{} is not an empty directory".format(directory.resolve())
             )
-        for i, data in enumerate(self.samples):
-            path = directory / "data_{:04d}.sql".format(i)
-            data.write(path, overwrite="overwrite")
+        if non_empty in ["ignore", "raise"]:
+            for i, data in enumerate(self.samples):
+                path = directory / "data_{:04d}.sql".format(i)
+                data.write(path, overwrite="overwrite")
+        elif non_empty == "add":
+            i = 0
+            for data in self.samples:
+                while True:
+                    path = directory / "data_{:04d}.sql".format(i)
+                    if not path.is_file():
+                        data.write(path, overwrite="raise")
+                        break
+                    i += 1
+        else:
+            raise ValueError(
+                "Unknown option '{}' for non_empty.".format(non_empty)
+            )
 
     def load(
         self, directory: Union[str, PurePath], loader: Optional[Callable] = None

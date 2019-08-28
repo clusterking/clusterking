@@ -66,19 +66,26 @@ class NoisySampleResult(AbstractResult):
             data.write(path, overwrite="overwrite")
 
     def load(
-        self,
-        directory: Union[str, PurePath],
-        data_class: Data,
-        fct: Optional[Callable] = None,
+        self, directory: Union[str, PurePath], loader: Optional[Callable] = None
     ) -> None:
         """ Load from output directory
 
         Args:
             directory: Path to directory to load from
-            data_class: Which data class to use, e.g.
-                :class:`~clusterking.data.data.Data` (default) or
-                :class:`~clusterking.data.dwe.DataWithErrors`
-            fct: Function to be applied to data (useful to set errors)
+            loader: Function used to load data (optional).
+
+        Example:
+
+        .. code-block:: python
+
+            def loader(path):
+                d = clusterking.DataWithError(path)
+                d.add_rel_err_uncorr(0.01)
+                return d
+
+            nsr = NoisySampleResult()
+            nsr.load("/path/to/dir/", loader=loader)
+
         """
         directory = Path(directory)
         if not directory.is_dir():
@@ -86,9 +93,10 @@ class NoisySampleResult(AbstractResult):
                 "{} does not exist or is not a directory".format(directory)
             )
         for path in directory.glob("data_*.sql"):
-            d = data_class.__init__(path)
-            if fct is not None:
-                fct(d)
+            if loader is not None:
+                d = loader(path)
+            else:
+                d = Data(path)
             self.samples.append(d)
 
 

@@ -222,7 +222,7 @@ class HierarchyCluster(Cluster):
         """
         if not self.max_d:
             raise ValueError(
-                "Please use set the cutoff value using set_max_d before"
+                "Please use set the cutoff value using set_max_d before "
                 "running this worker."
             )
 

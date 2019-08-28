@@ -3,7 +3,7 @@
 # std
 import copy
 import collections
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Callable
 from pathlib import PurePath, Path
 
 # 3rd
@@ -65,11 +65,20 @@ class NoisySampleResult(AbstractResult):
             path = directory / "data_{:04d}.sql".format(i)
             data.write(path, overwrite="overwrite")
 
-    def load(self, directory: Union[str, PurePath]) -> None:
+    def load(
+        self,
+        directory: Union[str, PurePath],
+        data_class: Data,
+        fct: Optional[Callable] = None,
+    ) -> None:
         """ Load from output directory
 
         Args:
             directory: Path to directory to load from
+            data_class: Which data class to use, e.g.
+                :class:`~clusterking.data.data.Data` (default) or
+                :class:`~clusterking.data.dwe.DataWithErrors`
+            fct: Function to be applied to data (useful to set errors)
         """
         directory = Path(directory)
         if not directory.is_dir():
@@ -77,7 +86,10 @@ class NoisySampleResult(AbstractResult):
                 "{} does not exist or is not a directory".format(directory)
             )
         for path in directory.glob("data_*.sql"):
-            self.samples.append(Data(path))
+            d = data_class.__init__(path)
+            if fct is not None:
+                fct(d)
+            self.samples.append(d)
 
 
 class NoisySample(AbstractWorker):
@@ -149,7 +161,7 @@ class NoisySample(AbstractWorker):
             :class:`NoisySampleResult`.
         """
         datas = []
-        for _ in tqdm.auto.tqdm(range(self._repeat + 1), desc="NoisySample:"):
+        for _ in tqdm.auto.tqdm(range(self._repeat + 1), desc="NoisySample"):
             try:
                 noisy_scanner = copy.copy(scanner)
                 noisy_scanner.set_progress_bar(True, leave=False, position=1)

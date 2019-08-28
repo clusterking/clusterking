@@ -206,6 +206,21 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
     the resulting clusters and benchmark points.
 
 
+    Example:
+
+    .. code-block:: python
+
+        nsr = NoisySampleResult()
+        nsr.load("/path/to/samples/")
+
+        c = ck.cluster.HierarchyCluster()
+        c.set_metric()
+        c.set_max_d(0.2)
+
+        nsst = NoisySampleStabilityTester()
+        nsst.add_fom(DeltaNClusters(name="DeltaNClusters"))
+        r = nsst.run(sample=nsr, cluster=c)
+
     """
 
     def __init__(self):

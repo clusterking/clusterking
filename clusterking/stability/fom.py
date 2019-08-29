@@ -32,6 +32,7 @@ class FOM(AbstractWorker):
         self,
         name: Optional[str] = None,
         preprocessor: Optional[Preprocessor] = None,
+        exceptions="raise",
     ):
         """ Initialize the FOM worker.
 
@@ -40,10 +41,14 @@ class FOM(AbstractWorker):
             preprocessor:
                 :class:`~clusterking.stability.preprocessor.Preprocessor`
                 object
+            exceptions: When calculating the FOM, what should we do if an
+                exception arises. 'raise': Raise exception, 'print': Return
+                None and print exception information
         """
         super().__init__()
         self._name = name
         self._preprocessor = preprocessor
+        self._exceptions_handling = exceptions
 
     @property
     def name(self):
@@ -75,10 +80,20 @@ class FOM(AbstractWorker):
             :class:`FOMResult` object
         """
         preprocessed = self.preprocessor.run(data1, data2)
-        return FOMResult(
-            fom=self._fom(preprocessed.data1, preprocessed.data2),
-            name=self.name,
-        )
+        try:
+            fom = self._fom(preprocessed.data1, preprocessed.data2)
+        except Exception as e:
+            if self._exceptions_handling == "raise":
+                raise e
+            elif self._exceptions_handling == "print":
+                fom = None
+                print(e)
+            else:
+                raise ValueError(
+                    "Invalid value for exception "
+                    "handling: {}".format(self._exceptions_handling)
+                )
+        return FOMResult(fom=fom, name=self.name)
 
     @abstractmethod
     def _fom(self, data1: Data, data2: Data):
@@ -166,20 +181,13 @@ class AverageBMProximityFOM(BMFOM):
     named_averaging_fcts = _named_averaging_fcts.keys()
     named_metric_fcts = _named_metric_fcts.keys()
 
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        preprocessor: Optional[Preprocessor] = None,
-    ):
+    def __init__(self, *args, **kwargs):
         """ Initialize the FOM worker.
 
         Args:
-            name: Name of the FOM
-            preprocessor:
-                :class:`~clusterking.stability.preprocessor.Preprocessor`
-                object
+            See :meth:`~clusterking.stability.fom.FOM.__init__`
         """
-        super().__init__(name=name, preprocessor=preprocessor)
+        super().__init__(*args, **kwargs)
         self._averaging = self._named_averaging_fcts["arithmetic"]
         self._metric = self._named_metric_fcts["euclidean"]
 

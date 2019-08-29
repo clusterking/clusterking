@@ -81,7 +81,7 @@ class Data(DFMD):
         return mini, maxi
 
     @property
-    def _dist_var(self):
+    def _dist_vars(self):
         """ Return name of variables on x axis and y axis of the
         distribution. """
         xvar = self.md["scan"]["dfunction"]["xvar"]
@@ -90,7 +90,7 @@ class Data(DFMD):
             xvar = None
         if not yvar:
             yvar = None
-        return (xvar, yvar)
+        return xvar, yvar
 
     # **************************************************************************
     # Returning things

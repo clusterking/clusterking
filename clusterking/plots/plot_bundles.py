@@ -94,14 +94,14 @@ class BundlePlot(object):
 
     @property
     def xlabel(self):
-        if self.data._dist_var[0]:
-            return self.data._get_axis_label(self.data._dist_var[0])
+        if self.data._dist_vars[0]:
+            return self.data._get_axis_label(self.data._dist_vars[0])
         return None
 
     @property
     def ylabel(self):
-        if self.data._dist_var[1]:
-            return self.data._get_axis_label(self.data._dist_var[1])
+        if self.data._dist_vars[1]:
+            return self.data._get_axis_label(self.data._dist_vars[1])
         return None
 
     @property

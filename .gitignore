@@ -30,6 +30,7 @@ dist/**
 *.egg-info/**
 clusterking/git_info.json
 .coverage
+pip-wheel-metadata/**
 
 # MISC
 # ====

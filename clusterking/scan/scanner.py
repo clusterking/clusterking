@@ -199,7 +199,8 @@ class Scanner(DataWorker):
         binning: Optional[Sized] = None,
         sampling: Optional[Sized] = None,
         normalize=False,
-        variable=None,
+        xvar="xvar",
+        yvar="yvar",
         **kwargs
     ):
         """ Set the function that generates the distributions that are later
@@ -220,7 +221,8 @@ class Scanner(DataWorker):
                 space.
             normalize: If a binning is specified, normalize the resulting
                 distribution.
-            variable: Name of variable on x-axis
+            xvar: Name of variable on x-axis
+            yvar: Name of variable on y-axis
             **kwargs: All other keyword arguments are passed to the function.
 
         Returns:
@@ -271,7 +273,8 @@ class Scanner(DataWorker):
             md["binning_mode"] = "sample"
             md["nbins"] = len(sampling)
 
-        md["variable"] = variable
+        md["xvar"] = xvar
+        md["yvar"] = yvar
 
         self._spoint_calculator.normalize = normalize
         self._spoint_calculator.kwargs = kwargs

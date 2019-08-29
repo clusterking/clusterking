@@ -94,8 +94,14 @@ class BundlePlot(object):
 
     @property
     def xlabel(self):
-        if self.data._dist_var:
-            return self.data._get_axis_label(self.data._dist_var)
+        if self.data._dist_var[0]:
+            return self.data._get_axis_label(self.data._dist_var[0])
+        return None
+
+    @property
+    def ylabel(self):
+        if self.data._dist_var[1]:
+            return self.data._get_axis_label(self.data._dist_var[1])
         return None
 
     @property
@@ -234,6 +240,8 @@ class BundlePlot(object):
         ax.set_title(title)
         if self.xlabel:
             ax.set_xlabel(self.xlabel)
+        if self.ylabel:
+            ax.set_ylabel(self.ylabel)
 
     # **************************************************************************
     # Plots

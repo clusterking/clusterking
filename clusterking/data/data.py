@@ -82,11 +82,15 @@ class Data(DFMD):
 
     @property
     def _dist_var(self):
-        """ Return name of variable on x axis of the distribution. """
-        var = self.md["scan"]["dfunction"]["variable"]
-        if var:
-            return var
-        return None
+        """ Return name of variables on x axis and y axis of the
+        distribution. """
+        xvar = self.md["scan"]["dfunction"]["xvar"]
+        yvar = self.md["scan"]["dfunction"]["yvar"]
+        if not xvar:
+            xvar = None
+        if not yvar:
+            yvar = None
+        return (xvar, yvar)
 
     # **************************************************************************
     # Returning things

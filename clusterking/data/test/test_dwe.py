@@ -135,6 +135,10 @@ class TestDataWithErrors(MyTestCase):
         rel_err2 = dwe2.err(relative=True)
         self.assertAllClose(rel_err1, rel_err2 * 2)
 
+    # --------------------------------------------------------------------------
+    def test_plot_dist_err(self):
+        self.dwe.plot_dist_err()
+
 
 if __name__ == "__main__":
     unittest.main()

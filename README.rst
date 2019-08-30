@@ -25,19 +25,19 @@ Clustering of Kinematic Graphs
    :target: https://pypi.org/project/clusterking/
    :alt: Pypi
 
-.. |Binder| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/binder.svg
+.. |Binder| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/png/binder.png
    :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
    :alt: Binder
 
-.. |Chat| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/gitter.svg
+.. |Chat| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/png/gitter.png
    :target: https://gitter.im/clusterking/community
    :alt: Gitter
 
-.. |License| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/license.svg
+.. |License| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/png/license.png
    :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
    :alt: License
 
-.. |Black| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/black.svg
+.. |Black| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/png/black.png
    :target: https://github.com/python/black
    :alt: Black
 

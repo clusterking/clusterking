@@ -1,5 +1,6 @@
-.. note: Always use full path to image, because it won't render on
-   pypi and others otherwise
+.. note: Always use full path to image, from https://raw.githubusercontent.com/
+   because it won't render on pypi and others otherwise if you use the relative
+   path from this repo :(
 
 .. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/logo/logo.png
    :align: right
@@ -24,19 +25,19 @@ Clustering of Kinematic Graphs
    :target: https://pypi.org/project/clusterking/
    :alt: Pypi
 
-.. |Binder| image:: https://mybinder.org/badge_logo.svg
+.. |Binder| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/binder.svg
    :target: https://mybinder.org/v2/gh/clusterking/clusterking/master?filepath=examples%2Fjupyter_notebooks
    :alt: Binder
 
-.. |Chat| image:: https://img.shields.io/gitter/room/clusterking/community.svg
+.. |Chat| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/gitter.svg
    :target: https://gitter.im/clusterking/community
    :alt: Gitter
 
-.. |License| image:: https://img.shields.io/github/license/clusterking/clusterking.svg
+.. |License| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/license.svg
    :target: https://github.com/clusterking/clusterking/blob/master/LICENSE.txt
    :alt: License
 
-.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. |Black| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/black.svg
    :target: https://github.com/python/black
    :alt: Black
 

@@ -77,6 +77,7 @@ class NoisySampleResult(AbstractResult):
                 "Unknown option '{}' for non_empty.".format(non_empty)
             )
 
+    # todo: Make factory method?
     def load(
         self, directory: Union[str, PurePath], loader: Optional[Callable] = None
     ) -> None:
@@ -118,6 +119,31 @@ class NoisySample(AbstractWorker):
         sample points (by adding
         :meth:`clusterking.scan.Scanner.add_spoints_noise`
         to a pre-configured :class:`clusterking.scan.Scanner` object)
+
+        Example:
+
+        .. code-block:: python
+
+            import clusterking as ck
+            from clusterking.stability.noisysamplestability import NoisySample
+
+            # Set up data object
+            d = ck.Data()
+
+            # Set up scanner
+            s = Scanner()
+            s.set_dfunction(...)
+            s.set_spoints_equidist(...)
+
+            # Set up noisysample object
+            ns = NoisySample()
+            ns.set_repeat(1)
+            ns.set_noise("gauss", mean=0., sigma=1/30/4)
+
+            # Run and write
+            nsr = ns.run(scanner=s, data=d)
+            nsr.write("output/folder")
+
         """
         super().__init__()
         self._noise_kwargs = {}

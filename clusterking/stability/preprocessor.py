@@ -67,7 +67,17 @@ class TrivialClusterMatcher(ClusterMatcher):
     It also only returns the intersection of the indizes of both Series.
     """
 
-    def run(self, data1: Data, data2: Data):
+    def run(self, data1: Data, data2: Data, cluster_column="cluster"):
+        """
+
+        Args:
+            data1: "original" :class:`~clusterking.data.data.Data` object
+            data2: "other" :class:`~clusterking.data.data.Data` object
+            cluster_column: Cluster column
+
+        Returns:
+            :class:`~ClusterMatcherResult`
+        """
         ndata1 = data1.copy(deep=True)
         ndata2 = data2.copy(deep=True)
 
@@ -79,13 +89,15 @@ class TrivialClusterMatcher(ClusterMatcher):
         ndata2.df = ndata2.df.loc[index_intersection]
 
         # 2. Rename clusters
-        clusters2 = set(ndata2.df["cluster"])
+        clusters2 = set(ndata2.df[cluster_column])
         dct = {}
         for cluster2 in clusters2:
-            mask = ndata2.df["cluster"] == cluster2
-            most_likely = np.argmax(np.bincount(ndata1.df["cluster"][mask]))
+            mask = ndata2.df[cluster_column] == cluster2
+            most_likely = np.argmax(
+                np.bincount(ndata1.df[cluster_column][mask])
+            )
             dct[cluster2] = most_likely
 
-        ndata2.df["cluster"] = ndata2.df["cluster"].map(dct)
+        ndata2.df[cluster_column] = ndata2.df[cluster_column].map(dct)
 
         return ClusterMatcherResult(data1=ndata1, data2=ndata2, rename_dct=dct)

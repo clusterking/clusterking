@@ -67,7 +67,9 @@ class TrivialClusterMatcher(ClusterMatcher):
     It also only returns the intersection of the indizes of both Series.
     """
 
-    def run(self, data1: Data, data2: Data, cluster_column="cluster"):
+    def run(
+        self, data1: Data, data2: Data, cluster_column="cluster"
+    ) -> ClusterMatcherResult:
         """
 
         Args:

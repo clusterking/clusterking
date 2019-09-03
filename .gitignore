@@ -29,7 +29,7 @@ build/**
 dist/**
 *.egg-info/**
 clusterking/git_info.json
-.coverage
+.coverage*
 pip-wheel-metadata/**
 
 # MISC

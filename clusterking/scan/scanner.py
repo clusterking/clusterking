@@ -515,10 +515,16 @@ class Scanner(DataWorker):
             )
             no_workers = 1
 
+        start_time = time.time()
+
         if no_workers >= 2:
             rows = self._run_multicore(no_workers)
         else:
             rows = self._run_singlecore()
+
+        end_time = time.time()
+        run_time = end_time - start_time
+        self.md["run_time"] = run_time
 
         return ScannerResult(
             data=data,

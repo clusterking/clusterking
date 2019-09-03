@@ -35,8 +35,7 @@ class TestNoisySample(unittest.TestCase):
         nsr = ns.run(scanner=s, data=d)
         self.assertEqual(len(nsr.samples), 2)
         nsr.write(self.tmpdir.name)
-        nsr_loaded = NoisySampleResult()
-        nsr_loaded.load(self.tmpdir.name)
+        nsr_loaded = NoisySampleResult.load(self.tmpdir.name)
         for i in range(2):
             self.assertDictEqual(
                 nsr.samples[i].df.to_dict(), nsr_loaded.samples[i].df.to_dict()

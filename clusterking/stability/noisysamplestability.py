@@ -77,10 +77,10 @@ class NoisySampleResult(AbstractResult):
                 "Unknown option '{}' for non_empty.".format(non_empty)
             )
 
-    # todo: Make factory method?
+    @classmethod
     def load(
-        self, directory: Union[str, PurePath], loader: Optional[Callable] = None
-    ) -> None:
+        cls, directory: Union[str, PurePath], loader: Optional[Callable] = None
+    ) -> "NoisySampleResult":
         """ Load from output directory
 
         Args:
@@ -96,8 +96,7 @@ class NoisySampleResult(AbstractResult):
                 d.add_rel_err_uncorr(0.01)
                 return d
 
-            nsr = NoisySampleResult()
-            nsr.load("/path/to/dir/", loader=loader)
+            nsr = NoisySampleResult.load("/path/to/dir/", loader=loader)
 
         """
         directory = Path(directory)
@@ -105,12 +104,14 @@ class NoisySampleResult(AbstractResult):
             raise FileNotFoundError(
                 "{} does not exist or is not a directory".format(directory)
             )
+        samples = []
         for path in directory.glob("data_*.sql"):
             if loader is not None:
                 d = loader(path)
             else:
                 d = Data(path)
-            self.samples.append(d)
+            samples.append(d)
+        return NoisySampleResult(samples=samples)
 
 
 class NoisySample(AbstractWorker):

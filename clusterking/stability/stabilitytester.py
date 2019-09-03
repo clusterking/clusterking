@@ -26,8 +26,21 @@ class SimpleStabilityTesterResult(AbstractResult):
     def write(self, path: Union[str, PurePath]) -> None:
         self.df.to_csv(Path(path))
 
-    def load(self, path: Union[str, PurePath]) -> None:
-        self.df = pd.read_csv(Path(path))
+    @classmethod
+    def load(cls, path: Union[str, PurePath]) -> "SimpleStabilityTesterResult":
+        """ Load :class:`SimpleStabilityTesterResult` from file.
+
+        Args:
+            path: Path to result file
+
+        Returns:
+            :class:`SimpleStabilityTesterResult` object
+
+        Example:
+
+            sstr = SimpleStabilityTesterResult.load("path/to/file")
+        """
+        return SimpleStabilityTesterResult(df=pd.read_csv(Path(path)))
 
 
 class AbstractStabilityTester(AbstractWorker):

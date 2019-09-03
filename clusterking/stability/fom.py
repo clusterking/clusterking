@@ -163,11 +163,11 @@ class BMFOM(FOM):
             bpoints2 = data2.df[
                 (data2.df["cluster"] == cluster) & data2.df["bpoint"]
             ]
-            msg = "Found {} bpoints instead of 1 for dataset {}."
+            msg = "Found {} bpoints instead of 1 for dataset {}: "
             if len(bpoints1) != 1:
-                raise ValueError(msg.format(len(bpoints1), 1))
+                raise ValueError(msg.format(len(bpoints1), 1) + str(bpoints1))
             if len(bpoints2) != 1:
-                raise ValueError(msg.format(len(bpoints2), 2))
+                raise ValueError(msg.format(len(bpoints2), 2) + str(bpoints2))
             bpoint1 = bpoints1.iloc[0][data1.par_cols]
             bpoint2 = bpoints2.iloc[0][data2.par_cols]
             cluster2bpoint[cluster] = (bpoint1, bpoint2)
@@ -238,4 +238,7 @@ class AverageBMProximityFOM(BMFOM):
             self._metric = fct
 
     def _fom2(self, cluster2bpoint: Dict[int, Tuple[Any, Any]]) -> float:
-        return self._averaging(list(map(self._metric, cluster2bpoint.values())))
+        ret = self._averaging(list(map(self._metric, cluster2bpoint.values())))
+        if not isinstance(ret, (float, int)):
+            raise ValueError("Not float")
+        return ret

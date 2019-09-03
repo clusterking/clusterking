@@ -80,6 +80,8 @@ class TrivialClusterMatcher(ClusterMatcher):
         Returns:
             :class:`~ClusterMatcherResult`
         """
+        # todo [perf, low effort, med prio]: for speedup: only use pd.Series of
+        #   clusters
         ndata1 = data1.copy(deep=True)
         ndata2 = data2.copy(deep=True)
 

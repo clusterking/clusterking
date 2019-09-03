@@ -206,7 +206,7 @@ class Data(DFMD):
                 ``<parameter name>=[<value1>, ..., <valuen>]``.
 
         Returns:
-            If ``inplace == True``, return new Data with subset of sample
+            If ``inplace == False``, return new Data with subset of sample
             points.
 
         Examples:
@@ -330,7 +330,7 @@ class Data(DFMD):
                 dimension of the sample remains untouched.
 
         Returns:
-            If ``inplace == True``, return new Data with subset of sample
+            If ``inplace == False``, return new Data with subset of sample
             points.
 
         Examples:
@@ -397,7 +397,7 @@ class Data(DFMD):
             **kwargs: Arguments for :meth:`pandas.DataFrame.sample`
 
         Returns:
-            If ``inplace == True``, return new Data with subset of sample
+            If ``inplace == False``, return new Data with subset of sample
             points.
         """
         if not inplace:

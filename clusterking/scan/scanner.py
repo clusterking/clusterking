@@ -398,10 +398,18 @@ class Scanner(DataWorker):
         md["sampling"] = "equidistant"
         md["ranges"] = ranges
 
-    # todo: expand doc
     # todo: Apply to only one dimension?
-    def add_spoints_noise(self, generator="gauss", **kwargs):
-        """ Add noise to existing sample points. """
+    def add_spoints_noise(self, generator="gauss", **kwargs) -> None:
+        """ Add noise to existing sample points.
+
+        Args:
+            generator: Random number generator. Default is ``gauss``.
+                Currently supported: ``gauss``.
+
+            **kwargs: Additional keywords to configure the generator. These
+                keywords are as follows (value assignments are the default
+                values): ``gauss``: ``mean = 0``, ``sigma = 1``
+        """
         if self.spoints is None:
             raise ValueError(
                 "This method can only be applied after spoints"
@@ -422,11 +430,28 @@ class Scanner(DataWorker):
         self.md["noise"].append({"generator": generator, "kwargs": kwargs})
         self._spoints += rand
 
-    # todo: doc
-    def set_no_workers(self, no_workers):
+    def set_no_workers(self, no_workers: int) -> None:
+        """ Set the number of worker processes to be used. This will usually
+        translate to the number of CPUs being used.
+
+        Args:
+            no_workers: Number of worker processes
+
+        Returns:
+            ``None``
+        """
         self._no_workers = no_workers
 
     def set_imaginary_prefix(self, value: str) -> None:
+        """ Set prefix to be used for imaginary parameters in
+        :meth:`set_spoints_grid` and :meth:`set_spoints_equidist`.
+
+        Args:
+            value: Prefix string
+
+        Returns:
+            ``None``
+        """
         self.md["imaginary_prefix"] = value
 
     # **************************************************************************

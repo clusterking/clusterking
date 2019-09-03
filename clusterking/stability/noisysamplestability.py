@@ -251,8 +251,8 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
 
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     # **************************************************************************
     # Run
@@ -287,6 +287,19 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
                 reference_data = data.copy(deep=True)
                 continue
             for fom_name, fom in self._foms.items():
-                fom = fom.run(reference_data, data).fom
+                try:
+                    fom = fom.run(reference_data, data).fom
+                except Exception as e:
+                    print("isample = {}".format(isample))
+                    if self._exceptions_handling == "raise":
+                        raise e
+                    elif self._exceptions_handling == "print":
+                        fom = None
+                        print(e)
+                    else:
+                        raise ValueError(
+                            "Invalid value for exception "
+                            "handling: {}".format(self._exceptions_handling)
+                        )
                 fom_results[fom_name].append(fom)
         return NoisySampleStabilityTesterResult(df=pd.DataFrame(fom_results))

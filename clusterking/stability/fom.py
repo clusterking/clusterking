@@ -32,7 +32,6 @@ class FOM(AbstractWorker):
         self,
         name: Optional[str] = None,
         preprocessor: Optional[Preprocessor] = None,
-        exceptions="raise",
     ):
         """ Initialize the FOM worker.
 
@@ -41,14 +40,11 @@ class FOM(AbstractWorker):
             preprocessor:
                 :class:`~clusterking.stability.preprocessor.Preprocessor`
                 object
-            exceptions: When calculating the FOM, what should we do if an
-                exception arises. 'raise': Raise exception, 'print': Return
-                None and print exception information
+
         """
         super().__init__()
         self._name = name
         self._preprocessor = preprocessor
-        self._exceptions_handling = exceptions
 
     @property
     def name(self):
@@ -80,19 +76,7 @@ class FOM(AbstractWorker):
             :class:`FOMResult` object
         """
         preprocessed = self.preprocessor.run(data1, data2)
-        try:
-            fom = self._fom(preprocessed.data1, preprocessed.data2)
-        except Exception as e:
-            if self._exceptions_handling == "raise":
-                raise e
-            elif self._exceptions_handling == "print":
-                fom = None
-                print(e)
-            else:
-                raise ValueError(
-                    "Invalid value for exception "
-                    "handling: {}".format(self._exceptions_handling)
-                )
+        fom = self._fom(preprocessed.data1, preprocessed.data2)
         return FOMResult(fom=fom, name=self.name)
 
     @abstractmethod
@@ -220,6 +204,7 @@ class AverageBMProximityFOM(BMFOM):
         self._averaging = self._named_averaging_fcts["arithmetic"]
         self._metric = self._named_metric_fcts["euclidean"]
 
+    # todo: no, set this in __init__
     def set_averaging(self, fct: Union[str, Callable]) -> None:
         """ Set averaging mode
 
@@ -240,7 +225,7 @@ class AverageBMProximityFOM(BMFOM):
         """ Set metric in parameter space
 
         Args:
-            fct: Functino of a tuple of two points in parameter space or name
+            fct: Function of a tuple of two points in parameter space or name
                 of pre-implemented functions (check
                 :attr:`named_metric_fcts` for a list)
 

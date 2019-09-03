@@ -61,9 +61,17 @@ class AbstractStabilityTester(AbstractWorker):
     histograms, etc.).
     """
 
-    def __init__(self):
+    def __init__(self, exceptions="raise"):
+        """ Initialize :class:`AbstractStabilityTester`
+
+        Args:
+            exceptions: When calculating the FOM, what should we do if an
+                exception arises. 'raise': Raise exception, 'print': Return
+                None and print exception information.
+        """
         super().__init__()
         self._foms = {}
+        self._exceptions_handling = exceptions
 
     def add_fom(self, fom: FOM) -> None:
         """ Add a figure of merit (FOM).

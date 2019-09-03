@@ -100,6 +100,7 @@ class FOM(AbstractWorker):
         pass
 
 
+# todo: add cluster column setting in init
 class CCFOM(FOM):
     """ Cluster Comparison figure of merit (CCFOM), comparing whether the
     clusters of two experiments match. """
@@ -130,6 +131,34 @@ class DeltaNClusters(CCFOM):
         clustered1 = data1.df["cluster"]
         clustered2 = data2.df["cluster"]
         return len(set(clustered1)) - len(set(clustered2))
+
+
+class NClusters(CCFOM):
+    """ Number of clusters in dataset 1 or 2"""
+
+    def __init__(self, which, **kwargs):
+        """
+
+        Args:
+            which: 1 or 2 for dataset 1 or dataset 2
+            **kwargs: Keyword argumnets for :class:`CCFOM``
+        """
+        super().__init__(**kwargs)
+        self.which = which
+        if self.which not in [1, 2]:
+            raise ValueError(
+                "Invalid value of which, must be 1 or 2, but is {}".format(
+                    self.which
+                )
+            )
+
+    def _fom(self, data1, data2) -> int:
+        if self.which == 1:
+            return len(set(data1.df["cluster"]))
+        elif self.which == 2:
+            return len(set(data2.df["cluster"]))
+        else:
+            raise ValueError("Invalid which value.")
 
 
 class BMFOM(FOM):

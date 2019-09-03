@@ -8,7 +8,7 @@ import functools
 import multiprocessing
 import os
 import time
-from typing import Callable, Sized, Dict, Iterable, Optional
+from typing import Callable, Sized, Dict, Iterable, Optional, List
 import itertools
 
 # 3rd party
@@ -151,9 +151,10 @@ class Scanner(DataWorker):
         self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
 
         # todo: shouldn't that be in metadata?
-        self._coeffs = []
+        #: Names of the parameters
+        self._coeffs = []  # type: List[str]
 
-        self._no_workers = None
+        self._no_workers = None  # type: Optional[int]
 
         self._progress_bar = True
         self._tqdm_kwargs = {}
@@ -189,8 +190,17 @@ class Scanner(DataWorker):
     # Settings
     # **************************************************************************
 
-    def set_progress_bar(self, value, **kwargs):
-        self._progress_bar = value
+    def set_progress_bar(self, show: bool, **kwargs) -> None:
+        """ Settings for progress bar
+
+        Args:
+            show: Show progress bar?
+            **kwargs: Keyword arguments for tqdm progress bar
+
+        Returns:
+
+        """
+        self._progress_bar = show
         self._tqdm_kwargs = kwargs
 
     def set_dfunction(
@@ -279,7 +289,7 @@ class Scanner(DataWorker):
         self._spoint_calculator.normalize = normalize
         self._spoint_calculator.kwargs = kwargs
 
-    def set_spoints_grid(self, values) -> None:
+    def set_spoints_grid(self, values: Dict[str, Iterable[float]]) -> None:
         """ Set a grid of points in sampling space.
 
         Args:
@@ -458,11 +468,14 @@ class Scanner(DataWorker):
     # Run
     # **************************************************************************
 
-    def run(self, data: Data):
+    def run(self, data: Data) -> Optional["ScannerResult"]:
         """Calculate all sample points and writes the result to a dataframe.
 
         Args:
             data: Data object.
+
+        Returns:
+            :class:`ScannerResult` or None
 
         .. warning::
 
@@ -476,6 +489,7 @@ class Scanner(DataWorker):
 
         """
 
+        # todo: rather raise exceptions?
         if not self._spoints.any():
             self.log.error(
                 "No sample points specified. Returning without doing "
@@ -514,7 +528,8 @@ class Scanner(DataWorker):
             coeffs=self._coeffs,
         )
 
-    def _run_multicore(self, no_workers):
+    # todo: shouldn't this rather return numpy arrays than List2
+    def _run_multicore(self, no_workers: int) -> List[List[float]]:
         """ Calculate spoints in parallel processing mode.
 
         Args:
@@ -566,7 +581,8 @@ class Scanner(DataWorker):
 
         return rows
 
-    def _run_singlecore(self):
+    # todo: shouldn't this rather return numpy arrays than List2
+    def _run_singlecore(self) -> List[List[float]]:
         """ Calculate spoints in single core processing mode. This is sometimes
         useful because multiprocessing has its quirks.
 
@@ -602,11 +618,13 @@ class Scanner(DataWorker):
 
 
 class ScannerResult(DataResult):
-    def __init__(self, data, rows, spoints, md, coeffs):
+    def __init__(
+        self, data: Data, rows: List[List[float]], spoints, md, coeffs
+    ):
         super().__init__(data=data)
         self._rows = rows
         self._spoints = spoints
-        self.md = md
+        self.md = md  # type: nested_dict
         self._coeffs = coeffs
 
     # **************************************************************************
@@ -638,7 +656,7 @@ class ScannerResult(DataResult):
     # Write
     # **************************************************************************
 
-    def write(self):
+    def write(self) -> None:
         self.log.debug("Converting data to pandas dataframe.")
         cols = self.coeffs
         cols.extend(

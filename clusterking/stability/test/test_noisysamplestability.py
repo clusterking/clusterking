@@ -23,6 +23,9 @@ class TestNoisySample(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.TemporaryDirectory()
 
+    def cleanUp(self):
+        self.tmpdir.cleanup()
+
     def test_noisy_sample(self):
         d = Data()
         s = Scanner()
@@ -34,7 +37,7 @@ class TestNoisySample(unittest.TestCase):
         ns.set_noise("gauss", mean=0.0, sigma=1 / 30 / 4)
         nsr = ns.run(scanner=s, data=d)
         self.assertEqual(len(nsr.samples), 2)
-        nsr.write(self.tmpdir.name)
+        nsr.write(self.tmpdir.name, non_empty="raise")
         nsr_loaded = NoisySampleResult.load(self.tmpdir.name)
         for i in range(2):
             self.assertDictEqual(

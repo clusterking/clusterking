@@ -105,7 +105,7 @@ class NoisySampleResult(AbstractResult):
                 "{} does not exist or is not a directory".format(directory)
             )
         samples = []
-        for path in directory.glob("data_*.sql"):
+        for path in sorted(directory.glob("data_*.sql")):
             if loader is not None:
                 d = loader(path)
             else:

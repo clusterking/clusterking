@@ -5,3 +5,4 @@
 
 import clusterking.stability.preprocessor
 import clusterking.stability.subsamplestability
+import clusterking.stability.noisysamplestability

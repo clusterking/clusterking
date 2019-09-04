@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 # std
+from math import sqrt
+from typing import Optional, Dict
 
-# 3rd party
+# 3rd
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -108,4 +111,61 @@ def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs):
 
     ax.fill_between(edges, content_low, content_high, **fb_kwargs)
 
+    return ax
+
+
+def plot_hist_with_mean(
+    series,
+    ax=None,
+    hist_kwargs: Optional[Dict] = None,
+    draw_line=True,
+    line_kwargs: Optional[Dict] = None,
+):
+    """ Plot histogram together with a line that designates the mean.
+
+    Args:
+        series: Anything that can be converted to `pandas.Series`
+        ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a new
+            figure will be initialized.
+        hist_kwargs: Keyword arguments to `pandas.Series.hist`
+        draw_line: Draw line for mean
+        line_kwargs:
+
+    Returns:
+        Instance of `matplotlib.axes.Axes`
+
+    Example:
+
+    .. code-block:: python
+
+        import numpy as np
+        from clusterking.plots.plot_histogram import plot_hist_with_mean
+        plot_hist_with_mean(np.random.normal(size=100))
+    """
+
+    if not isinstance(series, pd.Series):
+        series = pd.Series(series)
+
+    if ax is None:
+        _, ax = plt.subplots()
+
+    if hist_kwargs is None:
+        hist_kwargs = {}
+    all_hist_kwargs = dict(bins=int(sqrt(len(series))))
+    all_hist_kwargs.update(hist_kwargs)
+
+    series.hist(ax=ax, **all_hist_kwargs)
+
+    if draw_line:
+        if line_kwargs is None:
+            line_kwargs = {}
+        all_line_kwargs = dict(linestyle="dashed", color="k", linewidth=1)
+        all_line_kwargs.update(line_kwargs)
+        ax.axvline(series.mean(), **all_line_kwargs)
+        min_ylim, max_ylim = ax.get_ylim()
+        ax.text(
+            series.mean(), max_ylim * 0.9, "Mean: {:.2f}".format(series.mean())
+        )
+
+    ax.set_title(series.name)
     return ax

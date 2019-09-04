@@ -145,9 +145,19 @@ class NClusters(CCFOM):
             raise ValueError("Invalid which value.")
 
 
+class BpointList(FOM):
+    """ Adds array of bpoint coordinates of data2 """
+
+    def _fom(self, data1, data2) -> np.ndarray:
+        return data2.df[data2.df["bpoint"] == True][data2.par_cols].to_numpy()
+
+
+# todo: configure bpoint column
 class BMFOM(FOM):
-    """ Benchmark Figure of Merit (BMFOM), comparing whether the benchmark
-    points of two experiments match. """
+    """ **Abstract class**:
+    Benchmark Figure of Merit (BMFOM), comparing whether the benchmark
+    points of two experiments match.
+    """
 
     def _fom(self, data1: Data, data2: Data) -> float:
         clusters1 = set(data1.df["cluster"].unique())

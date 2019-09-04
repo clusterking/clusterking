@@ -27,6 +27,27 @@ class SubSampleStabilityTesterResult(SimpleStabilityTesterResult):
 class SubSampleStabilityTester(AbstractStabilityTester):
     """ Test the stability of clustering algorithms by repeatedly
     clustering subsamples of data.
+
+    Example:
+
+    .. code-block::python
+
+        ssst = SubSampleStabilityTester()
+        ssst.set_sampling(frac=0.99)
+        ssst.set_repeat(50)
+
+        d = ck.Data(path)
+
+        c = ck.cluster.HierarchyCluster()
+        c.set_metric("euclidean")
+        c.set_max_d(0.2)
+        c.run(data=d).write()
+
+        b = Benchmark()
+        b.set_metric("euclidean")
+        b.run(data=d).write()
+
+        ssstr = ssst.run(data=d, cluster=c, benchmark=b)
     """
 
     def __init__(self):
@@ -61,6 +82,14 @@ class SubSampleStabilityTester(AbstractStabilityTester):
 
         Returns:
             None
+
+        Example:
+
+        .. code-block:: python
+
+            ssst.set_sampling(n=100)     # Sample 100 points
+            ssst.set_sampling(frac=0.9)  # Sample 90% of the points
+
         """
         self._sample_kwargs = kwargs
 
@@ -108,6 +137,13 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         Returns:
             :class:`SubSampleStabilityTesterResult` object
         """
+        if not self._sample_kwargs:
+            msg = (
+                "You need to configure sampling with set_sampling before "
+                "you can run this method."
+            )
+            raise ValueError(msg)
+
         original_data = data.copy(deep=True)
         cluster.run(original_data).write()
         if self._progress_bar:

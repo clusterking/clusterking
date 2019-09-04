@@ -30,7 +30,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
 
     Example:
 
-    .. code-block::python
+    .. code-block:: python
 
         ssst = SubSampleStabilityTester()
         ssst.set_sampling(frac=0.99)

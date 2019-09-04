@@ -451,8 +451,8 @@ class DataWithErrors(Data):
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`
             hist_fill_kwargs: Keyword arguments to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram_fill`
-            ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a new
-                one is instantiated.
+            ax: Instance of `matplotlib.axes.Axes` to plot on. If ``None``, a
+                new one is instantiated.
 
         Note: To customize these kind of plots further, check the
         :py:class:`~clusterking.plots.plot_bundles.BundlePlot` class and the

@@ -10,9 +10,9 @@ def import_matplotlib():
 
         log = get_logger()
         msg = (
-            "Could not import matplotlib. Perhaps you didn't install ClusterKinG "
-            "with the 'plotting' option? Please install matplotlib to use "
-            "ClusterKinG's plotting funcionality. "
+            "Could not import matplotlib. Perhaps you didn't install "
+            "ClusterKinG with the 'plotting' option? Please install matplotlib "
+            "to use ClusterKinG's plotting funcionality. "
         )
         log.critical(msg)
         raise ImportError(msg)

@@ -135,7 +135,7 @@ class ClusterPlot(object):
                     aspect_ratio = y_width / x_width
             else:
                 aspect_ratio = 1
-        return (self.fig_base_size, aspect_ratio * self.fig_base_size)
+        return self.fig_base_size, aspect_ratio * self.fig_base_size
 
     @property
     def _axli(self):

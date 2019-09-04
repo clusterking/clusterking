@@ -15,6 +15,7 @@ from clusterking.scan.scanner import Scanner
 from clusterking.data.data import Data
 
 
+# noinspection PyUnusedLocal
 def func_zero(coeffs):
     return 0.0
 
@@ -23,6 +24,7 @@ def func_identity(coeffs):
     return coeffs
 
 
+# noinspection PyUnusedLocal
 def func_zero_bins(coeffs, x):
     return coeffs
 

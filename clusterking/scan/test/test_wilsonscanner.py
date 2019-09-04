@@ -12,6 +12,7 @@ from clusterking.scan.wilsonscanner import WilsonScanner
 from clusterking.data.data import Data
 
 
+# noinspection PyUnusedLocal
 def simple_func(w, q):
     return q + 1
 

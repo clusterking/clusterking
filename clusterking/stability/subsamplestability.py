@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 # std
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional
 import collections
 import copy
-from pathlib import Path, PurePath
 
 # 3rd
 import tqdm.auto

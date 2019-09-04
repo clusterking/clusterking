@@ -15,6 +15,7 @@ from clusterking.data.data import Data
 from clusterking.cluster import KmeansCluster
 
 
+# noinspection PyUnusedLocal
 def func_zero(coeffs):
     return 0.0
 

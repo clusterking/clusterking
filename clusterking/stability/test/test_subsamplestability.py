@@ -11,6 +11,7 @@ from clusterking.data.data import Data
 from clusterking.cluster import KmeansCluster
 
 
+# noinspection PyUnusedLocal
 def func_one(coeffs):
     return 1.0
 

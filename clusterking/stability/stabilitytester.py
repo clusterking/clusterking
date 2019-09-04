@@ -24,7 +24,10 @@ class SimpleStabilityTesterResult(AbstractResult):
         self.df = df
 
     def write(self, path: Union[str, PurePath]) -> None:
-        self.df.to_csv(Path(path))
+        """ Save to file. """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.df.to_csv(path)
 
     @classmethod
     def load(cls, path: Union[str, PurePath]) -> "SimpleStabilityTesterResult":

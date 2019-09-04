@@ -29,6 +29,6 @@ Figures of Merit
 Preprocessors
 -------------
 
-    .. automodule:: clusterking.stability.ccpreprocessor
+    .. automodule:: clusterking.stability.preprocessor
         :members:
         :undoc-members:

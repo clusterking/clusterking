@@ -818,7 +818,7 @@ class Data(DFMD):
         from clusterking.plots.plot_clusters import ClusterPlot
 
         if params is None:
-            if len(self.par_cols) in [2, 3]:
+            if len(self.par_cols) in [2]:
                 params = self.par_cols[:]
             else:
                 raise ValueError("Please specify parameter 'params'.")

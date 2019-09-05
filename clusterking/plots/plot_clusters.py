@@ -294,7 +294,7 @@ class ClusterPlot(object):
                 else:
                     self._axli[isubplot].set_xticklabels([])
 
-        if self._ndim == 2:
+        elif self._ndim == 2:
             for isubplot in range(self._nrows * self._ncols):
                 irow = isubplot // self._ncols
                 icol = isubplot % self._ncols
@@ -330,6 +330,9 @@ class ClusterPlot(object):
                 self._axli[isubplot].set_zlabel(
                     self.data._get_axis_label(self._axis_columns[2])
                 )
+
+        else:
+            raise ValueError("Unsupported dimension {}".format(self._ndim))
 
         # 3. Add title to subplots
         # ------------------------

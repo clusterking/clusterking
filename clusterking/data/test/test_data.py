@@ -95,10 +95,12 @@ class TestData(MyTestCase):
         self.d.plot_dist_box()
 
     def test_plot_clusters_scatter(self):
+        self.d.plot_clusters_scatter()
         self.d.plot_clusters_scatter(
             ["CVL_bctaunutau", "CT_bctaunutau", "CSL_bctaunutau"]
         )
         self.d.plot_clusters_scatter(["CVL_bctaunutau", "CT_bctaunutau"])
+        self.d.plot_clusters_scatter(["CVL_bctaunutau"])
 
     def test_plot_clusters_fill(self):
         self.d.plot_clusters_fill(["CVL_bctaunutau", "CT_bctaunutau"])

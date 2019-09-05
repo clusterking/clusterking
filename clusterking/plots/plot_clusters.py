@@ -280,6 +280,20 @@ class ClusterPlot(object):
             for isubplot in range(self._nrows * self._ncols):
                 self._axli[isubplot].set_yticks([])
 
+                irow = isubplot // self._ncols
+                icol = isubplot % self._ncols
+
+                if irow == self._nrows - 2 and icol >= icol_hidden:
+                    self._axli[isubplot].set_xlabel(
+                        self.data._get_axis_label(self._axis_columns[0])
+                    )
+                elif irow == self._nrows - 1 and icol <= icol_hidden:
+                    self._axli[isubplot].set_xlabel(
+                        self.data._get_axis_label(self._axis_columns[0])
+                    )
+                else:
+                    self._axli[isubplot].set_xticklabels([])
+
         if self._ndim == 2:
             for isubplot in range(self._nrows * self._ncols):
                 irow = isubplot // self._ncols

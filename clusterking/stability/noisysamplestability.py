@@ -27,7 +27,12 @@ from clusterking.util.log import get_logger
 class NoisySampleStabilityTesterResult(SimpleStabilityTesterResult):
     """ Result of :class:`NoisySampleStabilityTester`"""
 
-    pass
+    def __init__(self, df, samples=None, **kwargs):
+        super().__init__(df)
+        if samples is None:
+            samples = []
+        #: Collected samples
+        self.samples = samples
 
 
 class NoisySampleResult(AbstractResult):
@@ -251,8 +256,19 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, keep_samples=False, **kwargs):
+        """ Initialize :class:`NoisySampleStabilityTester`
+
+        Args:
+            *args: Arguments passed on to
+                :class:`~clusterking.stability.stabilitytester.AbstractStabilityTester`
+            keep_samples: Save clustered/benchmarked samples to
+                ``NoisySampleStabilityTester.samples``
+            **kwargs: Keyword arguments passed on to
+                :class:`~clusterking.stability.stabilitytester.AbstractStabilityTester`
+        """
         super().__init__(*args, **kwargs)
+        self._keep_samples = keep_samples
 
     # **************************************************************************
     # Run
@@ -278,6 +294,8 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
         """
         reference_data = None
         fom_results = collections.defaultdict(list)
+        # Collected samples if ``keep_samples == True``:
+        samples = []
         for isample, data in tqdm.auto.tqdm(list(enumerate(sample.samples))):
             if cluster is not None:
                 cluster.run(data).write()
@@ -302,4 +320,8 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
                             "handling: {}".format(self._exceptions_handling)
                         )
                 fom_results[fom_name].append(fom)
-        return NoisySampleStabilityTesterResult(df=pd.DataFrame(fom_results))
+            if self._keep_samples:
+                samples.append(data)
+        return NoisySampleStabilityTesterResult(
+            df=pd.DataFrame(fom_results), samples=samples
+        )

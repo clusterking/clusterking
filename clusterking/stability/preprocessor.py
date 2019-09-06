@@ -2,6 +2,7 @@
 
 # std
 from abc import abstractmethod
+from typing import Dict
 
 # 3rd
 import numpy as np
@@ -111,3 +112,44 @@ class TrivialClusterMatcher(ClusterMatcher):
         ndata2.df[self.cluster_column] = ndata2.df[self.cluster_column].map(dct)
 
         return ClusterMatcherResult(data1=ndata1, data2=ndata2, rename_dct=dct)
+
+
+class FirstComeFirstServe1DClusterMatcher(ClusterMatcher):
+    """ This subclass of :class:`CCMatcher` works only for 1D parameter spaces.
+    It simply sorts the first points of each cluster and enumerates them
+    in order to get a unique name for each cluster."""
+
+    def run(self, data1: Data, data2: Data) -> ClusterMatcherResult:
+        ndata1 = data1.copy(deep=True)
+        ndata2 = data2.copy(deep=True)
+
+        nclusters1 = len(data1.df[self.cluster_column].unique())
+        nclusters2 = len(data2.df[self.cluster_column].unique())
+        if nclusters1 != nclusters2:
+            raise ValueError("Cluster numbers don't match")
+        order1 = self._get_order_of_clusters(data1)
+        order2 = self._get_order_of_clusters(data2)
+        order1_inverted = {value: key for key, value in order1.items()}
+        rename_dct = {}
+        for cluster in order2:
+            rename_dct[cluster] = order1_inverted[order2[cluster]]
+
+        ndata2.df[self.cluster_column] = ndata2.df[self.cluster_column].map(
+            rename_dct
+        )
+        return ClusterMatcherResult(
+            data1=ndata1, data2=ndata2, rename_dct=rename_dct
+        )
+
+    def _get_order_of_clusters(self, data: Data) -> Dict[int, int]:
+        cluster2min = {}
+        uclusters = data.df[self.cluster_column].unique()
+        for ucluster in uclusters:
+            cluster2min[ucluster] = data.df[
+                data.df[self.cluster_column] == ucluster
+            ][data.par_cols[0]].min()
+        sorted_mins = sorted(list(cluster2min.values()))
+        return {
+            ucluster: sorted_mins.index(cluster2min[ucluster])
+            for ucluster in uclusters
+        }

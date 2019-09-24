@@ -38,7 +38,7 @@ fi
 
 python3 setup.py sdist bdist_wheel
 
-twine check "${sourceDir}/dist/*"
+python3 -m twine check "${sourceDir}/dist/*"
 
 read -p "Does this look ok? [Yy] " -n 1 -r
 if [[ ! $REPLY =~ ^[Yy]$ ]]

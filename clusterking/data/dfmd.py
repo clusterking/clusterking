@@ -52,7 +52,7 @@ class DFMD(object):
             self.df = pd.DataFrame()
             self.log = None
         else:
-            self.load(path)
+            self._load(path)
 
         # Overwrite log if user wants that.
         if isinstance(log, logging.Logger):
@@ -71,7 +71,7 @@ class DFMD(object):
     # Loading
     # **************************************************************************
 
-    def load(self, path: Union[str, PurePath]) -> None:
+    def _load(self, path: Union[str, PurePath]) -> None:
         """ Load input file as created by
         :py:meth:`~clusterking.data.DFMD.write`.
 
@@ -95,8 +95,7 @@ class DFMD(object):
     # **************************************************************************
 
     def write(self, path: Union[str, PurePath], overwrite="ask"):
-        """ Write output files that can later be read in using
-        :meth:`load`.
+        """ Write output files.
 
         Args:
             path: Path to output file

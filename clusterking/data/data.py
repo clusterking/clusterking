@@ -172,6 +172,7 @@ class Data(DFMD):
         if inplace:
             self.df = self.df[self.df[bpoint_column]]
         else:
+            # todo: this is inefficient
             new_obj = copy.deepcopy(self)
             new_obj.only_bpoints(inplace=True, bpoint_column=bpoint_column)
             return new_obj
@@ -254,6 +255,7 @@ class Data(DFMD):
 
         """
         if not inplace:
+            # todo: this is inefficient
             new_obj = copy.deepcopy(self)
             new_obj.fix_param(
                 inplace=True,
@@ -401,6 +403,8 @@ class Data(DFMD):
             points.
         """
         if not inplace:
+            # todo: this is inefficient, why do we have to copy everything
+            #  first?
             new = self.copy()
             new.sample_param_random(
                 inplace=True,
@@ -415,6 +419,40 @@ class Data(DFMD):
             bpoint_df = self.df[self.df[bpoint_column]]
             self.df = self.df[~self.df[bpoint_column]].sample(**kwargs)
             self.df = self.df.append(bpoint_df)
+
+    def find_closest_spoints(self, point: Dict[str, float], n=10):
+        """
+
+        Args:
+            point: Dictionary of parameter name to value
+            n: Maximal number of rows to return
+
+        Returns:
+            Subset of dataframe with the rows corresponding to the closest
+            points in parameter space.
+        """
+        if not set(point.keys()) == set(self.par_cols):
+            raise ValueError(
+                f"Invalid specification of a point: Please give values"
+                " exactly for the following keys: {', '.join(self.par_cols)}"
+            )
+        if n <= 0:
+            raise ValueError("n has to be an integer >= 1.")
+        distances = np.sqrt(
+            np.sum(
+                np.array(
+                    [
+                        np.square(self.df[param].values - point[param])
+                        for param in self.par_cols
+                    ]
+                ),
+                axis=0,
+            )
+        )
+        closest = np.argpartition(distances, n)[:n]
+        new = self.copy(data=False)
+        new.df = self.df.loc[closest]
+        return new
 
     # **************************************************************************
     # Manipulating things

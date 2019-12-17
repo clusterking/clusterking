@@ -4,6 +4,9 @@
 from pathlib import Path
 import unittest
 
+# 3rd
+import numpy as np
+
 # ours
 from clusterking.util.testing import MyTestCase
 from clusterking.data.data import Data
@@ -224,6 +227,30 @@ class TestSubSample(MyTestCase):
     def test_sample_param_random(self):
         e = self.d.sample_param_random(n=5)
         self.assertEqual(e.n, 5)
+
+    def test_find_closest_spoints(self):
+        self.assertAllClose(
+            self.d.find_closest_spoints(point=dict(a=0, b=0, c=0), n=1)
+            .df[["a", "b", "c"]]
+            .values,
+            np.array([0, 0, 0]),
+        )
+        self.assertAllClose(
+            sorted(
+                self.d.find_closest_spoints(point=dict(a=0, b=0, c=0), n=4)
+                .df[["a", "b", "c"]]
+                .values.tolist()
+            ),
+            [[0, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]],
+        )
+        self.assertAllClose(
+            sorted(
+                self.d.find_closest_spoints(point=dict(a=0, b=1, c=0), n=5)
+                .df[["a", "b", "c"]]
+                .values.tolist()
+            ),
+            [[0, 0, 0], [0, 1, 0], [0, 1, 1], [0, 2, 0], [1, 1, 0]],
+        )
 
 
 if __name__ == "__main__":

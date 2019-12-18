@@ -420,16 +420,20 @@ class Data(DFMD):
             self.df = self.df[~self.df[bpoint_column]].sample(**kwargs)
             self.df = self.df.append(bpoint_df)
 
-    def find_closest_spoints(self, point: Dict[str, float], n=10):
-        """
+    def find_closest_spoints(self, point: Dict[str, float], n=10) -> "Data":
+        """ Given a point in parameter space, find the closest sampling
+        points to it and return them as a :py:class:`Data` object with the
+        corresponding subset of spoints.
+        The order of the rows in the dataframe :py:attr:`Data.df` will be in
+        order of increasing parameter space distance from the given point.
 
         Args:
             point: Dictionary of parameter name to value
             n: Maximal number of rows to return
 
         Returns:
-            Subset of dataframe with the rows corresponding to the closest
-            points in parameter space.
+            :py:class:`Data` object with subset of rows of dataframe
+            corresponding to the closest points in parameter space.
         """
         if not set(point.keys()) == set(self.par_cols):
             raise ValueError(
@@ -450,9 +454,24 @@ class Data(DFMD):
             )
         )
         closest = np.argpartition(distances, n)[:n]
+        # note that this is not yet sorted yet, so we do this now
+        closest = closest[np.argsort(distances[closest])]
+
         new = self.copy(data=False)
         new.df = self.df.loc[closest]
         return new
+
+    # def find_closest_bpoint(self, point: Dict[str, float], n=10, bpoint_column="bpoint"):
+    #     """
+    #
+    #     Args:
+    #         point:
+    #         n:
+    #         bpoint_column:
+    #
+    #     Returns:
+    #
+    #     """
 
     # **************************************************************************
     # Manipulating things

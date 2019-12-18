@@ -461,17 +461,52 @@ class Data(DFMD):
         new.df = self.df.loc[closest]
         return new
 
-    # def find_closest_bpoint(self, point: Dict[str, float], n=10, bpoint_column="bpoint"):
-    #     """
-    #
-    #     Args:
-    #         point:
-    #         n:
-    #         bpoint_column:
-    #
-    #     Returns:
-    #
-    #     """
+    def find_closest_bpoint(
+        self, point: Dict[str, float], n=10, bpoint_column="bpoint"
+    ):
+        """ Given a point in parameter space, find the closest benchmark
+        points to it and return them as a :py:class:`Data` object with the
+        corresponding subset of benchmark points.
+        The order of the rows in the dataframe :py:attr:`Data.df` will be in
+        order of increasing parameter space distance from the given point.
+
+        Args:
+            point: Dictionary of parameter name to value
+            n: Maximal number of rows to return
+            bpoint_column: Column name of the benchmark column
+
+        Returns:
+            :py:class:`Data` object with subset of rows of dataframe
+            corresponding to the closest points in parameter space.
+        """
+        if not set(point.keys()) == set(self.par_cols):
+            raise ValueError(
+                f"Invalid specification of a point: Please give values"
+                " exactly for the following keys: {', '.join(self.par_cols)}"
+            )
+        if n <= 0:
+            raise ValueError("n has to be an integer >= 1.")
+        distances = np.sqrt(
+            np.sum(
+                np.array(
+                    [
+                        np.square(
+                            self.df[self.df[bpoint_column]][param].values
+                            - point[param]
+                        )
+                        for param in self.par_cols
+                    ]
+                ),
+                axis=0,
+            )
+        )
+        closest = np.argpartition(distances, n)[:n]
+        # note that this is not yet sorted yet, so we do this now
+        closest = closest[np.argsort(distances[closest])]
+
+        new = self.copy(data=False)
+        new.df = self.df.loc[closest]
+        return new
 
     # **************************************************************************
     # Manipulating things

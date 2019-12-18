@@ -458,10 +458,10 @@ class Data(DFMD):
         closest = closest[np.argsort(distances[closest])]
 
         new = self.copy(data=False)
-        new.df = self.df.loc[closest]
+        new.df = self.df.iloc[closest]
         return new
 
-    def find_closest_bpoint(
+    def find_closest_bpoints(
         self, point: Dict[str, float], n=10, bpoint_column="bpoint"
     ):
         """ Given a point in parameter space, find the closest benchmark
@@ -482,7 +482,7 @@ class Data(DFMD):
         if not set(point.keys()) == set(self.par_cols):
             raise ValueError(
                 f"Invalid specification of a point: Please give values"
-                " exactly for the following keys: {', '.join(self.par_cols)}"
+                f" exactly for the following keys: {', '.join(self.par_cols)}"
             )
         if n <= 0:
             raise ValueError("n has to be an integer >= 1.")
@@ -505,7 +505,7 @@ class Data(DFMD):
         closest = closest[np.argsort(distances[closest])]
 
         new = self.copy(data=False)
-        new.df = self.df.loc[closest]
+        new.df = self.df[self.df[bpoint_column]].iloc[closest]
         return new
 
     # **************************************************************************

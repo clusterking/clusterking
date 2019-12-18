@@ -442,6 +442,15 @@ class Data(DFMD):
             )
         if n <= 0:
             raise ValueError("n has to be an integer >= 1.")
+
+        # argpartition will throw if we request more or equal rows than we have,
+        # so we have to be careful
+        n_max = self.n
+        if n_max == 0:
+            raise ValueError("Not enough rows available.")
+        if n_max > n:
+            n_max = n
+
         distances = np.sqrt(
             np.sum(
                 np.array(
@@ -453,8 +462,13 @@ class Data(DFMD):
                 axis=0,
             )
         )
-        closest = np.argpartition(distances, n)[:n]
-        # note that this is not yet sorted yet, so we do this now
+
+        if n < n_max:
+            closest = np.argpartition(distances, n)[:n]
+        else:
+            # n == n_max
+            closest = np.arange(0, len(distances))
+        # note that argpartition did not sort these yet, so we do this now
         closest = closest[np.argsort(distances[closest])]
 
         new = self.copy(data=False)
@@ -486,6 +500,15 @@ class Data(DFMD):
             )
         if n <= 0:
             raise ValueError("n has to be an integer >= 1.")
+
+        # argpartition will throw if we request more or equal rows than we have,
+        # so we have to be careful
+        n_max = len(self.df[self.df[bpoint_column]])
+        if n_max == 0:
+            raise ValueError("Not enough rows available.")
+        if n_max > n:
+            n_max = n
+
         distances = np.sqrt(
             np.sum(
                 np.array(
@@ -500,8 +523,13 @@ class Data(DFMD):
                 axis=0,
             )
         )
-        closest = np.argpartition(distances, n)[:n]
-        # note that this is not yet sorted yet, so we do this now
+
+        if n < n_max:
+            closest = np.argpartition(distances, n)[:n]
+        else:
+            # n == n_max
+            closest = np.arange(0, len(distances))
+        # note that argpartition did not sort these yet, so we do this now
         closest = closest[np.argsort(distances[closest])]
 
         new = self.copy(data=False)

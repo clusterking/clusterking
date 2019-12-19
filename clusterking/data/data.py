@@ -448,7 +448,7 @@ class Data(DFMD):
         n_max = self.n
         if n_max == 0:
             raise ValueError("Not enough rows available.")
-        if n_max > n:
+        if n_max < n:
             n_max = n
 
         distances = np.sqrt(
@@ -506,7 +506,7 @@ class Data(DFMD):
         n_max = len(self.df[self.df[bpoint_column]])
         if n_max == 0:
             raise ValueError("Not enough rows available.")
-        if n_max > n:
+        if n_max < n:
             n_max = n
 
         distances = np.sqrt(

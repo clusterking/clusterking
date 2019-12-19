@@ -437,8 +437,10 @@ class Data(DFMD):
         """
         if not set(point.keys()) == set(self.par_cols):
             raise ValueError(
-                f"Invalid specification of a point: Please give values"
-                " exactly for the following keys: {', '.join(self.par_cols)}"
+                "Invalid specification of a point: Please give values"
+                " exactly for the following keys: {}".format(
+                    ", ".join(self.par_cols)
+                )
             )
         if n <= 0:
             raise ValueError("n has to be an integer >= 1.")
@@ -495,8 +497,10 @@ class Data(DFMD):
         """
         if not set(point.keys()) == set(self.par_cols):
             raise ValueError(
-                f"Invalid specification of a point: Please give values"
-                f" exactly for the following keys: {', '.join(self.par_cols)}"
+                "Invalid specification of a point: Please give values"
+                " exactly for the following keys: {}".format(
+                    ", ".join(self.par_cols)
+                )
             )
         if n <= 0:
             raise ValueError("n has to be an integer >= 1.")

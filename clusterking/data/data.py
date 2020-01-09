@@ -969,6 +969,19 @@ class Data(DFMD):
         metric="euclidean",
         ax=None,
     ):
+        """ Plot the pairwise distances of all benchmark points.
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            metric: String or function. See
+                :func:`clusterking.maths.metric.metric_selection`. Default: Euclidean
+                distance.
+            ax: Matplotlib axes or None (automatic)
+
+        Returns:
+            Figure
+        """
         import matplotlib.pyplot as plt
 
         if ax is None:
@@ -986,5 +999,11 @@ class Data(DFMD):
         cluster_labels = bpoints.df[cluster_column].tolist()
         ax.set_xticklabels([""] + cluster_labels)
         ax.set_yticklabels([""] + cluster_labels)
+        ax.set_xlabel("Cluster")
+        ax.set_ylabel("Cluster")
+        ax.set_title("Pairwise distances of benchmark points")
+        ax.tick_params(
+            axis="x", bottom=True, top=True, labelbottom=True, labeltop=False
+        )
 
         return fig

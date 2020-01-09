@@ -9,6 +9,10 @@ from typing import Callable, Union, Iterable, List, Any, Optional, Dict
 
 # ours
 from clusterking.data.dfmd import DFMD
+from clusterking.maths.metric import (
+    uncondense_distance_matrix,
+    metric_selection,
+)
 
 
 class Data(DFMD):
@@ -957,3 +961,30 @@ class Data(DFMD):
         cp.aspect_ratio = aspect_ratio
         cp.fill(params)
         return cp.fig
+
+    def plot_bpoint_distance_matrix(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        metric="euclidean",
+        ax=None,
+    ):
+        import matplotlib.pyplot as plt
+
+        if ax is None:
+            fig, ax = plt.subplots()
+        else:
+            fig = ax.get_figure()
+
+        bpoints = self.only_bpoints(bpoint_column=bpoint_column).copy(True)
+        bpoints.df.sort_values(cluster_column, inplace=True)
+        metric_funct = metric_selection(metric)
+        distance_matrix = uncondense_distance_matrix(metric_funct(bpoints))
+        cax = ax.matshow(distance_matrix)
+        fig.colorbar(cax)
+
+        cluster_labels = bpoints.df[cluster_column].tolist()
+        ax.set_xticklabels([""] + cluster_labels)
+        ax.set_yticklabels([""] + cluster_labels)
+
+        return fig

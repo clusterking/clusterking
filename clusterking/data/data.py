@@ -9,7 +9,7 @@ from typing import Callable, Union, Iterable, List, Any, Optional, Dict
 
 # ours
 from clusterking.data.dfmd import DFMD
-from clusterking.maths.metric import (
+from clusterking.maths.metric_utils import (
     uncondense_distance_matrix,
     metric_selection,
 )

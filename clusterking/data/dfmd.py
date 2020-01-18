@@ -121,39 +121,42 @@ class DFMD(object):
         md_df = pd.DataFrame({"md": [md_json]})
         md_df.to_sql("md", engine, if_exists="replace")
 
-    def copy(self, deep=True):
+    def copy(self, deep=True, data=True, memo=None):
         """ Make a copy of this object.
 
         Args:
             deep: Make a deep copy (default True). If this is disabled, any
                 change to the copy will also affect the original.
+            data: Also copy data
+            memo:
 
         Returns:
             New object.
         """
+        new = type(self)()
+        if data:
+            if deep:
+                # Pycharm doesn't seem to recognize the memo argument:
+                # noinspection PyArgumentList
+                new.df = copy.deepcopy(self.df, memo)
+            else:
+                new.df = copy.copy(self.df)
         if deep:
-            return copy.deepcopy(self)
+            # noinspection PyArgumentList
+            new.md = copy.deepcopy(self.md, memo)
         else:
-            return copy.copy(self)
+            new.md = copy.copy(self.md)
+        new.log = copy.copy(self.log)
+        if deep and memo is not None:
+            memo[id(self)] = new
+        return new
 
     # **************************************************************************
     # Magic methods
     # **************************************************************************
 
     def __copy__(self):
-        new = type(self)()
-        new.df = copy.copy(self.df)
-        new.md = copy.copy(self.md)
-        new.log = copy.copy(self.log)
-        return new
+        return self.copy()
 
     def __deepcopy__(self, memo):
-        new = type(self)()
-        # Pycharm doesn't seem to recognize the memo argument:
-        # noinspection PyArgumentList
-        new.df = copy.deepcopy(self.df, memo)
-        # noinspection PyArgumentList
-        new.md = copy.deepcopy(self.md, memo)
-        new.log = self.log
-        memo[id(self)] = new
-        return new
+        return self.copy(deep=True)

@@ -3,8 +3,14 @@
 # std
 import unittest
 
+# 3rd
+import numpy as np
+
 # ours
-from clusterking.maths.metric import *
+from clusterking.maths.metric_utils import (
+    condense_distance_matrix,
+    uncondense_distance_matrix,
+)
 from clusterking.util.testing import MyTestCase
 
 

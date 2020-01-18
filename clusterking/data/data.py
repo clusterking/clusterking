@@ -9,6 +9,10 @@ from typing import Callable, Union, Iterable, List, Any, Optional, Dict
 
 # ours
 from clusterking.data.dfmd import DFMD
+from clusterking.maths.metric_utils import (
+    uncondense_distance_matrix,
+    metric_selection,
+)
 
 
 class Data(DFMD):
@@ -172,6 +176,7 @@ class Data(DFMD):
         if inplace:
             self.df = self.df[self.df[bpoint_column]]
         else:
+            # todo: this is inefficient
             new_obj = copy.deepcopy(self)
             new_obj.only_bpoints(inplace=True, bpoint_column=bpoint_column)
             return new_obj
@@ -254,6 +259,7 @@ class Data(DFMD):
 
         """
         if not inplace:
+            # todo: this is inefficient
             new_obj = copy.deepcopy(self)
             new_obj.fix_param(
                 inplace=True,
@@ -401,6 +407,8 @@ class Data(DFMD):
             points.
         """
         if not inplace:
+            # todo: this is inefficient, why do we have to copy everything
+            #  first?
             new = self.copy()
             new.sample_param_random(
                 inplace=True,
@@ -415,6 +423,126 @@ class Data(DFMD):
             bpoint_df = self.df[self.df[bpoint_column]]
             self.df = self.df[~self.df[bpoint_column]].sample(**kwargs)
             self.df = self.df.append(bpoint_df)
+
+    def find_closest_spoints(self, point: Dict[str, float], n=10) -> "Data":
+        """ Given a point in parameter space, find the closest sampling
+        points to it and return them as a :py:class:`Data` object with the
+        corresponding subset of spoints.
+        The order of the rows in the dataframe :py:attr:`Data.df` will be in
+        order of increasing parameter space distance from the given point.
+
+        Args:
+            point: Dictionary of parameter name to value
+            n: Maximal number of rows to return
+
+        Returns:
+            :py:class:`Data` object with subset of rows of dataframe
+            corresponding to the closest points in parameter space.
+        """
+        if not set(point.keys()) == set(self.par_cols):
+            raise ValueError(
+                "Invalid specification of a point: Please give values"
+                " exactly for the following keys: {}".format(
+                    ", ".join(self.par_cols)
+                )
+            )
+        if n <= 0:
+            raise ValueError("n has to be an integer >= 1.")
+
+        # argpartition will throw if we request more or equal rows than we have,
+        # so we have to be careful
+        n_max = self.n
+        if n_max == 0:
+            raise ValueError("Not enough rows available.")
+        if n_max < n:
+            n_max = n
+
+        distances = np.sqrt(
+            np.sum(
+                np.array(
+                    [
+                        np.square(self.df[param].values - point[param])
+                        for param in self.par_cols
+                    ]
+                ),
+                axis=0,
+            )
+        )
+
+        if n < n_max:
+            closest = np.argpartition(distances, n)[:n]
+        else:
+            # n == n_max
+            closest = np.arange(0, len(distances))
+        # note that argpartition did not sort these yet, so we do this now
+        closest = closest[np.argsort(distances[closest])]
+
+        new = self.copy(data=False)
+        new.df = self.df.iloc[closest]
+        return new
+
+    def find_closest_bpoints(
+        self, point: Dict[str, float], n=10, bpoint_column="bpoint"
+    ):
+        """ Given a point in parameter space, find the closest benchmark
+        points to it and return them as a :py:class:`Data` object with the
+        corresponding subset of benchmark points.
+        The order of the rows in the dataframe :py:attr:`Data.df` will be in
+        order of increasing parameter space distance from the given point.
+
+        Args:
+            point: Dictionary of parameter name to value
+            n: Maximal number of rows to return
+            bpoint_column: Column name of the benchmark column
+
+        Returns:
+            :py:class:`Data` object with subset of rows of dataframe
+            corresponding to the closest points in parameter space.
+        """
+        if not set(point.keys()) == set(self.par_cols):
+            raise ValueError(
+                "Invalid specification of a point: Please give values"
+                " exactly for the following keys: {}".format(
+                    ", ".join(self.par_cols)
+                )
+            )
+        if n <= 0:
+            raise ValueError("n has to be an integer >= 1.")
+
+        # argpartition will throw if we request more or equal rows than we have,
+        # so we have to be careful
+        n_max = len(self.df[self.df[bpoint_column]])
+        if n_max == 0:
+            raise ValueError("Not enough rows available.")
+        if n_max < n:
+            n_max = n
+
+        distances = np.sqrt(
+            np.sum(
+                np.array(
+                    [
+                        np.square(
+                            self.df[self.df[bpoint_column]][param].values
+                            - point[param]
+                        )
+                        for param in self.par_cols
+                    ]
+                ),
+                axis=0,
+            )
+        )
+
+        if n < n_max:
+            closest = np.argpartition(distances, n)[:n]
+        else:
+            # n == n_max
+            closest = np.arange(0, len(distances))
+        # note that argpartition did not sort these yet, so we do this now
+        closest = closest[np.argsort(distances[closest])]
+
+        new = self.copy(data=False)
+        new.df = self.df[self.df[bpoint_column]].iloc[closest]
+        return new
 
     # **************************************************************************
     # Manipulating things
@@ -833,3 +961,49 @@ class Data(DFMD):
         cp.aspect_ratio = aspect_ratio
         cp.fill(params)
         return cp.fig
+
+    def plot_bpoint_distance_matrix(
+        self,
+        cluster_column="cluster",
+        bpoint_column="bpoint",
+        metric="euclidean",
+        ax=None,
+    ):
+        """ Plot the pairwise distances of all benchmark points.
+
+        Args:
+            cluster_column: Column with the cluster names (default 'cluster')
+            bpoint_column: Column with bpoints (default 'bpoint')
+            metric: String or function. See
+                :func:`clusterking.maths.metric.metric_selection`. Default: Euclidean
+                distance.
+            ax: Matplotlib axes or None (automatic)
+
+        Returns:
+            Figure
+        """
+        import matplotlib.pyplot as plt
+
+        if ax is None:
+            fig, ax = plt.subplots()
+        else:
+            fig = ax.get_figure()
+
+        bpoints = self.only_bpoints(bpoint_column=bpoint_column).copy(True)
+        bpoints.df.sort_values(cluster_column, inplace=True)
+        metric_funct = metric_selection(metric)
+        distance_matrix = uncondense_distance_matrix(metric_funct(bpoints))
+        cax = ax.matshow(distance_matrix)
+        fig.colorbar(cax)
+
+        cluster_labels = bpoints.df[cluster_column].tolist()
+        ax.set_xticklabels([""] + cluster_labels)
+        ax.set_yticklabels([""] + cluster_labels)
+        ax.set_xlabel("Cluster")
+        ax.set_ylabel("Cluster")
+        ax.set_title("Pairwise distances of benchmark points")
+        ax.tick_params(
+            axis="x", bottom=True, top=True, labelbottom=True, labeltop=False
+        )
+
+        return fig

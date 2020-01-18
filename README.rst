@@ -51,6 +51,8 @@ histograms (or other higher dimensional data) and to select benchmark points
 representing each cluster. The package particularly focuses on use cases in
 high energy physics.
 
+A physics use case has been demonstrated in https://arxiv.org/abs/1909.11088.
+
 Physics Case
 ------------
 

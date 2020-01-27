@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 - 2020-01-27
+
+### Added
+
+- Find sample points or benchmark points closest to a given point in parameter space
+- Matrix plot of distances of benchmark kinematic distributions
+
 ## 0.13.0 - 2019-09-24
 
 ### Added

@@ -34,7 +34,7 @@ def plot(max_yield, rel_err=0.0):
     x_axis = []
     y_axis = []
     avg_cluster_size = []
-    for i in tqdm(range(1, max_yield, 100)):
+    for i in tqdm(range(1, max_yield, 1)):
         d.reset_errors()
         d.add_rel_err_uncorr(rel_err)
         d.add_err_poisson(i)

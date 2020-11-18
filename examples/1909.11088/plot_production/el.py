@@ -5,6 +5,7 @@ from pathlib import Path
 
 # 3rd
 import matplotlib.pyplot as plt
+import matplotlib
 
 # ours
 import clusterking as ck
@@ -12,6 +13,7 @@ from clusterking.maths.metric import chi2_metric
 
 # Plot style
 
+matplotlib.use("Agg")
 plt.rcParams.update({"text.latex.preamble": [r"\usepackage{amsmath}"]})
 
 # Configure directories

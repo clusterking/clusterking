@@ -7,6 +7,7 @@ from pathlib import Path
 from tqdm.auto import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 
 # ours
 import clusterking as ck
@@ -14,6 +15,7 @@ from clusterking.maths.metric import chi2_metric
 
 # Plot style
 
+matplotlib.use("Agg")
 plt.rc("xtick", **{"top": True, "minor.visible": True, "direction": "in"})
 plt.rc("ytick", **{"right": True, "minor.visible": True, "direction": "in"})
 

@@ -43,6 +43,8 @@ Clustering of Kinematic Graphs
 
 .. start-body
 
+**IMPORTANT NOTE: THE CURRENT IMPLEMENTATION OF THE CHI2 METRIC IS WRONG. WE'RE WORKING ON FIXING THIS. Please stay tuned.**
+
 Description
 -----------
 

@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 - 2020-12-07
+
+### Fixed
+
+- Critical issue with chi2 metric: Correlations were not properly handled and number
+  of degrees of freedem were not correct (should be number of bins - 1, not number
+  of bins).
+
+### Removed
+
+- `decorrelate` argument to `data` method of `DataWithErrors` class, because it
+  was incorrectly implemented and might not be the best way to use this in the
+  first place
+
 ## 1.0.0 - 2020-01-27
 
 ### Added

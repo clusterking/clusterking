@@ -192,27 +192,6 @@ class DataWithErrors(Data):
     # Actual calculations
     # **************************************************************************
 
-    # Note: Overrides inherited method from data.
-    def data(self, decorrelate=False, **kwargs) -> np.ndarray:
-        """ Return data matrix
-
-        Args:
-            decorrelate: Unrotate the correlation matrix to return uncorrelated
-                data entries
-            **kwargs: Any keyword argument to
-                :meth:`clusterking.data.Data.data()`
-
-        Returns:
-            ``self.n * self.nbins`` array
-        """
-        ret = super().data(**kwargs)
-
-        if decorrelate:
-            inverses = np.linalg.inv(self.corr())
-            ret = np.einsum("kij,kj->ki", inverses, ret)
-
-        return ret
-
     def cov(self, relative=False) -> np.ndarray:
         """ Return covariance matrix :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)`
 

@@ -4,7 +4,13 @@
 import unittest
 
 # ours
-from clusterking.maths.statistics import *
+from clusterking.maths.statistics import (
+    cov2corr,
+    cov2err,
+    rel2abs_cov,
+    abs2rel_cov,
+    corr2cov,
+)
 from clusterking.util.testing import MyTestCase
 
 

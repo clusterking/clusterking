@@ -4,7 +4,7 @@
 import numpy as np
 
 # ours
-from clusterking.maths.metric_utils import *
+from clusterking.maths.metric_utils import condense_distance_matrix
 from clusterking.data.dwe import DataWithErrors
 
 

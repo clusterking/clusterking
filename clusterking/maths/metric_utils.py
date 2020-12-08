@@ -8,6 +8,7 @@ has dependencies on the DWE class.
 import scipy.spatial
 import functools
 from typing import Callable
+import numpy as np
 
 # ours
 
@@ -21,7 +22,12 @@ def condense_distance_matrix(matrix):
     Returns:
         n choose 2 vector
     """
-    return scipy.spatial.distance.squareform(matrix)
+    assert matrix.ndim == 2
+    # Let's do the checks ourselves, because scipy checks for exact symmetry,
+    # which we won't achieve due to rounding errors.
+    assert np.isclose(matrix - matrix.T, 0).all()
+    assert np.isclose(np.diag(matrix), 0.0).all()
+    return scipy.spatial.distance.squareform(matrix, checks=False)
 
 
 def uncondense_distance_matrix(vector):

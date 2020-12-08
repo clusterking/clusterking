@@ -34,7 +34,7 @@ def chi2(
     elif n2.shape == (n_bins,):
         n2 = n2.reshape((1, n_bins))
     else:
-        raise ValueError(f"Invalid shape of n2: {n2.shape}.")
+        raise ValueError("Invalid shape of n2: {}.".format(n2.shape))
     for _cov in [cov1, cov2]:
         if _cov.shape == (n_obs, n_bins, n_bins):
             pass
@@ -42,7 +42,7 @@ def chi2(
             pass
         else:
             raise ValueError(
-                f"Invalid shape of covariance matrix: {_cov.shape}"
+                f"Invalid shape of covariance matrix: {}".format(_cov.shape)
             )
     if normalize:
         if cov1.ndim == 2:

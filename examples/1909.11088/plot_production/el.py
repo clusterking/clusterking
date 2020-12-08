@@ -53,19 +53,19 @@ def cluster_benchmark_plot(d, iplot):
         "ytick", **{"right": False, "direction": "out", "minor.visible": True}
     )
     d.plot_clusters_scatter(["p"], figsize=8).savefig(
-        f"output/El_tanbeta_err{iplot}.pdf"
+        "output/El_tanbeta_err{iplot}.pdf".format(iplot=iplot)
     )
 
     plt.rc("xtick", **{"top": True, "direction": "in"})
     plt.rc("ytick", **{"right": True, "direction": "in"})
     d.plot_dist(title="", legend=True, nlines=0).savefig(
-        f"output/El_tanbeta_dist{iplot}.pdf"
+        "output/El_tanbeta_dist{iplot}.pdf".format(iplot=iplot)
     )
 
     plt.rc("xtick", **{"minor.visible": False})
     plt.rc("ytick", **{"minor.visible": False})
     d.plot_bpoint_distance_matrix(metric=chi2_metric).savefig(
-        f"output/El_tanbeta_dist{iplot}_bpoint_distances.pdf"
+        "output/El_tanbeta_dist{iplot}_bpoint_distances.pdf".format(iplot=iplot)
     )
 
 

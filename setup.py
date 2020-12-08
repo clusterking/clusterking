@@ -2,6 +2,8 @@
 
 # std
 from distutils.core import setup
+import site
+import sys
 
 # noinspection PyUnresolvedReferences
 import setuptools  # see below (1)
@@ -10,6 +12,10 @@ from pathlib import Path
 # (1) see https://stackoverflow.com/questions/8295644/
 # Without this import, install_requires won't work.
 
+# Sometimes editable install fails with an error message about user site
+# being not writeable. The following line can fix that, see
+# https://github.com/pypa/pip/issues/7953
+site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
 keywords = [
     "clustering",

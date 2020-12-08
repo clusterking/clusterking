@@ -13,7 +13,6 @@ import pandas as pd
 # us
 from clusterking.util.metadata import version_info, nested_dict
 from clusterking.util.log import get_logger
-from clusterking.data.data import Data
 from clusterking.worker import DataWorker
 from clusterking.result import DataResult
 

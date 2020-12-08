@@ -148,7 +148,7 @@ class Scanner(DataWorker):
         # todo: move
         self.md = nested_dict()
         self.md["git"] = version_info(self.log)
-        self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
+        self.md["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
 
         # todo: shouldn't that be in metadata?
         #: Names of the parameters
@@ -238,7 +238,7 @@ class Scanner(DataWorker):
         Returns:
             None
         """
-        if normalize and binning is None:
+        if normalize and binning is None and sampling is None:
             raise ValueError(
                 "The setting normalize=True only makes sense if a binning or "
                 "sampling is specified."

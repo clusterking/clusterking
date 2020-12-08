@@ -13,7 +13,7 @@ from clusterking.benchmark.abstract_benchmark import (
     AbstractBenchmarkResult,
 )
 from clusterking.util.metadata import failsafe_serialize
-from clusterking.maths.metric import (
+from clusterking.maths.metric_utils import (
     uncondense_distance_matrix,
     metric_selection,
 )

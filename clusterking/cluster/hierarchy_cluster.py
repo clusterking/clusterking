@@ -11,7 +11,7 @@ import scipy.spatial
 # ours
 from clusterking.cluster.cluster import Cluster, ClusterResult
 from clusterking.util.metadata import failsafe_serialize
-from clusterking.maths.metric import metric_selection
+from clusterking.maths.metric_utils import metric_selection
 from clusterking.util.matplotlib_utils import import_matplotlib
 
 

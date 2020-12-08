@@ -102,7 +102,7 @@ def get_git_info(log=None, path=None):
     git_config["msg"] = hcommit.message.strip("\n")
     commit_time = hcommit.committed_date
     git_config["time"] = time.strftime(
-        "%a %_d %b %Y %H:%M", time.gmtime(commit_time)
+        "%a %d %b %Y %H:%M", time.gmtime(commit_time)
     )
     # todo: also add a nice string representation of git diff?
     return git_config
@@ -111,9 +111,9 @@ def get_git_info(log=None, path=None):
 def save_git_info(output_path=None, *args, **kwargs) -> Dict[str, str]:
     """
     Save output of git_info to a file.
-    
+
     Args:
-        output_path: Output path. If None, the default will be 
+        output_path: Output path. If None, the default will be
             bclustering/git_info.json
         *args: Passed on to git_info
         **kwargs: Passed on to git_info
@@ -135,7 +135,7 @@ def save_git_info(output_path=None, *args, **kwargs) -> Dict[str, str]:
 def load_git_info(input_path=None) -> Dict[str, str]:
     """
     Load previously saved output of git_info from a json file.
-    
+
     Args:
         input_path: Input path to json file. If None, the default will be
             bclustering/git_info.json

@@ -19,3 +19,4 @@ wilson
 tqdm
 sqlalchemy
 flavio
+pytest

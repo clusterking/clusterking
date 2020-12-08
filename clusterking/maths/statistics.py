@@ -3,6 +3,8 @@
 # 3rd
 import numpy as np
 
+# todo: type hints
+
 
 def cov2err(cov):
     """ Convert covariance matrix (or array of covariance matrices of equal

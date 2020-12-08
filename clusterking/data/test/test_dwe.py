@@ -39,7 +39,6 @@ class TestDataWithErrors(MyTestCase):
         self.assertAllClose(dwe.abs_cov, all_zero)
         self.assertAllClose(dwe.cov(), all_zero)
         self.assertAllClose(dwe.corr(), unit)
-        self.assertAllClose(dwe.data(decorrelate=True), self.data)
 
     # -------------------------------------------------------------------------
 

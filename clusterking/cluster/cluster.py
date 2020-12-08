@@ -38,7 +38,7 @@ class Cluster(DataWorker):
         self.md = nested_dict()
 
         self.md["git"] = version_info(self.log)
-        self.md["time"] = time.strftime("%a %_d %b %Y %H:%M", time.gmtime())
+        self.md["time"] = time.strftime("%a %d %b %Y %H:%M", time.gmtime())
 
     @abstractmethod
     def run(self, data, **kwargs):

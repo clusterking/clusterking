@@ -21,6 +21,7 @@ class TestTestingEnvVariable(unittest.TestCase):
         clusterking.util.testing.set_testing_mode(False)
 
 
+@unittest.skip
 class TestTestJupyter(unittest.TestCase):
     def setUp(self):
         this_dir = pathlib.Path(__file__).resolve().parent

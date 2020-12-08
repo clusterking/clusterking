@@ -60,6 +60,27 @@ def test_metric_vanishes_identical(metric):
         ).all()
 
 
+@pytest.mark.parametrize("metric", _metrics_to_test)
+def test_metric_symmetric(metric):
+    n_experiments = 10
+    n_obs = 10
+    n_bins = 10
+    for iexp in range(n_experiments):
+        nj = []
+        covj = []
+        for i in range(2):
+            n = np.random.random(size=(n_obs, n_bins))
+            rele = np.random.random(size=(n_obs, n_bins))
+            e = rele * n
+            corr = random_correlation_matrix(n_bins)
+            cov = np.einsum("ni,ij,nj->nij", e, corr, e)
+            nj.append(n)
+            covj.append(cov)
+        chi2s1 = chi2(nj[0], nj[1], covj[0], covj[1])
+        chi2s2 = chi2(nj[1], nj[0], covj[1], covj[0])
+        assert np.isclose(chi2s1, chi2s2).all()
+
+
 def generate_toy_dataset(n, cov, n_toys=1000):
     assert n.ndim == 1
     n_bins = n.size

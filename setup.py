@@ -80,6 +80,7 @@ extras_require = {
         "pre-commit",
         "sphinx",
         "sphinx-rtd-theme",
+        "coveralls",
     ],
 }
 

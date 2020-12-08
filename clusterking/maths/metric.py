@@ -42,7 +42,7 @@ def chi2(
             pass
         else:
             raise ValueError(
-                f"Invalid shape of covariance matrix: {}".format(_cov.shape)
+                "Invalid shape of covariance matrix: {}".format(_cov.shape)
             )
     if normalize:
         if cov1.ndim == 2:

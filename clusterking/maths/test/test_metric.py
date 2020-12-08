@@ -36,6 +36,7 @@ def test_metric_vanishes_identical(metric):
         for i in range(n_obs):
             corr[i, :, :] = random_correlation_matrix(n_bins)
         cov1 = np.einsum("ni,nij,nj->nij", e1, corr, e1)
+        # This test also tests the different signatures
         assert np.isclose(metric(n1=n1, n2=n1, cov1=cov1, cov2=cov1), 0.0).all()
         assert np.isclose(
             metric(n1=n1, n2=n1, cov1=cov1, cov2=np.zeros_like(cov1)), 0.0

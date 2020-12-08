@@ -40,3 +40,8 @@ examples/jupyter_notebooks/test/test_auto_generated_tests/**
 # Virtual environment
 # ===================
 venv/**
+
+# Testing
+# =======
+
+htmlcov/**

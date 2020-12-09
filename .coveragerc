@@ -1,5 +1,6 @@
 [run]
-omit = 
+omit =
     setup.py
-    clusterking/physics/* 
+    clusterking/physics/*
     examples/*
+relative_files = True

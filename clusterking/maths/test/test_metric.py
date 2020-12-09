@@ -125,47 +125,74 @@ def _get_binned_theoretical_chi2_distribution(
 @pytest.mark.parametrize("errors", ("statonly", "uncorrrel", "statrel"))
 @pytest.mark.parametrize("normalize", [True, False])
 def test_chi2_distribution(normalize, errors):
-    n_toys = 10000
-    n_bins = 10
-    base_hist = 100 * np.array([1, 2, 3, 4, 5, 6, 4, 3, 2, 1])
-    assert base_hist.size == n_bins
+    print(np.random.seed)
 
+    n_toys = 10000
     n_experiments = 1 if not errors == "statrel" else 4
 
-    for i_exp in range(n_experiments):
-        if errors == "statonly":
-            e = np.sqrt(base_hist)
-            corr = np.eye(n_bins)
-            cov = np.einsum("i,ij,j->ij", e, corr, e)
-        elif errors == "uncorrrel":
-            e = 0.01 * base_hist
-            corr = np.eye(n_bins)
-            cov = np.einsum("i,ij,j->ij", e, corr, e)
-        elif errors == "statrel":
-            e1 = 0.01 * base_hist
-            cov1 = np.einsum("i,j->ij", e1, e1)
-            e2 = 0.01 * base_hist
-            corr = random_correlation_matrix(n_bins)
-            cov2 = np.einsum("i,ij,j->ij", e2, corr, e2)
-            cov = cov1 + cov2
+    for n_bins in [5, 10]:
+        if n_bins == 10:
+            base_hist = 100 * np.array([1, 2, 3, 4, 5, 6, 4, 3, 2, 1])
         else:
-            raise ValueError("Invalid test parameter")
+            base_hist = np.full((n_bins), 75)
 
-        toys = generate_toy_dataset(base_hist, cov, n_toys=n_toys)
+        assert base_hist.size == n_bins
 
-        chi2s = chi2(
-            toys, base_hist, cov, np.zeros_like(cov), normalize=normalize
-        )
+        for i_exp in range(n_experiments):
+            if errors == "statonly":
+                e = np.sqrt(base_hist)
+                corr = np.eye(n_bins)
+                cov = np.einsum("i,ij,j->ij", e, corr, e)
+            elif errors == "uncorrrel":
+                e = 0.01 * base_hist
+                corr = np.eye(n_bins)
+                cov = np.einsum("i,ij,j->ij", e, corr, e)
+            elif errors == "statrel":
+                e1 = 0.01 * base_hist
+                cov1 = np.einsum("i,j->ij", e1, e1)
+                e2 = 0.01 * base_hist
+                corr = random_correlation_matrix(n_bins)
+                cov2 = np.einsum("i,ij,j->ij", e2, corr, e2)
+                cov = cov1 + cov2
+            else:
+                raise ValueError("Invalid test parameter")
 
-        bins = np.linspace(0, 20, 30)
-        ourvals, _ = np.histogram(chi2s, bins=bins,)
-        ourvals = ourvals / ourvals.sum()
+            toys = generate_toy_dataset(base_hist, cov, n_toys=n_toys)
 
-        dof = n_bins - 1 if normalize else n_bins
-        theo_expect = _get_binned_theoretical_chi2_distribution(
-            dof=dof, bins=bins
-        )
+            chi2s = chi2(
+                toys, base_hist, cov, np.zeros_like(cov), normalize=normalize
+            )
 
-        ks, pv = scipy.stats.ks_2samp(ourvals, theo_expect)
+            bins = np.linspace(0, 20, 30)
+            ourvals, _ = np.histogram(chi2s, bins=bins,)
+            ourvals = ourvals / ourvals.sum()
 
-        assert pv > 0.95, (ourvals, theo_expect)
+            dof = n_bins - 1 if normalize else n_bins
+            theo_expect = _get_binned_theoretical_chi2_distribution(
+                dof=dof, bins=bins
+            )
+            theo_expect_one_less = _get_binned_theoretical_chi2_distribution(
+                dof=dof - 1, bins=bins
+            )
+            theo_expect_one_more = _get_binned_theoretical_chi2_distribution(
+                dof=dof + 1, bins=bins
+            )
+
+            _, pv = scipy.stats.ks_2samp(ourvals, theo_expect)
+            _, pv_ol = scipy.stats.ks_2samp(ourvals, theo_expect_one_less)
+            _, pv_om = scipy.stats.ks_2samp(ourvals, theo_expect_one_more)
+            _, pv_ol_real = scipy.stats.ks_2samp(
+                theo_expect, theo_expect_one_less
+            )
+            _, pv_om_real = scipy.stats.ks_2samp(
+                theo_expect, theo_expect_one_more
+            )
+
+            assert pv > 0.95
+            if pv_ol_real < 0.95:
+                # If we can at all distinguish
+                assert pv_ol < pv
+                assert pv_ol < 0.97
+            if pv_om_real < 0.95:
+                assert pv_om < pv
+                assert pv_om < 0.97

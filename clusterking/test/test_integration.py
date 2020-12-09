@@ -36,9 +36,10 @@ def test_dress_rehearsal(tmp_path):
     d = Data()
     r = s.run(d)
     r.write()
-    d.write(tmp_path / "dress_rehearsal.sql", overwrite="overwrite")
+    # Can remove str casting once we remove py3.5 support
+    d.write(str(tmp_path / "dress_rehearsal.sql"), overwrite="overwrite")
 
-    d = DataWithErrors(tmp_path / "dress_rehearsal.sql")
+    d = DataWithErrors(str(tmp_path / "dress_rehearsal.sql"))
 
     d.add_rel_err_uncorr(0.01)
     d.add_err_poisson(1000)

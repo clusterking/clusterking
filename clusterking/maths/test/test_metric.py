@@ -122,11 +122,23 @@ def _get_binned_theoretical_chi2_distribution(
 
 
 @pytest.mark.slow
+@pytest.mark.parametrize("varied", ("single", "both"))
 @pytest.mark.parametrize("errors", ("statonly", "uncorrrel", "statrel"))
 @pytest.mark.parametrize("normalize", [True, False])
-def test_chi2_distribution(normalize, errors):
-    print(np.random.seed)
+def test_chi2_distribution(normalize, errors, varied):
+    """ Validate our chi2 implementation with toy experiments
 
+    Args:
+        normalize: Compare normalized histograms?
+        errors: Different modes: 'statonly': Only look at statistical uncert.,
+            'uncorrrel': Uncorrelated flat relative uncertainties,
+            'statrel': Statistical + correlated relative uncertainties
+        varied: 'single': Draw toys with means and compare it to means,
+            'both': Draw 2x toys with means and compare these to each other
+
+    Returns:
+        None
+    """
     n_toys = 10000
     n_experiments = 1 if not errors == "statrel" else 4
 
@@ -140,28 +152,43 @@ def test_chi2_distribution(normalize, errors):
 
         for i_exp in range(n_experiments):
             if errors == "statonly":
-                e = np.sqrt(base_hist)
-                corr = np.eye(n_bins)
-                cov = np.einsum("i,ij,j->ij", e, corr, e)
+                _e = np.sqrt(base_hist)
+                _corr = np.eye(n_bins)
+                cov1 = np.einsum("i,ij,j->ij", _e, _corr, _e)
+                cov2 = cov1.copy()
             elif errors == "uncorrrel":
-                e = 0.01 * base_hist
-                corr = np.eye(n_bins)
-                cov = np.einsum("i,ij,j->ij", e, corr, e)
+                _e1 = 0.01 * base_hist
+                _corr = np.eye(n_bins)
+                cov1 = np.einsum("i,ij,j->ij", _e1, _corr, _e1)
+                _e2 = 0.02 * base_hist
+                cov2 = np.einsum("i,ij,j->ij", _e2, _corr, _e2)
             elif errors == "statrel":
-                e1 = 0.01 * base_hist
-                cov1 = np.einsum("i,j->ij", e1, e1)
-                e2 = 0.01 * base_hist
-                corr = random_correlation_matrix(n_bins)
-                cov2 = np.einsum("i,ij,j->ij", e2, corr, e2)
-                cov = cov1 + cov2
+                _e1 = np.sqrt(base_hist)
+                _cov1 = np.einsum("i,ij,j->ij", _e1, np.eye(n_bins), _e1)
+                _e2 = 0.015 * base_hist
+                _corr = random_correlation_matrix(n_bins)
+                _cov2 = np.einsum("i,ij,j->ij", _e2, _corr, _e2)
+                cov1 = _cov1 + _cov2
+                _e1 = np.sqrt(base_hist)
+                _cov1 = np.einsum("i,ij,j->ij", _e1, np.eye(n_bins), _e1)
+                _e2 = 0.023 * base_hist
+                _corr = random_correlation_matrix(n_bins)
+                _cov2 = np.einsum("i,ij,j->ij", _e2, _corr, _e2)
+                cov2 = _cov1 + _cov2
             else:
                 raise ValueError("Invalid test parameter")
 
-            toys = generate_toy_dataset(base_hist, cov, n_toys=n_toys)
+            assert varied in ["single", "both"]
 
-            chi2s = chi2(
-                toys, base_hist, cov, np.zeros_like(cov), normalize=normalize
-            )
+            if varied == "single":
+                cov2 = np.zeros_like(cov1)
+
+            toys = generate_toy_dataset(base_hist, cov1, n_toys=n_toys)
+            toys2 = base_hist
+            if varied == "both":
+                toys2 = generate_toy_dataset(base_hist, cov2, n_toys=n_toys)
+
+            chi2s = chi2(toys, toys2, cov1, cov2, normalize=normalize)
 
             bins = np.linspace(0, 20, 30)
             ourvals, _ = np.histogram(chi2s, bins=bins,)

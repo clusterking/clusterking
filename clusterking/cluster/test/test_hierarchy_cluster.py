@@ -86,4 +86,4 @@ def test_dendrogram_plot(_data, tmp_path):
     c.set_metric()
     c.set_max_d(0.2)
     r = c.run(_data)
-    r.dendrogram(output=str(tmp_path))
+    r.dendrogram(output=str(tmp_path / "output.pdf"))

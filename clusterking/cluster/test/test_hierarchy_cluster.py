@@ -9,6 +9,7 @@ from clusterking.data.data import Data
 from clusterking.cluster.hierarchy_cluster import HierarchyCluster
 
 
+@pytest.fixture
 def _data():
     ddir = Path(__file__).parent / "data"
     dname = "1d.sql"

@@ -3,4 +3,6 @@ omit =
     setup.py
     clusterking/physics/*
     examples/*
+    */test/*
+    test_*
 relative_files = True

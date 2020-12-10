@@ -10,8 +10,8 @@ Clustering of Kinematic Graphs
 
 |Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black|
 
-.. |Build Status| image:: https://travis-ci.org/clusterking/clusterking.svg?branch=master
-   :target: https://travis-ci.org/clusterking/clusterking
+.. |Build Status| image::  https://github.com/clusterking/clusterking/workflows/testing/badge.svg
+   :target: https://github.com/clusterking/clusterking/actions
    :alt: CI
 
 .. |Coveralls| image:: https://coveralls.io/repos/github/clusterking/clusterking/badge.svg?branch=master

@@ -11,7 +11,7 @@ latest master version on github:
 
     git clone https://github.com/clusterking/clusterking
     cd clusterking
-    pip3 install --user ".[plotting,dev]"
+    pip3 install --editable --user ".[plotting,dev]"
 
 This will enable you to run our unittests, build the documentation and more.
 
@@ -58,11 +58,5 @@ Whenever changing functionality, please run
 .. code-block:: shell
 
     pytest
-
-or alternatively
-
-.. code-block:: shell
-
-    nose2
 
 to run all unittests.

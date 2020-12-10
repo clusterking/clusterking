@@ -96,7 +96,8 @@ class HierarchyClusterResult(ClusterResult):
             if not output.parent.is_dir():
                 self.log.debug("Creating dir '{}'.".format(output.parent))
                 output.parent.mkdir(parents=True)
-            fig.savefig(str(output.resolve()), bbox_inches="tight")
+            # need str casting for py3.5
+            fig.savefig(str(output), bbox_inches="tight")
             self.log.info("Wrote dendrogram to '{}'.".format(output))
 
         return ax

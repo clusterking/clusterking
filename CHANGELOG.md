@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.1.0 - 2020-12-07
+## 1.1.0 - 2020-12-10
 
 ### Fixed
 
@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - `decorrelate` argument to `data` method of `DataWithErrors` class, because it
-  was incorrectly implemented and might not be the best way to use this in the
-  first place
+  was incorrectly implemented and probably does not have reasonable use cases
+
+### Deprecated
+
+- python 3.5 will not be supported for future releases
 
 ## 1.0.0 - 2020-01-27
 

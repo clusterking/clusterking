@@ -43,8 +43,6 @@ Clustering of Kinematic Graphs
 
 .. start-body
 
-**IMPORTANT NOTE: THE IMPLEMENTATION OF THE CHI2 METRIC IN THE CURRENT RELEASE IS WRONG. THIS WILL BE FIXED WITH RELEASE 1.0.1.**
-
 Description
 -----------
 
@@ -91,6 +89,13 @@ Installation
 If you do not require plotting, you can remove ``[plotting]``.
 
 More options and troubleshooting advice is given in the `documentation <https://clusterking.readthedocs.io/en/latest/installation.html>`_.
+
+Caveats
+-------
+
+* Version 1.0.0 contained several mistakes in the chi2 metric. Please make sure
+  that you are at least using versoin 1.1.0. These mistakes were also found in
+  the `paper <https://arxiv.org/abs/1909.11088>`_ and will be fixed soon.
 
 Usage and Documentation
 -----------------------

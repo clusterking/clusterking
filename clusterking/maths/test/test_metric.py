@@ -7,6 +7,7 @@ from functools import partial
 import pytest
 import numpy as np
 import scipy.stats
+import scipy.spatial
 
 # ours
 from clusterking.maths.metric import chi2
@@ -206,20 +207,15 @@ def test_chi2_distribution(normalize, errors, varied):
             )
 
             _, pv = scipy.stats.ks_2samp(ourvals, theo_expect)
-            _, pv_ol = scipy.stats.ks_2samp(ourvals, theo_expect_one_less)
-            _, pv_om = scipy.stats.ks_2samp(ourvals, theo_expect_one_more)
-            _, pv_ol_real = scipy.stats.ks_2samp(
-                theo_expect, theo_expect_one_less
+            jsd = scipy.spatial.distance.jensenshannon(ourvals, theo_expect)
+            jsd_ol = scipy.spatial.distance.jensenshannon(
+                ourvals, theo_expect_one_less
             )
-            _, pv_om_real = scipy.stats.ks_2samp(
-                theo_expect, theo_expect_one_more
+            jsd_om = scipy.spatial.distance.jensenshannon(
+                ourvals, theo_expect_one_more
             )
 
             assert pv > 0.95
-            if pv_ol_real < 0.95:
-                # If we can at all distinguish
-                assert pv_ol < pv
-                assert pv_ol < 0.97
-            if pv_om_real < 0.95:
-                assert pv_om < pv
-                assert pv_om < 0.97
+            assert jsd < 0.05
+            assert jsd_ol > jsd
+            assert jsd_om > jsd

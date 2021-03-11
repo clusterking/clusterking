@@ -62,7 +62,7 @@ of use cases, we have been focusing on applications in high energy physics
 use case. In particular, most of the current tutorials are in this context.
 
 Though very successful, the Standard Model of Particle Physics is believed to
-be uncomplete, prompting the search for New Physics (NP). The phenomenology
+be incomplete, prompting the search for New Physics (NP). The phenomenology
 of NP models typically depends on a number of free parameters, sometimes
 strongly influencing the shape of distributions of kinematic variables.
 Besides being an obvious challenge when presenting exclusion limits on such
@@ -94,7 +94,7 @@ Caveats
 -------
 
 * Version 1.0.0 contained several mistakes in the chi2 metric. Please make sure
-  that you are at least using versoin 1.1.0. These mistakes were also found in
+  that you are at least using version 1.1.0. These mistakes were also found in
   the `paper <https://arxiv.org/abs/1909.11088>`_ and will be fixed soon.
 
 Usage and Documentation

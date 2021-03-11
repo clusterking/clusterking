@@ -579,7 +579,7 @@ class BundlePlot(object):
             cluster: Name of cluster to be plotted or None if there are no
                 clusters
             bpoints: Plot benchmark points? If False or benchmark points are
-                not available, distributions correponding to random sample
+                not available, distributions corresponding to random sample
                 points are chosen.
             hist_kwargs: See :meth:`err_plot`
             hist_fill_kwargs: See :meth:`err_plot`
@@ -641,7 +641,7 @@ class BundlePlot(object):
             ax: Instance of `matplotlib.axes.Axes` to plot on. If None, a new
                 one is instantiated.
             bpoints: Plot benchmark points? If False or benchmark points are
-                not available, distributions correponding to random sample
+                not available, distributions corresponding to random sample
                 points are chosen.
             hist_kwargs: Keyword arguments to
                 :meth:`~clusterking.plots.plot_histogram.plot_histogram`

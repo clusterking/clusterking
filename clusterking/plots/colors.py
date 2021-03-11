@@ -16,7 +16,7 @@ from clusterking.util.log import get_logger
 # todo: docs
 class ColorScheme(object):
     """ Class holding color scheme. We want to assign a unique color to every
-    cluster and keep it consistent accross different plots.
+    cluster and keep it consistent across different plots.
     Subclass and overwrite color lists to implement different schemes.
     """
 

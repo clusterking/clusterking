@@ -95,7 +95,7 @@ def plot_histogram_fill(ax, edges, content_low, content_high, **kwargs):
 
     if not len(content_high) == len(content_low) == len(edges) - 1:
         raise ValueError(
-            "Lenghts don't match: content_high: {}, content_low: {}, "
+            "Lengths don't match: content_high: {}, content_low: {}, "
             "edges -1: {}".format(
                 len(content_high), len(content_low), len(edges) - 1
             )

@@ -182,7 +182,7 @@ class NoisySample(AbstractWorker):
         Args:
             *args: Positional arguments to
                 :meth:`clusterking.scan.Scanner.add_spoints_noise`.
-            **kwargs: Keyword argumnets to
+            **kwargs: Keyword arguments to
                 :meth:`clusterking.scan.Scanner.add_spoints_noise`.
 
         Returns:

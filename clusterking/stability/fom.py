@@ -125,7 +125,7 @@ class NClusters(CCFOM):
 
         Args:
             which: 1 or 2 for dataset 1 or dataset 2
-            **kwargs: Keyword argumnets for :class:`CCFOM``
+            **kwargs: Keyword arguments for :class:`CCFOM``
         """
         super().__init__(**kwargs)
         self.which = which

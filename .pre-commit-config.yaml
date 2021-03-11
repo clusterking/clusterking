@@ -22,3 +22,8 @@ repos:
         description: Strip output from jupyter noteboooks
         entry: nbstripout
         language: system
+-   repo: https://github.com/codespell-project/codespell
+    rev: ''
+    hooks:
+    -   id: codespell
+        args: ["-I", "codespell.txt"]

@@ -359,7 +359,7 @@ class Data(DFMD):
 
             d.sample_param(CT_bctaunutau=10)
 
-        For the ``bpoints`` and ``bpoint_slices`` syntax, see the documenation
+        For the ``bpoints`` and ``bpoint_slices`` syntax, see the documentation
         of :py:meth:`clusterking.data.Data.fix_param`.
         """
         fix_kwargs = {}

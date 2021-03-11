@@ -51,7 +51,7 @@ def handle_overwrite(paths, behavior, log):
         log: logging.Logger instance
 
     Returns:
-        True if overwrite will occurr, False otherwise.
+        True if overwrite will occur, False otherwise.
     """
     behavior = behavior.lower()
     if any([p.exists() for p in paths]):

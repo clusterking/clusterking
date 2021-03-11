@@ -19,7 +19,7 @@ from clusterking.util.log import get_logger
 from clusterking.plots.colors import ColorScheme
 
 # (*) This import line is not explicitly used, but do not remove it!
-# It is nescessary to load the 3d support!
+# It is necessary to load the 3d support!
 
 
 # fixme: Maybe not take _setup_all?
@@ -421,7 +421,7 @@ class ClusterPlot(object):
         ma = max(self.data.df[self._axis_columns[ax_no]].values)
         d = ma - mi
         if d == 0.0:
-            # Should only occurr during testing or in other edge cases
+            # Should only occur during testing or in other edge cases
             d = 1
         pad = stretch * d
         return mi - pad, ma + pad

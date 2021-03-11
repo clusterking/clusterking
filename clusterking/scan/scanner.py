@@ -312,7 +312,7 @@ class Scanner(DataWorker):
         # IMPORTANT to keep this order!
         self._coeffs = sorted(list(values.keys()))
 
-        # Nowe we collect all lists of values.
+        # Now we collect all lists of values.
         values_lists = [values[coeff] for coeff in self._coeffs]
         # Now we build the cartesian product, i.e.
         # [a1, a2, ...] x [b1, b2, ...] x ... x [z1, z2, ...] =
@@ -484,7 +484,7 @@ class Scanner(DataWorker):
             you will probably run into the error
             ``Can't pickle local object ...`` that is issued by the python
             multiprocessing module.
-            If you run into any probelms like this, you can always run in
+            If you run into any problems like this, you can always run in
             single core mode by specifying ``no_workes=1``.
 
         """

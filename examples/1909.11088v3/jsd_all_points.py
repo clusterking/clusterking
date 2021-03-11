@@ -50,9 +50,9 @@ def _get_binned_theoretical_chi2_distribution(
     return bin_contents
 
 
-
-def validate_point(dwe, index, n_toys=10000, hist_bins=40, plot=False,
-                   normalize=True):
+def validate_point(
+    dwe, index, n_toys=10000, hist_bins=40, plot=False, normalize=True
+):
     n = dwe.data()[index, :]
     cov = dwe.cov(relative=False)[index, :, :]
     toys = generate_toy_dataset(n=n, cov=cov, n_toys=n_toys)
@@ -61,7 +61,7 @@ def validate_point(dwe, index, n_toys=10000, hist_bins=40, plot=False,
     n_bins = n.size
     dof = n_bins - 1 if normalize else n_bins
     bins = np.linspace(0, 4, hist_bins)
-    ourvals, _ = np.histogram(chi2s / dof, bins=bins, )
+    ourvals, _ = np.histogram(chi2s / dof, bins=bins,)
     ourvals = ourvals / ourvals.sum()
 
     theo_expect = _get_binned_theoretical_chi2_distribution(
@@ -75,17 +75,13 @@ def validate_point(dwe, index, n_toys=10000, hist_bins=40, plot=False,
         fig, ax = plt.subplots()
         ax.step(
             bins,
-            np.hstack((0., theo_expect)),
+            np.hstack((0.0, theo_expect)),
             color="black",
             lw=1.5,
-            label=f"Theo $\chi^2_r/r$ with $r={dof}$"
+            label=rf"Theo $\chi^2_r/r$ with $r={dof}$",
         )
         ax.step(
-            bins,
-            np.hstack((0., ourvals)),
-            color="red",
-            lw=1.5,
-            label=f"Ours"
+            bins, np.hstack((0.0, ourvals)), color="red", lw=1.5, label="Ours"
         )
         ax.legend()
 
@@ -93,7 +89,10 @@ def validate_point(dwe, index, n_toys=10000, hist_bins=40, plot=False,
 
 
 def validate_all_points(dwe, **kwargs):
-    return [validate_point(dwe, index, **kwargs) for index in tqdm(range(len(dwe.df)))]
+    return [
+        validate_point(dwe, index, **kwargs)
+        for index in tqdm(range(len(dwe.df)))
+    ]
 
 
 def validate_and_save(dwe, path, force=False, **kwargs):

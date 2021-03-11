@@ -45,15 +45,33 @@ linestyles = ["solid", "dashed", "dashdot", (0, (3, 1, 1, 1, 1, 1))]
 
 fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
 for i, key in enumerate(["cosl_std", "cosv_std", "q2_basic"]):
-    ax[0].hist(results[key], label=key2label[key], density=False, histtype="step", lw=1.5, bins=20, ls=linestyles[i])
+    ax[0].hist(
+        results[key],
+        label=key2label[key],
+        density=False,
+        histtype="step",
+        lw=1.5,
+        bins=20,
+        ls=linestyles[i],
+    )
 _set_labels(ax[0])
 ax[0].set_xlim(None, 0.037)
 ax[0].legend(loc="upper right")
 for i, key in enumerate(["el_std1", "el_std2", "el_std3"]):
-    ax[1].hist(results[key], label=key2label[key], density=False, histtype="step", lw=1.5, bins=8, ls=linestyles[i])
+    ax[1].hist(
+        results[key],
+        label=key2label[key],
+        density=False,
+        histtype="step",
+        lw=1.5,
+        bins=8,
+        ls=linestyles[i],
+    )
 _set_labels(ax[1])
 ax[1].legend(loc="upper right")
 fig.suptitle(
-    r"Jenson-Shannon divergence (JSD) between generated distribution of $\chi^2_r/r$ and theory expectation")
+    r"Jenson-Shannon divergence (JSD) between generated distribution of "
+    r"$\chi^2_r/r$ and theory expectation"
+)
 
 fig.savefig("jsd_all.pdf")

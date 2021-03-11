@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+This plots the results of jsd_all_points.py
+
+Usage: python3 jsd_all_points.py
+"""
+
 # std
 from pathlib import Path
 

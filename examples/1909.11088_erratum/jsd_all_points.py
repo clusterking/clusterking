@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 
+""" This script takes the output files from ClusterKinG that corresponded to
+the results shown in the paper and performs toy experiments as described in
+Appendix C of 1909.11088v3.
+
+You will need to generate these output files first and put them in this
+directory.
+"""
+
+# std
 from pathlib import Path
 
+# 3rd
 import scipy.stats
 import scipy.spatial
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm
 
+# ours
 import clusterking as ck
 from clusterking.maths.metric import chi2
 
@@ -99,7 +110,8 @@ def validate_and_save(dwe, path, force=False, **kwargs):
 
 
 if __name__ == "__main__":
-    data_dir = Path("/home/klieret/Documents/20/git_sync/statistics_experiments/notebooks/clusterking_output/")
+    # Adapt this if your output files live somewhere else
+    data_dir = Path(".").resolve()
     assert data_dir.is_dir()
 
     d = ck.DataWithErrors(data_dir / "cosl.sql")

@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+Usage: python3 cutoff_values.py
+
+Generates the figure of cutoff value vs bins vs p value that corresponds
+to distinguishability.
+"""
 
 import matplotlib.pyplot as plt
 import scipy.stats

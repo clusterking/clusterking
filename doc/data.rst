@@ -6,17 +6,17 @@ Data
 ``DFMD``
 --------
 
-    .. autoclass:: DFMD
-        :members:
+.. autoclass:: DFMD
+    :members:
 
 ``Data``
 --------
 
-    .. autoclass:: Data
-        :members:
+.. autoclass:: Data
+    :members:
 
 ``DataWithErrors``
 ------------------
 
-    .. autoclass:: DataWithErrors
-        :members:
+.. autoclass:: DataWithErrors
+    :members:

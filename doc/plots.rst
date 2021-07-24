@@ -6,26 +6,26 @@ Plots
 ``ClusterPlot``
 ---------------
 
-    .. autoclass:: ClusterPlot
-        :members:
-        :undoc-members:
+.. autoclass:: ClusterPlot
+    :members:
+    :undoc-members:
 
 ``BundlePlot``
 ---------------
 
-    .. autoclass:: BundlePlot
-        :members:
-        :undoc-members:
+.. autoclass:: BundlePlot
+    :members:
+    :undoc-members:
 
 ``plot_histogram``
 ------------------
 
-    .. autofunction:: plot_histogram
+.. autofunction:: plot_histogram
 
 
 ``Colors``
 ----------
 
-    .. autoclass:: ColorScheme
-        :members:
-        :undoc-members:
+.. autoclass:: ColorScheme
+    :members:
+    :undoc-members:

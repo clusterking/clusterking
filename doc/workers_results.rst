@@ -26,23 +26,23 @@ workflow continues as
 ``Worker``
 ---------------------
 
-    .. autoclass:: AbstractWorker
-        :members:
-        :undoc-members:
+.. autoclass:: AbstractWorker
+    :members:
+    :undoc-members:
 
-    .. autoclass:: DataWorker
-        :members:
-        :undoc-members:
+.. autoclass:: DataWorker
+    :members:
+    :undoc-members:
 
 .. automodule:: clusterking.result
 
 ``Result``
 ---------------------
 
-    .. autoclass:: AbstractResult
-        :members:
-        :undoc-members:
+.. autoclass:: AbstractResult
+    :members:
+    :undoc-members:
 
-    .. autoclass:: DataResult
-        :members:
-        :undoc-members:
+.. autoclass:: DataResult
+    :members:
+    :undoc-members:

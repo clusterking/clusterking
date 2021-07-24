@@ -22,13 +22,13 @@ Stability Testers
 Figures of Merit
 ----------------
 
-    .. automodule:: clusterking.stability.fom
-        :members:
-        :undoc-members:
+.. automodule:: clusterking.stability.fom
+    :members:
+    :undoc-members:
 
 Preprocessors
 -------------
 
-    .. automodule:: clusterking.stability.preprocessor
-        :members:
-        :undoc-members:
+.. automodule:: clusterking.stability.preprocessor
+    :members:
+    :undoc-members:

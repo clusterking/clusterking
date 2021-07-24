@@ -1,0 +1,2 @@
+sphinx_rtd_theme
+git+git://github.com/clusterking/clusterking@master#egg=clusterking

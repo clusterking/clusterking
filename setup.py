@@ -79,7 +79,7 @@ extras_require = {
         "twine",
         "pre-commit",
         "sphinx",
-        "sphinx-book-theme",
+        "sphinx_book_theme",
         "coveralls",
     ],
 }

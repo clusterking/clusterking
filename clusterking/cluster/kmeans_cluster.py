@@ -13,7 +13,7 @@ class KmeansClusterResult(ClusterResult):
 
 
 class KmeansCluster(Cluster):
-    """ Kmeans clustering
+    """Kmeans clustering
     (`wikipedia <https://en.wikipedia.org/wiki/K-means_clustering>`_) as
     implemented in :mod:`sklearn.cluster`.
 
@@ -36,7 +36,7 @@ class KmeansCluster(Cluster):
         self.md = nested_dict()
 
     def set_kmeans_options(self, **kwargs) -> None:
-        """ Configure clustering algorithms.
+        """Configure clustering algorithms.
 
         Args:
             **kwargs: Keyword arguments to :func:`sklearn.cluster.KMeans`.

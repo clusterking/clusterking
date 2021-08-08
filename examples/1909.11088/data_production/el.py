@@ -27,7 +27,9 @@ s.set_dfunction(
     dGEl, binning=np.linspace(-bdlnu.Elmin, bdlnu.Elmaxval, 11), normalize=True
 )
 s.set_spoints_equidist(
-    {"p": (0, 1, 100),}
+    {
+        "p": (0, 1, 100),
+    }
 )
 s.set_no_workers(20)
 d = ck.Data()

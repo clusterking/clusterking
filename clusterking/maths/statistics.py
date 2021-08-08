@@ -7,7 +7,7 @@ import numpy as np
 
 
 def cov2err(cov):
-    """ Convert covariance matrix (or array of covariance matrices of equal
+    """Convert covariance matrix (or array of covariance matrices of equal
     shape) to error array (or array thereof).
 
     Args:
@@ -26,7 +26,7 @@ def cov2err(cov):
 
 
 def cov2corr(cov):
-    """ Convert covariance matrix (or array of covariance matrices of equal
+    """Convert covariance matrix (or array of covariance matrices of equal
     shape) to correlation matrix (or array thereof).
 
     Args:
@@ -46,7 +46,7 @@ def cov2corr(cov):
 
 
 def corr2cov(corr, err):
-    """ Convert correlation matrix (or array of covariance matrices of equal
+    """Convert correlation matrix (or array of covariance matrices of equal
     shape) together with error array (or array thereof) to covariance
     matrix (or array thereof).
 
@@ -68,7 +68,7 @@ def corr2cov(corr, err):
 
 
 def rel2abs_cov(cov, data):
-    """ Convert relative covariance matrix to absolute covariance matrix
+    """Convert relative covariance matrix to absolute covariance matrix
 
     Args:
         cov: n x nbins x nbins array
@@ -89,7 +89,7 @@ def rel2abs_cov(cov, data):
 
 
 def abs2rel_cov(cov, data):
-    """ Convert covariance matrix to relative covariance matrix
+    """Convert covariance matrix to relative covariance matrix
 
     Args:
         cov: n x nbins x nbins array

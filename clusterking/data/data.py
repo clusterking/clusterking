@@ -16,7 +16,7 @@ from clusterking.maths.metric_utils import (
 
 
 class Data(DFMD):
-    """ This class inherits from the :py:class:`~clusterking.data.DFMD`
+    """This class inherits from the :py:class:`~clusterking.data.DFMD`
     class and adds additional methods to it. It is the basic container,
     that contains
 
@@ -34,7 +34,7 @@ class Data(DFMD):
 
     @property
     def bin_cols(self) -> List[str]:
-        """ All columns that correspond to the bins of the
+        """All columns that correspond to the bins of the
         distribution. This is automatically read from the
         metadata as set in e.g. :meth:`clusterking.scan.Scanner.run`.
         """
@@ -44,7 +44,7 @@ class Data(DFMD):
 
     @property
     def par_cols(self) -> List[str]:
-        """ All columns that correspond to the parameters (e.g. Wilson
+        """All columns that correspond to the parameters (e.g. Wilson
         parameters). This is automatically read from the
         metadata as set in e.g. the
         :meth:`clusterking.scan.Scanner.run`.
@@ -53,17 +53,17 @@ class Data(DFMD):
 
     @property
     def n(self) -> int:
-        """ Number of points in parameter space that were sampled. """
+        """Number of points in parameter space that were sampled."""
         return len(self.df)
 
     @property
     def nbins(self) -> int:
-        """ Number of bins of the distribution. """
+        """Number of bins of the distribution."""
         return len(self.bin_cols)
 
     @property
     def npars(self) -> int:
-        """ Number of parameters that were sampled (i.e. number of dimensions
+        """Number of parameters that were sampled (i.e. number of dimensions
         of the sampled parameter space.
         """
         return len(self.par_cols)
@@ -71,7 +71,7 @@ class Data(DFMD):
     # todo: make not private?
     @property
     def _dist_xrange(self):
-        """ Return minimum and maximum of x axis of the distributions.
+        """Return minimum and maximum of x axis of the distributions.
         If not set, this will be 0 and number of bins.
         """
         binning = self.md["scan"]["dfunction"]["binning"]
@@ -86,8 +86,8 @@ class Data(DFMD):
 
     @property
     def _dist_vars(self):
-        """ Return name of variables on x axis and y axis of the
-        distribution. """
+        """Return name of variables on x axis and y axis of the
+        distribution."""
         xvar = self.md["scan"]["dfunction"]["xvar"]
         yvar = self.md["scan"]["dfunction"]["yvar"]
         if not xvar:
@@ -101,7 +101,7 @@ class Data(DFMD):
     # **************************************************************************
 
     def data(self, normalize=False) -> np.ndarray:
-        """ Returns all histograms as a large matrix.
+        """Returns all histograms as a large matrix.
 
         Args:
             normalize: Normalize all histograms
@@ -117,7 +117,7 @@ class Data(DFMD):
             return data
 
     def norms(self) -> np.ndarray:
-        """ Returns a vector of all normalizations of all histograms (where
+        """Returns a vector of all normalizations of all histograms (where
         each histogram corresponds to one sampled point in parameter space).
 
         Returns:
@@ -126,7 +126,7 @@ class Data(DFMD):
         return np.sum(self.data(), axis=1)
 
     def clusters(self, cluster_column="cluster") -> List[Any]:
-        """ Return list of all cluster names (unique)
+        """Return list of all cluster names (unique)
 
         Args:
             cluster_column: Column that contains the cluster names
@@ -143,7 +143,7 @@ class Data(DFMD):
 
     # todo: test me
     def get_param_values(self, param: Optional[Union[None, str]] = None):
-        """ Return all unique values of this parameter
+        """Return all unique values of this parameter
 
         Args:
             param: Name of parameter. If none is given, instead return a
@@ -163,7 +163,7 @@ class Data(DFMD):
     # **************************************************************************
 
     def only_bpoints(self, bpoint_column="bpoint", inplace=False):
-        """ Keep only the benchmark points as sample points.
+        """Keep only the benchmark points as sample points.
 
         Args:
             bpoint_column: benchmark point column (boolean)
@@ -182,7 +182,7 @@ class Data(DFMD):
             return new_obj
 
     def _bpoint_slices(self, bpoint_column="bpoint"):
-        """ See docstring of only_bpoint_slices. """
+        """See docstring of only_bpoint_slices."""
         bpoint_df = self.only_bpoints(bpoint_column=bpoint_column)
         return {param: bpoint_df.df[param].unique() for param in self.par_cols}
 
@@ -196,7 +196,7 @@ class Data(DFMD):
         bpoint_column="bpoint",
         **kwargs
     ):
-        """ Fix some parameter values to get a subset of sample points.
+        """Fix some parameter values to get a subset of sample points.
 
         Args:
             inplace: Modify this Data object instead of returning a new one
@@ -313,7 +313,7 @@ class Data(DFMD):
         inplace=False,
         **kwargs
     ):
-        """ Return a Data object that contains a subset of the sample points
+        """Return a Data object that contains a subset of the sample points
         (points in parameter space). Similar to Data.fix_param.
 
         Args:
@@ -392,7 +392,7 @@ class Data(DFMD):
     def sample_param_random(
         self, inplace=False, bpoints=False, bpoint_column="bpoint", **kwargs
     ):
-        """ Random subsampling in parameter space.
+        """Random subsampling in parameter space.
 
         Args:
             inplace: Modify this Data object instead of returning a new one
@@ -425,7 +425,7 @@ class Data(DFMD):
             self.df = self.df.append(bpoint_df)
 
     def find_closest_spoints(self, point: Dict[str, float], n=10) -> "Data":
-        """ Given a point in parameter space, find the closest sampling
+        """Given a point in parameter space, find the closest sampling
         points to it and return them as a :py:class:`Data` object with the
         corresponding subset of spoints.
         The order of the rows in the dataframe :py:attr:`Data.df` will be in
@@ -484,7 +484,7 @@ class Data(DFMD):
     def find_closest_bpoints(
         self, point: Dict[str, float], n=10, bpoint_column="bpoint"
     ):
-        """ Given a point in parameter space, find the closest benchmark
+        """Given a point in parameter space, find the closest benchmark
         points to it and return them as a :py:class:`Data` object with the
         corresponding subset of benchmark points.
         The order of the rows in the dataframe :py:attr:`Data.df` will be in
@@ -549,7 +549,7 @@ class Data(DFMD):
     # **************************************************************************
 
     def configure_variable(self, variable, axis_label=None):
-        """ Set additional information for variables, e.g. the variable on the
+        """Set additional information for variables, e.g. the variable on the
         x axis of the plots of the distribution or the parameters.
 
         Args:
@@ -575,7 +575,7 @@ class Data(DFMD):
     # todo: inplace?
     # fixme: perhaps don't allow new_column but rather give copy method
     def rename_clusters(self, arg=None, column="cluster", new_column=None):
-        """ Rename clusters based on either
+        """Rename clusters based on either
 
         1. A dictionary of the form ``{<old cluster name>: <new cluster name>}``
         2. A function that maps the old cluster name to the new cluster name
@@ -751,7 +751,7 @@ class Data(DFMD):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         fill_kwargs: Optional[Dict[str, Any]] = None,
     ):
-        """ Plot the minimum and maximum of each bin for the specified
+        """Plot the minimum and maximum of each bin for the specified
         clusters.
 
         Args:
@@ -969,7 +969,7 @@ class Data(DFMD):
         metric="euclidean",
         ax=None,
     ):
-        """ Plot the pairwise distances of all benchmark points.
+        """Plot the pairwise distances of all benchmark points.
 
         Args:
             cluster_column: Column with the cluster names (default 'cluster')

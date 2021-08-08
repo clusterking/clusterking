@@ -42,7 +42,7 @@ def yn_prompt(question: str, yes=None, no=None) -> bool:
 
 
 def handle_overwrite(paths, behavior, log):
-    """ Do we want to overwrite a file that exists?
+    """Do we want to overwrite a file that exists?
 
     Args:
         paths: List of pathlib.Paths

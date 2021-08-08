@@ -1,12 +1,12 @@
 repos:
 -   repo: https://github.com/python/black
-    rev: stable
+    rev: 21.7b0
     hooks:
     -   id: black
         args: ["-l", "80", "-t", "py34"]
 
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v4.0.1
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
@@ -15,15 +15,13 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 
--   repo: local
+-   repo: https://github.com/kynan/nbstripout
+    rev: 0.5.0
     hooks:
     -   id: nbstripout
-        name: nbstripout
-        description: Strip output from jupyter noteboooks
-        entry: nbstripout
-        language: system
 -   repo: https://github.com/codespell-project/codespell
-    rev: ''
+    rev: 'v2.1.0'
     hooks:
     -   id: codespell
         args: ["-I", "codespell.txt"]
+exclude: '.*\.sql'

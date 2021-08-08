@@ -8,7 +8,7 @@ from clusterking.scan.scanner import Scanner, SpointCalculator, ScannerResult
 
 
 class WpointCalculator(SpointCalculator):
-    """ A class that holds the function with which we calculate each
+    """A class that holds the function with which we calculate each
     point in wilson space.
     """
 
@@ -37,7 +37,7 @@ class WilsonScannerResult(ScannerResult):
 
 
 class WilsonScanner(Scanner):
-    """ Scans the NP parameter space in a grid and also in the kinematic
+    """Scans the NP parameter space in a grid and also in the kinematic
     variable.
 
     Usage example:
@@ -77,7 +77,7 @@ class WilsonScanner(Scanner):
     """
 
     def __init__(self, scale, eft, basis):
-        """ Initializes the :class:`clusterking.scan.WilsonScanner` class.
+        """Initializes the :class:`clusterking.scan.WilsonScanner` class.
 
         Args:
             scale: Wilson coeff input scale in GeV
@@ -94,7 +94,7 @@ class WilsonScanner(Scanner):
         self._spoint_calculator = WpointCalculator()
 
     def _set_wilson_format(self, scale, eft, basis):
-        """ Set scale, eft and basis of input wilson coefficients
+        """Set scale, eft and basis of input wilson coefficients
 
         Args:
             scale: Wilson coeff input scale in GeV
@@ -118,15 +118,15 @@ class WilsonScanner(Scanner):
 
     @property
     def scale(self):
-        """ Scale of the input wilson coefficients in GeV (read-only). """
+        """Scale of the input wilson coefficients in GeV (read-only)."""
         return self.md["spoints"]["scale"]
 
     @property
     def eft(self):
-        """  Wilson coefficient input EFT (read-only) """
+        """Wilson coefficient input EFT (read-only)"""
         return self.md["spoints"]["eft"]
 
     @property
     def basis(self):
-        """ Wilson coefficient input basis (read-only)"""
+        """Wilson coefficient input basis (read-only)"""
         return self.md["spoints"]["basis"]

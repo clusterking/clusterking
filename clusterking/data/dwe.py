@@ -77,7 +77,7 @@ class DataWithErrors(Data):
 
     @property
     def rel_cov(self):
-        """ Relative covariance matrix that will be later applied to the data
+        """Relative covariance matrix that will be later applied to the data
         (see class documentation).
 
         .. math::
@@ -107,7 +107,7 @@ class DataWithErrors(Data):
 
     @property
     def abs_cov(self):
-        """ Absolute covariance matrix that will be later applied to the data
+        """Absolute covariance matrix that will be later applied to the data
         (see class documentation).
 
         .. math::
@@ -137,7 +137,7 @@ class DataWithErrors(Data):
 
     @property
     def poisson_errors(self) -> bool:
-        """ Should poisson errors be added? """
+        """Should poisson errors be added?"""
         return self.md["errors"]["poisson"]
 
     @poisson_errors.setter
@@ -146,8 +146,7 @@ class DataWithErrors(Data):
 
     @property
     def poisson_errors_scale(self) -> float:
-        """ Scale poisson errors. See documentation of :meth:`add_err_poisson`.
-        """
+        """Scale poisson errors. See documentation of :meth:`add_err_poisson`."""
         return self.md["errors"]["poisson_scale"]
 
     @poisson_errors_scale.setter
@@ -159,7 +158,7 @@ class DataWithErrors(Data):
     # **************************************************************************
 
     def _interpret_input(self, inpt, what: str) -> np.ndarray:
-        """ Interpret user input
+        """Interpret user input
 
         Args:
             inpt: User input
@@ -193,7 +192,7 @@ class DataWithErrors(Data):
     # **************************************************************************
 
     def cov(self, relative=False) -> np.ndarray:
-        """ Return covariance matrix :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)`
+        """Return covariance matrix :math:`\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_j)`
 
         If no errors have been added, a zero matrix is returned.
 
@@ -229,7 +228,7 @@ class DataWithErrors(Data):
             return abs2rel_cov(cov, data)
 
     def corr(self) -> np.ndarray:
-        """ Return correlation matrix. If covariance matrix is empty (because
+        """Return correlation matrix. If covariance matrix is empty (because
         no errors have been added), a unit matrix is returned.
 
         Returns:
@@ -240,7 +239,7 @@ class DataWithErrors(Data):
         return cov2corr(self.cov())
 
     def err(self, relative=False) -> np.ndarray:
-        """ Return errors per bin, i.e.
+        """Return errors per bin, i.e.
         :math:`e_i^{(n)} = \\sqrt{\\mathrm{Cov}(d^{(n)}_i, d^{(n)}_i)}`
 
         Args:
@@ -259,7 +258,7 @@ class DataWithErrors(Data):
     # **************************************************************************
 
     def reset_errors(self) -> None:
-        """ Set all errors back to 0.
+        """Set all errors back to 0.
 
         Returns:
             None
@@ -274,7 +273,7 @@ class DataWithErrors(Data):
     # -------------------------------------------------------------------------
 
     def add_err_cov(self, cov) -> None:
-        """ Add error from covariance matrix.
+        """Add error from covariance matrix.
 
         Args:
             cov: ``self.n x self.nbins x self.nbins`` array of covariance
@@ -285,7 +284,7 @@ class DataWithErrors(Data):
         self.abs_cov += cov
 
     def add_err_corr(self, err, corr) -> None:
-        """ Add error from errors vector and correlation matrix.
+        """Add error from errors vector and correlation matrix.
 
         Args:
             err: ``self.n x self.nbins`` vector of errors for each data point

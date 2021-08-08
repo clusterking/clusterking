@@ -36,7 +36,7 @@ class Preprocessor(AbstractWorker):
         self._name = value
 
     def run(self, data1: Data, data2: Data) -> PreprocessorResult:
-        """ Run.
+        """Run.
 
         Args:
             data1: "original" :class:`~clusterking.data.data.Data` object
@@ -55,7 +55,7 @@ class ClusterMatcherResult(PreprocessorResult):
 
 
 class ClusterMatcher(Preprocessor):
-    """ Cluster names are arbitrary in general, i.e. when trying to compare
+    """Cluster names are arbitrary in general, i.e. when trying to compare
     two clustered datasets and trying to calculate a figure of merit, we have
     to match the names together.
     This is donen by this worker class.
@@ -80,7 +80,7 @@ class ClusterMatcher(Preprocessor):
 
 
 class TrivialClusterMatcher(ClusterMatcher):
-    """ Thus subclass of :class:`CCMatcher` maps cluster names from the
+    """Thus subclass of :class:`CCMatcher` maps cluster names from the
     first clustering to the cluster name of the second that maximizes
     the number of sample points that lie in the same cluster.
     It also only returns the intersection of the indizes of both Series.
@@ -115,7 +115,7 @@ class TrivialClusterMatcher(ClusterMatcher):
 
 
 class FirstComeFirstServe1DClusterMatcher(ClusterMatcher):
-    """ This subclass of :class:`CCMatcher` works only for 1D parameter spaces.
+    """This subclass of :class:`CCMatcher` works only for 1D parameter spaces.
     It simply sorts the first points of each cluster and enumerates them
     in order to get a unique name for each cluster."""
 

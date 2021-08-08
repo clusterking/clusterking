@@ -14,13 +14,13 @@ class AbstractResult(ABC):
 
 
 class DataResult(AbstractResult):
-    """ The result object represents the result of the execution of a
+    """The result object represents the result of the execution of a
     :class:`~clusterking.worker.Worker` object on the
     :class:`~clusterking.data.Data` object.
     """
 
     def __init__(self, data: Data):
-        """ Initializer of the object.
+        """Initializer of the object.
 
         .. note::
 
@@ -34,7 +34,7 @@ class DataResult(AbstractResult):
 
     @abstractmethod
     def write(self, *args, **kwargs):
-        """ Write relevant data back to the :class:`~clusterking.data.Data`
+        """Write relevant data back to the :class:`~clusterking.data.Data`
         object that was passed to :meth:`clusterking.worker.Worker.run`.
         """
         pass

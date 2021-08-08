@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 
 class AbstractWorker(ABC):
-    """ The AbstractWorker class represents an abstract operation on some data.
+    """The AbstractWorker class represents an abstract operation on some data.
 
     It provides a number of methods to allow for configuration.
 
@@ -21,12 +21,12 @@ class AbstractWorker(ABC):
 
     @abstractmethod
     def run(self, *args, **kwargs):
-        """ Run the operation. Must be implemented in subclass. """
+        """Run the operation. Must be implemented in subclass."""
         pass
 
 
 class DataWorker(AbstractWorker):
-    """ The worker class represents an operation on some data.
+    """The worker class represents an operation on some data.
 
     It provides a number of methods to allow for configuration.
 
@@ -42,5 +42,5 @@ class DataWorker(AbstractWorker):
 
     @abstractmethod
     def run(self, *args, **kwargs):
-        """ Run the operation. Must be implemented in subclass. """
+        """Run the operation. Must be implemented in subclass."""
         pass

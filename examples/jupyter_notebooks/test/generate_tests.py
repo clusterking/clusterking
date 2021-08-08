@@ -72,8 +72,8 @@ class TestGenerator(object):
 
 
 def test():
-    """ Small hack so that running testing also regenerates the 
-    test files. Even though """
+    """Small hack so that running testing also regenerates the
+    test files. Even though"""
     tg = TestGenerator()
     tg.generate_all()
 

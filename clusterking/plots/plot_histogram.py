@@ -121,7 +121,7 @@ def plot_hist_with_mean(
     draw_line=True,
     line_kwargs: Optional[Dict] = None,
 ):
-    """ Plot histogram together with a line that designates the mean.
+    """Plot histogram together with a line that designates the mean.
 
     Args:
         series: Anything that can be converted to `pandas.Series`

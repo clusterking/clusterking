@@ -15,7 +15,7 @@ from clusterking.util.log import get_logger
 
 # todo: docs
 class ColorScheme(object):
-    """ Class holding color scheme. We want to assign a unique color to every
+    """Class holding color scheme. We want to assign a unique color to every
     cluster and keep it consistent across different plots.
     Subclass and overwrite color lists to implement different schemes.
     """
@@ -25,7 +25,7 @@ class ColorScheme(object):
         clusters: Optional[List[int]] = None,
         colors: Optional[List[str]] = None,
     ):
-        """ Initialize `ColorScheme` object.
+        """Initialize `ColorScheme` object.
 
         Args:
             clusters: List of cluster names
@@ -68,7 +68,7 @@ class ColorScheme(object):
 
     @property
     def cluster_colors(self):
-        """ List of colors """
+        """List of colors"""
         return self._cluster_colors
 
     @cluster_colors.setter
@@ -76,7 +76,7 @@ class ColorScheme(object):
         self._cluster_colors = list(map(matplotlib.colors.to_rgba, value))
 
     def get_cluster_color(self, cluster: int):
-        """ Returns base color for cluster.
+        """Returns base color for cluster.
 
         Args:
             cluster: Name of cluster. Has to be in :attr:`clusters`
@@ -95,7 +95,7 @@ class ColorScheme(object):
         return self.cluster_colors[index % len(self.cluster_colors)]
 
     def to_colormap(self, name="MyColorMap"):
-        """ Returns colormap with color for each cluster. """
+        """Returns colormap with color for each cluster."""
         return matplotlib.colors.LinearSegmentedColormap.from_list(
             name, list(map(self.get_cluster_color, self.clusters))
         )
@@ -103,7 +103,7 @@ class ColorScheme(object):
     def faded_colormap(
         self, cluster: int, nlines: int, name="MyFadedColorMap", **kwargs
     ):
-        """ Returns colormap for one cluster, including the faded colors.
+        """Returns colormap for one cluster, including the faded colors.
 
         Args:
             cluster: Name of cluster
@@ -118,7 +118,7 @@ class ColorScheme(object):
         return matplotlib.colors.LinearSegmentedColormap.from_list(name, colors)
 
     def demo(self):
-        """ Plot the colors for all clusters.
+        """Plot the colors for all clusters.
 
         Returns:
             figure
@@ -127,7 +127,7 @@ class ColorScheme(object):
         return plt.imshow(z, cmap=self.to_colormap())
 
     def demo_faded(self, cluster: Optional[int] = None, nlines=10, **kwargs):
-        """ Plot the color shades for different lines corresponding to the same
+        """Plot the color shades for different lines corresponding to the same
         cluster
 
         Args:
@@ -149,7 +149,7 @@ class ColorScheme(object):
     def get_cluster_colors_faded(
         self, cluster: int, nlines: int, max_alpha=0.7, min_alpha=0.3
     ):
-        """ Shades of the base color, for cases where we want to draw multiple
+        """Shades of the base color, for cases where we want to draw multiple
         lines for one cluster
 
         Args:
@@ -169,7 +169,7 @@ class ColorScheme(object):
         return colors
 
     def get_err_color(self, cluster: int):
-        """ Get color for error shades.
+        """Get color for error shades.
 
         Args:
             cluster: Cluster name

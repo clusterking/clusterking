@@ -26,7 +26,7 @@ from clusterking.plots.colors import ColorScheme
 # todo: also have the 3d equivalent of ClusterPlot.fill (using voxels)
 # todo: option to disable legend
 class ClusterPlot(object):
-    """ Plot clusters in parameter space.
+    """Plot clusters in parameter space.
 
     After initialization, use the 'scatter' or 'fill' method for plotting.
 
@@ -107,7 +107,7 @@ class ClusterPlot(object):
 
     @property
     def fig(self):
-        """ The figure. """
+        """The figure."""
         return self._fig
 
     # ==========================================================================
@@ -120,7 +120,7 @@ class ClusterPlot(object):
 
     @property
     def figsize(self):
-        """ Figure size per subplot (width, height) """
+        """Figure size per subplot (width, height)"""
         if self.aspect_ratio is not None:
             aspect_ratio = self.aspect_ratio
         else:
@@ -145,23 +145,23 @@ class ClusterPlot(object):
 
     @property
     def _has_bpoints(self):
-        """ True if we have benchmark points. """
+        """True if we have benchmark points."""
         return self.bpoint_column in self.data.df.columns
 
     @property
     def _nsubplots(self):
-        """ Number of subplots. """
+        """Number of subplots."""
         # +1 to have space for legend!
         return max(1, len(self._df_dofs)) + int(self.draw_legend)
 
     @property
     def _ncols(self):
-        """ Number of columns of the subplot grid. """
+        """Number of columns of the subplot grid."""
         return min(self.max_cols, self._nsubplots)
 
     @property
     def _nrows(self):
-        """ Number of rows of the subplot grid. """
+        """Number of rows of the subplot grid."""
         # the ``int`` technically does not make a difference, but pycharm
         # thinks that ``ceil`` returns floats and therefore complains
         # otherwise
@@ -172,9 +172,9 @@ class ClusterPlot(object):
     # ==========================================================================
 
     def _find_dofs(self):
-        """ Find all parameters that are not axes on
+        """Find all parameters that are not axes on
         the plots and attain at least two different values.
-        These parameters are called the degrees of freedom (dofs). """
+        These parameters are called the degrees of freedom (dofs)."""
 
         dofs = []
         for col in self.data.par_cols:
@@ -185,7 +185,7 @@ class ClusterPlot(object):
         self._dofs = dofs
 
     def _sample_dofs(self):
-        """ For every dof, select values to be shown on it.
+        """For every dof, select values to be shown on it.
         Save this as the dataframe self._df_dofs"""
 
         if not self._dofs:
@@ -222,7 +222,7 @@ class ClusterPlot(object):
         self._df_dofs = df_dofs
 
     def _setup_subplots(self):
-        """ Set up the subplot grid"""
+        """Set up the subplot grid"""
 
         # 1. Initialize subplots
         # ----------------------
@@ -357,7 +357,7 @@ class ClusterPlot(object):
                 self._axli[isubplot].set_zlim(self._get_lims(2))
 
     def _plot_title(self, isubplot):
-        """ Return title for subplot
+        """Return title for subplot
 
         Args:
             isubplot: Index of subplot
@@ -408,7 +408,7 @@ class ClusterPlot(object):
         self._axli[self._nsubplots - 1].set_axis_off()
 
     def _get_lims(self, ax_no: int, stretch=0.1):
-        """ Get lower and upper limit of axis (including padding)
+        """Get lower and upper limit of axis (including padding)
 
         Args:
             ax_no: 0 for x-axis, 1 for y-axis etc.
@@ -427,7 +427,7 @@ class ClusterPlot(object):
         return mi - pad, ma + pad
 
     def _setup_all(self, cols: List[str], clusters=None) -> None:
-        """ Performs all setups.
+        """Performs all setups.
 
         Args:
             cols: Names of the columns to be on the plot axes
@@ -466,7 +466,7 @@ class ClusterPlot(object):
         self._setup_subplots()
 
     def _set_fill_colors(self, matrix: np.ndarray) -> np.ndarray:
-        """ A helper function for the fill method. Given a n x m matrix of
+        """A helper function for the fill method. Given a n x m matrix of
         cluster numbers, this returns a n x m x 3 matrix, where the last 3
         dimensions contain the rgb value of the color that this cluster
         should be colored with.
@@ -494,7 +494,7 @@ class ClusterPlot(object):
     # todo: **kwargs
     # todo: factor out the common part of scatter and fill into its own method?
     def scatter(self, cols: List[str], clusters=None, **kwargs):
-        """ Create scatter plot, specifying the columns to be on the axes of the
+        """Create scatter plot, specifying the columns to be on the axes of the
         plot. If 3 column are specified, 3D scatter plots
         are presented, else 2D plots. If the dataframe contains more columns,
         such that each row is not only specified by the columns on the axes,
@@ -571,7 +571,7 @@ class ClusterPlot(object):
 
     # todo: implement interpolation
     def fill(self, cols: List[str], kwargs_imshow=None):
-        """ Call this method with two column names, x and y. The results are
+        """Call this method with two column names, x and y. The results are
         similar to those of 2D scatter plots as created by the scatter
         method, except that the coloring is expanded to the whole xy plane.
         Note: This method only works with uniformly sampled NP!
@@ -623,6 +623,6 @@ class ClusterPlot(object):
     # ==========================================================================
 
     def savefig(self, *args, **kwargs):
-        """ Equivalent to ``ClusterPlot.fig.savefig(*args, **kwargs)``: Saves
-        figure to file, e.g. ``ClusterPlot.savefig("test.pdf")``. """
+        """Equivalent to ``ClusterPlot.fig.savefig(*args, **kwargs)``: Saves
+        figure to file, e.g. ``ClusterPlot.savefig("test.pdf")``."""
         self._fig.savefig(*args, **kwargs)

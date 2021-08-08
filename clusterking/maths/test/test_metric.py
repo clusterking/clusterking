@@ -86,7 +86,7 @@ def test_metric_symmetric(metric):
 def generate_toy_dataset(
     base_hist: np.ndarray, cov: np.ndarray, n_toys=1000
 ) -> np.ndarray:
-    """ Generate toy dataset around base_hist
+    """Generate toy dataset around base_hist
 
     Args:
         base_hist: Expectation value
@@ -127,7 +127,7 @@ def _get_binned_theoretical_chi2_distribution(
 @pytest.mark.parametrize("errors", ("statonly", "uncorrrel", "statrel"))
 @pytest.mark.parametrize("normalize", [True, False])
 def test_chi2_distribution(normalize, errors, varied):
-    """ Validate our chi2 implementation with toy experiments
+    """Validate our chi2 implementation with toy experiments
 
     Args:
         normalize: Compare normalized histograms?
@@ -192,7 +192,10 @@ def test_chi2_distribution(normalize, errors, varied):
             chi2s = chi2(toys, toys2, cov1, cov2, normalize=normalize)
 
             bins = np.linspace(0, 20, 30)
-            ourvals, _ = np.histogram(chi2s, bins=bins,)
+            ourvals, _ = np.histogram(
+                chi2s,
+                bins=bins,
+            )
             ourvals = ourvals / ourvals.sum()
 
             dof = n_bins - 1 if normalize else n_bins

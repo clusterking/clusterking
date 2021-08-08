@@ -15,7 +15,7 @@ from clusterking.stability.fom import FOM
 
 
 class StabilityTesterResult(AbstractResult):
-    """ Result of a :class:`AbstractStabilityTester` """
+    """Result of a :class:`AbstractStabilityTester`"""
 
 
 class SimpleStabilityTesterResult(AbstractResult):
@@ -24,14 +24,14 @@ class SimpleStabilityTesterResult(AbstractResult):
         self.df = df
 
     def write(self, path: Union[str, PurePath]) -> None:
-        """ Save to file. """
+        """Save to file."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         self.df.to_csv(path)
 
     @classmethod
     def load(cls, path: Union[str, PurePath]) -> "SimpleStabilityTesterResult":
-        """ Load :class:`SimpleStabilityTesterResult` from file.
+        """Load :class:`SimpleStabilityTesterResult` from file.
 
         Args:
             path: Path to result file
@@ -47,7 +47,7 @@ class SimpleStabilityTesterResult(AbstractResult):
 
 
 class AbstractStabilityTester(AbstractWorker):
-    """ Abstract baseclass to perform stability tests. This baseclass is
+    """Abstract baseclass to perform stability tests. This baseclass is
     a subclass of :class:`clusterking.worker.AbstractWorker` and thereby
     adheres to the Command design pattern: After initialization, several
     methods can be called to modify internal settings. Finally, the
@@ -65,7 +65,7 @@ class AbstractStabilityTester(AbstractWorker):
     """
 
     def __init__(self, exceptions="raise"):
-        """ Initialize :class:`AbstractStabilityTester`
+        """Initialize :class:`AbstractStabilityTester`
 
         Args:
             exceptions: When calculating the FOM, what should we do if an
@@ -77,7 +77,7 @@ class AbstractStabilityTester(AbstractWorker):
         self._exceptions_handling = exceptions
 
     def add_fom(self, fom: FOM) -> None:
-        """ Add a figure of merit (FOM).
+        """Add a figure of merit (FOM).
 
         Args:
             fom: :class:`~clusterking.stability.fom.FOM` object
@@ -96,7 +96,7 @@ class AbstractStabilityTester(AbstractWorker):
 
     @abstractmethod
     def run(self, *args, **kwargs) -> StabilityTesterResult:
-        """ Run the stability test.
+        """Run the stability test.
 
         Args:
             *args: Positional arguments

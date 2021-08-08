@@ -20,7 +20,7 @@ from clusterking.plots.colors import ColorScheme
 
 
 def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
-    """ Generate a list of n distinct (!) random integers.
+    """Generate a list of n distinct (!) random integers.
 
     Args:
         start: Minimum of index (start <= index)
@@ -44,8 +44,8 @@ def get_random_indizes(start: int, stop: int, n: int) -> List[int]:
 
 
 class BundlePlot(object):
-    """ Plotting class to plot distributions by cluster in order to analyse
-    which distributions get assigned to which cluster. """
+    """Plotting class to plot distributions by cluster in order to analyse
+    which distributions get assigned to which cluster."""
 
     def __init__(self, data):
         """
@@ -84,12 +84,12 @@ class BundlePlot(object):
 
     @property
     def fig(self):
-        """ Instance of matplotlib.pyplot.figure """
+        """Instance of matplotlib.pyplot.figure"""
         return self.ax.get_figure()
 
     @property
     def xrange(self):
-        """ Range of the xaxis """
+        """Range of the xaxis"""
         return self.data._dist_xrange
 
     @property
@@ -116,21 +116,21 @@ class BundlePlot(object):
 
     @property
     def _has_bpoints(self):
-        """ Do we have benchmark points? """
+        """Do we have benchmark points?"""
         return self.bpoint_column in self.data.df.columns
 
     @property
     def _has_clusters(self):
-        """ Do we have clustered data? """
+        """Do we have clustered data?"""
         return self.cluster_column in self.data.df.columns
 
     @property
     def _clusters(self):
-        """ Return array of all distinct clusters. """
+        """Return array of all distinct clusters."""
         return self.data.clusters(cluster_column=self.cluster_column)
 
     def _filter_clusters(self, clusters: Iterable[int]) -> List[int]:
-        """ Return list of existing clusters only. """
+        """Return list of existing clusters only."""
         clusters = list(set(clusters))
         selection = [c for c in clusters if c in self._clusters]
         removed = [c for c in clusters if c not in self._clusters]
@@ -144,7 +144,7 @@ class BundlePlot(object):
         return selection
 
     def _interpret_cluster_input(self, clusters=None) -> List[int]:
-        """ Flexible handling of user specifications for clusters.
+        """Flexible handling of user specifications for clusters.
 
         Args:
             clusters: Either None (all clusters) a single int (just that
@@ -176,7 +176,7 @@ class BundlePlot(object):
     def _get_df_cluster(
         self, cluster: Union[None, int], bpoint=None, bpoint_return_index=False
     ) -> pd.DataFrame:
-        """ Return only the rows corresponding to one cluster in the
+        """Return only the rows corresponding to one cluster in the
         dataframe and only the columns that correspond to the bins.
 
         Args:
@@ -226,7 +226,7 @@ class BundlePlot(object):
         return self._get_df_cluster_err_high(*args, **kwargs)
 
     def _set_ax(self, ax, title):
-        """ Set up axes. """
+        """Set up axes."""
         if len(self.data.df) == 0:
             raise ValueError(
                 "No data to plot. Please check if your dataframe contains "
@@ -285,7 +285,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         hist_kwargs_bp: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Main implementation of self.plot_bundles (private method).
+        """Main implementation of self.plot_bundles (private method).
         This method will be called for each cluster in self.plot_bundles.
 
         Args:
@@ -352,7 +352,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         hist_kwargs_bp: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Plot several examples of distributions for each cluster specified
+        """Plot several examples of distributions for each cluster specified
 
         Args:
             clusters: List of clusters to selected or single cluster.
@@ -465,7 +465,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Main implementation of self.plot_minmax.
+        """Main implementation of self.plot_minmax.
         This method will be called for each cluster in self.plot_minmax.
 
         Args:
@@ -516,7 +516,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Plot the minimum and maximum of each bin for the specified
+        """Plot the minimum and maximum of each bin for the specified
         clusters.
 
         Args:
@@ -573,7 +573,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         hist_fill_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Main implementation of :meth:`err_plot``
+        """Main implementation of :meth:`err_plot``
 
         Args:
             cluster: Name of cluster to be plotted or None if there are no
@@ -633,7 +633,7 @@ class BundlePlot(object):
         hist_kwargs: Optional[Dict[str, Any]] = None,
         hist_fill_kwargs: Optional[Dict[str, Any]] = None,
     ):
-        """ Plot distributions with errors.
+        """Plot distributions with errors.
 
         Args:
             clusters:  List of clusters to selected or single cluster.
@@ -696,7 +696,7 @@ class BundlePlot(object):
         boxplot_kwargs=None,
         hist_kwargs=None,
     ) -> None:
-        """ Main implementation of :meth:`box_plot`.
+        """Main implementation of :meth:`box_plot`.
         Gets called for every cluster specified in :meth:`box_plot`.
 
         Args:
@@ -758,7 +758,7 @@ class BundlePlot(object):
         boxplot_kwargs: Optional[Dict[str, Any]] = None,
         hist_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """ Box plot of the bin contents of the distributions corresponding
+        """Box plot of the bin contents of the distributions corresponding
         to selected clusters.
 
         Args:

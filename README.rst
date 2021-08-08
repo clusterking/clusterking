@@ -8,7 +8,7 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black|
+|Build Status| |Pre-commit| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black| |PR welcome|
 
 .. |Build Status| image::  https://github.com/clusterking/clusterking/workflows/testing/badge.svg
    :target: https://github.com/clusterking/clusterking/actions
@@ -40,6 +40,14 @@ Clustering of Kinematic Graphs
 .. |Black| image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/badges/png/black.png
    :target: https://github.com/python/black
    :alt: Black
+
+.. |Pre-commit| image:: https://results.pre-commit.ci/badge/github/clusterking/clusterking/master.svg
+   :target: https://results.pre-commit.ci/latest/github/klieret/icsc-paradigms-and-patterns/master
+   :alt: Pre-commit status
+
+.. |PR welcome| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg
+   :target: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
+   :alt: PR welcome
 
 .. start-body
 

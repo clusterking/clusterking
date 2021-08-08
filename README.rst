@@ -42,7 +42,7 @@ Clustering of Kinematic Graphs
    :alt: Black
 
 .. |Pre-commit| image:: https://results.pre-commit.ci/badge/github/clusterking/clusterking/master.svg
-   :target: https://results.pre-commit.ci/latest/github/klieret/icsc-paradigms-and-patterns/master
+   :target: https://results.pre-commit.ci/latest/github/clusterking/clusterking/master
    :alt: Pre-commit status
 
 .. |PR welcome| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg

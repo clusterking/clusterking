@@ -59,7 +59,7 @@ histograms (or other higher dimensional data) and to select benchmark points
 representing each cluster. The package particularly focuses on use cases in
 high energy physics.
 
-A physics use case has been demonstrated in JEHP ([arXiv](https://arxiv.org/abs/1909.11088), [doi](https://doi.org/10.1007/JHEP04(2020)007)).
+A physics use case has been demonstrated in JEHP (`arXiv <https://arxiv.org/abs/1909.11088>`_, `doi <https://doi.org/10.1007/JHEP04(2020)007>`_).
 
 Physics Case
 ------------

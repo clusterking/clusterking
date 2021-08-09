@@ -46,13 +46,6 @@ with (this_dir / "README.rst").open() as fh:
 with (this_dir / "clusterking" / "version.txt").open() as vf:
     version = vf.read()
 
-with (this_dir / "requirements.txt").open() as rf:
-    binder_requires = [
-        req.strip()
-        for req in rf.readlines()
-        if req.strip() and not req.startswith("#")
-    ]
-
 install_requires = [
     "pandas",
     "numpy",
@@ -84,23 +77,6 @@ extras_require = {
     ],
 }
 
-binder_additional = sorted(list(set(binder_requires) - set(install_requires)))
-binder_missing = sorted(list(set(install_requires) - set(binder_requires)))
-if binder_missing:
-    raise ValueError(
-        "The requirements given in setup.py don't match these given in"
-        " requirements.txt. Please check that you applied you changes to "
-        "both files.\n"
-        "requirements.txt misses the following dependencies: {}".format(
-            ", ".join(binder_missing)
-        )
-    )
-
-if binder_additional:
-    print(
-        "NOTE: requirements.txt has the following additional "
-        "dependencies: {}".format(", ".join(binder_additional))
-    )
 
 setup(
     name="clusterking",

@@ -4,18 +4,5 @@
 # Note: setup.py will also check (as a consistency check), that this list of
 # packages corresponds to the sum of its own lists, so make sure you keep both
 # files in sync!
-pandas
-numpy
-scipy
-gitpython
-nbconvert
-nbformat
-jupyter_client
-matplotlib
-sklearn
-colorlog
-ipykernel
-wilson<2.2
-tqdm
-sqlalchemy
 flavio
+clusterking[plotting]

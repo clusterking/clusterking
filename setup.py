@@ -28,7 +28,7 @@ keywords = [
     "hep-ml",
     "hep-ex",
     "hep-ph",
-    "wilson",
+    "wilson != 2.2",
 ]
 
 description = (

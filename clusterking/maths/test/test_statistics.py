@@ -15,8 +15,8 @@ from clusterking.util.testing import MyTestCase
 
 
 class TestStatistics(MyTestCase):
-    """ To test the conversion functions cov2err etc.
-    Subclassed for specific test cases """
+    """To test the conversion functions cov2err etc.
+    Subclassed for specific test cases"""
 
     def setUp(self):
         self.data = {

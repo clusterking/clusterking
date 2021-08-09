@@ -25,7 +25,7 @@ from clusterking.util.log import get_logger
 
 
 class NoisySampleStabilityTesterResult(SimpleStabilityTesterResult):
-    """ Result of :class:`NoisySampleStabilityTester`"""
+    """Result of :class:`NoisySampleStabilityTester`"""
 
     def __init__(self, df, samples=None, **kwargs):
         super().__init__(df)
@@ -43,7 +43,7 @@ class NoisySampleResult(AbstractResult):
         self.samples = samples  # type: List[Data]
 
     def write(self, directory: Union[str, PurePath], non_empty="add") -> None:
-        """ Write to output directory
+        """Write to output directory
 
         Args:
             directory: Path to directory
@@ -86,7 +86,7 @@ class NoisySampleResult(AbstractResult):
     def load(
         cls, directory: Union[str, PurePath], loader: Optional[Callable] = None
     ) -> "NoisySampleResult":
-        """ Load from output directory
+        """Load from output directory
 
         Args:
             directory: Path to directory to load from
@@ -120,7 +120,7 @@ class NoisySampleResult(AbstractResult):
 
 
 class NoisySample(AbstractWorker):
-    """ This stability test generates data samples with slightly varied
+    """This stability test generates data samples with slightly varied
     sample points (by adding
     :meth:`clusterking.scan.Scanner.add_spoints_noise`
     to a pre-configured :class:`clusterking.scan.Scanner` object)
@@ -165,7 +165,7 @@ class NoisySample(AbstractWorker):
     # **************************************************************************
 
     def set_repeat(self, repeat=10) -> None:
-        """ Set number of experiments.
+        """Set number of experiments.
 
         Args:
             repeat: Number of experiments
@@ -176,7 +176,7 @@ class NoisySample(AbstractWorker):
         self._repeat = repeat
 
     def set_noise(self, *args, **kwargs) -> None:
-        """ Configure noise, applied to the spoints in each experiment. See
+        """Configure noise, applied to the spoints in each experiment. See
         :meth:`clusterking.scan.Scanner.add_spoints_noise`.
 
         Args:
@@ -233,7 +233,7 @@ class NoisySample(AbstractWorker):
 
 
 class NoisySampleStabilityTester(AbstractStabilityTester):
-    """ This stability test generates data samples with slightly varied
+    """This stability test generates data samples with slightly varied
     sample points (by adding :meth:`clusterking.scan.Scanner.add_spoints_noise`
     to a pre-configured :class:`clusterking.scan.Scanner` object) and compares
     the resulting clusters and benchmark points.
@@ -257,7 +257,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
     """
 
     def __init__(self, *args, keep_samples=False, **kwargs):
-        """ Initialize :class:`NoisySampleStabilityTester`
+        """Initialize :class:`NoisySampleStabilityTester`
 
         Args:
             *args: Arguments passed on to
@@ -280,7 +280,7 @@ class NoisySampleStabilityTester(AbstractStabilityTester):
         cluster: Optional[Cluster] = None,
         benchmark: Optional[AbstractBenchmark] = None,
     ) -> NoisySampleStabilityTesterResult:
-        """ Run stability test.
+        """Run stability test.
 
         Args:
 

@@ -18,7 +18,7 @@ except ImportError:
 
 
 def nested_dict():
-    """ This is very clever and stolen from
+    """This is very clever and stolen from
     https://stackoverflow.com/questions/16724788/
     Use it to initialize a dictionary-like object which automatically adds
     levels.
@@ -33,7 +33,7 @@ def nested_dict():
 
 
 def turn_into_nested_dict(nested):
-    """ Turn a dictionary of dictionaries into a nested_dict default dict. """
+    """Turn a dictionary of dictionaries into a nested_dict default dict."""
     new = nested_dict()
     for key, value in nested.items():
         if isinstance(value, dict):
@@ -51,7 +51,7 @@ def version_info(log=None, path=None) -> Dict[str, str]:
 
 
 def get_git_info(log=None, path=None):
-    """ Return dictionary containing status of the git repository (commit hash,
+    """Return dictionary containing status of the git repository (commit hash,
     date etc.
 
     Args:
@@ -166,7 +166,7 @@ def failsafe_serialize(obj):
 
 
 def get_version():
-    """ Return ClusterKinG version. """
+    """Return ClusterKinG version."""
     version_path = pathlib.Path(__file__).parent.parent / "version.txt"
     with version_path.open("r") as version_file:
         version = version_file.read().strip()

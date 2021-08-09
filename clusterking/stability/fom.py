@@ -15,8 +15,8 @@ from clusterking.data.data import Data
 
 
 class FOMResult(AbstractResult):
-    """ Object containing the result of a Figure of Merit (FOM), represented
-    by a :class:`FOM` object. """
+    """Object containing the result of a Figure of Merit (FOM), represented
+    by a :class:`FOM` object."""
 
     def __init__(self, fom, name):
         super().__init__()
@@ -25,15 +25,15 @@ class FOMResult(AbstractResult):
 
 
 class FOM(AbstractWorker):
-    """ Figure of Merit, comparing the outcome of two experiments (e.g. the
-    clusters of two very similar datasets). """
+    """Figure of Merit, comparing the outcome of two experiments (e.g. the
+    clusters of two very similar datasets)."""
 
     def __init__(
         self,
         name: Optional[str] = None,
         preprocessor: Optional[Preprocessor] = None,
     ):
-        """ Initialize the FOM worker.
+        """Initialize the FOM worker.
 
         Args:
             name: Name of the FOM
@@ -48,7 +48,7 @@ class FOM(AbstractWorker):
 
     @property
     def name(self):
-        """ Name of the FOM """
+        """Name of the FOM"""
         if self._name is None:
             return str(type(self).__name__) + "_" + self._preprocessor.name
         return self._name
@@ -66,7 +66,7 @@ class FOM(AbstractWorker):
         self._preprocessor = preprocessor
 
     def run(self, data1: Data, data2: Data) -> FOMResult:
-        """ Calculate figure of merit.
+        """Calculate figure of merit.
 
         Args:
             data1: "original" :class:`~clusterking.data.data.Data` object
@@ -86,8 +86,8 @@ class FOM(AbstractWorker):
 
 # todo: add cluster column setting in init
 class CCFOM(FOM):
-    """ Cluster Comparison figure of merit (CCFOM), comparing whether the
-    clusters of two experiments match. """
+    """Cluster Comparison figure of merit (CCFOM), comparing whether the
+    clusters of two experiments match."""
 
     @abstractmethod
     def _fom(self, data1: Data, data2: Data):
@@ -95,7 +95,7 @@ class CCFOM(FOM):
 
 
 class MatchingClusters(CCFOM):
-    """ Fraction of sample points (spoints) that lie in the same cluster, when
+    """Fraction of sample points (spoints) that lie in the same cluster, when
     comparing two clustered datasets with the same number of sample points.
     """
 
@@ -107,7 +107,7 @@ class MatchingClusters(CCFOM):
 
 
 class DeltaNClusters(CCFOM):
-    """ Difference of number of clusters between two experiments
+    """Difference of number of clusters between two experiments
     (number of clusters in experiment 1 - number of lcusters in experiment 2).
     """
 
@@ -118,7 +118,7 @@ class DeltaNClusters(CCFOM):
 
 
 class NClusters(CCFOM):
-    """ Number of clusters in dataset 1 or 2"""
+    """Number of clusters in dataset 1 or 2"""
 
     def __init__(self, which, **kwargs):
         """
@@ -146,7 +146,7 @@ class NClusters(CCFOM):
 
 
 class BpointList(FOM):
-    """ Adds array of bpoint coordinates of data2 """
+    """Adds array of bpoint coordinates of data2"""
 
     def _fom(self, data1, data2) -> np.ndarray:
         return data2.df[data2.df["bpoint"] == True][data2.par_cols].to_numpy()
@@ -154,7 +154,7 @@ class BpointList(FOM):
 
 # todo: configure bpoint column
 class BMFOM(FOM):
-    """ **Abstract class**:
+    """**Abstract class**:
     Benchmark Figure of Merit (BMFOM), comparing whether the benchmark
     points of two experiments match.
     """
@@ -189,7 +189,7 @@ class BMFOM(FOM):
 
 
 class AverageBMProximityFOM(BMFOM):
-    """ Returns the average distance of benchmark points in parameter space
+    """Returns the average distance of benchmark points in parameter space
     between two experiments.
     """
 
@@ -205,7 +205,7 @@ class AverageBMProximityFOM(BMFOM):
     named_metric_fcts = _named_metric_fcts.keys()
 
     def __init__(self, *args, **kwargs):
-        """ Initialize the FOM worker.
+        """Initialize the FOM worker.
 
         Args:
             See :meth:`~clusterking.stability.fom.FOM.__init__`
@@ -216,7 +216,7 @@ class AverageBMProximityFOM(BMFOM):
 
     # todo: no, set this in __init__
     def set_averaging(self, fct: Union[str, Callable]) -> None:
-        """ Set averaging mode
+        """Set averaging mode
 
         Args:
             fct: Function of the distances between benchmark points of the same
@@ -232,7 +232,7 @@ class AverageBMProximityFOM(BMFOM):
             self._averaging = fct
 
     def set_metric(self, fct: Union[str, Callable]) -> None:
-        """ Set metric in parameter space
+        """Set metric in parameter space
 
         Args:
             fct: Function of a tuple of two points in parameter space or name

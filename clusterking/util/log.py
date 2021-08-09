@@ -20,12 +20,12 @@ def get_logger(name="Logger", level=logging.WARNING, sh_level=logging.WARNING):
     otherwise it will be in b/w. The colorlog module is available at
     https://github.com/borntyping/python-colorlog but can also easily be
     installed with e.g. 'sudo pip3 colorlog' or similar commands.
-    
+
     Args:
         name: name of the logger
         level: General logging level
         sh_level: Logging level of stream handler
-    
+
     Returns:
         Logger
     """

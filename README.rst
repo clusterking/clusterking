@@ -8,7 +8,7 @@
 Clustering of Kinematic Graphs
 ==============================
 
-|Build Status| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black|
+|Build Status| |Pre-commit| |Coveralls| |Doc Status| |Pypi status| |Binder| |Chat| |License| |Black| |PR welcome|
 
 .. |Build Status| image::  https://github.com/clusterking/clusterking/workflows/testing/badge.svg
    :target: https://github.com/clusterking/clusterking/actions
@@ -41,6 +41,14 @@ Clustering of Kinematic Graphs
    :target: https://github.com/python/black
    :alt: Black
 
+.. |Pre-commit| image:: https://results.pre-commit.ci/badge/github/clusterking/clusterking/master.svg
+   :target: https://results.pre-commit.ci/latest/github/clusterking/clusterking/master
+   :alt: Pre-commit status
+
+.. |PR welcome| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg
+   :target: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
+   :alt: PR welcome
+
 .. start-body
 
 Description
@@ -51,7 +59,7 @@ histograms (or other higher dimensional data) and to select benchmark points
 representing each cluster. The package particularly focuses on use cases in
 high energy physics.
 
-A physics use case has been demonstrated in https://arxiv.org/abs/1909.11088.
+A physics use case has been demonstrated in JEHP (`arXiv <https://arxiv.org/abs/1909.11088>`_, `doi <https://doi.org/10.1007/JHEP04(2020)007>`_).
 
 Physics Case
 ------------
@@ -93,9 +101,8 @@ More options and troubleshooting advice is given in the `documentation <https://
 Caveats
 -------
 
-* Version 1.0.0 contained several mistakes in the chi2 metric. Please make sure
-  that you are at least using version 1.1.0. These mistakes were also found in
-  the `paper <https://arxiv.org/abs/1909.11088>`_ and will be fixed soon.
+* Version 1.0.0 contained mistakes in the implementation of the chi2 metric. Please make sure
+  that you are at least using version 1.1.0.
 
 Usage and Documentation
 -----------------------
@@ -233,7 +240,7 @@ License & Contributing
 This project is ongoing work and questions_, comments,
 `bug reports`_ or `pull requests`_ are most welcome. You can also use the chat
 room on gitter_ or contact us via email_.
-We are also working on a paper, so please make sure to cite us once we publish.
+Please cite our paper when you are using our software.
 
 .. _email: mailto:clusterkinematics@gmail.com
 .. _gitter: https://gitter.im/clusterking/community

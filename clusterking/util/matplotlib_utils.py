@@ -2,7 +2,7 @@
 
 
 def import_matplotlib():
-    """ Tries to import matplotlib, printing help message if it fails. """
+    """Tries to import matplotlib, printing help message if it fails."""
     try:
         import matplotlib
     except ImportError:
@@ -19,7 +19,7 @@ def import_matplotlib():
 
 
 def check_matplot_inline():
-    """ Return true, if running matplotlib inline."""
+    """Return true, if running matplotlib inline."""
     import matplotlib
 
     return "inline" in matplotlib.get_backend()

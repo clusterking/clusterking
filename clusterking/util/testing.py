@@ -20,9 +20,9 @@ ENV_VAR_TESTING_MODE = "CLUSTERKING_TESTMODE"
 def set_testing_mode(testing_mode: bool) -> None:
     """
     Set an environment variable signalling if we are in testing mode.
-    
+
     Args:
-        testing_mode (bool): True if we are in testing mode 
+        testing_mode (bool): True if we are in testing mode
 
     Returns:
         None
@@ -48,8 +48,8 @@ def is_testing_mode():
 
 
 def test_jupyter_notebook(path) -> None:
-    """ Runs jupyter notebook. A ValueError is raised if the file was 
-    not found. """
+    """Runs jupyter notebook. A ValueError is raised if the file was
+    not found."""
     set_testing_mode(True)
     path = pathlib.Path(path)
     if not path.exists():
@@ -66,7 +66,7 @@ def test_jupyter_notebook(path) -> None:
 
 
 class MyTestCase(unittest.TestCase):
-    """ Implements an additional general testing methods. """
+    """Implements an additional general testing methods."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,7 +74,7 @@ class MyTestCase(unittest.TestCase):
         set_global_log_level(logging.WARNING)
 
     def assertAllClose(self, a, b):
-        """ Compares two numpy arrays """
+        """Compares two numpy arrays"""
         if not isinstance(a, np.ndarray):
             a = np.array(a)
         if not isinstance(b, np.ndarray):

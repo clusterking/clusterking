@@ -30,7 +30,7 @@ from clusterking.result import DataResult
 
 
 class SpointCalculator(object):
-    """ A class that holds the function with which we calculate each
+    """A class that holds the function with which we calculate each
     point in sample space. Note that this has to be a separate class from
     Scanner to avoid problems related to multiprocessing's use of the pickle
     library, which are described here:
@@ -132,7 +132,7 @@ class Scanner(DataWorker):
     # **************************************************************************
 
     def __init__(self):
-        """ Initializes the :class:`clusterking.scan.Scanner` class. """
+        """Initializes the :class:`clusterking.scan.Scanner` class."""
         super().__init__()
         # todo: move
         self.log = get_logger("Scanner")
@@ -167,19 +167,19 @@ class Scanner(DataWorker):
 
     @property
     def imaginary_prefix(self) -> str:
-        """ Prefix for the name of imaginary parts of coefficients.
+        """Prefix for the name of imaginary parts of coefficients.
         Also see e.g. :meth:`.set_spoints_equidist`. Read only.
         """
         return self.md["imaginary_prefix"]
 
     @property
     def spoints(self):
-        """ Points in parameter space that are sampled (read-only)."""
+        """Points in parameter space that are sampled (read-only)."""
         return self._spoints
 
     @property
     def coeffs(self):
-        """ The name of the parameters/coefficients/dimensions of the spoints
+        """The name of the parameters/coefficients/dimensions of the spoints
         (read only).
         Set after spoints are set.
         Does **not** include the names of the columns of the imaginary parts.
@@ -191,7 +191,7 @@ class Scanner(DataWorker):
     # **************************************************************************
 
     def set_progress_bar(self, show: bool, **kwargs) -> None:
-        """ Settings for progress bar
+        """Settings for progress bar
 
         Args:
             show: Show progress bar?
@@ -213,7 +213,7 @@ class Scanner(DataWorker):
         yvar="yvar",
         **kwargs
     ):
-        """ Set the function that generates the distributions that are later
+        """Set the function that generates the distributions that are later
         clustered (e.g. a differential cross section).
 
         Args:
@@ -290,7 +290,7 @@ class Scanner(DataWorker):
         self._spoint_calculator.kwargs = kwargs
 
     def set_spoints_grid(self, values: Dict[str, Iterable[float]]) -> None:
-        """ Set a grid of points in sampling space.
+        """Set a grid of points in sampling space.
 
         Args:
             values: A dictionary of the following form:
@@ -322,7 +322,7 @@ class Scanner(DataWorker):
         self.md["spoints"]["grid"] = failsafe_serialize(values)
 
     def set_spoints_equidist(self, ranges: Dict[str, tuple]) -> None:
-        """ Set a list of 'equidistant' points in sampling space.
+        """Set a list of 'equidistant' points in sampling space.
 
         Args:
             ranges: A dictionary of the following form:
@@ -410,7 +410,7 @@ class Scanner(DataWorker):
 
     # todo: Apply to only one dimension?
     def add_spoints_noise(self, generator="gauss", **kwargs) -> None:
-        """ Add noise to existing sample points.
+        """Add noise to existing sample points.
 
         Args:
             generator: Random number generator. Default is ``gauss``.
@@ -441,7 +441,7 @@ class Scanner(DataWorker):
         self._spoints += rand
 
     def set_no_workers(self, no_workers: int) -> None:
-        """ Set the number of worker processes to be used. This will usually
+        """Set the number of worker processes to be used. This will usually
         translate to the number of CPUs being used.
 
         Args:
@@ -453,7 +453,7 @@ class Scanner(DataWorker):
         self._no_workers = no_workers
 
     def set_imaginary_prefix(self, value: str) -> None:
-        """ Set prefix to be used for imaginary parameters in
+        """Set prefix to be used for imaginary parameters in
         :meth:`set_spoints_grid` and :meth:`set_spoints_equidist`.
 
         Args:
@@ -536,7 +536,7 @@ class Scanner(DataWorker):
 
     # todo: shouldn't this rather return numpy arrays than List2
     def _run_multicore(self, no_workers: int) -> List[List[float]]:
-        """ Calculate spoints in parallel processing mode.
+        """Calculate spoints in parallel processing mode.
 
         Args:
             no_workers: Number of workers.
@@ -589,7 +589,7 @@ class Scanner(DataWorker):
 
     # todo: shouldn't this rather return numpy arrays than List2
     def _run_singlecore(self) -> List[List[float]]:
-        """ Calculate spoints in single core processing mode. This is sometimes
+        """Calculate spoints in single core processing mode. This is sometimes
         useful because multiprocessing has its quirks.
 
         Returns:
@@ -639,19 +639,19 @@ class ScannerResult(DataResult):
 
     @property
     def imaginary_prefix(self) -> str:
-        """ Prefix for the name of imaginary parts of coefficients.
+        """Prefix for the name of imaginary parts of coefficients.
         Also see e.g. :meth:`.set_spoints_equidist`. Read only.
         """
         return self.md["imaginary_prefix"]
 
     @property
     def spoints(self):
-        """ Points in parameter space that are sampled (read-only)."""
+        """Points in parameter space that are sampled (read-only)."""
         return self._spoints
 
     @property
     def coeffs(self):
-        """ The name of the parameters/coefficients/dimensions of the spoints
+        """The name of the parameters/coefficients/dimensions of the spoints
         (read only).
         Set after spoints are set.
         Does **not** include the names of the columns of the imaginary parts.

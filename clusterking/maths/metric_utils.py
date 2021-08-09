@@ -14,7 +14,7 @@ import numpy as np
 
 
 def condense_distance_matrix(matrix):
-    """ Convert a square-form distance matrix  to a vector-form distance vector
+    """Convert a square-form distance matrix  to a vector-form distance vector
 
     Args:
         matrix: n x n symmetric matrix with 0 diagonal
@@ -31,7 +31,7 @@ def condense_distance_matrix(matrix):
 
 
 def uncondense_distance_matrix(vector):
-    """ Convert a vector-form distance vector to a square-form distance matrix
+    """Convert a vector-form distance vector to a square-form distance matrix
 
     Args:
         vector: n choose 2 vector
@@ -43,7 +43,7 @@ def uncondense_distance_matrix(vector):
 
 
 def metric_selection(*args, **kwargs) -> Callable:
-    """ Select a metric in one of the following ways:
+    """Select a metric in one of the following ways:
 
     1. If no positional arguments are given, we choose the euclidean metric.
     2. If the first positional argument is string, we pick one of the metrics

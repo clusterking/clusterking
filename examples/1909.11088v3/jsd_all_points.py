@@ -61,7 +61,10 @@ def validate_point(
     n_bins = n.size
     dof = n_bins - 1 if normalize else n_bins
     bins = np.linspace(0, 4, hist_bins)
-    ourvals, _ = np.histogram(chi2s / dof, bins=bins,)
+    ourvals, _ = np.histogram(
+        chi2s / dof,
+        bins=bins,
+    )
     ourvals = ourvals / ourvals.sum()
 
     theo_expect = _get_binned_theoretical_chi2_distribution(

@@ -24,7 +24,7 @@ class BenchmarkResult(AbstractBenchmarkResult):
 
 
 class Benchmark(AbstractBenchmark):
-    """ Selecting benchmarks based on a figure of merit that is calculated
+    """Selecting benchmarks based on a figure of merit that is calculated
     with the metric. You have to use
     :py:meth:`~clusterking.bpoints.Benchmark.set_metric` to specify
     the metric (as for the :py:class:`~clusterking.cluster.HierarchyCluster`
@@ -58,7 +58,7 @@ class Benchmark(AbstractBenchmark):
     set_metric.__doc__ = metric_selection.__doc__
 
     def set_fom(self, fct: Callable, *args, **kwargs) -> None:
-        """ Set a figure of merit. The default case for the figure of merit (
+        """Set a figure of merit. The default case for the figure of merit (
         "sum") chooses the point as benchmark point that minimizes the sum of
         all distances to all other points in the same cluster (where
         "distance" of course is with respect to the metric). In general we

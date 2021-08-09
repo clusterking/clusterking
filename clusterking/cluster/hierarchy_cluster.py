@@ -27,13 +27,12 @@ class HierarchyClusterResult(ClusterResult):
 
     @property
     def worker_id(self):
-        """ ID of the HierarchyCluster worker that generated this object. """
+        """ID of the HierarchyCluster worker that generated this object."""
         return self._worker_id
 
     @property
     def data_id(self) -> int:
-        """ ID of the data object that the HierarchyCluster worker was run on.
-        """
+        """ID of the data object that the HierarchyCluster worker was run on."""
         return id(self._data)
 
     def dendrogram(
@@ -119,14 +118,14 @@ class HierarchyCluster(Cluster):
 
     @property
     def max_d(self) -> Optional[float]:
-        """ Cutoff value set in :meth:`set_max_d`. """
+        """Cutoff value set in :meth:`set_max_d`."""
         return self.md["max_d"]
 
     @property
     def metric(self) -> Callable:
-        """ Metric that was set in :meth:`set_metric`
+        """Metric that was set in :meth:`set_metric`
         (Function that takes Data object as only parameter and
-        returns a reduced distance matrix.) """
+        returns a reduced distance matrix.)"""
         return self._metric
 
     # Docstring set below
@@ -139,7 +138,7 @@ class HierarchyCluster(Cluster):
 
     # todo: should be at least properties
     def set_hierarchy_options(self, method="complete", optimal_ordering=False):
-        """ Configure hierarchy building
+        """Configure hierarchy building
 
         Args:
             method: See reference on :class:`scipy.cluster.hierarchy.linkage`
@@ -152,7 +151,7 @@ class HierarchyCluster(Cluster):
         md["optimal_ordering"] = optimal_ordering
 
     def _build_hierarchy(self, data):
-        """ Builds hierarchy using :class:`scipy.cluster.hierarchy.linkage` """
+        """Builds hierarchy using :class:`scipy.cluster.hierarchy.linkage`"""
 
         if self._metric is None:
             msg = (
@@ -176,7 +175,7 @@ class HierarchyCluster(Cluster):
         return hierarchy
 
     def set_max_d(self, max_d) -> None:
-        """ Set the cutoff value of the hierarchy that then gives the clusters.
+        """Set the cutoff value of the hierarchy that then gives the clusters.
         This corresponds to the ``t`` argument of
         :class:`scipy.cluster.hierarchy.fcluster`.
 
@@ -189,7 +188,7 @@ class HierarchyCluster(Cluster):
         self.md["max_d"] = max_d
 
     def set_fcluster_options(self, **kwargs) -> None:
-        """ Set additional keyword options for our call to
+        """Set additional keyword options for our call to
         ``scipy.cluster.hierarchy.fcluster``.
 
         Args:

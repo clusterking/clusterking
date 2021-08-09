@@ -24,7 +24,7 @@ class SubSampleStabilityTesterResult(SimpleStabilityTesterResult):
 
 
 class SubSampleStabilityTester(AbstractStabilityTester):
-    """ Test the stability of clustering algorithms by repeatedly
+    """Test the stability of clustering algorithms by repeatedly
     clustering subsamples of data.
 
     Example:
@@ -69,7 +69,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
     # **************************************************************************
 
     def set_sampling(self, **kwargs) -> None:
-        """ Configure the subsampling of the data. If performing
+        """Configure the subsampling of the data. If performing
         benchmarking, it is ensured that none of the benchmark points of the
         original dataframe are removed during subsampling (to allow to
         compare the benchmarking results).
@@ -104,7 +104,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         self._repeat = repeat
 
     def set_progress_bar(self, state=True) -> None:
-        """ Set or unset progress bar.
+        """Set or unset progress bar.
 
         Args:
             state: Bool: Display progress bar?
@@ -124,7 +124,7 @@ class SubSampleStabilityTester(AbstractStabilityTester):
         cluster: Cluster,
         benchmark: Optional[AbstractBenchmark] = None,
     ) -> SubSampleStabilityTesterResult:
-        """ Run test.
+        """Run test.
 
         Args:
             data: :class:`~clusterking.data.Data` object
@@ -176,7 +176,7 @@ class SubSampleStabilityVsFractionResult(SimpleStabilityTesterResult):
 
 
 class SubSampleStabilityVsFraction(object):
-    """ Repeatedly run :class:`SubSampleStabilityTester` for different
+    """Repeatedly run :class:`SubSampleStabilityTester` for different
     fractions.
     """
 

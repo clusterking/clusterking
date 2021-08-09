@@ -21,8 +21,7 @@ class AbstractBenchmark(DataWorker):
     """
 
     def __init__(self):
-        """
-        """
+        """ """
         super().__init__()
         self.bpoints = None
         self.md = nested_dict()
@@ -38,8 +37,8 @@ class AbstractBenchmark(DataWorker):
     # **************************************************************************
 
     def set_cluster_column(self, column="cluster"):
-        """ St the column of the dataframe of the :class:`~clusterking.data.Data`
-        object that contains the cluster information. """
+        """St the column of the dataframe of the :class:`~clusterking.data.Data`
+        object that contains the cluster information."""
         self.md["cluster_column"] = column
 
     # **************************************************************************
@@ -58,7 +57,7 @@ class AbstractBenchmarkResult(DataResult):
         self._md = md
 
     def write(self, bpoint_column="bpoint") -> None:
-        """ Write benchmark points to a column in the dataframe of the data
+        """Write benchmark points to a column in the dataframe of the data
         object.
 
         Args:

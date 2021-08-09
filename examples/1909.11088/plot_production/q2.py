@@ -58,7 +58,9 @@ if (output_dir / "q2_clust_yield_x.npy").is_file():
     y2 = np.load(output_dir / "q2_clust_yield_y2.npy")
     y3 = np.load(output_dir / "q2_clust_yield_y3.npy")
 else:
-    x, y1 = plot(5000,)
+    x, y1 = plot(
+        5000,
+    )
     np.save(output_dir / "q2_clust_yield_x", x)
     np.save(output_dir / "q2_clust_yield_y1", y1)
     _, y2 = plot(5000, rel_err=0.015)

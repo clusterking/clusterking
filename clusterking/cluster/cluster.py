@@ -18,7 +18,7 @@ from clusterking.result import DataResult
 
 
 class Cluster(DataWorker):
-    """ Abstract baseclass of the Cluster classes. This class is subclassed to
+    """Abstract baseclass of the Cluster classes. This class is subclassed to
     implement specific clustering algorithms and defines common functions.
     """
 
@@ -41,7 +41,7 @@ class Cluster(DataWorker):
 
     @abstractmethod
     def run(self, data, **kwargs):
-        """ Implementation of the clustering. Should return an array-like object
+        """Implementation of the clustering. Should return an array-like object
         with the cluster number.
         """
         pass
@@ -62,8 +62,8 @@ class ClusterResult(DataResult):
             return pd.Series(self._clusters, index=self._data.df.index)
 
     def write(self, cluster_column="cluster"):
-        """ Write results back in the :py:class:`~clusterking.data.Data`
-        object. """
+        """Write results back in the :py:class:`~clusterking.data.Data`
+        object."""
         self._data.df[cluster_column] = self._clusters
         self._data.md["cluster"][cluster_column] = self._md
         self._data.rename_clusters(column=cluster_column)

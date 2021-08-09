@@ -18,7 +18,7 @@ from clusterking.util.cli import handle_overwrite
 
 
 class DFMD(object):
-    """ DFMD = DataFrame with MetaData.
+    """DFMD = DataFrame with MetaData.
     This class bundles a pandas dataframe together with metadata and
     provides methods to save and load such an object.
     """
@@ -72,7 +72,7 @@ class DFMD(object):
     # **************************************************************************
 
     def _load(self, path: Union[str, PurePath]) -> None:
-        """ Load input file as created by
+        """Load input file as created by
         :py:meth:`~clusterking.data.DFMD.write`.
 
         Args:
@@ -95,7 +95,7 @@ class DFMD(object):
     # **************************************************************************
 
     def write(self, path: Union[str, PurePath], overwrite="ask"):
-        """ Write output files.
+        """Write output files.
 
         Args:
             path: Path to output file
@@ -122,7 +122,7 @@ class DFMD(object):
         md_df.to_sql("md", engine, if_exists="replace")
 
     def copy(self, deep=True, data=True, memo=None):
-        """ Make a copy of this object.
+        """Make a copy of this object.
 
         Args:
             deep: Make a deep copy (default True). If this is disabled, any

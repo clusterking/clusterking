@@ -28,7 +28,7 @@ keywords = [
     "hep-ml",
     "hep-ex",
     "hep-ph",
-    "wilson != 2.2",
+    "wilson",
 ]
 
 description = (
@@ -53,7 +53,7 @@ install_requires = [
     "gitpython",
     "sklearn",
     "colorlog",
-    "wilson",
+    "wilson != 2.2",
     "tqdm",
     "sqlalchemy",
 ]

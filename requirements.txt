@@ -15,7 +15,7 @@ matplotlib
 sklearn
 colorlog
 ipykernel
-wilson
+wilson<2.2
 tqdm
 sqlalchemy
 flavio

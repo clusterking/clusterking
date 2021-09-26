@@ -126,6 +126,34 @@ For additional examples, presentations and more, you can also head to our `other
 
 .. _other repositories: https://github.com/clusterking
 
+Three steps
+-----------
+
+The clustering workflow usually contains three steps:
+
+1. *Scanning*: Kinematic distributions are generated for each point in the parameter space
+2. *Clustering*: The parameter points that correspond to "similar" kinematic distributions are clustered together
+3. *Benchmarking*: For each cluster, one parameter point is picked as "most representative" point based on the similarity of the kinematic distributions
+
+This is illustrated in the following picture:
+
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/three_steps.png
+
+Let's walk through the three steps:
+
+1. *Scanning*: We have a two dimensional parameter space with parameters ``p`` and ``q``.
+   Taking three values each, we get a grid of nine different ``(p, q)`` points.
+   For each of these points in the parameter space, we generate the corresponding kinematic
+   distribution.
+2. *Clustering*: We can see that there are three different "types" of kinematic distributions.
+   The "squiggly ones" (red), the "straight ones" (yellow) and the "parabola like ones" (green).
+   We expect that the specimen of each type get put in the same cluster.
+3. *Benchmarking*: Finally one of the parameter points/kinematic distributions from each
+   cluster is chosen as representative one. For the yellow cluster, there is a completely straight
+   line, one that slightly curves downward and one that slightly curves upward. One might argue
+   that the completely straight line is most representative because it minimizes e.g. the sum of
+   distances (or the maximum distance) to the other two.
+
 Example
 -------
 

@@ -126,6 +126,17 @@ For additional examples, presentations and more, you can also head to our `other
 
 .. _other repositories: https://github.com/clusterking
 
+Three steps
+-----------
+
+The clustering workflow usually contains three steps:
+
+1. *Scanning*: Kinematic distributions are generated for each point in the parameter space
+2. *Clustering*: The parameter points that correspond to "similar" kinematic distributions are clustered together
+3. *Benchmarking*: For each cluster, one parameter point is picked as "most representative" point based on the similarity of the kinematic distributions
+
+.. image:: https://raw.githubusercontent.com/clusterking/clusterking/master/readme_assets/three_steps.png
+
 Example
 -------
 

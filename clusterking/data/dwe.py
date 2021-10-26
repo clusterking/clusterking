@@ -57,6 +57,12 @@ class DataWithErrors(Data):
         so you can reload it like any other :class:`~clusterking.data.Data`
         or :class:`~clusterking.data.DFMD` object.
 
+    .. warning::
+        The appendix of our paper mistakenly hinted at the unit of the
+        relative uncertainties being in percent. This is not the case.
+        That means that ``d.add_rel_err_uncorr(0.1)`` adds a 10% relative
+        uncertainty, not 0.1%.
+
     Args:
         data: n x nbins matrix
     """
@@ -336,6 +342,7 @@ class DataWithErrors(Data):
     def add_rel_err_corr(self, err, corr) -> None:
         """
         Add error from relative errors and correlation matrix.
+        ``err=0.1`` means 10% uncertainty.
 
         Args:
             err: see argument of :py:meth:`.add_err_corr`
@@ -347,7 +354,7 @@ class DataWithErrors(Data):
 
     def add_rel_err_uncorr(self, err) -> None:
         """
-        Add uncorrelated relative error.
+        Add uncorrelated relative uncertainty. ``err=0.1`` means 10% uncertainty.
 
         Args:
             err: see argument of
@@ -359,7 +366,8 @@ class DataWithErrors(Data):
 
     def add_rel_err_maxcorr(self, err) -> None:
         """
-        Add maximally correlated relative error.
+        Add maximally correlated relative error. ``err=0.1`` means 10%
+        uncertainty.
 
         Args:
             err: see argument of :py:meth:`.add_err_corr`

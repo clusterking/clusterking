@@ -150,9 +150,9 @@ class TestScanner(MyTestCase):
         unmodified_spoints = copy.copy(s.spoints)
         # Note: sigma = 0. results in an error in some versions, so we choose
         # a very small value instead.
-        s.add_spoints_noise("gauss", mean=0.0, sigma=10 ** -10)
+        s.add_spoints_noise("gauss", mean=0.0, sigma=10**-10)
         self.assertAllClose(unmodified_spoints, s.spoints)
-        s.add_spoints_noise("gauss", mean=1.0, sigma=10 ** -10)
+        s.add_spoints_noise("gauss", mean=1.0, sigma=10**-10)
         self.assertAllClose(unmodified_spoints + 1, s.spoints)
 
 

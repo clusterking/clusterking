@@ -14,7 +14,7 @@ Ytau = 1.776 / v
 
 def dGEl(bm, el):
     w = Wilson(
-        wcdict={"CSR_bctaunutau": -sqrt(2) * Yb * Ytau / 4 / p["GF"] * bm ** 2},
+        wcdict={"CSR_bctaunutau": -sqrt(2) * Yb * Ytau / 4 / p["GF"] * bm**2},
         scale=5,
         eft="WET",
         basis="flavio",

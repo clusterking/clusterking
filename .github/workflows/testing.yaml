@@ -30,13 +30,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: pytest --cov=clusterking
-    - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
-      if: ${{ matrix.os  == 'ubuntu-latest' && matrix.python-version == 3.8 }}
-
-  coveralls_finish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3.1.1

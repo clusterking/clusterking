@@ -60,6 +60,12 @@ install_requires = [
 
 extras_require = {
     "plotting": ["matplotlib"],
+    "testing": [
+        "pytest>=4.4.0",
+        "pytest-subtests",
+        "pytest-cov",
+        "coveralls",
+    ],
     "dev": [
         "pytest>=4.4.0",
         "pytest-subtests",

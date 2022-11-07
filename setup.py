@@ -51,7 +51,7 @@ install_requires = [
     "numpy",
     "scipy",
     "gitpython",
-    "sklearn",
+    "scikit-learn",
     "colorlog",
     "wilson != 2.2",
     "tqdm",

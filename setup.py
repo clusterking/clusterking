@@ -65,6 +65,7 @@ extras_require = {
         "pytest-subtests",
         "pytest-cov",
         "coveralls",
+        "nbconvert",
     ],
     "dev": [
         "pytest>=4.4.0",

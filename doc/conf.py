@@ -65,7 +65,7 @@ intersphinx_mapping = {
     "sklearn": (
         "http://scikit-learn.org/stable",
         (None, "./_intersphinx/sklearn-objects.inv"),
-    )
+    ),
     # 'wilson': ('https://wilson-eft.github.io/wilson/', None)
 }
 

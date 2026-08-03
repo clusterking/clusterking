@@ -2,7 +2,6 @@
 
 import pathlib
 
-
 file_stub = """#!/usr/bin/python3
 
 \"\"\" Automatically generated file. All changes will be lost.

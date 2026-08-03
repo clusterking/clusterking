@@ -13,7 +13,6 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 try:
     plt.style.use("myscience")
 except FileNotFoundError:

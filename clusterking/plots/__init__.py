@@ -21,6 +21,7 @@ Implementation of different plots.
     advertised above.
 
 """
+
 from clusterking.util.matplotlib_utils import import_matplotlib
 
 import_matplotlib()

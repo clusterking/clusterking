@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" This subpackage provides classes to perform the actual clustering.
+"""This subpackage provides classes to perform the actual clustering.
 
 Different clustering algorithms correspond to different subclasses of the
 base class :class:`clusterking.cluster.Cluster` (and inherit all of its

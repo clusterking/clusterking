@@ -12,7 +12,6 @@ import scipy.spatial
 # ours
 from clusterking.maths.metric import chi2
 
-
 _metrics_to_test = [
     partial(chi2, normalize=False),
     partial(chi2, normalize=True),

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" This module contains worker classes that select representative sample points
+"""This module contains worker classes that select representative sample points
 for each cluster ("benchmark points").
 """
 

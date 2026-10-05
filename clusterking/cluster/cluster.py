@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-"""Read the results from scan.py and get_clusters them.
-"""
+"""Read the results from scan.py and get_clusters them."""
 
 # std
 import time

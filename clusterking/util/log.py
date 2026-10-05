@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Defines an easy function to set up a logger. """
+"""Defines an easy function to set up a logger."""
 
 import logging
 import os

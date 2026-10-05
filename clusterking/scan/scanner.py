@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-""" Scans the NP parameter space in a grid and also q2, producing the
-normalized q2 distribution. """
+"""Scans the NP parameter space in a grid and also q2, producing the
+normalized q2 distribution."""
 
 # std
 import functools

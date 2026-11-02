@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import scipy.stats
 import numpy as np
 
-
 try:
     plt.style.use("myscience")
 except FileNotFoundError:

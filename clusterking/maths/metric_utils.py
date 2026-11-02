@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" This additional file is needed to avoid circular imports, because metric.py
+"""This additional file is needed to avoid circular imports, because metric.py
 has dependencies on the DWE class.
 """
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Miscellaneous utilities """
+"""Miscellaneous utilities"""
 
 # std
 import collections

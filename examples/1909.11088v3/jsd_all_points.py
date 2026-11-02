@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" This script takes the output files from ClusterKinG that corresponded to
+"""This script takes the output files from ClusterKinG that corresponded to
 the results shown in the paper and performs toy experiments as described in
 Appendix C of 1909.11088v3.
 

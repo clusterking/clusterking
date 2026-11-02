@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Usage: python3 p_value.py
+"""Usage: python3 p_value.py
 
 Calculates the p value corresponding to the cutoff value for the original
 metric chi^2/N and the metric with correct degrees of freedom
